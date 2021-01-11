@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <!--部门数据-->
       <el-col :span="4" :xs="24">
-        <div class="head-container">
+        <div class="head-container" >
           <el-input
             v-model="deptName"
             placeholder="请输入部门名称"
@@ -13,7 +13,7 @@
             style="margin-bottom: 20px"
           />
         </div>
-        <div class="head-container">
+        <div class="head-container" >
           <el-tree
             :data="deptOptions"
             :props="defaultProps"

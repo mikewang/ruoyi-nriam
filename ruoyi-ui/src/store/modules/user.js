@@ -15,6 +15,9 @@ const user = {
     SET_TOKEN: (state, token) => {
       state.token = token
     },
+    SET_USERID: (state, userId) => {
+      state.userId = userId
+    },
     SET_NAME: (state, name) => {
       state.name = name
     },
@@ -62,6 +65,7 @@ const user = {
           } else {
             commit('SET_ROLES', ['ROLE_DEFAULT'])
           }
+          commit('SET_USERID', user.userId)
           commit('SET_NAME', user.userName)
           commit('SET_NICKNAME', user.nickName)
           commit('SET_AVATAR', avatar)
@@ -71,7 +75,7 @@ const user = {
         })
       })
     },
-    
+
     // 退出系统
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {

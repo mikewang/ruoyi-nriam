@@ -89,7 +89,7 @@
               icon="el-icon-plus"
               size="mini"
               @click="handleAdd"
-              v-hasPermi="['system:user:add']"
+              v-hasPermi="['logis:contract:add']"
             >新增</el-button>
           </el-col>
           <el-col :span="1.5">
@@ -99,7 +99,7 @@
               size="mini"
               :disabled="single"
               @click="handleUpdate"
-              v-hasPermi="['system:user:edit']"
+              v-hasPermi="['logis:contract:edit']"
             >修改</el-button>
           </el-col>
           <el-col :span="1.5">
@@ -109,7 +109,7 @@
               size="mini"
               :disabled="multiple"
               @click="handleDelete"
-              v-hasPermi="['system:user:remove']"
+              v-hasPermi="['logis:contract:remove']"
             >删除</el-button>
           </el-col>
           <el-col :span="1.5">
@@ -118,7 +118,7 @@
               icon="el-icon-download"
               size="mini"
               @click="handleExport"
-              v-hasPermi="['system:user:export']"
+              v-hasPermi="['logis:contract:export']"
             >导出</el-button>
           </el-col>
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -197,8 +197,18 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="合同文件" prop="contractFile">
+          <el-upload action="#" :http-request="requestUpload" :file-list="form.fileList" :before-upload="beforeUpload">
+            <el-button size="small">
+              选择文件
+              <i class="el-icon-upload el-icon--right"></i>
+            </el-button>
+          </el-upload>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="归属部门" prop="deptId">
-              <treeselect v-model="form.deptId" :options="deptOptions" :show-count="true" placeholder="请选择归属部门" />
+              <treeselect v-model="form.deptId" :options="deptOptions" :show-count="true" placeholder="请选择归属部门"  />
             </el-form-item>
           </el-col>
         </el-row>
@@ -316,6 +326,7 @@
       }
     },
     created() {
+      console.log("this.$store.getters.nickName is " + this.$store.getters.realName);
       this.getList();
       this.getTreeselect();
       this.getDicts("sys_normal_disable").then(response => {
@@ -407,6 +418,8 @@
       handleAdd() {
         this.reset();
         this.getTreeselect();
+        this.form.userId = this.$store.getters.userId;
+        this.form.realName = this.$store.getters.nickName;
         this.open = true;
         this.title = "添加合同";
       },
@@ -415,8 +428,10 @@
         this.reset();
         this.getTreeselect();
         const contractId = row.contractId || this.ids
-        getConfig(contractId).then(response => {
+        getContract(contractId).then(response => {
+          console.log(response.data);
           this.form = response.data;
+          console.log("this.form is ", this.form);
           this.open = true;
           this.title = "修改合同";
         });
@@ -425,7 +440,7 @@
       submitForm: function() {
         this.$refs["form"].validate(valid => {
           if (valid) {
-            if (this.form.constractId !== undefined) {
+            if (this.form.contractId !== undefined) {
               updateContract(this.form).then(response => {
                 this.msgSuccess("修改成功");
                 this.open = false;
@@ -443,7 +458,7 @@
       },
       /** 删除按钮操作 */
       handleDelete(row) {
-        const contractIds = row.constractId || this.ids;
+        const contractIds = row.contractId || this.ids;
         this.$confirm('是否确认删除合同编号为"' + contractIds + '"的数据项?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",

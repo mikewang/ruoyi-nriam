@@ -20,6 +20,7 @@ export function getContract(contractId) {
 
 // 新增合同
 export function addContract(data) {
+  console.log(data);
   return request({
     url: '/logis/contract',
     method: 'post',

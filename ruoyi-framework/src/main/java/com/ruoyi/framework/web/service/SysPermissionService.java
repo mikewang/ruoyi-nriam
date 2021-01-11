@@ -60,6 +60,7 @@ public class SysPermissionService
         else
         {
             perms.addAll(menuService.selectMenuPermsByUserId(user.getUserId()));
+            System.out.print("selectMenuPermsByUserId is " + perms);
         }
         return perms;
     }

@@ -11,9 +11,7 @@ export default {
   data() {
     return {
       // 版本号
-      version: "3.3.0",
-
-
+      version: "3.3.0"
     };
   },
   methods: {

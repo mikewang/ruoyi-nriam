@@ -21,13 +21,28 @@ public class LogisContractService {
 
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<LogisContract> selectLogisContractList(LogisContract logisContract) {
-        return logisContractMapper.selectAll();
+        return logisContractMapper.selectLogisContractList(logisContract);
+    }
+
+    public LogisContract selectLogisContractById(Long contractId) {
+        return logisContractMapper.selectLogisContractById(contractId);
     }
 
     @Transactional
     public int insertLogisContract(LogisContract logisContract) {
+        // 新增信息
+        int rows = logisContractMapper.insertLogisContract(logisContract);
+//        // 新增用户岗位关联
+//        insertUserPost(user);
+//        // 新增用户与角色管理
+//        insertUserRole(user);
+        return rows;
+    }
+
+    @Transactional
+    public int updateLogisContract(LogisContract logisContract) {
         // 新增用户信息
-        int rows = logisContractMapper.insert(logisContract);
+        int rows = logisContractMapper.updateLogisContract(logisContract);
 //        // 新增用户岗位关联
 //        insertUserPost(user);
 //        // 新增用户与角色管理
