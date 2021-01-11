@@ -1,6 +1,10 @@
 package com.ruoyi.logis.domain;
 
+import com.ruoyi.system.domain.vo.RouterVo;
+
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public class LogisContract {
 
@@ -22,6 +26,8 @@ public class LogisContract {
     private String status;
 
     private Date created;
+
+    public List<java.util.HashMap> fileList;
 
     public Long getContractId() {
         return contractId;

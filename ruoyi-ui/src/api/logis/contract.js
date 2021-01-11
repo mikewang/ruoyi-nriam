@@ -61,3 +61,12 @@ export function exportContract(query) {
     params: query
   })
 }
+
+// 文件上传
+export function uploadFile(data) {
+  return request({
+    url: '/logis/contract/upload',
+    method: 'post',
+    data: data
+  })
+}

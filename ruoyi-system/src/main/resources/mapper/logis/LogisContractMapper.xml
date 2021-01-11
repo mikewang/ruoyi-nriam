@@ -11,15 +11,6 @@
     <result column="created" jdbcType="TIMESTAMP" property="created" />
   </resultMap>
 
-  <resultMap id="BaseResultMap" type="com.ruoyi.logis.domain.BasDoc">
-    <id column="DocID" jdbcType="INTEGER" property="docid" />
-    <result column="DocName" jdbcType="VARCHAR" property="docname" />
-    <result column="RelativePath" jdbcType="VARCHAR" property="relativepath" />
-    <result column="AttachToType" jdbcType="VARCHAR" property="attachtotype" />
-    <result column="RelatedID" jdbcType="INTEGER" property="relatedid" />
-    <result column="DocType" jdbcType="VARCHAR" property="doctype" />
-  </resultMap>
-
   <sql id="selectContractVo">
     select contract_id, user_id, contract_no, contract_name, contract_file, status, created
     from logis_contract

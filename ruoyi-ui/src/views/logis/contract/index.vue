@@ -253,6 +253,8 @@
   import { treeselect } from "@/api/system/dept";
   import Treeselect from "@riophae/vue-treeselect";
   import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+  import {uploadAvatar} from "@/api/system/user";
+  import store from "@/store";
 
   export default {
     name: "Contract",
@@ -393,7 +395,8 @@
           deptId: undefined,
           realName: undefined,
           status: "0",
-          created: undefined
+          created: undefined,
+          fileList: undefined
         };
         this.resetForm("form");
       },
@@ -441,6 +444,7 @@
         this.$refs["form"].validate(valid => {
           if (valid) {
             if (this.form.contractId !== undefined) {
+              console.log("submitForm.form is ", this.form);
               updateContract(this.form).then(response => {
                 this.msgSuccess("修改成功");
                 this.open = false;
@@ -482,7 +486,30 @@
         }).then(response => {
           this.download(response.msg);
         })
-      }
+      },
+      beforeUpload() {
+
+      },
+      requestUpload: function (params) {
+         var file = params.file,
+          fileType = file.type;
+         console.log(file);
+
+        },
+      // 上传文件
+      uploadContractFile() {
+        this.$refs.cropper.getCropBlob(data => {
+          let formData = new FormData();
+          formData.append("docfile", data);
+          uploadFile(formData).then(response => {
+            this.open = false;
+            this.options.img = process.env.VUE_APP_BASE_API + response.imgUrl;
+            store.commit('SET_AVATAR', this.options.img);
+            this.msgSuccess("修改成功");
+            this.visible = false;
+          });
+        });
+      },
     }
   };
 </script>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper.BasDocMapper">
+<mapper namespace="com.ruoyi.logis.mapper.BasDocMapper">
   <resultMap id="BaseResultMap" type="com.ruoyi.logis.domain.BasDoc">
     <id column="DocID" jdbcType="INTEGER" property="docid" />
     <result column="DocName" jdbcType="VARCHAR" property="docname" />
@@ -9,7 +9,10 @@
     <result column="RelatedID" jdbcType="INTEGER" property="relatedid" />
     <result column="DocType" jdbcType="VARCHAR" property="doctype" />
   </resultMap>
-
+  <sql id="selectBasDocVo">
+    select DocID, DocName, RelativePath, AttachToType, RelatedID, DocType
+    from BAS_Doc
+  </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select DocID, DocName, RelativePath, AttachToType, RelatedID, DocType
     from BAS_Doc
@@ -17,15 +20,23 @@
   </select>
 
   <select id="selectAll" resultMap="BaseResultMap">
-    select DocID, DocName, RelativePath, AttachToType, RelatedID, DocType
-    from BAS_Doc
+    <include refid="selectBasDocVo"/>
+  </select>
+
+  <select id="selectByIds" parameterType="List" resultMap="BaseResultMap">
+    <include refid="selectBasDocVo"/>
+    WHERE 1=1 and DocID  in
+    <foreach  item ="item" index="index"  collection="list" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    ORDER BY DocID
   </select>
 
   <insert id="insert" parameterType="com.ruoyi.logis.domain.BasDoc">
-    insert into BAS_Doc (DocID, DocName, RelativePath,
+    insert into BAS_Doc (DocName, RelativePath,
       AttachToType, RelatedID, DocType
       )
-    values (#{docid,jdbcType=INTEGER}, #{docname,jdbcType=VARCHAR}, #{relativepath,jdbcType=VARCHAR}, 
+    values ( #{docname,jdbcType=VARCHAR}, #{relativepath,jdbcType=VARCHAR},
       #{attachtotype,jdbcType=VARCHAR}, #{relatedid,jdbcType=INTEGER}, #{doctype,jdbcType=VARCHAR}
       )
   </insert>

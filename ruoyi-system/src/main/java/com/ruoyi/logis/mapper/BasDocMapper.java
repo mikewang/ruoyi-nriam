@@ -6,6 +6,8 @@ import java.util.List;
 public interface BasDocMapper {
 
     BasDoc selectByPrimaryKey(Integer docid);
+    List<BasDoc> selectByIds(List<Integer> ids);
+
 
     List<BasDoc> selectAll();
 
