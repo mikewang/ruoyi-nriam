@@ -15,17 +15,23 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.logis.domain.LogisContract;
 import com.ruoyi.logis.service.LogisContractService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,8 +44,12 @@ public class LogisContractController extends BaseController
     @Resource
     private LogisContractService logisContractService;
 
+
     @Resource
     private TokenService tokenService;
+
+    @Resource
+    private ServerConfig serverConfig;
 
     @PreAuthorize("@ss.hasPermi('logis:contract:list')")
     @GetMapping("/list")
@@ -116,23 +126,55 @@ public class LogisContractController extends BaseController
      */
     @Log(title = "合同文件上传", businessType = BusinessType.UPDATE)
     @PostMapping("/upload")
-    public AjaxResult upload(@RequestParam("docfile") MultipartFile file) throws IOException
+    public AjaxResult upload(@RequestParam("file") MultipartFile file) throws IOException
     {
-        if (!file.isEmpty())
+        logger.debug("file getOriginalFilename is " + file.getOriginalFilename());
+        try
         {
             LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-            String filepath = FileUploadUtils.upload(RuoYiConfig.getUploadPath(), file);
-//            if (userService.updateUserAvatar(loginUser.getUsername(), avatar))
-//            {
-//                AjaxResult ajax = AjaxResult.success();
-//                ajax.put("imgUrl", avatar);
-//                // 更新缓存用户头像
-//                loginUser.getUser().setAvatar(avatar);
-//                tokenService.setLoginUser(loginUser);
-//                return ajax;
-//            }
+            String originalFilename = file.getOriginalFilename();
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath() + "/contract";
+            // 上传并返回新文件名称
+            String fileName = FileUploadUtils.uploadOriginalFile(filePath, file);
+            String url = serverConfig.getUrl() + fileName;
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("name", originalFilename);
+            ajax.put("url", fileName);
+
+            return ajax;
         }
-        return AjaxResult.error("上传图片异常，请联系管理员");
+        catch (Exception e)
+        {
+            return AjaxResult.error(e.getMessage() + " 上传文件异常，请联系管理员");
+        }
+    }
+
+    /**
+     * 合同文件下载
+     */
+    @Log(title = "合同文件下载", businessType = BusinessType.EXPORT)
+    @GetMapping("/download")
+    public void download(@RequestParam("file") String file, HttpServletResponse response, HttpServletRequest request) throws IOException
+    {
+        try
+        {
+            if (!FileUtils.checkAllowDownload(file))
+            {
+                throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", file));
+            }
+            String realFileName = System.currentTimeMillis() + file.substring(file.indexOf("_") + 1);
+            String filePath = RuoYiConfig.getDownloadPath() + file;
+
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            FileUtils.setAttachmentResponseHeader(response, realFileName);
+            FileUtils.writeBytes(filePath, response.getOutputStream());
+
+        }
+        catch (Exception e)
+        {
+            logger.error("下载文件失败", e);
+        }
     }
 
     /**

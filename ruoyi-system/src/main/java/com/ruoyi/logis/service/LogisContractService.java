@@ -2,6 +2,8 @@ package com.ruoyi.logis.service;
 
 import com.ruoyi.common.annotation.DataScope;
 
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.logis.domain.BasDoc;
 import com.ruoyi.logis.domain.LogisContract;
 import com.ruoyi.logis.mapper.BasDocMapper;
@@ -63,12 +65,41 @@ public class LogisContractService {
 
     @Transactional
     public int updateLogisContract(LogisContract logisContract) {
-        // 新增用户信息
+        // 更新合同信息
+
+        Integer[] myList = new Integer[logisContract.fileList.size()];
+
+        for (int i=0; i < logisContract.fileList.size(); i++) {
+            HashMap item = logisContract.fileList.get(i);
+            if  (item.get("id") == null) {
+                String url = item.get("url").toString();
+                String name = item.get("name").toString();
+
+                String RelativePath = StringUtils.trimend(url,name);
+
+                BasDoc doc = new BasDoc();
+                doc.setDocname(name);
+                doc.setRelativepath(RelativePath);
+
+                int docId = basDocMapper.insert(doc);
+
+                myList[i] = doc.getDocid();
+
+                log.debug("new item file upload. ** " + String.valueOf(doc.getDocid()) + " ** ="  + url );
+            }
+            else {
+                log.debug("update item file upload." + item.get("name") + item.get("url"));
+                myList[i] = (Integer) item.get("id");
+            }
+        }
+        String contractFile = StringUtils.joinWith(",",myList);
+
+        log.debug("contractFile is " + contractFile);
+
+        logisContract.setContractFile(contractFile);
+
         int rows = logisContractMapper.updateLogisContract(logisContract);
-//        // 新增用户岗位关联
-//        insertUserPost(user);
-//        // 新增用户与角色管理
-//        insertUserRole(user);
+
         return rows;
     }
 
@@ -92,6 +123,7 @@ public class LogisContractService {
 
             for(BasDoc doc : basDocList) {
                 HashMap fileMap = new HashMap();
+                fileMap.put("id",doc.getDocid());
                 fileMap.put("name",doc.getDocname());
                 fileMap.put("url",doc.getUrl());
                 fileList.add(fileMap);

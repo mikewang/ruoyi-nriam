@@ -45,6 +45,35 @@ public class FileUploadUtils
         return defaultBaseDir;
     }
 
+
+    public static final String uploadOriginalFile(String baseDir, MultipartFile file) throws IOException
+    {
+        try
+        {
+            String [] allowedExtension = MimeTypeUtils.DEFAULT_ALLOWED_EXTENSION;
+
+            int fileNamelength = file.getOriginalFilename().length();
+
+            if (fileNamelength > FileUploadUtils.DEFAULT_FILE_NAME_LENGTH)
+            {
+                throw new FileNameLengthLimitExceededException(FileUploadUtils.DEFAULT_FILE_NAME_LENGTH);
+            }
+
+            assertAllowed(file, allowedExtension);
+
+            String fileName = file.getOriginalFilename();
+
+            File desc = getAbsoluteFile(baseDir, fileName);
+            file.transferTo(desc);
+            String pathFileName = getPathFileName(baseDir, fileName);
+            return pathFileName;
+        }
+        catch (Exception e)
+        {
+            throw new IOException(e.getMessage(), e);
+        }
+    }
+
     /**
      * 以默认配置进行文件上传
      *

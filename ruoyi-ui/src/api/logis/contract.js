@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+/*导入的是 export default 组件，名称为service, 它在一个request.js文件中必须唯一。 */
 import { praseStrEmpty } from "@/utils/ruoyi";
 
 // 查询合同
@@ -20,7 +21,6 @@ export function getContract(contractId) {
 
 // 新增合同
 export function addContract(data) {
-  console.log(data);
   return request({
     url: '/logis/contract',
     method: 'post',
@@ -63,10 +63,23 @@ export function exportContract(query) {
 }
 
 // 文件上传
-export function uploadFile(data) {
+export function uploadContractFile(data) {
   return request({
+    headers: {'Content-Type':'multipart/form-data'},
     url: '/logis/contract/upload',
     method: 'post',
     data: data
+  })
+}
+
+// 文件下载
+export function downloadContractFile(query) {
+  return request({
+    headers: {Accept: 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
+      withCredentials: true},
+    url: '/logis/contract/download',
+    method: 'get',
+    params: query
   })
 }

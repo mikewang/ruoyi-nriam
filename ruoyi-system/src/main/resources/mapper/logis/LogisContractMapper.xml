@@ -53,7 +53,7 @@
       <if test="userId != null and userId != 0">user_id = #{userId},</if>
       <if test="contractNo != null and contractNo != ''">contract_no = #{contractNo},</if>
       <if test="contractName != null and contractName != ''">contract_name = #{contractName},</if>
-      <if test="contractFile != null and contractFile != ''">contract_file = #{contractFile},</if>
+      <if test="contractFile != null ">contract_file = #{contractFile},</if>
       <if test="status != null and status != ''">status = #{status},</if>
       <if test="created != null ">created = #{created,jdbcType=TIMESTAMP},</if>
     </set>

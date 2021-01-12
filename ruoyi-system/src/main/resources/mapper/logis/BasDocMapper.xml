@@ -32,13 +32,10 @@
     ORDER BY DocID
   </select>
 
-  <insert id="insert" parameterType="com.ruoyi.logis.domain.BasDoc">
-    insert into BAS_Doc (DocName, RelativePath,
-      AttachToType, RelatedID, DocType
-      )
+  <insert id="insert" parameterType="com.ruoyi.logis.domain.BasDoc" useGeneratedKeys="true" keyProperty="docid" keyColumn="DocID">
+    insert into BAS_Doc (DocName, RelativePath, AttachToType, RelatedID, DocType)
     values ( #{docname,jdbcType=VARCHAR}, #{relativepath,jdbcType=VARCHAR},
-      #{attachtotype,jdbcType=VARCHAR}, #{relatedid,jdbcType=INTEGER}, #{doctype,jdbcType=VARCHAR}
-      )
+            #{attachtotype,jdbcType=VARCHAR}, #{relatedid,jdbcType=INTEGER}, #{doctype,jdbcType=VARCHAR})
   </insert>
 
   <update id="updateByPrimaryKey" parameterType="com.ruoyi.logis.domain.BasDoc">
