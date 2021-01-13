@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.List;
@@ -164,32 +165,38 @@ public class LogisContractController extends BaseController
         try
         {
             logger.debug(resource);
+
+//            resource = "/profile/upload/contract/upload.txt";
+
             if (!FileUtils.checkAllowDownload(resource))
             {
                 throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));
             }
             // 本地资源路径
             String localPath = RuoYiConfig.getProfile();
-
-//            File file = new File();
-//            Files.copy(file.toPath(), response.getOutputStream());
-//            String mimeType = URLConnection.guessContentTypeFromName(file.getName());
-//            String contentDisposition = String.format("attachment; filename=%s", file.getName());
-//            int fileSize = Long.valueOf(file.length()).intValue();
-//
-//            response.setContentType(mimeType);
-//            response.setHeader("Content-Disposition", contentDisposition);
-//            response.setContentLength(fileSize);
-
+            logger.debug("localPath is " + localPath);
 
             // 数据库资源地址
             String downloadPath = localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);
-            // 下载名称
+            logger.debug("downloadPath is " + downloadPath);
+
+            File file = new File(downloadPath);
+//            Files.copy(file.toPath(), response.getOutputStream());
+            String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+//            String contentDisposition = String.format("attachment; filename=%s", file.getName());
+//            int fileSize = Long.valueOf(file.length()).intValue();
+//            response.setContentType(mimeType);
+////            response.setHeader("Content-Disposition", contentDisposition);
+////            response.setContentLength(fileSize);
+//
+//            logger.debug("downloadPath fileSize is " + Long.valueOf(file.length()).toString());
+
+//            // 下载名称
             String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            response.setContentType(mimeType);
             FileUtils.setAttachmentResponseHeader(response, downloadName);
             FileUtils.writeBytes(downloadPath, response.getOutputStream());
-            logger.debug("downloadName is ", downloadName);
+
 
         }
         catch (Exception e)

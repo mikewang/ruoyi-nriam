@@ -75,9 +75,6 @@ export function uploadContractFile(data) {
 // 文件下载
 export function downloadContractFile(query) {
   return request({
-    headers: {Accept: 'application/json',
-      'Content-Type': 'application/json; charset=utf-8',
-      withCredentials: true},
     url: '/logis/contract/download',
     method: 'get',
     responseType: 'blob',

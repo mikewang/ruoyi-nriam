@@ -551,17 +551,26 @@ export default {
 
       console.log("handleUploadPreview is ", file.url);
 
+      // window.open('http://127.0.0.1:80/logis/contract/download' + "?file=" + file.url);
+
       downloadContractFile({"file": file.url}).then(response => {
 
-        var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+        // var blob = new Blob([response], { type: 'multipart/form-data' });
+        // var fileURL = window.URL.createObjectURL(blob);
+
+        var fileURL = window.URL.createObjectURL(new Blob([response]));
         var fileLink = document.createElement('a');
+
+        console.log("response.data is ", response);
 
         fileLink.href = fileURL;
         fileLink.setAttribute('download', file.name);
         document.body.appendChild(fileLink);
 
         fileLink.click();
-      });
+        URL.revokeObjectURL(fileURL);
+
+      }).catch(console.error);
 
 
     }
