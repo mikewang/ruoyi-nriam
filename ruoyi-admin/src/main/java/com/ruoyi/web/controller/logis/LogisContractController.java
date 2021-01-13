@@ -160,6 +160,7 @@ public class LogisContractController extends BaseController
     {
         try
         {
+            logger.debug(resource);
             if (!FileUtils.checkAllowDownload(resource))
             {
                 throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));
@@ -173,6 +174,8 @@ public class LogisContractController extends BaseController
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             FileUtils.setAttachmentResponseHeader(response, downloadName);
             FileUtils.writeBytes(downloadPath, response.getOutputStream());
+            logger.debug("downloadPath is ", downloadPath);
+
         }
         catch (Exception e)
         {

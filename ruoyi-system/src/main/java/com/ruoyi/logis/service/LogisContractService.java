@@ -76,6 +76,7 @@ public class LogisContractService {
                 String name = item.get("name").toString();
 
                 String RelativePath = StringUtils.trimend(url,name);
+                RelativePath = StringUtils.trimend(RelativePath, "/");
 
                 BasDoc doc = new BasDoc();
                 doc.setDocname(name);
