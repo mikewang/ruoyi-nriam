@@ -2,6 +2,7 @@ package com.ruoyi.web.controller.logis;
 
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -155,21 +156,23 @@ public class LogisContractController extends BaseController
      */
     @Log(title = "合同文件下载", businessType = BusinessType.EXPORT)
     @GetMapping("/download")
-    public void download(@RequestParam("file") String file, HttpServletResponse response, HttpServletRequest request) throws IOException
+    public void download(@RequestParam("file") String resource, HttpServletResponse response, HttpServletRequest request) throws IOException
     {
         try
         {
-            if (!FileUtils.checkAllowDownload(file))
+            if (!FileUtils.checkAllowDownload(resource))
             {
-                throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", file));
+                throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));
             }
-            String realFileName = System.currentTimeMillis() + file.substring(file.indexOf("_") + 1);
-            String filePath = RuoYiConfig.getDownloadPath() + file;
-
+            // 本地资源路径
+            String localPath = RuoYiConfig.getProfile();
+            // 数据库资源地址
+            String downloadPath = localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);
+            // 下载名称
+            String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            FileUtils.setAttachmentResponseHeader(response, realFileName);
-            FileUtils.writeBytes(filePath, response.getOutputStream());
-
+            FileUtils.setAttachmentResponseHeader(response, downloadName);
+            FileUtils.writeBytes(downloadPath, response.getOutputStream());
         }
         catch (Exception e)
         {
