@@ -80,6 +80,7 @@ export function downloadContractFile(query) {
       withCredentials: true},
     url: '/logis/contract/download',
     method: 'get',
+    responseType: 'blob',
     params: query
   })
 }

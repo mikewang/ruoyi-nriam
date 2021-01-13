@@ -33,7 +33,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -167,6 +170,18 @@ public class LogisContractController extends BaseController
             }
             // 本地资源路径
             String localPath = RuoYiConfig.getProfile();
+
+//            File file = new File();
+//            Files.copy(file.toPath(), response.getOutputStream());
+//            String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+//            String contentDisposition = String.format("attachment; filename=%s", file.getName());
+//            int fileSize = Long.valueOf(file.length()).intValue();
+//
+//            response.setContentType(mimeType);
+//            response.setHeader("Content-Disposition", contentDisposition);
+//            response.setContentLength(fileSize);
+
+
             // 数据库资源地址
             String downloadPath = localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);
             // 下载名称
@@ -174,7 +189,7 @@ public class LogisContractController extends BaseController
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             FileUtils.setAttachmentResponseHeader(response, downloadName);
             FileUtils.writeBytes(downloadPath, response.getOutputStream());
-            logger.debug("downloadPath is ", downloadPath);
+            logger.debug("downloadName is ", downloadName);
 
         }
         catch (Exception e)
