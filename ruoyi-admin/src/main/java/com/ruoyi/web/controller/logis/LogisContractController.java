@@ -129,6 +129,7 @@ public class LogisContractController extends BaseController
     /**
      * 合同文件上传
      */
+    @PreAuthorize("@ss.hasPermi('logis:contract:edit')")
     @Log(title = "合同文件上传", businessType = BusinessType.UPDATE)
     @PostMapping("/upload")
     public AjaxResult upload(@RequestParam("file") MultipartFile file) throws IOException
@@ -158,6 +159,7 @@ public class LogisContractController extends BaseController
     /**
      * 合同文件下载
      */
+    @PreAuthorize("@ss.hasPermi('logis:contract:edit')")
     @Log(title = "合同文件下载", businessType = BusinessType.EXPORT)
     @GetMapping("/download")
     public void download(@RequestParam("file") String resource, HttpServletResponse response, HttpServletRequest request) throws IOException
@@ -165,8 +167,6 @@ public class LogisContractController extends BaseController
         try
         {
             logger.debug(resource);
-
-//            resource = "/profile/upload/contract/upload.txt";
 
             if (!FileUtils.checkAllowDownload(resource))
             {
@@ -180,20 +180,20 @@ public class LogisContractController extends BaseController
             String downloadPath = localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);
             logger.debug("downloadPath is " + downloadPath);
 
-            File file = new File(downloadPath);
+//            File file = new File(downloadPath);
 //            Files.copy(file.toPath(), response.getOutputStream());
-            String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+//            String mimeType = URLConnection.guessContentTypeFromName(file.getName());
 //            String contentDisposition = String.format("attachment; filename=%s", file.getName());
 //            int fileSize = Long.valueOf(file.length()).intValue();
 //            response.setContentType(mimeType);
-////            response.setHeader("Content-Disposition", contentDisposition);
-////            response.setContentLength(fileSize);
+//            response.setHeader("Content-Disposition", contentDisposition);
+//            response.setContentLength(fileSize);
 //
 //            logger.debug("downloadPath fileSize is " + Long.valueOf(file.length()).toString());
 
-//            // 下载名称
+            // 下载名称
             String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
-            response.setContentType(mimeType);
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             FileUtils.setAttachmentResponseHeader(response, downloadName);
             FileUtils.writeBytes(downloadPath, response.getOutputStream());
 
