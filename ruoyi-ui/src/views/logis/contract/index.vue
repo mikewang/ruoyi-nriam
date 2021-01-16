@@ -343,7 +343,7 @@ export default {
     }
   },
   created() {
-    console.log("this.$store.getters.nickName is " + this.$store.getters.realName);
+    console.log("this.$store.getters.realName is " + this.$store.getters.realName);
     this.getList();
     this.getTreeselect();
     this.getDicts("sys_normal_disable").then(response => {
@@ -437,7 +437,7 @@ export default {
       this.reset();
       this.getTreeselect();
       this.form.userId = this.$store.getters.userId;
-      this.form.realName = this.$store.getters.nickName;
+      this.form.realName = this.$store.getters.realName;
       this.open = true;
       this.title = "添加合同";
     },

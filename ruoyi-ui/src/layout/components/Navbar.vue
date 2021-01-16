@@ -21,7 +21,7 @@
         </el-tooltip>
 
         <!--<el-tooltip content="姓名" effect="dark" placement="bottom">-->
-          <!--<label class="user-realname">{{ nickName }}</label>-->
+          <!--<label class="user-realname">{{ realName }}</label>-->
         <!--</el-tooltip>-->
 
       </template>
@@ -29,7 +29,7 @@
       <el-dropdown class="realname-container right-menu-item hover-effect" trigger="click">
         <div class="realname-wrapper">
           <!--<img :src="avatar" class="user-avatar">-->
-          <label class="user-realname">{{ nickName }}</label>
+          <label class="user-realname">{{ realName }}</label>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -72,7 +72,7 @@ export default {
     ...mapGetters([
       'sidebar',
       'avatar',
-      'nickName',
+      'realName',
       'device'
     ]),
     setting: {

@@ -49,7 +49,7 @@
       <el-table-column prop="deptName" label="部门名称" width="300"></el-table-column>
       <el-table-column prop="deptLevel" label="部门级别" width="100"></el-table-column>
       <el-table-column prop="leader" label="负责人" width="150"></el-table-column>
-      <el-table-column prop="memo" label="说明" width="350"></el-table-column>
+      <el-table-column prop="memo" label="说明" width="150"></el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
