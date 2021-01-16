@@ -13,7 +13,7 @@
         <result column="IfProcessed" jdbcType="BIT" property="ifprocessed"/>
     </resultMap>
 
-    <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select MessageID,
                MessageTitle,
                MessageContent,
@@ -21,10 +21,61 @@
                ToUserID,
                RelatedSheetType,
                RelatedSheetID,
-               ProcessedTime
+               ProcessedTime,
+               IfProcessed
+        from Aud_Message
+        where MessageID = #{messageid,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select MessageID,
+               MessageTitle,
+               MessageContent,
+               MessageTime,
+               ToUserID,
+               RelatedSheetType,
+               RelatedSheetID,
+               ProcessedTime,
+               IfProcessed
         from Aud_Message
         where IfProcessed = 0
           and ToUserID = #{userId}
         order by MessageTime desc
     </select>
+
+    <insert id="insert" parameterType="AudMessage">
+
+        insert into Aud_Message (MessageID, MessageTitle, MessageContent,
+                                 MessageTime, ToUserID, RelatedSheetType,
+                                 RelatedSheetID, ProcessedTime, IfProcessed)
+        values (#{messageid,jdbcType=INTEGER}, #{messagetitle,jdbcType=VARCHAR}, #{messagecontent,jdbcType=VARCHAR},
+                #{messagetime,jdbcType=VARCHAR}, #{touserid,jdbcType=INTEGER}, #{relatedsheettype,jdbcType=VARCHAR},
+                #{relatedsheetid,jdbcType=INTEGER}, #{processedtime,jdbcType=VARCHAR}, #{ifprocessed,jdbcType=BIT})
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="AudMessage">
+
+        update Aud_Message
+        set MessageTitle     = #{messagetitle,jdbcType=VARCHAR},
+            MessageContent   = #{messagecontent,jdbcType=VARCHAR},
+            MessageTime      = #{messagetime,jdbcType=VARCHAR},
+            ToUserID         = #{touserid,jdbcType=INTEGER},
+            RelatedSheetType = #{relatedsheettype,jdbcType=VARCHAR},
+            RelatedSheetID   = #{relatedsheetid,jdbcType=INTEGER},
+            ProcessedTime    = #{processedtime,jdbcType=VARCHAR},
+            IfProcessed      = #{ifprocessed,jdbcType=BIT}
+        where MessageID = #{messageid,jdbcType=INTEGER}
+    </update>
+    <update id="updateProcessedByIds" parameterType="List">
+        update Aud_Message
+        set
+        ProcessedTime = getdate(),
+        IfProcessed =1
+        WHERE MessageID in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
 </mapper>

@@ -5,7 +5,7 @@ const user = {
   state: {
     token: getToken(),
     name: '',
-    nickName: '',
+    realName: '',
     avatar: '',
     roles: [],
     permissions: []
@@ -21,8 +21,8 @@ const user = {
     SET_NAME: (state, name) => {
       state.name = name
     },
-    SET_NICKNAME: (state, nickName) => {
-      state.nickName = nickName
+    SET_REALNAME: (state, realName) => {
+      state.realName = realName
     },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
@@ -67,7 +67,7 @@ const user = {
           }
           commit('SET_USERID', user.userId)
           commit('SET_NAME', user.userName)
-          commit('SET_NICKNAME', user.nickName)
+          commit('SET_REALNAME', user.realName)
           commit('SET_AVATAR', avatar)
           resolve(res)
         }).catch(error => {

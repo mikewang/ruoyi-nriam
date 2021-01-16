@@ -1,8 +1,8 @@
 <template>
   <el-form ref="form" :model="user" :rules="rules" label-width="80px">
-    <el-form-item label="用户昵称" prop="nickName">
-      <el-input v-model="user.nickName" />
-    </el-form-item> 
+    <el-form-item label="用户姓名" prop="realName">
+      <el-input v-model="user.realName" />
+    </el-form-item>
     <el-form-item label="手机号码" prop="phonenumber">
       <el-input v-model="user.phonenumber" maxlength="11" />
     </el-form-item>
@@ -36,8 +36,8 @@ export default {
     return {
       // 表单校验
       rules: {
-        nickName: [
-          { required: true, message: "用户昵称不能为空", trigger: "blur" }
+        SET_REALNAME: [
+          { required: true, message: "用户姓名不能为空", trigger: "blur" }
         ],
         email: [
           { required: true, message: "邮箱地址不能为空", trigger: "blur" },
@@ -63,8 +63,8 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           updateUserProfile(this.user).then(response => {
-            if (store.getters.nickName != this.user.nickName ) {
-              store.commit('SET_NICKNAME', this.user.nickName);
+            if (store.getters.realName != this.user.realName ) {
+              store.commit('SET_REALNAME', this.user.realName);
             }
             this.msgSuccess("修改成功");
           });

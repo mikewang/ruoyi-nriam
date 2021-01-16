@@ -43,7 +43,7 @@ public class PermissionService
             return false;
         }
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-        System.out.println("loginUser is " + loginUser.getUser().toString() + " \n permission is " + permission);
+//        System.out.println("loginUser is " + loginUser.getUser().toString() + " \n permission is " + permission);
         if (StringUtils.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getPermissions()))
         {
             return false;

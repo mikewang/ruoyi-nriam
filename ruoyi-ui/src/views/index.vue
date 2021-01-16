@@ -7,44 +7,13 @@
             <el-row :gutter="10" class="mb8">
               <el-col :span="1.5">
                 <el-button
-                  type="primary"
-                  icon="el-icon-plus"
-                  size="mini"
-                  @click="handleAdd"
-                  v-hasPermi="['logis:contract:add']"
-                >新增
-                </el-button>
-              </el-col>
-              <el-col :span="1.5">
-                <el-button
-                  type="success"
+                  type="danger"
                   icon="el-icon-edit"
                   size="mini"
-                  :disabled="single"
-                  @click="handleUpdate"
-                  v-hasPermi="['logis:contract:edit']"
-                >修改
-                </el-button>
-              </el-col>
-              <el-col :span="1.5">
-                <el-button
-                  type="danger"
-                  icon="el-icon-delete"
-                  size="mini"
                   :disabled="multiple"
-                  @click="handleDelete"
-                  v-hasPermi="['logis:contract:remove']"
-                >删除
-                </el-button>
-              </el-col>
-              <el-col :span="1.5">
-                <el-button
-                  type="warning"
-                  icon="el-icon-download"
-                  size="mini"
-                  @click="handleExport"
-                  v-hasPermi="['logis:contract:export']"
-                >导出
+                  @click="handleUpdate"
+                  v-hasPermi="['audit:message:edit']"
+                >设置为已读
                 </el-button>
               </el-col>
               <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -52,14 +21,14 @@
 
             <el-table v-loading="loading" :data="messageList" @selection-change="handleSelectionChange">
               <el-table-column type="selection" width="50" align="center"/>
-              <el-table-column label="信息ID" align="center" prop="messageid"/>
-              <el-table-column label="标题" align="center" prop="messagetitle"/>
-              <el-table-column label="内容" align="center" prop="messagecontent" :show-overflow-tooltip="true"/>
-              <el-table-column label="创建时间" align="center" prop="messagetime" width="160">
+              <el-table-column label="时间" align="center" prop="messagetime" width="160">
                 <template slot-scope="scope">
                   <span>{{ parseTime(scope.row.messagetime) }}</span>
                 </template>
               </el-table-column>
+              <el-table-column label="标题" align="center" prop="messagetitle"/>
+              <el-table-column label="内容" align="center" prop="messagecontent" :show-overflow-tooltip="true"/>
+
               <el-table-column
                 label="操作"
                 align="center"
@@ -70,19 +39,17 @@
                   <el-button
                     size="mini"
                     type="text"
-                    icon="el-icon-edit"
-                    @click="handleUpdate(scope.row)"
-                    v-hasPermi="['logis:contract:edit']"
-                  >修改
-                  </el-button>
+                    icon="el-icon-link"
+                    @click="handleLink(scope.row)"
+                    v-hasPermi="['audit:message:link']"
+                  >查看</el-button>
                   <el-button
-                    v-if="scope.row.userId !== 1"
                     size="mini"
                     type="text"
-                    icon="el-icon-delete"
-                    @click="handleDelete(scope.row)"
-                    v-hasPermi="['logis:contract:remove']"
-                  >删除
+                    icon="el-icon-edit"
+                    @click="handleUpdate(scope.row)"
+                    v-hasPermi="['audit:message:edit']"
+                  >设置已读
                   </el-button>
                 </template>
               </el-table-column>
@@ -102,7 +69,7 @@
 
 <script>
 
-import {  listMessage } from "@/api/audit/message";
+import {  listMessage,readMessage } from "@/api/audit/message";
 
 
 export default {
@@ -154,8 +121,34 @@ export default {
           this.loading = false;
         }
       );
-    }
+    },
 
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map(item => item.messageid);
+      this.single = selection.length != 1;
+      this.multiple = !selection.length;
+    },
+
+    /** 设置为已读按钮操作 */
+    handleUpdate(row) {
+      const messageids = row.messageid || this.ids;
+      this.$confirm('是否确认设置已读编号为"' + messageids + '"的数据项?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+        return readMessage(messageids);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("操作成功");
+      })
+    },
+
+    /** 查看消息来源按钮操作 */
+    handleLink(row) {
+      this.msgSuccess("跳转到原文的链接");
+    }
 
   }
 };

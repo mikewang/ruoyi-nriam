@@ -36,9 +36,9 @@ public class SysUser extends BaseEntity
     @Excel(name = "登录名称")
     private String userName;
 
-    /** 用户昵称 */
+    /** 用户姓名 */
     @Excel(name = "用户名称")
-    private String nickName;
+    private String realName;
 
     /** 用户邮箱 */
     @Excel(name = "用户邮箱")
@@ -133,14 +133,14 @@ public class SysUser extends BaseEntity
     }
 
     @Size(min = 0, max = 30, message = "用户昵称长度不能超过30个字符")
-    public String getNickName()
+    public String getRealName()
     {
-        return nickName;
+        return realName;
     }
 
-    public void setNickName(String nickName)
+    public void setRealName(String realName)
     {
-        this.nickName = nickName;
+        this.realName = realName;
     }
 
     @NotBlank(message = "用户账号不能为空")
@@ -306,7 +306,7 @@ public class SysUser extends BaseEntity
             .append("userId", getUserId())
             .append("deptId", getDeptId())
             .append("userName", getUserName())
-            .append("nickName", getNickName())
+            .append("realName", getRealName())
             .append("email", getEmail())
             .append("phonenumber", getPhonenumber())
             .append("sex", getSex())

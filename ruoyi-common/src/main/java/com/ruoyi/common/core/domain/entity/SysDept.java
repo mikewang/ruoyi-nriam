@@ -36,6 +36,16 @@ public class SysDept extends BaseEntity
     /** 负责人 */
     private String leader;
 
+    /** 负责人ID */
+    private Long managerId;
+
+    /** 部门级别 */
+    private Integer deptLevel;
+
+    /** 备注 */
+    private String memo;
+
+
     /** 联系电话 */
     private String phone;
 
@@ -53,6 +63,9 @@ public class SysDept extends BaseEntity
     
     /** 子部门 */
     private List<SysDept> children = new ArrayList<SysDept>();
+
+
+
 
     public Long getDeptId()
     {
@@ -180,23 +193,48 @@ public class SysDept extends BaseEntity
         this.children = children;
     }
 
+    public Long getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(Long managerId) {
+        this.managerId = managerId;
+    }
+
+    public Integer getDeptLevel() {
+        return deptLevel;
+    }
+
+    public void setDeptLevel(Integer deptLevel) {
+        this.deptLevel = deptLevel;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("deptId", getDeptId())
-            .append("parentId", getParentId())
-            .append("ancestors", getAncestors())
-            .append("deptName", getDeptName())
-            .append("orderNum", getOrderNum())
-            .append("leader", getLeader())
-            .append("phone", getPhone())
-            .append("email", getEmail())
-            .append("status", getStatus())
-            .append("delFlag", getDelFlag())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+        return "SysDept{" +
+                "deptId=" + deptId +
+                ", parentId=" + parentId +
+                ", ancestors='" + ancestors + '\'' +
+                ", deptName='" + deptName + '\'' +
+                ", orderNum='" + orderNum + '\'' +
+                ", leader='" + leader + '\'' +
+                ", managerId=" + managerId +
+                ", deptLevel=" + deptLevel +
+                ", memo='" + memo + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", status='" + status + '\'' +
+                ", delFlag='" + delFlag + '\'' +
+                ", parentName='" + parentName + '\'' +
+                ", children=" + children +
+                '}';
     }
 }
