@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.audit.mapper.AudMessageMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.audit.domain.AudMessage">
+        <id column="MessageID" jdbcType="INTEGER" property="messageid"/>
+        <result column="MessageTitle" jdbcType="VARCHAR" property="messagetitle"/>
+        <result column="MessageContent" jdbcType="VARCHAR" property="messagecontent"/>
+        <result column="MessageTime" jdbcType="VARCHAR" property="messagetime"/>
+        <result column="ToUserID" jdbcType="INTEGER" property="touserid"/>
+        <result column="RelatedSheetType" jdbcType="VARCHAR" property="relatedsheettype"/>
+        <result column="RelatedSheetID" jdbcType="INTEGER" property="relatedsheetid"/>
+        <result column="ProcessedTime" jdbcType="VARCHAR" property="processedtime"/>
+        <result column="IfProcessed" jdbcType="BIT" property="ifprocessed"/>
+    </resultMap>
+
+    <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select MessageID,
+               MessageTitle,
+               MessageContent,
+               MessageTime,
+               ToUserID,
+               RelatedSheetType,
+               RelatedSheetID,
+               ProcessedTime
+        from Aud_Message
+        where IfProcessed = 0
+          and ToUserID = #{userId}
+        order by MessageTime desc
+    </select>
+</mapper>
