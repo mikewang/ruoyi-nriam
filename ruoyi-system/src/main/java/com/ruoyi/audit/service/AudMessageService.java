@@ -19,7 +19,7 @@ public class AudMessageService {
     public List<AudMessage> selectByUserId(Integer userId) {
 
         List<AudMessage> messageList = audMessageMapper.selectByUserId(userId);
-
+        log.debug("message list is request.");
         return messageList;
     }
 
