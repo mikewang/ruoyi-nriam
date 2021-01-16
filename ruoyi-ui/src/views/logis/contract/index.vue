@@ -270,8 +270,6 @@ import {treeselect} from "@/api/system/dept";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import {uploadAvatar} from "@/api/system/user";
-import store from "@/store";
-import axios from "axios";
 
 export default {
   name: "Contract",
@@ -431,7 +429,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.contractId);
-      this.single = selection.length != 1;
+      this.single = selection.length !== 1;
       this.multiple = !selection.length;
     },
     /** 新增按钮操作 */
@@ -541,7 +539,7 @@ export default {
       console.log("handleUploadRemove ", file.name);
 
       this.form.fileList.forEach((item, index) => {
-        if (item.name == file.name) {
+        if (item.name === file.name) {
           this.form.fileList.splice(index, 1);
         }
       });

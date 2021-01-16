@@ -2,9 +2,8 @@ package com.ruoyi.logis.service;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.logis.domain.BasDoc;
-import com.ruoyi.logis.domain.LogisContract;
 import com.ruoyi.logis.mapper.BasDocMapper;
-import com.ruoyi.logis.mapper.LogisContractMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
