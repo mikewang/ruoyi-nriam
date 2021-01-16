@@ -46,11 +46,11 @@
       default-expand-all
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
-      <el-table-column prop="deptName" label="部门名称" width="300"></el-table-column>
+      <el-table-column prop="deptName" label="部门名称" ></el-table-column>
       <el-table-column prop="deptLevel" label="部门级别" width="100"></el-table-column>
       <el-table-column prop="leader" label="负责人" width="150"></el-table-column>
-      <el-table-column prop="memo" label="说明" width="150"></el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column prop="memo" label="说明"></el-table-column>
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150">
         <template slot-scope="scope">
           <el-button
             size="mini"
