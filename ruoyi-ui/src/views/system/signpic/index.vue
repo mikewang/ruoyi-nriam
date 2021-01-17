@@ -1,187 +1,111 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <!--部门数据-->
-      <el-col :span="6" :xs="24">
-        <div class="head-container" >
+      <!--用户数据-->
+      <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form-item label="用户名" prop="userName">
           <el-input
-            v-model="deptName"
-            placeholder="请输入部门名称"
+            v-model="queryParams.userName"
+            placeholder="请输入用户名"
             clearable
             size="small"
-            prefix-icon="el-icon-search"
-            style="margin-bottom: 20px"
+            style="width: 240px"
+            @keyup.enter.native="handleQuery"
           />
-        </div>
-        <div class="head-container" >
-          <el-tree
-            :data="deptOptions"
-            :props="defaultProps"
-            :expand-on-click-node="false"
-            :filter-node-method="filterNode"
-            ref="tree"
-            default-expand-all
-            @node-click="handleNodeClick"
+        </el-form-item>
+        <el-form-item label="真实姓名" prop="realName">
+          <el-input
+            v-model="queryParams.realName"
+            placeholder="请输入真实姓名"
+            clearable
+            size="small"
+            style="width: 240px"
+            @keyup.enter.native="handleQuery"
           />
-        </div>
-      </el-col>
-      <!--用户数据-->
-      <el-col :span="18" :xs="24">
-        <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-          <el-form-item label="用户名" prop="userName">
-            <el-input
-              v-model="queryParams.userName"
-              placeholder="请输入用户名"
-              clearable
-              size="small"
-              style="width: 240px"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="真实姓名" prop="realName">
-            <el-input
-              v-model="queryParams.realName"
-              placeholder="请输入真实姓名"
-              clearable
-              size="small"
-              style="width: 240px"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="手机号码" prop="phonenumber">
-            <el-input
-              v-model="queryParams.phonenumber"
-              placeholder="请输入手机号码"
-              clearable
-              size="small"
-              style="width: 240px"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-select
-              v-model="queryParams.status"
-              placeholder="用户状态"
-              clearable
-              size="small"
-              style="width: 240px"
-            >
-              <el-option
-                v-for="dict in statusOptions"
-                :key="dict.dictValue"
-                :label="dict.dictLabel"
-                :value="dict.dictValue"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-          </el-form-item>
-        </el-form>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+          <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            size="mini"
+            :disabled="multiple"
+            @click="handleDelete"
+            v-hasPermi="['system:signpic:remove']"
+          >删除</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            type="warning"
+            icon="el-icon-download"
+            size="mini"
+            @click="handleExport"
+            v-hasPermi="['system:signpic:export']"
+          >导出</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            type="success"
+            icon="el-icon-upload"
+            size="mini"
+            @click="handleImport"
+            v-hasPermi="['system:signpic:upload']"
+          >导入</el-button>
+        </el-col>
+        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
+
+      <el-table v-loading="loading" :data="signpicList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" align="center" />
+        <el-table-column label="用户名" align="center" prop="userName" width="120" />
+        <el-table-column label="真实姓名" align="center" prop="realName" width="120" />
+        <el-table-column label="签名图片" align="center" prop="image" >
+          <template slot-scope="scope">
+            <img :src="scope.row.image"  min-width="120" height="40" />
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="操作"
+          align="center"
+          width="160"
+          class-name="small-padding fixed-width"
+        >
+          <template slot-scope="scope">
             <el-button
-              type="primary"
-              icon="el-icon-plus"
               size="mini"
-              @click="handleAdd"
-              v-hasPermi="['system:user:add']"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
+              type="text"
+              icon="el-icon-upload"
+              @click="handleUpload(scope.row)"
+              v-hasPermi="['system:signpic:upload']"
+            >上传图片</el-button>
             <el-button
-              type="success"
-              icon="el-icon-edit"
+              v-if="scope.row.userId !== 1"
               size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-              v-hasPermi="['system:user:edit']"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="danger"
+              type="text"
               icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-              v-hasPermi="['system:user:remove']"
-            >删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="info"
-              icon="el-icon-upload2"
-              size="mini"
-              @click="handleImport"
-              v-hasPermi="['system:user:import']"
-            >导入</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-              v-hasPermi="['system:user:export']"
-            >导出</el-button>
-          </el-col>
-          <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-        </el-row>
+              @click="handleDelete(scope.row)"
+              v-hasPermi="['system:signpic:remove']"
+            >删除图片</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-        <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="50" align="center" />
-          <el-table-column label="用户名" align="center" prop="userName" width="120" />
-          <el-table-column label="真实姓名" align="center" prop="realName" width="120" />
-          <el-table-column label="联系电话" align="center" prop="phonenumber" width="120" />
-          <el-table-column label="电子邮件" align="center" prop="email" width="120" />
-          <el-table-column label="部门" align="center" prop="dept.deptName"/>
-          <el-table-column
-            label="操作"
-            align="center"
-            width="160"
-            class-name="small-padding fixed-width"
-          >
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-                v-hasPermi="['system:user:edit']"
-              >修改</el-button>
-              <el-button
-                v-if="scope.row.userId !== 1"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-                v-hasPermi="['system:user:remove']"
-              >删除</el-button>
-              <el-button
-                size="mini"
-                type="text"
-                icon="el-icon-key"
-                @click="handleResetPwd(scope.row)"
-                v-hasPermi="['system:user:resetPwd']"
-              >重置</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <pagination
-          v-show="total>0"
-          :total="total"
-          :page.sync="queryParams.pageNum"
-          :limit.sync="queryParams.pageSize"
-          @pagination="getList"
-        />
-      </el-col>
+      <pagination
+        v-show="total>0"
+        :total="total"
+        :page.sync="queryParams.pageNum"
+        :limit.sync="queryParams.pageSize"
+        @pagination="getList"
+      />
     </el-row>
 
-    <!-- 添加或修改参数配置对话框 -->
+    <!-- 添加或修改参数配置 对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
@@ -190,7 +114,7 @@
               <el-input v-model="form.userName" placeholder="请输入用户登录名" />
             </el-form-item>
             <el-form-item v-else label="用户名" prop="userName">
-              <el-input v-model="form.userName" readonly />
+              <el-input v-model="form.userName" disabled = "true" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -269,12 +193,12 @@
       </div>
     </el-dialog>
 
-    <!-- 用户导入对话框 -->
+    <!--  图片上传对话框 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
       <el-upload
         ref="upload"
         :limit="1"
-        accept=".xlsx, .xls"
+        accept=".jpg, .png"
         :headers="upload.headers"
         :action="upload.url + '?updateSupport=' + upload.updateSupport"
         :disabled="upload.isUploading"
@@ -288,11 +212,7 @@
           将文件拖到此处，或
           <em>点击上传</em>
         </div>
-        <div class="el-upload__tip" slot="tip">
-          <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的用户数据
-          <el-link type="info" style="font-size:12px" @click="importTemplate">下载模板</el-link>
-        </div>
-        <div class="el-upload__tip" style="color:red" slot="tip">提示：仅允许导入“xls”或“xlsx”格式文件！</div>
+        <div class="el-upload__tip" style="color:red" slot="tip">提示：仅允许导入“jpg”或“png”格式文件！</div>
       </el-upload>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitFileForm">确 定</el-button>
@@ -303,15 +223,12 @@
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser, exportUser, resetUserPwd, changeUserStatus, importTemplate } from "@/api/system/user";
+import { listSignPic } from "@/api/system/signpic";
 import { getToken } from "@/utils/auth";
-import { treeselect } from "@/api/system/dept";
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
-  name: "User",
-  components: { Treeselect },
+  name: "UserSignPic",
+  // components: {  },
   data() {
     return {
       // 遮罩层
@@ -327,38 +244,24 @@ export default {
       // 总条数
       total: 0,
       // 用户表格数据
-      userList: null,
+      signpicList: null,
       // 弹出层标题
       title: "",
-      // 部门树选项
-      deptOptions: undefined,
       // 是否显示弹出层
       open: false,
-      // 部门名称
-      deptName: undefined,
-      // 默认密码
-      initPassword: undefined,
       // 日期范围
       dateRange: [],
-      // 状态数据字典
-      statusOptions: [],
-      // 性别状态字典
-      sexOptions: [],
-      // 岗位选项
-      postOptions: [],
-      // 角色选项
-      roleOptions: [],
       // 表单参数
       form: {},
       defaultProps: {
         children: "children",
         label: "label"
       },
-      // 用户导入参数
+      // 图片上传对话框参数
       upload: {
-        // 是否显示弹出层（用户导入）
+        // 是否显示弹出层（ 图片上传）
         open: false,
-        // 弹出层标题（用户导入）
+        // 弹出层标题（ 图片上传）
         title: "",
         // 是否禁用上传
         isUploading: false,
@@ -367,7 +270,8 @@ export default {
         // 设置上传的请求头部
         headers: { Authorization: "Bearer " + getToken() },
         // 上传的地址
-        url: process.env.VUE_APP_BASE_API + "/system/user/importData"
+        url: process.env.VUE_APP_BASE_API + "/system/signpic/upload",
+        userId:0
       },
       // 查询参数
       queryParams: {
@@ -375,7 +279,6 @@ export default {
         pageSize: 10,
         userName: undefined,
         realName: undefined,
-        phonenumber: undefined,
         status: undefined,
         deptId: undefined
       },
@@ -408,65 +311,21 @@ export default {
     };
   },
   watch: {
-    // 根据名称筛选部门树
-    deptName(val) {
-      this.$refs.tree.filter(val);
-    }
+
   },
   created() {
     this.getList();
-    this.getTreeselect();
-    this.getDicts("sys_normal_disable").then(response => {
-      this.statusOptions = response.data;
-    });
-    this.getDicts("sys_user_sex").then(response => {
-      this.sexOptions = response.data;
-    });
-    this.getConfigKey("sys.user.initPassword").then(response => {
-      this.initPassword = response.msg;
-    });
   },
   methods: {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      listUser(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          this.userList = response.rows;
+      listSignPic(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+          this.signpicList = response.rows;
           this.total = response.total;
           this.loading = false;
         }
       );
-    },
-    /** 查询部门下拉树结构 */
-    getTreeselect() {
-      treeselect().then(response => {
-        this.deptOptions = response.data;
-      });
-    },
-    // 筛选节点
-    filterNode(value, data) {
-      if (!value) return true;
-      return data.label.indexOf(value) !== -1;
-    },
-    // 节点单击事件
-    handleNodeClick(data) {
-      this.queryParams.deptId = data.id;
-      this.getList();
-    },
-    // 用户状态修改
-    handleStatusChange(row) {
-      let text = row.status === "0" ? "启用" : "停用";
-      this.$confirm('确认要"' + text + '""' + row.userName + '"用户吗?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return changeUserStatus(row.userId, row.status);
-        }).then(() => {
-          this.msgSuccess(text + "成功");
-        }).catch(function() {
-          row.status = row.status === "0" ? "1" : "0";
-        });
     },
     // 取消按钮
     cancel() {
@@ -508,6 +367,14 @@ export default {
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
+
+    /**  图片上传按钮操作 */
+    handleUpload(row) {
+      this.upload.userId = row.userId;
+      this.upload.title = "图片上传:" + row.realName;
+      this.upload.open = true;
+    },
+
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
@@ -535,17 +402,6 @@ export default {
         this.title = "修改用户";
         this.form.password = "";
       });
-    },
-    /** 重置密码按钮操作 */
-    handleResetPwd(row) {
-      this.$prompt('请输入"' + row.userName + '"的新密码', "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消"
-      }).then(({ value }) => {
-          resetUserPwd(row.userId, value).then(response => {
-            this.msgSuccess("修改成功，新密码是：" + value);
-          });
-        }).catch(() => {});
     },
     /** 提交按钮 */
     submitForm: function() {
@@ -594,9 +450,9 @@ export default {
           this.download(response.msg);
         })
     },
-    /** 导入按钮操作 */
+    /**  图片上传按钮操作 */
     handleImport() {
-      this.upload.title = "用户导入";
+      this.upload.title = "图片上传";
       this.upload.open = true;
     },
     /** 下载模板操作 */

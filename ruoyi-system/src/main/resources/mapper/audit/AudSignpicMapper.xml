@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.audit.mapper.AudSignpicMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.audit.domain.AudSignpic">
+        <id column="SignpicID" jdbcType="INTEGER" property="signpicId"/>
+        <id column="user_id" jdbcType="INTEGER" property="signpicId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="real_name" jdbcType="VARCHAR" property="realName"/>
+        <result column="signpicName" jdbcType="VARCHAR" property="signpicName"/>
+    </resultMap>
+
+    <select id="selectSignpicList" parameterType="AudSignpic" resultMap="BaseResultMap">
+        select s.SignPicID, u.user_id, u.real_name, u.user_name,s.SignPicName
+        from sys_user u
+        left join Aud_SignPic s on u.user_id = s.UserID
+        where u.del_flag = '0' and u.user_id > 1
+        <if test="userName != null and userName != ''">
+            AND u.user_name like concat('%', #{userName}, '%')
+        </if>
+        <if test="realName != null and realName != ''">
+            AND u.real_name like concat('%', #{realName}, '%')
+        </if>
+    </select>
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select MessageID,
+               MessageTitle,
+               MessageContent,
+               MessageTime,
+               ToUserID,
+               RelatedSheetType,
+               RelatedSheetID,
+               ProcessedTime,
+               IfProcessed
+        from Aud_Message
+        where MessageID = #{messageid,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select MessageID,
+               MessageTitle,
+               MessageContent,
+               MessageTime,
+               ToUserID,
+               RelatedSheetType,
+               RelatedSheetID,
+               ProcessedTime,
+               IfProcessed
+        from Aud_Message
+        where IfProcessed = 0
+          and ToUserID = #{userId}
+        order by MessageTime desc
+    </select>
+
+    <insert id="insert" parameterType="AudSignpic">
+
+        insert into Aud_Message (MessageID, MessageTitle, MessageContent,
+                                 MessageTime, ToUserID, RelatedSheetType,
+                                 RelatedSheetID, ProcessedTime, IfProcessed)
+        values (#{messageid,jdbcType=INTEGER}, #{messagetitle,jdbcType=VARCHAR}, #{messagecontent,jdbcType=VARCHAR},
+                #{messagetime,jdbcType=VARCHAR}, #{touserid,jdbcType=INTEGER}, #{relatedsheettype,jdbcType=VARCHAR},
+                #{relatedsheetid,jdbcType=INTEGER}, #{processedtime,jdbcType=VARCHAR}, #{ifprocessed,jdbcType=BIT})
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="AudSignpic">
+
+        update Aud_Message
+        set MessageTitle     = #{messagetitle,jdbcType=VARCHAR},
+            MessageContent   = #{messagecontent,jdbcType=VARCHAR},
+            MessageTime      = #{messagetime,jdbcType=VARCHAR},
+            ToUserID         = #{touserid,jdbcType=INTEGER},
+            RelatedSheetType = #{relatedsheettype,jdbcType=VARCHAR},
+            RelatedSheetID   = #{relatedsheetid,jdbcType=INTEGER},
+            ProcessedTime    = #{processedtime,jdbcType=VARCHAR},
+            IfProcessed      = #{ifprocessed,jdbcType=BIT}
+        where MessageID = #{messageid,jdbcType=INTEGER}
+    </update>
+    <update id="updateProcessedByIds" parameterType="List">
+        update Aud_Message
+        set
+        ProcessedTime = getdate(),
+        IfProcessed =1
+        WHERE MessageID in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
+</mapper>

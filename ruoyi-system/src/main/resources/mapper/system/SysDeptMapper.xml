@@ -73,16 +73,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<select id="selectChildrenDeptById" parameterType="Long" resultMap="SysDeptResult">
-		select * from sys_dept where find_in_set(#{deptId}, ancestors)
+		select * from sys_dept where CHARINDEX(cast(#{deptId} as varchar),ancestors)>0
 	</select>
 	
 	<select id="selectNormalChildrenDeptById" parameterType="Long" resultType="int">
-		select count(*) from sys_dept where status = 0 and del_flag = '0' and find_in_set(#{deptId}, ancestors)
+		select count(*) from sys_dept where status = 0 and del_flag = '0' and  CHARINDEX(cast(#{deptId} as varchar),ancestors)>0
 	</select>
 	
 	<select id="checkDeptNameUnique" resultMap="SysDeptResult">
 	    <include refid="selectDeptVo"/>
-		where dept_name=#{deptName} and parent_id = #{parentId} limit 1
+		where dept_name=#{deptName} and parent_id = #{parentId}
 	</select>
     
     <insert id="insertDept" parameterType="SysDept">
@@ -115,7 +115,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="deptLevel != null and deptLevel != 0">#{deptLevel},</if>
 			<if test="memo != null and memo != ''">#{memo},</if>
  			<if test="createBy != null and createBy != ''">#{createBy},</if>
- 			sysdate()
+ 			getdate()
  		)
 	</insert>
 	
@@ -132,9 +132,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="status != null and status != ''">status = #{status},</if>
 			<if test="managerId != null and managerId != 0">manager_id = #{managerId},</if>
 			<if test="deptLevel != null and deptLevel != 0">dept_level = #{deptLevel},</if>
-			<if test="memo != null and memo != ''">memo = #{memo},</if>
+			<if test="memo != null ">memo = #{memo},</if>
  			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
- 			update_time = sysdate()
+ 			update_time = getdate()
  		</set>
  		where dept_id = #{deptId}
 	</update>
@@ -157,7 +157,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  	    <set>
  	        <if test="status != null and status != ''">status = #{status},</if>
  	        <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
- 	        update_time = sysdate()
+ 	        update_time = getdate()
         </set>
  	    where dept_id in (${ancestors})
 	</update>

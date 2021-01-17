@@ -26,8 +26,8 @@
                   <span>{{ parseTime(scope.row.messagetime) }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="标题" align="center" prop="messagetitle"/>
-              <el-table-column label="内容" align="center" prop="messagecontent" :show-overflow-tooltip="true"/>
+              <el-table-column label="标题" align="left" prop="messagetitle"/>
+              <el-table-column label="内容" align="left" prop="messagecontent" :show-overflow-tooltip="true"/>
 
               <el-table-column
                 label="操作"

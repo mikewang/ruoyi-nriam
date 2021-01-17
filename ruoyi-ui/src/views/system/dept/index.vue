@@ -355,6 +355,12 @@ export default {
       // // 调用 callback 返回建议列表的数据
       // cb(results);
     },
+    queryUserListSearch_test(queryString, cb) {
+      var userListOptions = this.userListOptions;
+      var results = queryString ? userListOptions.filter(this.createFilter(queryString)) : userListOptions;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
     createFilter(queryString) {
       return (userListOption) => {
         return (userListOption.value.indexOf(queryString) === 0);
@@ -371,6 +377,8 @@ export default {
     },
     handleSelectUser(item) {
       console.log(item);
+      this.form.managerId = item["managerId"];
+      this.form.realName = item["value"];
     }
   }
 };
