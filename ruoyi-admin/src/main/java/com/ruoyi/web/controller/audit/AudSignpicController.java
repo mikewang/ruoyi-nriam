@@ -1,8 +1,6 @@
 package com.ruoyi.web.controller.audit;
 
-import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.domain.AudSignpic;
-import com.ruoyi.audit.service.AudMessageService;
 import com.ruoyi.audit.service.AudSignpicService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -26,8 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/audit/signpic")
-public class AudSignpicController extends BaseController
-{
+public class AudSignpicController extends BaseController {
     @Resource
     private AudSignpicService audSignpicService;
 
@@ -40,8 +37,7 @@ public class AudSignpicController extends BaseController
 
     @PreAuthorize("@ss.hasPermi('audit:signpic:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AudSignpic audSignpic)
-    {
+    public TableDataInfo list(AudSignpic audSignpic) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long userId = loginUser.getUser().getUserId();
 
@@ -50,14 +46,14 @@ public class AudSignpicController extends BaseController
 
         // 本地资源路径
 
-        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload"  + "/signpic/";
+        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" + "/signpic/";
 
-        for(AudSignpic s: list){
+        for (AudSignpic s : list) {
 
-           String filePath = fileDirPath + s.getSignpicName();
-           s.setSignpicName(filePath);
+            String filePath = fileDirPath + s.getSignpicName();
+            s.setSignpicName(filePath);
 
-           logger.debug("url is " + filePath);
+            logger.debug("url is " + filePath);
 
         }
 
@@ -71,19 +67,17 @@ public class AudSignpicController extends BaseController
     @PreAuthorize("@ss.hasPermi('audit:signpic:add')")
     @Log(title = "签名图片上传", businessType = BusinessType.UPDATE)
     @PostMapping("/upload")
-    public AjaxResult upload(MultipartFile file, @RequestParam("userId") Long  userId) throws IOException
-    {
+    public AjaxResult upload(MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
         logger.debug("file getOriginalFilename is " + file.getOriginalFilename());
-        try
-        {
+        try {
             LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
             String originalFilename = file.getOriginalFilename();
             // 上传文件路径
             String filePath = RuoYiConfig.getUploadPath() + "/signpic";
             // 上传并返回新文件名称
             String pathFileName = FileUploadUtils.upload(filePath, file);
-            String [] split_file = pathFileName.split("/");
-            String fileName = split_file[(split_file.length-1)];
+            String[] split_file = pathFileName.split("/");
+            String fileName = split_file[(split_file.length - 1)];
 
             AudSignpic signpic = new AudSignpic();
             signpic.setUserId(userId);
@@ -96,18 +90,14 @@ public class AudSignpicController extends BaseController
                 ajax.put("url", url);
 
                 return ajax;
-            }
-            else {
+            } else {
                 return AjaxResult.error("上传文件成功，但保存数据库异常，请联系管理员");
             }
 
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             return AjaxResult.error(e.getMessage() + " 上传文件异常，请联系管理员");
         }
     }
-
 
 
     /**
@@ -116,8 +106,7 @@ public class AudSignpicController extends BaseController
     @PreAuthorize("@ss.hasPermi('audit:signpic:remove')")
     @Log(title = "签名图片删除", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userIds}")
-    public AjaxResult remove(@PathVariable List<Long> userIds)
-    {
+    public AjaxResult remove(@PathVariable List<Long> userIds) {
         logger.debug("签名图片删除 userIds are " + userIds);
 
         return toAjax(audSignpicService.removeSignpicByUserIds(userIds));
