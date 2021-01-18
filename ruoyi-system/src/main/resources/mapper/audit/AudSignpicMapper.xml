@@ -3,7 +3,7 @@
 <mapper namespace="com.ruoyi.audit.mapper.AudSignpicMapper">
     <resultMap id="BaseResultMap" type="com.ruoyi.audit.domain.AudSignpic">
         <id column="SignpicID" jdbcType="INTEGER" property="signpicId"/>
-        <id column="user_id" jdbcType="INTEGER" property="signpicId"/>
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="real_name" jdbcType="VARCHAR" property="realName"/>
         <result column="signpicName" jdbcType="VARCHAR" property="signpicName"/>
@@ -23,65 +23,55 @@
     </select>
 
 
-    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select MessageID,
-               MessageTitle,
-               MessageContent,
-               MessageTime,
-               ToUserID,
-               RelatedSheetType,
-               RelatedSheetID,
-               ProcessedTime,
-               IfProcessed
-        from Aud_Message
-        where MessageID = #{messageid,jdbcType=INTEGER}
+    <select id="selectSignpicByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select SignPicID,
+               UserID,
+               SignPicName
+        from Aud_SignPic
+        where UserID = #{userId,jdbcType=INTEGER}
     </select>
 
-    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
-        select MessageID,
-               MessageTitle,
-               MessageContent,
-               MessageTime,
-               ToUserID,
-               RelatedSheetType,
-               RelatedSheetID,
-               ProcessedTime,
-               IfProcessed
-        from Aud_Message
-        where IfProcessed = 0
-          and ToUserID = #{userId}
-        order by MessageTime desc
+    <select id="selectSignpicById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select SignPicID,
+               UserID,
+               SignPicName
+        from Aud_SignPic
+        where SignPicID = #{signpicId,jdbcType=INTEGER}
     </select>
 
-    <insert id="insert" parameterType="AudSignpic">
+    <insert id="mergeSignpic" parameterType="AudSignpic">
 
-        insert into Aud_Message (MessageID, MessageTitle, MessageContent,
-                                 MessageTime, ToUserID, RelatedSheetType,
-                                 RelatedSheetID, ProcessedTime, IfProcessed)
-        values (#{messageid,jdbcType=INTEGER}, #{messagetitle,jdbcType=VARCHAR}, #{messagecontent,jdbcType=VARCHAR},
-                #{messagetime,jdbcType=VARCHAR}, #{touserid,jdbcType=INTEGER}, #{relatedsheettype,jdbcType=VARCHAR},
-                #{relatedsheetid,jdbcType=INTEGER}, #{processedtime,jdbcType=VARCHAR}, #{ifprocessed,jdbcType=BIT})
+        MERGE Aud_SignPic t
+            USING (select #{userId} as userId, #{signpicName} as signpicName ) s
+            ON (s.userId = t.userId)
+            WHEN MATCHED
+            THEN UPDATE SET
+                     t.signpicName = s.signpicName
+                     WHEN NOT MATCHED BY TARGET
+                     THEN INSERT (userId, signpicName)
+                 VALUES (s.userId, s.signpicName);
+
     </insert>
 
-    <update id="updateByPrimaryKey" parameterType="AudSignpic">
 
-        update Aud_Message
-        set MessageTitle     = #{messagetitle,jdbcType=VARCHAR},
-            MessageContent   = #{messagecontent,jdbcType=VARCHAR},
-            MessageTime      = #{messagetime,jdbcType=VARCHAR},
-            ToUserID         = #{touserid,jdbcType=INTEGER},
-            RelatedSheetType = #{relatedsheettype,jdbcType=VARCHAR},
-            RelatedSheetID   = #{relatedsheetid,jdbcType=INTEGER},
-            ProcessedTime    = #{processedtime,jdbcType=VARCHAR},
-            IfProcessed      = #{ifprocessed,jdbcType=BIT}
-        where MessageID = #{messageid,jdbcType=INTEGER}
+    <insert id="insertSignpic" parameterType="AudSignpic">
+
+        insert into Aud_SignPic(userId, signpicName)
+        values (#{userId}, #{signpicName,jdbcType=VARCHAR)
+    </insert>
+
+    <update id="updateSignpic" parameterType="AudSignpic">
+
+        update Aud_SignPic
+        set signpicName     = #{signpicName,jdbcType=VARCHAR}
+        where userId = #{userId,jdbcType=INTEGER}
     </update>
-    <update id="updateProcessedByIds" parameterType="List">
-        update Aud_Message
+
+    <update id="removeSignpicByUserIds" parameterType="List">
+        update Aud_SignPic
         set
-        ProcessedTime = getdate(),
-        IfProcessed =1
-        WHERE MessageID in
+        signpicName = ''
+        WHERE userID in
         <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
             #{item}
         </foreach>

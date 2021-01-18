@@ -19,3 +19,4 @@ export function readMessage(ids) {
     method: 'delete'
   })
 }
+

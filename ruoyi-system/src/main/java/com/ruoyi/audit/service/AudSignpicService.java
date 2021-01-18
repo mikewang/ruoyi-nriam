@@ -2,6 +2,8 @@ package com.ruoyi.audit.service;
 
 import com.ruoyi.audit.domain.AudSignpic;
 import com.ruoyi.audit.mapper.AudSignpicMapper;
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,21 +18,22 @@ public class AudSignpicService {
     @Resource
     private AudSignpicMapper audSignpicMapper;
 
+
     public List<AudSignpic> selectSignpicList(AudSignpic signpic) {
         List<AudSignpic> signpicList = audSignpicMapper.selectSignpicList(signpic);
-
-        for(AudSignpic s: signpicList){
-
-//            String content = s.getMessagecontent();
-//            log.debug("original content is " + content);
-//            Integer index = content.indexOf("<a href");
-//            content = content.substring(0,index);
-//            log.debug("now      content is " + content);
-//            s.setMessagecontent(content);
-        }
 
         return signpicList;
     }
 
+    public Integer mergeSignpic(AudSignpic signpic) {
+        Integer result = audSignpicMapper.mergeSignpic(signpic);
+        return result;
+    }
+
+
+    public Integer removeSignpicByUserIds(List<Long> ids) {
+
+        return audSignpicMapper.removeSignpicByUserIds(ids);
+    }
 
 }

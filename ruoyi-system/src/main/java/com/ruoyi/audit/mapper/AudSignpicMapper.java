@@ -10,6 +10,12 @@ public interface AudSignpicMapper {
 
     AudSignpic selectSignpicById(Integer id);
 
-    int updateSignpicById(AudSignpic record);
+    int mergeSignpic(AudSignpic record);
+
+    int updateSignpic(AudSignpic record);
+
+    int insertSignpic(AudSignpic record);
+
+    int removeSignpicByUserIds(List ids);
 
 }

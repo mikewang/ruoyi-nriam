@@ -49,15 +49,6 @@
             v-hasPermi="['system:signpic:export']"
           >导出</el-button>
         </el-col>
-        <el-col :span="1.5">
-          <el-button
-            type="success"
-            icon="el-icon-upload"
-            size="mini"
-            @click="handleImport"
-            v-hasPermi="['system:signpic:upload']"
-          >导入</el-button>
-        </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
@@ -65,9 +56,9 @@
         <el-table-column type="selection" width="50" align="center" />
         <el-table-column label="用户名" align="center" prop="userName" width="120" />
         <el-table-column label="真实姓名" align="center" prop="realName" width="120" />
-        <el-table-column label="签名图片" align="center" prop="image" >
+        <el-table-column label="签名图片" align="center" prop="signpicName" >
           <template slot-scope="scope">
-            <img :src="scope.row.image"  min-width="120" height="40" />
+            <img :src="scope.row.signpicName"  min-width="120" height="40" />
           </template>
         </el-table-column>
         <el-table-column
@@ -105,94 +96,6 @@
       />
     </el-row>
 
-    <!-- 添加或修改参数配置 对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item v-if="form.userId == undefined" label="用户名" prop="userName">
-              <el-input v-model="form.userName" placeholder="请输入用户登录名" />
-            </el-form-item>
-            <el-form-item v-else label="用户名" prop="userName">
-              <el-input v-model="form.userName" disabled = "true" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item v-if="form.userId == undefined" label="用户密码" prop="password">
-              <el-input v-model="form.password" placeholder="请输入用户密码" type="password" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="真实姓名" prop="realName">
-              <el-input v-model="form.realName" placeholder="请输入用户姓名" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="所属部门" prop="deptId">
-              <treeselect v-model="form.deptId" :options="deptOptions" :show-count="true" placeholder="请选择所属部门" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="手机号码" prop="phonenumber">
-              <el-input v-model="form.phonenumber" placeholder="请输入手机号码" maxlength="11" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" placeholder="请输入邮箱" maxlength="50" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="用户性别">
-              <el-select v-model="form.sex" placeholder="请选择">
-                <el-option
-                  v-for="dict in sexOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictLabel"
-                  :value="dict.dictValue"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="状态">
-              <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in statusOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictValue"
-                >{{dict.dictLabel}}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="职称">
-              <el-input v-model="form.memo" type="text" placeholder="请输入内容"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button
-          size="mini"
-          icon="el-icon-key"
-          @click="handleResetPwd(form)"
-          v-hasPermi="['system:user:resetPwd']"
-        >重置密码</el-button>
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
-
     <!--  图片上传对话框 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
       <el-upload
@@ -200,7 +103,7 @@
         :limit="1"
         accept=".jpg, .png"
         :headers="upload.headers"
-        :action="upload.url + '?updateSupport=' + upload.updateSupport"
+        :action="upload.url + '?userId=' + upload.userId"
         :disabled="upload.isUploading"
         :on-progress="handleFileUploadProgress"
         :on-success="handleFileSuccess"
@@ -212,7 +115,7 @@
           将文件拖到此处，或
           <em>点击上传</em>
         </div>
-        <div class="el-upload__tip" style="color:red" slot="tip">提示：仅允许导入“jpg”或“png”格式文件！</div>
+        <div class="el-upload__tip" style="color:#ff0000" slot="tip">提示：仅允许导入“jpg”或“png”格式文件！</div>
       </el-upload>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitFileForm">确 定</el-button>
@@ -223,7 +126,7 @@
 </template>
 
 <script>
-import { listSignPic } from "@/api/system/signpic";
+import { listSignPic,delSignpic } from "@/api/audit/signpic";
 import { getToken } from "@/utils/auth";
 
 export default {
@@ -270,7 +173,7 @@ export default {
         // 设置上传的请求头部
         headers: { Authorization: "Bearer " + getToken() },
         // 上传的地址
-        url: process.env.VUE_APP_BASE_API + "/system/signpic/upload",
+        url: process.env.VUE_APP_BASE_API + "/audit/signpic/upload",
         userId:0
       },
       // 查询参数
@@ -375,63 +278,16 @@ export default {
       this.upload.open = true;
     },
 
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.getTreeselect();
-      getUser().then(response => {
-        this.postOptions = response.posts;
-        this.roleOptions = response.roles;
-        this.open = true;
-        this.title = "添加用户";
-        this.form.password = this.initPassword;
-      });
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      this.getTreeselect();
-      const userId = row.userId || this.ids;
-      getUser(userId).then(response => {
-        this.form = response.data;
-        this.postOptions = response.posts;
-        this.roleOptions = response.roles;
-        this.form.postIds = response.postIds;
-        this.form.roleIds = response.roleIds;
-        this.open = true;
-        this.title = "修改用户";
-        this.form.password = "";
-      });
-    },
-    /** 提交按钮 */
-    submitForm: function() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.userId != undefined) {
-            updateUser(this.form).then(response => {
-              this.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addUser(this.form).then(response => {
-              this.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
+
     /** 删除按钮操作 */
     handleDelete(row) {
       const userIds = row.userId || this.ids;
-      this.$confirm('是否确认删除用户编号为"' + userIds + '"的数据项?', "警告", {
+      this.$confirm('是否确认删除用户ID为"' + userIds + '"的签名图片?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return delUser(userIds);
+          return delSignpic(userIds);
         }).then(() => {
           this.getList();
           this.msgSuccess("删除成功");
@@ -450,17 +306,7 @@ export default {
           this.download(response.msg);
         })
     },
-    /**  图片上传按钮操作 */
-    handleImport() {
-      this.upload.title = "图片上传";
-      this.upload.open = true;
-    },
-    /** 下载模板操作 */
-    importTemplate() {
-      importTemplate().then(response => {
-        this.download(response.msg);
-      });
-    },
+
     // 文件上传中处理
     handleFileUploadProgress(event, file, fileList) {
       this.upload.isUploading = true;
@@ -470,7 +316,8 @@ export default {
       this.upload.open = false;
       this.upload.isUploading = false;
       this.$refs.upload.clearFiles();
-      this.$alert(response.msg, "导入结果", { dangerouslyUseHTMLString: true });
+      console.log("上传结果", response.url);
+      this.$alert(response.msg, "上传结果", { dangerouslyUseHTMLString: true });
       this.getList();
     },
     // 提交上传文件
