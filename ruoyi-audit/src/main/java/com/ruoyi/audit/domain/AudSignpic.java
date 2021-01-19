@@ -2,21 +2,30 @@ package com.ruoyi.audit.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
 
-public class AudSignpic extends BaseEntity
-{
-    /** ID */
+public class AudSignpic extends BaseEntity {
+    /**
+     * ID
+     */
     private Integer signpicId;
 
-    /** 用户ID */
+    /**
+     * 用户ID
+     */
     private Long userId;
 
-    /** 用户账号 */
+    /**
+     * 用户账号
+     */
     private String userName;
 
-    /** 用户姓名 */
+    /**
+     * 用户姓名
+     */
     private String realName;
 
-    /** 签名图片 */
+    /**
+     * 签名图片
+     */
     private String signpicName;
 
     public Integer getSignpicId() {

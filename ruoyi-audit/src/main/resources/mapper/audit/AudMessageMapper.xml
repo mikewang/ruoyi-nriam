@@ -43,7 +43,7 @@
         order by MessageTime desc
     </select>
 
-    <insert id="insert" parameterType="AudMessage">
+    <insert id="insert" parameterType="com.ruoyi.audit.domain.AudMessage">
 
         insert into Aud_Message (MessageID, MessageTitle, MessageContent,
                                  MessageTime, ToUserID, RelatedSheetType,
@@ -53,7 +53,7 @@
                 #{relatedsheetid,jdbcType=INTEGER}, #{processedtime,jdbcType=VARCHAR}, #{ifprocessed,jdbcType=BIT})
     </insert>
 
-    <update id="updateByPrimaryKey" parameterType="AudMessage">
+    <update id="updateByPrimaryKey" parameterType="com.ruoyi.audit.domain.AudMessage">
 
         update Aud_Message
         set MessageTitle     = #{messagetitle,jdbcType=VARCHAR},

@@ -9,7 +9,7 @@
         <result column="signpicName" jdbcType="VARCHAR" property="signpicName"/>
     </resultMap>
 
-    <select id="selectSignpicList" parameterType="AudSignpic" resultMap="BaseResultMap">
+    <select id="selectSignpicList" parameterType="com.ruoyi.audit.domain.AudSignpic" resultMap="BaseResultMap">
         select s.SignPicID, u.user_id, u.real_name, u.user_name,s.SignPicName
         from sys_user u
         left join Aud_SignPic s on u.user_id = s.UserID
@@ -39,7 +39,7 @@
         where SignPicID = #{signpicId,jdbcType=INTEGER}
     </select>
 
-    <insert id="mergeSignpic" parameterType="AudSignpic">
+    <insert id="mergeSignpic" parameterType="com.ruoyi.audit.domain.AudSignpic">
 
         MERGE Aud_SignPic t
             USING (select #{userId} as userId, #{signpicName} as signpicName ) s
@@ -54,13 +54,13 @@
     </insert>
 
 
-    <insert id="insertSignpic" parameterType="AudSignpic">
+    <insert id="insertSignpic" parameterType="com.ruoyi.audit.domain.AudSignpic">
 
         insert into Aud_SignPic(userId, signpicName)
         values (#{userId}, #{signpicName,jdbcType=VARCHAR)
     </insert>
 
-    <update id="updateSignpic" parameterType="AudSignpic">
+    <update id="updateSignpic" parameterType="com.ruoyi.audit.domain.AudSignpic">
 
         update Aud_SignPic
         set signpicName     = #{signpicName,jdbcType=VARCHAR}

@@ -2,8 +2,7 @@ package com.ruoyi.audit.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
 
-public class AudMessage extends BaseEntity
-{
+public class AudMessage extends BaseEntity {
 
     private Integer messageid;
 
