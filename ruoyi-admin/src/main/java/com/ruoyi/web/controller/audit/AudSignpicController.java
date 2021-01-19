@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,17 +47,26 @@ public class AudSignpicController extends BaseController {
 
         // 本地资源路径
 
-        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" + "/signpic/";
+        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" +  "/signpic/";
 
         for (AudSignpic s : list) {
-
-            String filePath = fileDirPath + s.getSignpicName();
-            s.setSignpicName(filePath);
-
-            logger.debug("url is " + filePath);
-
+            if (s.getSignpicName() != null && s.getSignpicName().isEmpty() == false ) {
+                String checkFilePath = RuoYiConfig.getUploadPath() + "/signpic/" + s.getSignpicName();
+                logger.debug("checkFilePath is " + s.getSignpicName());
+                File desc = new File(checkFilePath);
+                if (desc.exists() == true) {
+                    String filePath = fileDirPath + s.getSignpicName();
+                    s.setSignpicName(filePath);
+                    logger.debug("url is " + filePath);
+                }
+                else {
+                    s.setSignpicName("");
+                }
+            }
+            else {
+                s.setSignpicName("");
+            }
         }
-
         return getDataTable(list);
     }
 
