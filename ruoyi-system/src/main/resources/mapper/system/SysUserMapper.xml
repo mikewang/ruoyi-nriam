@@ -65,7 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			AND u.user_name like concat('%', #{userName}, '%')
 		</if>
 		<if test="realName != null and realName != ''">
-			AND u.real_name like concat('%', #{realName}, '%')
+			AND (u.real_name like concat('%', #{realName}, '%') or u.hot_key like concat('%', #{realName}, '%'))
 		</if>
 		<if test="status != null and status != ''">
 			AND u.status = #{status}

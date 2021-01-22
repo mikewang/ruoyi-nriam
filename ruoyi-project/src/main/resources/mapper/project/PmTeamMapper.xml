@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.mapper.PmTeamMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.project.domain.PmTeam">
+    <id column="TeamID" jdbcType="INTEGER" property="teamid" />
+    <result column="TeamName" jdbcType="VARCHAR" property="teamname" />
+    <result column="TeamLeaderID" jdbcType="INTEGER" property="teamleaderid" />
+    <result column="Memo" jdbcType="VARCHAR" property="memo" />
+    <result column="CreateUserID" jdbcType="INTEGER" property="createuserid" />
+    <result column="CreateTime" jdbcType="VARCHAR" property="createtime" />
+    <result column="IfDeleted" jdbcType="BIT" property="ifdeleted" />
+    <result column="TeamLeaderIDLinkText" jdbcType="VARCHAR" property="teamLeaderRealName" />
+    <result column="CreateUserIDLinkText" jdbcType="VARCHAR" property="createUserRealName" />
+  </resultMap>
+
+  <select id="selectTeamById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select TeamID, TeamName, TeamLeaderID, Memo, CreateUserID, CreateTime, IfDeleted
+    from PM_Team
+    where TeamID = #{teamid,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectTeamList" parameterType="com.ruoyi.project.domain.PmTeam" resultMap="BaseResultMap">
+    SELECT a.TeamID, a.TeamName, a.TeamLeaderID, a.Memo, a.CreateUserID, a.CreateTime, a.IfDeleted
+         , (
+      SELECT Real_Name
+      FROM sys_user
+      WHERE user_id = a.TeamLeaderID
+    ) AS TeamLeaderIDLinkText, t4.Real_Name AS CreateUserIDLinkText
+    FROM PM_Team a left join sys_user t4  on a.CreateUserID = t4.user_id
+    where a.IfDeleted = 0
+    <if test="teamid != null and teamid != 0 ">
+      AND  a.TeamID = #{teamid, jdbcType=INTEGER}
+    </if>
+    <if test="teamname != null and teamname != '' ">
+      AND  a.TeamName like concat('%', #{teamname}, '%')
+    </if>
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    SELECT a.TeamID, a.TeamName, a.TeamLeaderID, a.Memo, a.CreateUserID, a.CreateTime, a.IfDeleted
+         , (
+      SELECT Real_Name
+      FROM sys_user
+      WHERE user_id = a.TeamLeaderID
+    ) AS TeamLeaderIDLinkText, t4.Real_Name AS CreateUserIDLinkText
+    FROM PM_Team aon a.CreateUserID = t4.user_id
+    where a.IfDeleted = 0
+
+    order by a.OrderNumber, a.TeamName
+  </select>
+
+  <insert id="insertTeam" parameterType="com.ruoyi.project.domain.PmTeam">
+    insert into PM_Team (TeamName, TeamLeaderID,
+                         Memo, CreateUserID, CreateTime,
+                         IfDeleted)
+    values (#{teamname,jdbcType=VARCHAR}, #{teamleaderid,jdbcType=INTEGER},
+            #{memo,jdbcType=VARCHAR}, #{createuserid,jdbcType=INTEGER}, #{createtime,jdbcType=VARCHAR},
+            #{ifdeleted,jdbcType=BIT})
+  </insert>
+
+  <update id="updateTeam" parameterType="com.ruoyi.project.domain.PmTeam">
+    update PM_Team
+    set TeamName = #{teamname,jdbcType=VARCHAR},
+      TeamLeaderID = #{teamleaderid,jdbcType=INTEGER},
+      Memo = #{memo,jdbcType=VARCHAR},
+      CreateUserID = #{createuserid,jdbcType=INTEGER},
+      CreateTime = #{createtime,jdbcType=VARCHAR},
+      IfDeleted = #{ifdeleted,jdbcType=BIT}
+    where TeamID = #{teamid,jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteTeamById" parameterType="java.lang.Integer">
+    delete from PM_Team
+    where TeamID = #{teamid,jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteTeamByIds" parameterType="List">
+    delete from PM_Team
+    where TeamID in
+    <foreach  item ="teamid" index="index"  collection="list" open="(" separator="," close=")">
+      #{teamid}
+    </foreach>
+
+  </delete>
+
+</mapper>

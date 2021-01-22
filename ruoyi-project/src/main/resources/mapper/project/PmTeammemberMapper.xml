@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.mapper.PmTeamMemberMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.project.domain.PmTeamMember">
+    <result column="TeamID" jdbcType="INTEGER" property="teamid" />
+    <result column="TeamRole" jdbcType="INTEGER" property="teamrole" />
+    <result column="TeamRoleName" jdbcType="VARCHAR" property="teamroleName" />
+    <result column="UserID" jdbcType="INTEGER" property="userid" />
+    <result column="real_Name" jdbcType="VARCHAR" property="realName" />
+  </resultMap>
+  <insert id="insertTeamMember" parameterType="com.ruoyi.project.domain.PmTeamMember">
+
+    insert into PM_TeamMember (TeamID, TeamRole, UserID
+      )
+    values (#{teamid,jdbcType=INTEGER}, #{teamrole,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}
+      )
+  </insert>
+
+  <select id="selectTeamMemberList" resultMap="BaseResultMap">
+
+    select a.TeamID, a.TeamRole, a.UserID,b.real_name,c.dict_label as TeamRoleName
+    from PM_TeamMember a, sys_user b, sys_dict_data c
+    where a.UserID=b.user_id and a.TeamRole=c.dict_value and   c.dict_type = '团队角色'
+    <if test="teamid != null and teamid != 0 ">
+      AND  a.TeamID = #{teamid,jdbcType=INTEGER}
+    </if>
+order by a.TeamID,a.TeamRole, b.real_name
+
+  </select>
+</mapper>
