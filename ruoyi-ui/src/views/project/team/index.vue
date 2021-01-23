@@ -76,7 +76,7 @@
 
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px" :key="timer">
         <el-row>
           <el-col :span="24">
             <el-form-item label="团队名称" prop="teamname">
@@ -98,30 +98,51 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form-item label="团队成员">
+            <el-form-item label="团队成员" >
               <template>
-              <div v-for="(item, index) in form.memberList" :key="index">
-                <el-tag>{{item.teamroleName}} {{index}} {{form.checkedList[index]}} </el-tag>
-                <el-tag>{{item.userList}} </el-tag>
+              <div v-for="(item, index) in formMemberList" :key="index">
+                <el-tag>{{ item.teamroleName }} {{ formCheckedIdList[index] }}</el-tag>
+<!--                <el-tag>{{item.userList}} </el-tag>-->
 <!--                <el-label v-for="data in item.userList" name="data.realName"  >{{data.userid}}{{data.realName}} </el-label>-->
-                <el-checkbox-group v-model="form.checkedList[index]">
-                  <el-checkbox  v-for="data in item.userList" :label="data.userid" :key="data.userid" >{{data.realName}}</el-checkbox>
+                <el-checkbox-group v-model="formCheckedIdList[index]" @change="handleCheckedIdListChange(item.teamrole,index)" :key="timer">
+                  <el-checkbox  v-for="data in item.userList" :label="data.userid" :key="data.userid"  @change="handleCheckedUseridChange(index,data.userid)" >{{data.realName}}</el-checkbox>
                 </el-checkbox-group>
-
-                <!--                <el-checkbox-group v-mode="checkedMemberList[index]" >-->
-<!--                  <el-checkbox-->
-<!--                    v-for="data in item.userList"-->
-<!--                    :label="data.userid"-->
-<!--                    :key="data.realName">-->
-<!--                    {{data.realName}}-->
-<!--                  </el-checkbox>-->
-<!--                </el-checkbox-group>-->
               </div>
               </template>
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="添加成员" >
+              <template>
+                <el-autocomplete  class="input-with-select"
+                                  v-model="form.teamAddUsername"
+                                  :fetch-suggestions="queryUserListSearch"
+                                  placeholder="请输入人员名称"
+                                  @select="handleSelectUser"
+                >
 
+
+                </el-autocomplete>
+              </template>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="团队角色" >
+              <template>
+                <el-select v-model="form.teamAddTeamroleName" placeholder="请选择" @change="changeTeamAddTeamrole" :key="timer">
+                  <el-option
+                    v-for="item in this.teamroleListOptions"
+                    :key="item.dictValue"
+                    :label="item.dictLabel"
+                    :value="item.dictLabel">
+                  </el-option>
+                </el-select>
+              </template>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -135,7 +156,8 @@
 <script>
 import {listTeam, addTeam, updateTeam } from "@/api/project/team";
 import {getToken } from "@/utils/auth";
-import {getUser} from "@/api/system/user";
+import {getUser, listUser} from "@/api/system/user";
+import {listData} from "@/api/system/dict/data";
 
 export default {
   name: "pmteam",
@@ -160,6 +182,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 数据字典
+      teamroleListOptions: [],
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -168,10 +192,12 @@ export default {
         pageSize: 10,
         teamname: undefined
       },
+      formMemberList :[],
+      formCheckedIdList :[],
       // 表单参数
       form: {
       },
-      checkedMemberList: undefined,
+      timer:'',
       // 表单校验
       rules: {
         teamname: [
@@ -198,15 +224,28 @@ export default {
     };
   },
   watch: {
-    form(newValue, oldValue) {
-      console.log("form oldValue", oldValue);
-      console.log("form newValue", newValue);
+
+    form() {
+
+    },
+
+    formCheckedIdList(newValue, oldValue) {
+      console.log("formCheckedIdList oldValue", oldValue);
+      console.log("formCheckedIdList newValue", newValue);
 
     }
 
   },
   created() {
     this.getList();
+    listData({"dictType": "团队角色"}).then(response => {
+      console.log(response);
+      this.teamroleListOptions = response.rows.sort(function (a,b) {
+       return a.dictValue < b.dictValue
+
+      });
+
+    });
   },
   methods: {
     /** 查询用户列表 */
@@ -235,9 +274,14 @@ export default {
         teamLeaderRealName: undefined,
         createUserRealName: undefined,
         memberList: [],
-        checkedList: undefined
+        checkedIdList: [],
+        teamAddUsername:undefined,
+        teamAddUserid:undefined,
+        teamAddTeamroleName: undefined
       };
-      this.checkedMemberList = undefined;
+      this.formCheckedIdList =[];
+      this.formMemberList = [];
+
       this.resetForm("form");
     },
     /** 搜索按钮操作 */
@@ -289,27 +333,27 @@ export default {
 
       this.form = row;
 
-      console.log(this.form.memberList);
+      console.log("this.formCheckedIdList is ", this.formCheckedIdList);
 
-      let checkedList = [];
+      this.formMemberList = row.memberList;
+      this.formCheckedIdList = [];
 
-      for (let i = 0; i < this.form.memberList.length; i++) {
-        let checkArr = [];
-        let item = this.form.memberList[i];
-        let userList = item.userList;
-
-//        console.log("userList.length is ", userList.length, userList);
-        for (let j=0;j < userList.length; j++) {
-          let user = userList[j];
-          //console.log("user. id  is ", user.userid);
-          checkArr.push(user.userid);
+      for (let i = 0; i < this.formMemberList.length; i++) {
+        let checkArr = []
+        let item = this.formMemberList[i].userList
+        if (item.length === 0) {
+          this.formCheckedIdList.push([])
+        } else {
+          for (let j = 0; j < item.length; j++) {
+            // checkArr.push(item[j].userid)
+          }
+          this.formCheckedIdList.push(checkArr)
         }
-        checkedList.push(checkArr);
-        // console.log(checkArr);
       }
-      this.form.checkedList = checkedList;
-      this.checkedMemberList = checkedList;
-      console.log(this.checkedMemberList);
+      console.log("checkedIdList is ", this.formCheckedIdList);
+
+      this.form.teamAddTeamroleName = this.teamroleListOptions[0].dictLabel;
+      console.log("teamroleListOption default is ", this.teamroleListOptions[0].dictLabel);
 
       this.open = true;
       this.title = "编辑团队";
@@ -317,23 +361,107 @@ export default {
     },
 
 
-    handleMemberListChange () {
-      this.checkedMemberList = []
-      let arr = this.checkedMemberList
-      for (let i = 0; i < arr.length; i ++) {
-        let memGroup = arr[i]
-        if (memGroup.length > 0) {
-          let obj = {
-            teamrole: this.memGroup[i].teamrole,
-            members: []
-          }
-          for (let j = 0; j < memGroup.length; j++) {
-            obj.members.push(memGroup[j])
-          }
-          this.checkedMemberList.push(obj)
+    handleCheckedIdListChange (value,index) {
+      console.log("change is ", value,index);
+      // this.checkedMemberList = []
+      // let arr = this.checkedMemberList
+      // for (let i = 0; i < arr.length; i ++) {
+      //   let memGroup = arr[i]
+      //   if (memGroup.length > 0) {
+      //     let obj = {
+      //       teamrole: this.memGroup[i].teamrole,
+      //       members: []
+      //     }
+      //     for (let j = 0; j < memGroup.length; j++) {
+      //       obj.members.push(memGroup[j])
+      //     }
+      //     this.checkedMemberList.push(obj)
+      //   }
+      // }
+
+      this.timer=new Date().getTime();
+
+      console.log(this.formCheckedIdList);
+    },
+
+    handleCheckedUseridChange(index,userid) {
+
+    },
+
+    queryUserListSearch(queryString, cb) {
+
+      var queryParams = {
+        pageNum: 1,
+        pageSize: 30,
+        realName: queryString
+      };
+      listUser(queryParams).then(response => {
+          var userListOptions = [];
+          const userList = response.rows;
+          userList.forEach(function (user) {
+            var item = {"value":user.realName, "userid" : user.userId};
+            userListOptions.push(item);
+          });
+          cb(userListOptions);
+        }
+      );
+
+      // var userListOptions = this.userListOptions;
+      // var results = queryString ? userListOptions.filter(this.createFilter(queryString)) : userListOptions;
+      // // 调用 callback 返回建议列表的数据
+      // cb(results);
+    },
+
+    handleSelectUser(user) {
+
+      console.log(user, this.form.teamAddTeamroleName);
+      var index = 0;
+      let cc = this.formMemberList.length;
+
+      for (let i=0; i< cc; i++){
+        let item = this.formMemberList[i];
+        index = i;
+        console.log("formMember is ", item.teamrole, item.teamroleName);
+        if (item.teamroleName === this.form.teamAddTeamroleName){
+
+          let arr = this.formMemberList[i].userList;
+          console.log("handleSelectUser", arr);
+          this.formMemberList[i].userList.push({"userid":user["userid"],"realName":user["value"]});
+          this.formCheckedIdList[i].push(user["userid"]);
+          index = cc;
+          break;
         }
       }
-      console.log(this.checkedMemberList);
+
+      this.form.teamAddUserid = user["userid"];
+      this.form.teamAddUsername = user["value"];
+
+      if (index !== cc ) {
+
+        let teamrole = '';
+
+        for (let item in this.teamroleListOptions) {
+          if (item.dictLabel === this.form.teamAddTeamroleName) {
+            teamrole = item.dictValue;
+          }
+        }
+
+        let add_user = {"userid":user["userid"],"realName":user["value"]};
+        let formMember = {"teamrole":teamrole,"teamroleName":this.form.teamAddTeamroleName,"userList":[add_user]};
+
+        console.log("this step now?", this.formMemberList);
+        this.formMemberList.push(formMember);
+        this.formCheckedIdList.push([user["userid"]]);
+        console.log("this step now?", formMember);
+      }
+
+
+
+    },
+
+    changeTeamAddTeamrole: function (){
+      console.log("changeTeamAddTeamrole is working.");
+      this.timer =  new Date().getTime();
     },
 
     /** 提交按钮 */

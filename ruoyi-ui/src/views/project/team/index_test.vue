@@ -4,13 +4,13 @@
       <el-form-item label="设备名称">
         <div
           class="check-group"
-          v-for="(item, index) in equipments"
-          :key="index">
+          v-for="(item, index) in memberList"
+          :key="index_test">
           <el-tag>{{ item.menu }}</el-tag>
           <el-checkbox-group
-            v-model="checkedEquipments[index]"
+            v-model="checkedUseridList[index_test]"
             @change="handleChange(item.id)">
-            {{ checkedEquipments[index] }}
+            {{ checkedUseridList[index_test] }}
             <el-checkbox
               v-for="data in item.childMenu"
               :label="data.id"
@@ -28,8 +28,8 @@ export default {
   name: "pmteam2",
   data() {
     return {
-      checkedEquipments: [], //随意修改后的checked项（即要传到后台的变更数据）
-      equipments: [   // 所有数据
+      checkedUseridList: [], //随意修改后的checked项（即要传到后台的变更数据）
+      memberList: [   // 所有数据
         {
           id: '1',
           menu: '设备1',
@@ -68,7 +68,7 @@ export default {
           ]
         }
       ],
-      checkEquip: [  //模拟后台获取的数据（各el-checkbox-group默认checked项）
+      checkMember: [  //模拟后台获取的数据（各el-checkbox-group默认checked项）
         {
           id: '1',
           menu: '设备1',
@@ -91,39 +91,42 @@ export default {
   },
   methods: {
     handleChange() {
-      this.checkEquipArr = []
-      let arr = this.checkedEquipments
-      for (let i = 0; i < arr.length; i++) {
-        let equipment = arr[i]
-        if (equipment.length > 0) {
-          let obj = {
-            id: this.equipments[i].id,
-            equips: []
-          }
-          for (let j = 0; j < equipment.length; j++) {
-            obj.equips.push(equipment[j])
-          }
-          this.checkEquipArr.push(obj)
-        }
-      }
-      console.log(this.checkEquipArr);
+      console.log("checkedUseridList", this.checkedUseridList);
+
+      // this.checkMemberArr = []
+      // let arr = this.checkedUseridList
+      // for (let i = 0; i < arr.length; i++) {
+      //   let equipment = arr[i]
+      //   if (equipment.length > 0) {
+      //     let obj = {
+      //       id: this.memberList[i].id,
+      //       equips: []
+      //     }
+      //     for (let j = 0; j < equipment.length; j++) {
+      //       obj.equips.push(equipment[j])
+      //     }
+      //     this.checkMemberArr.push(obj)
+      //   }
+      // }
+      // console.log("checkMemberArr", this.checkMemberArr);
+      console.log("checkedUseridList", this.checkedUseridList);
     }
   },
   created() {
 // 初始化默认选中状态
-    for (let i = 0; i < this.checkEquip.length; i++) {
+    for (let i = 0; i < this.memberList.length; i++) {
       let checkArr = []
-      let item = this.checkEquip[i].childMenu
+      let item = this.memberList[i].childMenu
       if (item.length === 0) {
-        this.checkedEquipments.push([])
+        this.checkedUseridList.push([])
       } else {
         for (let j = 0; j < item.length; j++) {
           checkArr.push(item[j].id)
         }
-        this.checkedEquipments.push(checkArr)
+        this.checkedUseridList.push(checkArr)
       }
     }
-    console.log(this.checkedEquipments);
+    console.log(this.checkedUseridList);
   }
 };
 
