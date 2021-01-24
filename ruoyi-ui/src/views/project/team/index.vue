@@ -28,7 +28,8 @@
             :disabled="multiple"
             @click="handleDelete"
             v-hasPermi="['project:team:remove']"
-          >删除</el-button>
+          >删除
+          </el-button>
         </el-col>
         <el-col :span="1.5">
           <el-button
@@ -37,16 +38,17 @@
             size="mini"
             @click="handleExport"
             v-hasPermi="['project:team:export']"
-          >导出</el-button>
+          >导出
+          </el-button>
         </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
       <el-table v-loading="loading" :data="teamList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" align="center" />
-        <el-table-column label="团队名称" align="center" prop="teamname" width="300" />
-        <el-table-column label="团队负责人" align="center" prop="teamLeaderRealName" width="120" />
-        <el-table-column label="团队成员" align="left" prop="members" > </el-table-column>
+        <el-table-column type="selection" width="50" align="center"/>
+        <el-table-column label="团队名称" align="center" prop="teamname" width="300"/>
+        <el-table-column label="团队负责人" align="center" prop="teamLeaderRealName" width="120"/>
+        <el-table-column label="团队成员" align="left" prop="members"></el-table-column>
         <el-table-column
           label="操作"
           align="center"
@@ -60,7 +62,8 @@
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
               v-hasPermi="['project:team:edit']"
-            >编辑</el-button>
+            >编辑
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -80,58 +83,47 @@
         <el-row>
           <el-col :span="24">
             <el-form-item label="团队名称" prop="teamname">
-              <el-input v-model="form.teamname" placeholder="请输入团队名称" />
+              <el-input v-model="form.teamname" placeholder="请输入团队名称"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="团队负责人" prop="teamLeaderRealName">
-              <el-input v-model="form.teamLeaderRealName" placeholder="请输入团队负责人名称" />
+              <el-input v-model="form.teamLeaderRealName" placeholder="请输入团队负责人名称"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="创建人员" prop="createUserRealName">
-              <el-input v-model="form.createUserRealName" placeholder="请输入创建人员名称" />
+              <el-input v-model="form.createUserRealName" placeholder="请输入创建人员名称"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form-item label="团队成员" >
+            <el-form-item label="团队成员">
               <template>
-              <div v-for="(item, index) in formMemberList" :key="index">
-                <el-tag>{{ item.teamroleName }} {{ formCheckedIdList[index] }}</el-tag>
-<!--                <el-tag>{{item.userList}} </el-tag>-->
-<!--                <el-label v-for="data in item.userList" name="data.realName"  >{{data.userid}}{{data.realName}} </el-label>-->
-                <el-checkbox-group v-model="formCheckedIdList[index]" @change="handleCheckedIdListChange(item.teamrole,index)" :key="timer">
-                  <el-checkbox  v-for="data in item.userList" :label="data.userid" :key="data.userid"  @change="handleCheckedUseridChange(index,data.userid)" >{{data.realName}}</el-checkbox>
-                </el-checkbox-group>
-              </div>
+                <div v-for="(item, index) in formMemberList" :key="index">
+                  <el-tag>{{ item.teamroleName }} {{ formCheckedIdList[index] }}</el-tag>
+                  <!--                <el-tag>{{item.userList}} </el-tag>-->
+                  <!--                <el-label v-for="data in item.userList" name="data.realName"  >{{data.userid}}{{data.realName}} </el-label>-->
+                  <el-checkbox-group v-model="formCheckedIdList[index]"
+                                     @change="handleCheckedIdListChange(item.teamrole,index)" :key="timer">
+                    <el-checkbox v-for="data in item.userList" :label="data.userid" :key="data.userid"
+                                 @change="handleCheckedUseridChange(index,data.userid)">{{ data.realName }}
+                    </el-checkbox>
+                  </el-checkbox-group>
+                </div>
               </template>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="添加成员" >
+            <el-form-item label="团队角色">
               <template>
-                <el-autocomplete  class="input-with-select"
-                                  v-model="form.teamAddUsername"
-                                  :fetch-suggestions="queryUserListSearch"
-                                  placeholder="请输入人员名称"
-                                  @select="handleSelectUser"
-                >
-
-
-                </el-autocomplete>
-              </template>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="团队角色" >
-              <template>
-                <el-select v-model="form.teamAddTeamroleName" placeholder="请选择" @change="changeTeamAddTeamrole" :key="timer">
+                <el-select v-model="form.teamAddTeamroleName" placeholder="请选择" @change="changeTeamAddTeamrole"
+                           :key="timer">
                   <el-option
                     v-for="item in this.teamroleListOptions"
                     :key="item.dictValue"
@@ -139,6 +131,19 @@
                     :value="item.dictLabel">
                   </el-option>
                 </el-select>
+              </template>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="添加成员">
+              <template>
+                <el-autocomplete class="input-with-select"
+                                 v-model="form.teamAddUsername"
+                                 :fetch-suggestions="queryUserListSearch"
+                                 placeholder="请输入人员名称"
+                                 @select="handleSelectUser"
+                >
+                </el-autocomplete>
               </template>
             </el-form-item>
           </el-col>
@@ -154,9 +159,8 @@
 </template>
 
 <script>
-import {listTeam, addTeam, updateTeam } from "@/api/project/team";
-import {getToken } from "@/utils/auth";
-import {getUser, listUser} from "@/api/system/user";
+import {addTeam, listTeam, updateTeam} from "@/api/project/team";
+import {listUser} from "@/api/system/user";
 import {listData} from "@/api/system/dict/data";
 
 export default {
@@ -192,19 +196,18 @@ export default {
         pageSize: 10,
         teamname: undefined
       },
-      formMemberList :[],
-      formCheckedIdList :[],
+      formMemberList: [],
+      formCheckedIdList: [],
       // 表单参数
-      form: {
-      },
-      timer:'',
+      form: {},
+      timer: '',
       // 表单校验
       rules: {
         teamname: [
-          { required: true, message: "团队名称不能为空", trigger: "blur" }
+          {required: true, message: "团队名称不能为空", trigger: "blur"}
         ],
         teamLeaderRealName: [
-          { required: true, message: "团队负责人不能为空", trigger: "blur" }
+          {required: true, message: "团队负责人不能为空", trigger: "blur"}
         ],
         email: [
           {
@@ -240,8 +243,8 @@ export default {
     this.getList();
     listData({"dictType": "团队角色"}).then(response => {
       console.log(response);
-      this.teamroleListOptions = response.rows.sort(function (a,b) {
-       return a.dictValue < b.dictValue
+      this.teamroleListOptions = response.rows.sort(function (a, b) {
+        return a.dictValue < b.dictValue
 
       });
 
@@ -275,11 +278,11 @@ export default {
         createUserRealName: undefined,
         memberList: [],
         checkedIdList: [],
-        teamAddUsername:undefined,
-        teamAddUserid:undefined,
+        teamAddUsername: undefined,
+        teamAddUserid: undefined,
         teamAddTeamroleName: undefined
       };
-      this.formCheckedIdList =[];
+      this.formCheckedIdList = [];
       this.formMemberList = [];
 
       this.resetForm("form");
@@ -321,7 +324,7 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(function() {
+      }).then(function () {
         return exportUser(queryParams);
       }).then(response => {
         this.download(response.msg);
@@ -361,8 +364,8 @@ export default {
     },
 
 
-    handleCheckedIdListChange (value,index) {
-      console.log("change is ", value,index);
+    handleCheckedIdListChange(value, index) {
+      console.log("change is ", value, index);
       // this.checkedMemberList = []
       // let arr = this.checkedMemberList
       // for (let i = 0; i < arr.length; i ++) {
@@ -379,12 +382,13 @@ export default {
       //   }
       // }
 
-      this.timer=new Date().getTime();
+      // 刷新dialog的组件，否则不渲染。
+      this.timer = new Date().getTime();
 
       console.log(this.formCheckedIdList);
     },
 
-    handleCheckedUseridChange(index,userid) {
+    handleCheckedUseridChange(index, userid) {
 
     },
 
@@ -399,7 +403,7 @@ export default {
           var userListOptions = [];
           const userList = response.rows;
           userList.forEach(function (user) {
-            var item = {"value":user.realName, "userid" : user.userId};
+            var item = {"value": user.realName, "userid": user.userId};
             userListOptions.push(item);
           });
           cb(userListOptions);
@@ -414,54 +418,95 @@ export default {
 
     handleSelectUser(user) {
 
-      console.log(user, this.form.teamAddTeamroleName);
-      var index = 0;
-      let cc = this.formMemberList.length;
+      let select_user = {"userid": user["userid"], "realName": user["value"]};
 
-      for (let i=0; i< cc; i++){
-        let item = this.formMemberList[i];
-        index = i;
-        console.log("formMember is ", item.teamrole, item.teamroleName);
-        if (item.teamroleName === this.form.teamAddTeamroleName){
+      console.log("handleSelectUser is ", select_user, this.form.teamAddTeamroleName);
 
-          let arr = this.formMemberList[i].userList;
-          console.log("handleSelectUser", arr);
-          this.formMemberList[i].userList.push({"userid":user["userid"],"realName":user["value"]});
-          this.formCheckedIdList[i].push(user["userid"]);
-          index = cc;
+      console.log(this.formMemberList);
+      this.form.teamAddUserid = select_user["userid"];
+      this.form.teamAddUsername = select_user["realName"];
+
+      // checked userid 存在吗？
+      let checked_userid_inserted = 0;
+      for (let i = 0; i < this.formCheckedIdList.length; i++) {
+        let item = this.formCheckedIdList[i];
+        for (let j = 0; j < item.length; j++) {
+          let userid = item[j];
+          if (userid == select_user["userid"]) {
+            checked_userid_inserted = 1;
+            break;
+          }
+
+        }
+        if (checked_userid_inserted === 1) {
           break;
         }
       }
 
-      this.form.teamAddUserid = user["userid"];
-      this.form.teamAddUsername = user["value"];
+      if (checked_userid_inserted === 1) {
+        this.msgError(select_user["realName"] + " 选中重复，不能再次添加选中");
+        return;
+      }
 
-      if (index !== cc ) {
+
+      // role存在吗？
+      let select_role_inserted = 0;
+      for (let i = 0; i < this.formMemberList.length; i++) {
+        let item = this.formMemberList[i];
+        if (item["teamroleName"] === this.form.teamAddTeamroleName) {
+          select_role_inserted = 1;
+          break;
+        }
+      }
+
+      if (select_role_inserted === 1) {
+        for (let i = 0; i < this.formMemberList.length; i++) {
+          let item = this.formMemberList[i];
+          let select_user_merged = 0;
+          for (let j = 0; j < item.userList.length; j++) {
+            let userItem = item.userList[j];
+            if (userItem["userid"] == select_user["userid"]) {
+              select_user_merged = 1;
+              break;
+            }
+          }
+          if (select_user_merged === 0) {
+            this.formMemberList[i].userList.push(select_user);
+            this.formCheckedIdList[i].push(select_user["userid"]);
+            this.msgSuccess(select_user["realName"] + " 添加并选中完成");
+          } else {
+            this.msgError(select_user["realName"] + " 重复，不能再次添加");
+          }
+
+        }
+
+      } else {
 
         let teamrole = '';
 
-        for (let item in this.teamroleListOptions) {
+        for (let i = 0; i < this.teamroleListOptions.length; i++) {
+          let item = this.teamroleListOptions[i];
           if (item.dictLabel === this.form.teamAddTeamroleName) {
             teamrole = item.dictValue;
           }
         }
 
-        let add_user = {"userid":user["userid"],"realName":user["value"]};
-        let formMember = {"teamrole":teamrole,"teamroleName":this.form.teamAddTeamroleName,"userList":[add_user]};
+        let formMember = {
+          "teamrole": teamrole,
+          "teamroleName": this.form.teamAddTeamroleName,
+          "userList": [select_user]
+        };
 
-        console.log("this step now?", this.formMemberList);
         this.formMemberList.push(formMember);
-        this.formCheckedIdList.push([user["userid"]]);
-        console.log("this step now?", formMember);
+        this.formCheckedIdList.push([select_user["userid"]]);
+        this.msgSuccess(select_user["realName"] + " 添加之新角色并选中完成");
       }
-
-
 
     },
 
-    changeTeamAddTeamrole: function (){
+    changeTeamAddTeamrole: function () {
       console.log("changeTeamAddTeamrole is working.");
-      this.timer =  new Date().getTime();
+      this.timer = new Date().getTime();
     },
 
     /** 提交按钮 */
