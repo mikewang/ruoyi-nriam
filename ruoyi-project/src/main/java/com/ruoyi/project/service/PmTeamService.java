@@ -98,7 +98,6 @@ public class PmTeamService {
         for (List<Integer> itemList : team.getCheckIdList()){
             int index = team.getCheckIdList().indexOf(itemList);
             HashMap<String, Object> role = team.getMemberList().get(index);
-            role.get("")
 
         }
 
