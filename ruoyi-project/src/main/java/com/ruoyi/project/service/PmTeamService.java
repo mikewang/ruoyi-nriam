@@ -7,6 +7,7 @@ import com.ruoyi.project.mapper.PmTeamMemberMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -17,8 +18,6 @@ public class PmTeamService {
 
     @Resource
     private PmTeamMapper pmTeamMapper;
-
-
     @Resource
     private PmTeamMemberMapper pmTeamMemberMapper;
 
@@ -86,5 +85,37 @@ public class PmTeamService {
         List<PmTeam> teamList = pmTeamMapper.selectAll();
 
         return teamList;
+    }
+
+    @Transactional
+    public int addTeam(PmTeam team) {
+
+        int rows = pmTeamMapper.insertTeam(team);
+        int teamid = team.getTeamid();
+
+        team.getMemberList();
+        team.getCheckIdList();
+        for (List<Integer> itemList : team.getCheckIdList()){
+            int index = team.getCheckIdList().indexOf(itemList);
+            HashMap<String, Object> role = team.getMemberList().get(index);
+            role.get("")
+
+        }
+
+        PmTeamMember record = new PmTeamMember();
+        record.setTeamid(teamid);
+        List<PmTeamMember> memberList  = pmTeamMemberMapper.selectTeamMemberList(record);
+
+
+        team.getMemberList();
+
+
+        return rows;
+    }
+
+    @Transactional
+    public int updateTeam(PmTeam team) {
+
+        return 1;
     }
 }

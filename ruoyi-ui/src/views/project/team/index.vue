@@ -336,24 +336,27 @@ export default {
 
       this.form = row;
 
-      console.log("this.formCheckedIdList is ", this.formCheckedIdList);
+      let memberList = this.form.memberList;
+      let checkedIdList = this.form.checkedIdList;
 
-      this.formMemberList = row.memberList;
-      this.formCheckedIdList = [];
+      console.log("this.form.CheckedIdList is ", this.form.checkedIdList);
 
-      for (let i = 0; i < this.formMemberList.length; i++) {
+      // this.formMemberList = row.memberList;
+      // this.formCheckedIdList = [];
+
+      for (let i = 0; i < memberList.length; i++) {
         let checkArr = []
-        let item = this.formMemberList[i].userList
+        let item = memberList[i].userList
         if (item.length === 0) {
-          this.formCheckedIdList.push([])
+          checkedIdList.push([])
         } else {
           for (let j = 0; j < item.length; j++) {
             // checkArr.push(item[j].userid)
           }
-          this.formCheckedIdList.push(checkArr)
+          checkedIdList.push(checkArr)
         }
       }
-      console.log("checkedIdList is ", this.formCheckedIdList);
+      console.log("checkedIdList is ", checkedIdList);
 
       this.form.teamAddTeamroleName = this.teamroleListOptions[0].dictLabel;
       console.log("teamroleListOption default is ", this.teamroleListOptions[0].dictLabel);
@@ -384,8 +387,7 @@ export default {
 
       // 刷新dialog的组件，否则不渲染。
       this.timer = new Date().getTime();
-
-      console.log(this.formCheckedIdList);
+      console.log(this.form.checkedIdList);
     },
 
     handleCheckedUseridChange(index, userid) {
@@ -422,14 +424,17 @@ export default {
 
       console.log("handleSelectUser is ", select_user, this.form.teamAddTeamroleName);
 
-      console.log(this.formMemberList);
+      let memberList = self.form.memberList;
+      let checkedIdList = this.form.checkedIdList;
+
+      console.log(memberList);
       this.form.teamAddUserid = select_user["userid"];
       this.form.teamAddUsername = select_user["realName"];
 
       // checked userid 存在吗？
       let checked_userid_inserted = 0;
-      for (let i = 0; i < this.formCheckedIdList.length; i++) {
-        let item = this.formCheckedIdList[i];
+      for (let i = 0; i < checkedIdList.length; i++) {
+        let item = checkedIdList[i];
         for (let j = 0; j < item.length; j++) {
           let userid = item[j];
           if (userid == select_user["userid"]) {
@@ -448,11 +453,10 @@ export default {
         return;
       }
 
-
       // role存在吗？
       let select_role_inserted = 0;
-      for (let i = 0; i < this.formMemberList.length; i++) {
-        let item = this.formMemberList[i];
+      for (let i = 0; i < memberList.length; i++) {
+        let item = memberList[i];
         if (item["teamroleName"] === this.form.teamAddTeamroleName) {
           select_role_inserted = 1;
           break;
@@ -460,8 +464,8 @@ export default {
       }
 
       if (select_role_inserted === 1) {
-        for (let i = 0; i < this.formMemberList.length; i++) {
-          let item = this.formMemberList[i];
+        for (let i = 0; i < memberList.length; i++) {
+          let item = memberList[i];
           let select_user_merged = 0;
           for (let j = 0; j < item.userList.length; j++) {
             let userItem = item.userList[j];
@@ -471,19 +475,15 @@ export default {
             }
           }
           if (select_user_merged === 0) {
-            this.formMemberList[i].userList.push(select_user);
-            this.formCheckedIdList[i].push(select_user["userid"]);
+            memberList[i].userList.push(select_user);
+            checkedIdList[i].push(select_user["userid"]);
             this.msgSuccess(select_user["realName"] + " 添加并选中完成");
           } else {
             this.msgError(select_user["realName"] + " 重复，不能再次添加");
           }
-
         }
-
       } else {
-
         let teamrole = '';
-
         for (let i = 0; i < this.teamroleListOptions.length; i++) {
           let item = this.teamroleListOptions[i];
           if (item.dictLabel === this.form.teamAddTeamroleName) {
@@ -497,8 +497,8 @@ export default {
           "userList": [select_user]
         };
 
-        this.formMemberList.push(formMember);
-        this.formCheckedIdList.push([select_user["userid"]]);
+        memberList.push(formMember);
+        checkedIdList.push([select_user["userid"]]);
         this.msgSuccess(select_user["realName"] + " 添加之新角色并选中完成");
       }
 
@@ -513,6 +513,7 @@ export default {
     submitForm: function () {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          console.log("submit form is ", this.form);
           if (this.form.teamid != undefined) {
             updateTeam(this.form).then(response => {
               this.msgSuccess("修改成功");

@@ -1,5 +1,6 @@
 package com.ruoyi.web.controller.project;
 
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.project.domain.PmTeam;
 import com.ruoyi.project.service.PmTeamService;
 import com.ruoyi.common.annotation.Log;
@@ -12,6 +13,7 @@ import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,5 +40,42 @@ public class PmTeamController extends BaseController {
         return getDataTable(list);
     }
 
+    @PreAuthorize("@ss.hasPermi('project:team:add')")
+    @Log(title = "团队新增", businessType = BusinessType.INSERT)
+    @PostMapping
+    public AjaxResult add(@Validated @RequestBody PmTeam team) {
+
+        if (StringUtils.isNotEmpty(team.getTeamname())) {
+            return AjaxResult.error("新增团队'" + team.getCreateUserRealName() + "'失败，团队名称为空");
+        }
+        return  toAjax(pmTeamService.addTeam(team));
+    }
+
+    @PreAuthorize("@ss.hasPermi('project:team:edit')")
+    @Log(title = "团队修改", businessType = BusinessType.UPDATE)
+    @PutMapping
+    public AjaxResult edit(@Validated @RequestBody PmTeam team)
+    {
+
+        if (StringUtils.isNotEmpty(team.getTeamname())) {
+            return AjaxResult.error("修改团队'" + team.getTeamid() + "'失败，团队名称为空");
+        }
+
+        return  toAjax(pmTeamService.updateTeam(team));
+
+//        userService.checkUserAllowed(user);
+//        if (StringUtils.isNotEmpty(user.getPhonenumber())
+//                && UserConstants.NOT_UNIQUE.equals(userService.checkPhoneUnique(user)))
+//        {
+//            return AjaxResult.error("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
+//        }
+//        else if (StringUtils.isNotEmpty(user.getEmail())
+//                && UserConstants.NOT_UNIQUE.equals(userService.checkEmailUnique(user)))
+//        {
+//            return AjaxResult.error("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+//        }
+//        user.setUpdateBy(SecurityUtils.getUsername());
+//        return toAjax(userService.updateUser(user));
+    }
 
 }

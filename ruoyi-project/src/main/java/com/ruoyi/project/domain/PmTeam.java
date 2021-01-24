@@ -2,6 +2,7 @@ package com.ruoyi.project.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,6 +34,9 @@ public class PmTeam extends BaseEntity {
     private String members;
 
     private List<HashMap> memberList;
+
+    private List<ArrayList<Integer>> checkIdList;
+
 
 
     public String getMembers() {
@@ -134,6 +138,13 @@ public class PmTeam extends BaseEntity {
         this.createUserRealName = createUserRealName;
     }
 
+    public List<ArrayList<Integer>> getCheckIdList() {
+        return checkIdList;
+    }
+
+    public void setCheckIdList(List<ArrayList<Integer>> checkIdList) {
+        this.checkIdList = checkIdList;
+    }
 
     @Override
     public String toString() {
