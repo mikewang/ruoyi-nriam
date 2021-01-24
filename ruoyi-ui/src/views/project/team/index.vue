@@ -111,7 +111,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="创建人员" prop="createUserRealName">
-              <el-input v-model="form.createUserRealName" placeholder="请输入创建人员名称"/>
+              <el-input v-model="form.createUserRealName" placeholder="请输入创建人员名称" readonly/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -121,7 +121,7 @@
               <template>
                 <div v-for="(item, index) in form.memberList" :key="index">
                   <el-tag>{{ item.teamroleName }}</el-tag>
-                  <el-tag>{{ form.checkedIdList[index] }}</el-tag>
+<!--                  <el-tag>{{ form.checkedIdList[index] }}</el-tag>-->
                   <!--                <el-tag>{{item.userList}} </el-tag>-->
                   <!--                <el-label v-for="data in item.userList" name="data.realName"  >{{data.userid}}{{data.realName}} </el-label>-->
                   <el-checkbox-group v-model="form.checkedIdList[index]"
@@ -165,6 +165,13 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="备注" prop="memo">
+              <el-input v-model="form.memo" placeholder="" type="textarea"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -176,9 +183,10 @@
 </template>
 
 <script>
-import {addTeam, listTeam, updateTeam} from "@/api/project/team";
+import {addTeam, listTeam, updateTeam,deleteTeam} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
 import {listData} from "@/api/system/dict/data";
+import {delContract} from "@/api/logis/contract";
 
 export default {
   name: "pmteam",
@@ -213,8 +221,6 @@ export default {
         pageSize: 10,
         teamname: undefined
       },
-      formMemberList: [],
-      formCheckedIdList: [],
       // 表单参数
       form: {},
       timer: '',
@@ -246,12 +252,6 @@ export default {
   watch: {
 
     form() {
-
-    },
-
-    formCheckedIdList(newValue, oldValue) {
-      console.log("formCheckedIdList oldValue", oldValue);
-      console.log("formCheckedIdList newValue", newValue);
 
     }
 
@@ -299,8 +299,6 @@ export default {
         teamAddUserid: undefined,
         teamAddTeamroleName: undefined
       };
-      this.formCheckedIdList = [];
-      this.formMemberList = [];
 
       this.resetForm("form");
     },
@@ -317,7 +315,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.userId);
+      this.ids = selection.map(item => item.teamid);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
@@ -325,13 +323,26 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
+      this.form.createuserid = this.$store.getters.userId;
+      this.form.createUserRealName = this.$store.getters.realName;
       this.open = true;
       this.title = "添加团队";
     },
 
     /**  删除按钮操作 */
     handleDelete(row) {
-
+      const teamIds = row.teamid || this.ids;
+      console.log("teamIds is ", teamIds);
+      this.$confirm('是否确认删除团队编号为"' + teamIds + '"的数据项?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return deleteTeam(teamIds);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("删除成功");
+      })
     },
 
     /** 导出按钮操作 */
@@ -350,6 +361,7 @@ export default {
 
     handleUpdate(row) {
       this.reset();
+      const teamid = row.teamid || this.ids
 
       this.form = row;
       this.form.checkedIdList = [];
@@ -361,14 +373,13 @@ export default {
       console.log("this.form.CheckedIdList is ", this.form.checkedIdList);
       console.log("this.form.memberList is ", memberList);
 
-      let checkArr = [];
-      // this.formMemberList = row.memberList;
-      // this.formCheckedIdList = [];
+
       for (let i =0; i < memberList.length; i++) {
         let item = memberList[i].userList;
         if (item.length === 0) {
           checkedIdList.push([])
         } else {
+          let checkArr = [];
           for (let j = 0; j < item.length; j++) {
             checkArr.push(item[j].userid);
           }

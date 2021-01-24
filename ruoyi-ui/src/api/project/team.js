@@ -29,3 +29,11 @@ export function updateTeam(data) {
     data: data
   })
 }
+
+// 删除团队
+export function deleteTeam(teamIds) {
+  return request({
+    url: '/project/team/' + teamIds,
+    method: 'delete'
+  })
+}

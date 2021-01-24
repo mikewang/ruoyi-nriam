@@ -1,8 +1,5 @@
 package com.ruoyi.web.controller.project;
 
-import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.project.domain.PmTeam;
-import com.ruoyi.project.service.PmTeamService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -10,8 +7,10 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.ServletUtils;
-import com.ruoyi.framework.config.ServerConfig;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.project.domain.PmTeam;
+import com.ruoyi.project.service.PmTeamService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -41,28 +40,48 @@ public class PmTeamController extends BaseController {
     }
 
     @PreAuthorize("@ss.hasPermi('project:team:add')")
-    @Log(title = "团队新增", businessType = BusinessType.INSERT)
+    @Log(title = "团队管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody PmTeam team) {
 
         if (StringUtils.isNotEmpty(team.getTeamname())) {
             return AjaxResult.error("新增团队'" + team.getCreateUserRealName() + "'失败，团队名称为空");
         }
-        return  toAjax(pmTeamService.addTeam(team));
+        return toAjax(pmTeamService.addTeam(team));
     }
 
     @PreAuthorize("@ss.hasPermi('project:team:edit')")
-    @Log(title = "团队修改", businessType = BusinessType.UPDATE)
+    @Log(title = "团队管理", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@Validated @RequestBody PmTeam team)
-    {
+    public AjaxResult edit(@Validated @RequestBody PmTeam team) {
         logger.debug(team.toString());
 
         if (StringUtils.isNotEmpty(team.getTeamname()) == false) {
             return AjaxResult.error("修改团队'" + team.getTeamid() + "'失败，团队名称为空");
         }
 
-        return  toAjax(pmTeamService.updateTeam(team));
+        return toAjax(pmTeamService.updateTeam(team));
+    }
+
+
+    /**
+     * 删除
+     */
+    @PreAuthorize("@ss.hasPermi('project:team:remove')")
+    @Log(title = "团队管理", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{teamids}")
+    public AjaxResult remove(@PathVariable Integer[] teamids) {
+//         logger.debug 只有一个参数，后面都不显示，但不报错。
+        for (Integer teamid : teamids)
+        {
+            logger.debug("remove is " + String.valueOf(teamid));
+        }
+
+
+        logger.debug("teamids length is " + String.valueOf(teamids.length));
+
+        Integer[] ids = new Integer[] {1,2,3};
+        return toAjax(pmTeamService.deleteTeamByIds(ids));
     }
 
 }

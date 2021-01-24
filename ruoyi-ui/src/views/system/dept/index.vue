@@ -333,7 +333,6 @@ export default {
       })
     },
     queryUserListSearch(queryString, cb) {
-
       var queryParams = {
         pageNum: 1,
           pageSize: 30,

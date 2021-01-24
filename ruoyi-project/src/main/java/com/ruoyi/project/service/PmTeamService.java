@@ -1,5 +1,6 @@
 package com.ruoyi.project.service;
 
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.project.domain.PmTeam;
 import com.ruoyi.project.domain.PmTeamMember;
 import com.ruoyi.project.mapper.PmTeamMapper;
@@ -111,24 +112,42 @@ public class PmTeamService {
 
     @Transactional
     public int updateTeam(PmTeam team) {
+// 这里的transactional 没有生效。
 
         int rows = pmTeamMapper.updateTeam(team);
         int teamid = team.getTeamid();
         rows = pmTeamMemberMapper.deleteTeamMembersByTeamid(teamid);
 
-        for (List<Integer> itemList : team.getCheckedIdList()){
-            int index = team.getCheckedIdList().indexOf(itemList);
-            HashMap<String, Object> memberGroup = team.getMemberList().get(index);
+        if (rows == 1) {
 
-            for (Integer userid : itemList) {
-                PmTeamMember member = new PmTeamMember();
-                member.setTeamid(teamid);
+            for (List<Integer> itemList : team.getCheckedIdList()){
+                int index = team.getCheckedIdList().indexOf(itemList);
+                HashMap<String, Object> memberGroup = team.getMemberList().get(index);
 
-                member.setTeamrole((Integer) memberGroup.get("teamrole"));
-                member.setUserid(userid);
-                rows = pmTeamMemberMapper.insertTeamMember(member);
+                for (Integer userid : itemList) {
+                    PmTeamMember member = new PmTeamMember();
+                    member.setTeamid(teamid);
+
+                    member.setTeamrole((Integer) memberGroup.get("teamrole"));
+                    member.setUserid(userid);
+                    rows = pmTeamMemberMapper.insertTeamMember(member);
+                }
             }
         }
+
+
+
+        return rows;
+    }
+
+    @Transactional
+    public int deleteTeamByIds(Integer[] teamids)
+    {
+        // 必须将 Array 转换成 List，否则报错。
+        List<Integer> ids = Arrays.asList(teamids);
+
+       int rows = pmTeamMapper.deleteTeamByIds(ids);
+        rows = pmTeamMemberMapper.deleteTeamMembersByTeamids(ids);
 
         return rows;
     }

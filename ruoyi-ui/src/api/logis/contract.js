@@ -38,9 +38,9 @@ export function updateContract(data) {
 }
 
 // 删除合同配置
-export function delContract(configId) {
+export function delContract(contractId) {
   return request({
-    url: '/logis/contract/' + configId,
+    url: '/logis/contract/' + contractId,
     method: 'delete'
   })
 }

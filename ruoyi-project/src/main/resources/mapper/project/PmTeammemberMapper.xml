@@ -33,4 +33,13 @@ order by a.TeamID,a.TeamRole, b.real_name
     where TeamID = #{teamid,jdbcType=INTEGER}
   </delete>
 
+  <delete id="deleteTeamMembersByTeamids" parameterType="List">
+    delete from PM_TeamMember
+    where TeamID in
+    <foreach  item ="teamid" index="index"  collection="list" open="(" separator="," close=")">
+      #{teamid}
+    </foreach>
+
+  </delete>
+
 </mapper>
