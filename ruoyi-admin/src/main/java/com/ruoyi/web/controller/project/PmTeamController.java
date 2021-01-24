@@ -56,26 +56,13 @@ public class PmTeamController extends BaseController {
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody PmTeam team)
     {
+        logger.debug(team.toString());
 
-        if (StringUtils.isNotEmpty(team.getTeamname())) {
+        if (StringUtils.isNotEmpty(team.getTeamname()) == false) {
             return AjaxResult.error("修改团队'" + team.getTeamid() + "'失败，团队名称为空");
         }
 
         return  toAjax(pmTeamService.updateTeam(team));
-
-//        userService.checkUserAllowed(user);
-//        if (StringUtils.isNotEmpty(user.getPhonenumber())
-//                && UserConstants.NOT_UNIQUE.equals(userService.checkPhoneUnique(user)))
-//        {
-//            return AjaxResult.error("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
-//        }
-//        else if (StringUtils.isNotEmpty(user.getEmail())
-//                && UserConstants.NOT_UNIQUE.equals(userService.checkEmailUnique(user)))
-//        {
-//            return AjaxResult.error("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
-//        }
-//        user.setUpdateBy(SecurityUtils.getUsername());
-//        return toAjax(userService.updateUser(user));
     }
 
 }

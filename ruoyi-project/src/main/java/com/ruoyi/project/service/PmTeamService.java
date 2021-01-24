@@ -93,21 +93,18 @@ public class PmTeamService {
         int rows = pmTeamMapper.insertTeam(team);
         int teamid = team.getTeamid();
 
-        team.getMemberList();
-        team.getCheckIdList();
-        for (List<Integer> itemList : team.getCheckIdList()){
-            int index = team.getCheckIdList().indexOf(itemList);
-            HashMap<String, Object> role = team.getMemberList().get(index);
+        for (List<Integer> itemList : team.getCheckedIdList()){
+            int index = team.getCheckedIdList().indexOf(itemList);
+            HashMap<String, Object> memberGroup = team.getMemberList().get(index);
 
+            for (Integer userid : itemList) {
+                PmTeamMember member = new PmTeamMember();
+                member.setTeamid(teamid);
+                member.setTeamrole((Integer) memberGroup.get("teamrole"));
+                member.setUserid(userid);
+                rows = pmTeamMemberMapper.insertTeamMember(member);
+            }
         }
-
-        PmTeamMember record = new PmTeamMember();
-        record.setTeamid(teamid);
-        List<PmTeamMember> memberList  = pmTeamMemberMapper.selectTeamMemberList(record);
-
-
-        team.getMemberList();
-
 
         return rows;
     }
@@ -115,6 +112,24 @@ public class PmTeamService {
     @Transactional
     public int updateTeam(PmTeam team) {
 
-        return 1;
+        int rows = pmTeamMapper.updateTeam(team);
+        int teamid = team.getTeamid();
+        rows = pmTeamMemberMapper.deleteTeamMembersByTeamid(teamid);
+
+        for (List<Integer> itemList : team.getCheckedIdList()){
+            int index = team.getCheckedIdList().indexOf(itemList);
+            HashMap<String, Object> memberGroup = team.getMemberList().get(index);
+
+            for (Integer userid : itemList) {
+                PmTeamMember member = new PmTeamMember();
+                member.setTeamid(teamid);
+
+                member.setTeamrole((Integer) memberGroup.get("teamrole"));
+                member.setUserid(userid);
+                rows = pmTeamMemberMapper.insertTeamMember(member);
+            }
+        }
+
+        return rows;
     }
 }

@@ -27,4 +27,10 @@
 order by a.TeamID,a.TeamRole, b.real_name
 
   </select>
+
+  <delete id="deleteTeamMembersByTeamid" parameterType="java.lang.Integer">
+    delete from PM_TeamMember
+    where TeamID = #{teamid,jdbcType=INTEGER}
+  </delete>
+
 </mapper>

@@ -10,7 +10,8 @@ public interface PmTeamMemberMapper {
 
     int insertTeamMember(PmTeamMember record);
     int updateTeamMember(PmTeam record);
-    int deleteTeamMemberById(Integer teamid);
+    int deleteTeamMemberById(Integer userid);
+    int deleteTeamMembersByTeamid(Integer teamid);
 
 
 }

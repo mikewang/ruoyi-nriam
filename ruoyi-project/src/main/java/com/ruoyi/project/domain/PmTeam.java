@@ -35,7 +35,7 @@ public class PmTeam extends BaseEntity {
 
     private List<HashMap> memberList;
 
-    private List<ArrayList<Integer>> checkIdList;
+    private List<ArrayList<Integer>> checkedIdList;
 
 
 
@@ -138,12 +138,12 @@ public class PmTeam extends BaseEntity {
         this.createUserRealName = createUserRealName;
     }
 
-    public List<ArrayList<Integer>> getCheckIdList() {
-        return checkIdList;
+    public List<ArrayList<Integer>> getCheckedIdList() {
+        return checkedIdList;
     }
 
-    public void setCheckIdList(List<ArrayList<Integer>> checkIdList) {
-        this.checkIdList = checkIdList;
+    public void setCheckedIdList(List<ArrayList<Integer>> checkedIdList) {
+        this.checkedIdList = checkedIdList;
     }
 
     @Override

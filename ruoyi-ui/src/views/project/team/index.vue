@@ -22,6 +22,16 @@
       <el-row :gutter="10" class="mb8">
         <el-col :span="1.5">
           <el-button
+            type="primary"
+            icon="el-icon-plus"
+            size="mini"
+            @click="handleAdd"
+            v-hasPermi="['project:team:add']"
+          >新增
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
             type="danger"
             icon="el-icon-delete"
             size="mini"
@@ -90,7 +100,13 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="团队负责人" prop="teamLeaderRealName">
-              <el-input v-model="form.teamLeaderRealName" placeholder="请输入团队负责人名称"/>
+              <el-autocomplete class="input-with-select"
+                               v-model="form.teamLeaderRealName"
+                               :fetch-suggestions="queryUserListSearch"
+                               placeholder="请输入团队负责人名称"
+                               @select="handleSelectTeamLeader"
+              >
+              </el-autocomplete>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -103,11 +119,12 @@
           <el-col :span="24">
             <el-form-item label="团队成员">
               <template>
-                <div v-for="(item, index) in formMemberList" :key="index">
-                  <el-tag>{{ item.teamroleName }} {{ formCheckedIdList[index] }}</el-tag>
+                <div v-for="(item, index) in form.memberList" :key="index">
+                  <el-tag>{{ item.teamroleName }}</el-tag>
+                  <el-tag>{{ form.checkedIdList[index] }}</el-tag>
                   <!--                <el-tag>{{item.userList}} </el-tag>-->
                   <!--                <el-label v-for="data in item.userList" name="data.realName"  >{{data.userid}}{{data.realName}} </el-label>-->
-                  <el-checkbox-group v-model="formCheckedIdList[index]"
+                  <el-checkbox-group v-model="form.checkedIdList[index]"
                                      @change="handleCheckedIdListChange(item.teamrole,index)" :key="timer">
                     <el-checkbox v-for="data in item.userList" :label="data.userid" :key="data.userid"
                                  @change="handleCheckedUseridChange(index,data.userid)">{{ data.realName }}
@@ -335,27 +352,31 @@ export default {
       this.reset();
 
       this.form = row;
+      this.form.checkedIdList = [];
 
       let memberList = this.form.memberList;
+
       let checkedIdList = this.form.checkedIdList;
 
       console.log("this.form.CheckedIdList is ", this.form.checkedIdList);
+      console.log("this.form.memberList is ", memberList);
 
+      let checkArr = [];
       // this.formMemberList = row.memberList;
       // this.formCheckedIdList = [];
-
-      for (let i = 0; i < memberList.length; i++) {
-        let checkArr = []
-        let item = memberList[i].userList
+      for (let i =0; i < memberList.length; i++) {
+        let item = memberList[i].userList;
         if (item.length === 0) {
           checkedIdList.push([])
         } else {
           for (let j = 0; j < item.length; j++) {
-            // checkArr.push(item[j].userid)
+            checkArr.push(item[j].userid);
           }
-          checkedIdList.push(checkArr)
+          checkedIdList.push(checkArr);
         }
       }
+
+
       console.log("checkedIdList is ", checkedIdList);
 
       this.form.teamAddTeamroleName = this.teamroleListOptions[0].dictLabel;
@@ -418,13 +439,19 @@ export default {
       // cb(results);
     },
 
+    handleSelectTeamLeader(user) {
+      let leader = {"userid": user["userid"], "realName": user["value"]};
+      this.form.teamleaderid = leader.userid;
+      this.form.teamLeaderRealName = leader.realName;
+    },
+
     handleSelectUser(user) {
 
       let select_user = {"userid": user["userid"], "realName": user["value"]};
 
       console.log("handleSelectUser is ", select_user, this.form.teamAddTeamroleName);
 
-      let memberList = self.form.memberList;
+      let memberList = this.form.memberList;
       let checkedIdList = this.form.checkedIdList;
 
       console.log(memberList);
@@ -483,11 +510,11 @@ export default {
           }
         }
       } else {
-        let teamrole = '';
+        let teamrole = 0;
         for (let i = 0; i < this.teamroleListOptions.length; i++) {
           let item = this.teamroleListOptions[i];
           if (item.dictLabel === this.form.teamAddTeamroleName) {
-            teamrole = item.dictValue;
+            teamrole = Number(item.dictValue);
           }
         }
 
