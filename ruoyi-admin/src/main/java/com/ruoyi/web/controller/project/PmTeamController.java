@@ -77,11 +77,9 @@ public class PmTeamController extends BaseController {
             logger.debug("remove is " + String.valueOf(teamid));
         }
 
-
         logger.debug("teamids length is " + String.valueOf(teamids.length));
 
-        Integer[] ids = new Integer[] {1,2,3};
-        return toAjax(pmTeamService.deleteTeamByIds(ids));
+        return toAjax(pmTeamService.deleteTeamByIds(teamids));
     }
 
 }
