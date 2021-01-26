@@ -1,151 +1,186 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.project.mapper.AudProjectMapper">
-  <resultMap id="BaseResultMap" type="com.ruoyi.project.domain.AudProject">
-    <id column="ProjectID" jdbcType="INTEGER" property="projectid" />
-    <result column="ProjectName" jdbcType="VARCHAR" property="projectname" />
-    <result column="ProjectCode" jdbcType="VARCHAR" property="projectcode" />
-    <result column="SubjectCode" jdbcType="VARCHAR" property="subjectcode" />
-    <result column="ProjectFunds" jdbcType="DECIMAL" property="projectfunds" />
-    <result column="FinanceFunds" jdbcType="DECIMAL" property="financefunds" />
-    <result column="CanUseFunds" jdbcType="DECIMAL" property="canusefunds" />
-    <result column="ProjectBeginDate" jdbcType="VARCHAR" property="projectbegindate" />
-    <result column="ProjectEndDate" jdbcType="VARCHAR" property="projectenddate" />
-    <result column="ProjectType" jdbcType="INTEGER" property="projecttype" />
-    <result column="ProjectManagerID" jdbcType="INTEGER" property="projectmanagerid" />
-    <result column="OrganizationID" jdbcType="INTEGER" property="organizationid" />
-    <result column="TeamID" jdbcType="INTEGER" property="teamid" />
-    <result column="Memo" jdbcType="VARCHAR" property="memo" />
-    <result column="JoinType" jdbcType="INTEGER" property="jointype" />
-    <result column="CreateUserID" jdbcType="INTEGER" property="createuserid" />
-    <result column="IfAudited" jdbcType="BIT" property="ifaudited" />
-    <result column="IfAcceptanceFull" jdbcType="BIT" property="ifacceptancefull" />
-    <result column="Status" jdbcType="INTEGER" property="status" />
-    <result column="ProjectTypeLinkText" jdbcType="VARCHAR" property="projectTypeLinkText" />
-    <result column="dictionaryOrderNum" jdbcType="VARCHAR" property="dictionaryOrderNum" />
-    <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationIDLinkText" />
-    <result column="StatusLinkText" jdbcType="VARCHAR" property="statusLinkText" />
-    <result column="TeamName" jdbcType="VARCHAR" property="teamname" />
-  </resultMap>
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.domain.AudProject">
+        <id column="ProjectID" jdbcType="INTEGER" property="projectid"/>
+        <result column="ProjectName" jdbcType="VARCHAR" property="projectname"/>
+        <result column="ProjectCode" jdbcType="VARCHAR" property="projectcode"/>
+        <result column="SubjectCode" jdbcType="VARCHAR" property="subjectcode"/>
+        <result column="ProjectFunds" jdbcType="DECIMAL" property="projectfunds"/>
+        <result column="FinanceFunds" jdbcType="DECIMAL" property="financefunds"/>
+        <result column="CanUseFunds" jdbcType="DECIMAL" property="canusefunds"/>
+        <result column="ProjectBeginDate" jdbcType="VARCHAR" property="projectbegindate"/>
+        <result column="ProjectEndDate" jdbcType="VARCHAR" property="projectenddate"/>
+        <result column="ProjectType" jdbcType="INTEGER" property="projecttype"/>
+        <result column="ProjectManagerID" jdbcType="INTEGER" property="projectmanagerid"/>
+        <result column="OrganizationID" jdbcType="INTEGER" property="organizationid"/>
+        <result column="TeamID" jdbcType="INTEGER" property="teamid"/>
+        <result column="Memo" jdbcType="VARCHAR" property="memo"/>
+        <result column="JoinType" jdbcType="INTEGER" property="jointype"/>
+        <result column="CreateUserID" jdbcType="INTEGER" property="createuserid"/>
+        <result column="IfAudited" jdbcType="BIT" property="ifaudited"/>
+        <result column="IfAcceptanceFull" jdbcType="BIT" property="ifacceptancefull"/>
+        <result column="Status" jdbcType="INTEGER" property="status"/>
+        <result column="ProjectTypeLinkText" jdbcType="VARCHAR" property="projectTypeLinkText"/>
+        <result column="dictionaryOrderNum" jdbcType="VARCHAR" property="dictionaryOrderNum"/>
+        <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationIDLinkText"/>
+        <result column="StatusLinkText" jdbcType="VARCHAR" property="statusLinkText"/>
+        <result column="TeamName" jdbcType="VARCHAR" property="teamname"/>
+    </resultMap>
 
-  <sql id="selectAudProject">
-    SELECT a.ProjectID, a.ProjectName, a.ProjectCode, a.SubjectCode, a.ProjectFunds
-         , a.FinanceFunds, a.CanUseFunds, a.ProjectBeginDate, a.ProjectEndDate, a.ProjectType
-         , a.ProjectManagerID, a.OrganizationID, a.TeamID, a.Memo, a.JoinType
-         , a.CreateUserID, a.IfAudited, a.IfAcceptanceFull, a.Status
-         , t5.dict_label AS ProjectTypeLinkText
-         , t5.dict_sort as DictionaryOrderNum, t6.Real_Name AS ProjectManagerIDLinkText
-         , b.dept_name AS OrganizationIDLinkText, c.dict_label AS StatusLinkText
-         , d.TeamName
-    FROM Aud_Project a, sys_dict_data t5, sys_user t6, sys_dept b, sys_dict_data c, PM_Team d
-    WHERE a.ProjectType = t5.dict_value
-      AND t5.dict_type = '项目类型'
-      AND t6.User_ID = a.ProjectManagerID
-      AND b.dept_id = a.OrganizationID
-      AND c.dict_value = a.Status
-      AND c.dict_type = '项目状态'
-        and a.teamID = d.TeamID
+    <sql id="selectAudProject">
+        select *
+        from (
+                 SELECT a.ProjectID
+                      , a.ProjectName
+                      , a.ProjectCode
+                      , a.SubjectCode
+                      , a.ProjectFunds
+                      , a.FinanceFunds
+                      , a.CanUseFunds
+                      , a.ProjectBeginDate
+                      , a.ProjectEndDate
+                      , a.ProjectType
+                      , a.ProjectManagerID
+                      , a.OrganizationID
+                      , a.TeamID
+                      , a.Memo
+                      , a.JoinType
+                      , a.CreateUserID
+                      , a.IfAudited
+                      , a.IfAcceptanceFull
+                      , a.Status
+                      , t5.dict_label AS ProjectTypeLinkText
+                      , t5.dict_sort  as DictionaryOrderNum
+                      , t6.Real_Name  AS ProjectManagerIDLinkText
+                      , b.dept_name   AS OrganizationIDLinkText
+                      , c.dict_label  AS StatusLinkText
+                      , d.TeamName
+                 FROM Aud_Project a,
+                      sys_dict_data t5,
+                      sys_user t6,
+                      sys_dept b,
+                      sys_dict_data c,
+                      PM_Team d
+                 WHERE a.ProjectType = t5.dict_value
+                   AND t5.dict_type = '项目类型'
+                   AND t6.User_ID = a.ProjectManagerID
+                   AND b.dept_id = a.OrganizationID
+                   AND c.dict_value = a.Status
+                   AND c.dict_type = '项目状态'
+                   and a.teamID = d.TeamID
+             ) as v1
 
-  </sql>
+    </sql>
 
 
-  <select id="selectAudProjectList" parameterType="com.ruoyi.project.domain.AudProject" resultMap="BaseResultMap">
-    <include refid="selectAudProject"/>
+    <select id="selectAudProjectList" parameterType="com.ruoyi.project.domain.AudProject" resultMap="BaseResultMap">
+        <include refid="selectAudProject"/>
+        where 0=0
+        <if test="statusList != null">
+            and Status in
+            <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
 
-    <if test="statusList != null">
-      and a.Status in
-      <foreach  item ="item" index="index"  collection="statusList" open="(" separator="," close=")">
-        #{item}
-      </foreach>
-    </if>
+        <if test="projectyear != null and projectyear != '' ">
+            and #{projectyear,jdbcType=VARCHAR} &gt;= SUBSTRING(ProjectBeginDate,1,4)
+            and #{projectyear,jdbcType=VARCHAR} &lt;= SUBSTRING(ProjectEndDate,1,4)
 
-    ORDER BY DictionaryOrderNum, ProjectTypeLinkText,  a.ProjectName
-  </select>
+        </if>
+        <if test="teamid != null and teamid != 0 ">
+            and teamid = #{teamid, jdbcType=INTEGER}
+        </if>
+        ORDER BY DictionaryOrderNum, ProjectTypeLinkText, ProjectName
+    </select>
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Jan 25 16:18:51 CST 2021.
-    -->
-    delete from Aud_Project
-    where ProjectID = #{projectid,jdbcType=INTEGER}
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        <!--
 
-    <if test="teamName != null and teamName != '' ">
-      AND  TeamName like concat('%', #{teamName}, '%')
-    </if>
 
-    ORDER BY DictionaryOrderNum, ProjectTypeLinkText,  a.ProjectName
-  </delete>
-  <insert id="insert" parameterType="com.ruoyi.project.domain.AudProject">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Jan 25 16:18:51 CST 2021.
-    -->
-    insert into Aud_Project (ProjectID, ProjectName, ProjectCode, 
-      SubjectCode, ProjectFunds, FinanceFunds, 
-      CanUseFunds, ProjectBeginDate, ProjectEndDate, 
-      ProjectType, ProjectManagerID, OrganizationID, 
-      TeamID, Memo, JoinType, 
-      CreateUserID, IfAudited, IfAcceptanceFull, 
-      Status)
-    values (#{projectid,jdbcType=INTEGER}, #{projectname,jdbcType=VARCHAR}, #{projectcode,jdbcType=VARCHAR}, 
-      #{subjectcode,jdbcType=VARCHAR}, #{projectfunds,jdbcType=DECIMAL}, #{financefunds,jdbcType=DECIMAL}, 
-      #{canusefunds,jdbcType=DECIMAL}, #{projectbegindate,jdbcType=VARCHAR}, #{projectenddate,jdbcType=VARCHAR}, 
-      #{projecttype,jdbcType=INTEGER}, #{projectmanagerid,jdbcType=INTEGER}, #{organizationid,jdbcType=INTEGER}, 
-      #{teamid,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR}, #{jointype,jdbcType=INTEGER}, 
-      #{createuserid,jdbcType=INTEGER}, #{ifaudited,jdbcType=BIT}, #{ifacceptancefull,jdbcType=BIT}, 
-      #{status,jdbcType=INTEGER})
-  </insert>
-  <update id="updateByPrimaryKey" parameterType="com.ruoyi.project.domain.AudProject">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Jan 25 16:18:51 CST 2021.
-    -->
-    update Aud_Project
-    set ProjectName = #{projectname,jdbcType=VARCHAR},
-      ProjectCode = #{projectcode,jdbcType=VARCHAR},
-      SubjectCode = #{subjectcode,jdbcType=VARCHAR},
-      ProjectFunds = #{projectfunds,jdbcType=DECIMAL},
-      FinanceFunds = #{financefunds,jdbcType=DECIMAL},
-      CanUseFunds = #{canusefunds,jdbcType=DECIMAL},
-      ProjectBeginDate = #{projectbegindate,jdbcType=VARCHAR},
-      ProjectEndDate = #{projectenddate,jdbcType=VARCHAR},
-      ProjectType = #{projecttype,jdbcType=INTEGER},
-      ProjectManagerID = #{projectmanagerid,jdbcType=INTEGER},
-      OrganizationID = #{organizationid,jdbcType=INTEGER},
-      TeamID = #{teamid,jdbcType=INTEGER},
-      Memo = #{memo,jdbcType=VARCHAR},
-      JoinType = #{jointype,jdbcType=INTEGER},
-      CreateUserID = #{createuserid,jdbcType=INTEGER},
-      IfAudited = #{ifaudited,jdbcType=BIT},
-      IfAcceptanceFull = #{ifacceptancefull,jdbcType=BIT},
-      Status = #{status,jdbcType=INTEGER}
-    where ProjectID = #{projectid,jdbcType=INTEGER}
-  </update>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Jan 25 16:18:51 CST 2021.
-    -->
-    select ProjectID, ProjectName, ProjectCode, SubjectCode, ProjectFunds, FinanceFunds, 
-    CanUseFunds, ProjectBeginDate, ProjectEndDate, ProjectType, ProjectManagerID, OrganizationID, 
-    TeamID, Memo, JoinType, CreateUserID, IfAudited, IfAcceptanceFull, Status
-    from Aud_Project
-    where ProjectID = #{projectid,jdbcType=INTEGER}
-  </select>
-  <select id="selectAll" resultMap="BaseResultMap">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Jan 25 16:18:51 CST 2021.
-    -->
-    select ProjectID, ProjectName, ProjectCode, SubjectCode, ProjectFunds, FinanceFunds, 
-    CanUseFunds, ProjectBeginDate, ProjectEndDate, ProjectType, ProjectManagerID, OrganizationID, 
-    TeamID, Memo, JoinType, CreateUserID, IfAudited, IfAcceptanceFull, Status
-    from Aud_Project
-  </select>
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Mon Jan 25 16:18:51 CST 2021.
+        -->
+        delete from Aud_Project
+        where ProjectID = #{projectid,jdbcType=INTEGER}
+
+        <if test="teamName != null and teamName != '' ">
+            AND TeamName like concat('%', #{teamName}, '%')
+        </if>
+
+        ORDER BY DictionaryOrderNum, ProjectTypeLinkText, a.ProjectName
+    </delete>
+    <insert id="insert" parameterType="com.ruoyi.project.domain.AudProject">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Mon Jan 25 16:18:51 CST 2021.
+        -->
+        insert into Aud_Project (ProjectID, ProjectName, ProjectCode,
+        SubjectCode, ProjectFunds, FinanceFunds,
+        CanUseFunds, ProjectBeginDate, ProjectEndDate,
+        ProjectType, ProjectManagerID, OrganizationID,
+        TeamID, Memo, JoinType,
+        CreateUserID, IfAudited, IfAcceptanceFull,
+        Status)
+        values (#{projectid,jdbcType=INTEGER}, #{projectname,jdbcType=VARCHAR}, #{projectcode,jdbcType=VARCHAR},
+        #{subjectcode,jdbcType=VARCHAR}, #{projectfunds,jdbcType=DECIMAL}, #{financefunds,jdbcType=DECIMAL},
+        #{canusefunds,jdbcType=DECIMAL}, #{projectbegindate,jdbcType=VARCHAR}, #{projectenddate,jdbcType=VARCHAR},
+        #{projecttype,jdbcType=INTEGER}, #{projectmanagerid,jdbcType=INTEGER}, #{organizationid,jdbcType=INTEGER},
+        #{teamid,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR}, #{jointype,jdbcType=INTEGER},
+        #{createuserid,jdbcType=INTEGER}, #{ifaudited,jdbcType=BIT}, #{ifacceptancefull,jdbcType=BIT},
+        #{status,jdbcType=INTEGER})
+    </insert>
+    <update id="updateByPrimaryKey" parameterType="com.ruoyi.project.domain.AudProject">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Mon Jan 25 16:18:51 CST 2021.
+        -->
+        update Aud_Project
+        set ProjectName = #{projectname,jdbcType=VARCHAR},
+        ProjectCode = #{projectcode,jdbcType=VARCHAR},
+        SubjectCode = #{subjectcode,jdbcType=VARCHAR},
+        ProjectFunds = #{projectfunds,jdbcType=DECIMAL},
+        FinanceFunds = #{financefunds,jdbcType=DECIMAL},
+        CanUseFunds = #{canusefunds,jdbcType=DECIMAL},
+        ProjectBeginDate = #{projectbegindate,jdbcType=VARCHAR},
+        ProjectEndDate = #{projectenddate,jdbcType=VARCHAR},
+        ProjectType = #{projecttype,jdbcType=INTEGER},
+        ProjectManagerID = #{projectmanagerid,jdbcType=INTEGER},
+        OrganizationID = #{organizationid,jdbcType=INTEGER},
+        TeamID = #{teamid,jdbcType=INTEGER},
+        Memo = #{memo,jdbcType=VARCHAR},
+        JoinType = #{jointype,jdbcType=INTEGER},
+        CreateUserID = #{createuserid,jdbcType=INTEGER},
+        IfAudited = #{ifaudited,jdbcType=BIT},
+        IfAcceptanceFull = #{ifacceptancefull,jdbcType=BIT},
+        Status = #{status,jdbcType=INTEGER}
+        where ProjectID = #{projectid,jdbcType=INTEGER}
+    </update>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Mon Jan 25 16:18:51 CST 2021.
+        -->
+        select ProjectID, ProjectName, ProjectCode, SubjectCode, ProjectFunds, FinanceFunds,
+        CanUseFunds, ProjectBeginDate, ProjectEndDate, ProjectType, ProjectManagerID, OrganizationID,
+        TeamID, Memo, JoinType, CreateUserID, IfAudited, IfAcceptanceFull, Status
+        from Aud_Project
+        where ProjectID = #{projectid,jdbcType=INTEGER}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Mon Jan 25 16:18:51 CST 2021.
+        -->
+        select ProjectID, ProjectName, ProjectCode, SubjectCode, ProjectFunds, FinanceFunds,
+        CanUseFunds, ProjectBeginDate, ProjectEndDate, ProjectType, ProjectManagerID, OrganizationID,
+        TeamID, Memo, JoinType, CreateUserID, IfAudited, IfAcceptanceFull, Status
+        from Aud_Project
+    </select>
 </mapper>

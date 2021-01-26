@@ -95,6 +95,19 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/zaiyan',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'projectInfo/:projectid(\\d+)',
+        component: (resolve) => require(['@/views/project/zaiyan/edit'], resolve),
+        name: 'EditInfo',
+        meta: { title: '编辑项目', icon: '' }
+      }
+    ]
+  },
+  {
     path: '/job',
     component: Layout,
     hidden: true,

@@ -33,7 +33,10 @@ public class AudProjectController extends BaseController {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long userId = loginUser.getUser().getUserId();
 
+        logger.debug("query parameters is " + project.getProjectyear());
+
         startPage();
+
         List<AudProject> list = projectService.selectAudProjectZaiYanList(project);
 
         return getDataTable(list);

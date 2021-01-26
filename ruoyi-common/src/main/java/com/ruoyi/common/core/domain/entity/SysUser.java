@@ -96,6 +96,10 @@ public class SysUser extends BaseEntity
     /** 职称 */
     private String jobTitle;
 
+
+    /** 拼音缩写 */
+    private String hotKey;
+
     public SysUser()
     {
 
@@ -310,6 +314,14 @@ public class SysUser extends BaseEntity
 
     public void setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
+    }
+
+    public String getHotKey() {
+        return hotKey;
+    }
+
+    public void setHotKey(String hotKey) {
+        this.hotKey = hotKey;
     }
 
     @Override

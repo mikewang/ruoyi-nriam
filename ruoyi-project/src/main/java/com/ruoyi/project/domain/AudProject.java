@@ -1,5 +1,7 @@
 package com.ruoyi.project.domain;
 
+import com.ruoyi.common.enums.ProjectColor;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -46,18 +48,13 @@ public class AudProject {
 
     private String memo;
 
-
     private Integer jointype;
-
 
     private Integer createuserid;
 
-
     private Boolean ifaudited;
 
-
     private Boolean ifacceptancefull;
-
 
     private Integer status;
 
@@ -69,7 +66,12 @@ public class AudProject {
     private String teamname;
 
     private List<Integer> statusList;
+
     private String projectyear;
+
+    private String projectDateRange;
+
+    private Integer projectColor = ProjectColor.Default.getCode();
 
     public Integer getProjectid() {
         return projectid;
@@ -281,12 +283,29 @@ public class AudProject {
         this.statusList = statusList;
     }
 
+
     public String getProjectyear() {
         return projectyear;
     }
 
     public void setProjectyear(String projectyear) {
         this.projectyear = projectyear;
+    }
+
+    public String getProjectDateRange() {
+        return projectDateRange;
+    }
+
+    public void setProjectDateRange(String projectDateRange) {
+        this.projectDateRange = projectDateRange;
+    }
+
+    public Integer getProjectColor() {
+        return projectColor;
+    }
+
+    public void setProjectColor(Integer projectColor) {
+        this.projectColor = projectColor;
     }
 
     @Override
@@ -313,9 +332,12 @@ public class AudProject {
                 ", status=" + status +
                 ", projectTypeLinkText='" + projectTypeLinkText + '\'' +
                 ", dictionaryOrderNum='" + dictionaryOrderNum + '\'' +
+                ", ProjectManagerIDLinkText='" + ProjectManagerIDLinkText + '\'' +
                 ", organizationIDLinkText='" + organizationIDLinkText + '\'' +
                 ", statusLinkText='" + statusLinkText + '\'' +
                 ", teamname='" + teamname + '\'' +
+                ", statusList=" + statusList +
+                ", projectyear='" + projectyear + '\'' +
                 '}';
     }
 }

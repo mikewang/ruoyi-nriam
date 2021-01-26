@@ -13,18 +13,19 @@
             clearable
             size="small"
             style="width: 240px"
-            @keyup.enter.native="handleQuery"
           />
         </el-form-item>
         <el-form-item label="所属团队" prop="teamname">
-          <el-input
-            v-model="queryParams.teamname"
-            placeholder="请输入团队名称"
-            clearable
-            size="small"
-            style="width: 240px"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-autocomplete class="input-with-select"
+                           v-model="queryParams.teamname"
+                           :fetch-suggestions="queryTeamListSearch"
+                           placeholder="请输入团队名称"
+                           clearable
+                           size="small"
+                           style="width: 240px"
+                           @select="handleSelectTeam"
+          >
+          </el-autocomplete>
         </el-form-item>
         <el-form-item>
           <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -68,13 +69,22 @@
       </el-row>
 
       <el-table v-loading="loading" :data="projectList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" align="center"/>
-        <el-table-column label="项目名称" align="center" prop="projectname" width="300"/>
-        <el-table-column label="项目编号" align="center" prop="projectcode" width="120"/>
-        <el-table-column label="项目起止日期" align="center" prop="projectcode" width="300"/>
+        <el-table-column type="selection" width="50" align="center" :key="Math.random()"/>
+        <el-table-column label="项目名称" align="center" prop="projectname" width="200" :show-overflow-tooltip="true" />
+        <el-table-column label="项目编号" align="center" prop="projectcode" width="120"   />
+        <el-table-column label="项目起止日期" align="center" prop="projectDateRange" width="300" />
         <el-table-column label="项目类型" align="center" prop="projectTypeLinkText" width="300"/>
         <el-table-column label="负责人" align="center" prop="projectManagerIDLinkText" width="300"/>
-        <el-table-column label="项目状态" align="center" prop="statusLinkText"></el-table-column>
+        <el-table-column label="项目状态" align="center" prop="statusLinkText">
+          <template slot-scope="scope">
+            <span v-if="scope.row.projectColor === -1" style="color:red" :key="Math.random()">{{ scope.row.statusLinkText }}</span>
+            <span v-else-if="scope.row.projectColor === 1" style="color:green" :key="Math.random()">{{ scope.row.statusLinkText }}</span>
+            <span v-else :key="Math.random()">{{ scope.row.statusLinkText }}</span>
+          </template>
+        </el-table-column>
+<!--        <el-table-column label="项目状态" align="center" prop="statusLinkText" v-if="projectColor === -1" type="danger" :key="Math.random()"/>-->
+<!--        <el-table-column label="项目状态" align="center" prop="statusLinkText" v-else-if="projectColor === 1" type="success" :key="Math.random()"/>-->
+<!--        <el-table-column label="项目状态" align="center" prop="statusLinkText" v-else :key="Math.random()"/>-->
         <el-table-column
           label="操作"
           align="center"
@@ -244,8 +254,9 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        teamid: 0,
         teamname: undefined,
-        projectyear: new Date()
+        projectyear: undefined
       },
       // 表单参数
       form: {},
@@ -296,6 +307,7 @@ export default {
       this.loading = true;
       listProject(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           this.projectList = response.rows;
+          console.log(this.projectList);
           this.total = response.total;
           this.loading = false;
         }
@@ -346,6 +358,8 @@ export default {
 
     /** 新增按钮操作 */
     handleAdd() {
+      this.$router.push({ path: '/zaiyan/projectInfo/0' });
+      return;
       this.reset();
       this.form.createuserid = this.$store.getters.userId;
       this.form.createUserRealName = this.$store.getters.realName;
@@ -450,34 +464,29 @@ export default {
 
     },
 
-    queryUserListSearch(queryString, cb) {
+    queryTeamListSearch(queryString, cb) {
 
       var queryParams = {
         pageNum: 1,
         pageSize: 30,
-        realName: queryString
+        teamname: queryString
       };
-      listUser(queryParams).then(response => {
-          var userListOptions = [];
-          const userList = response.rows;
-          userList.forEach(function (user) {
-            var item = {"value": user.realName, "userid": user.userId};
-            userListOptions.push(item);
+      listTeam(queryParams).then(response => {
+        const teamListOptions = [];
+        const teamList = response.rows;
+        teamList.forEach(function (team) {
+          const item = {"value": team.teamname, "teamid": team.teamid};
+          teamListOptions.push(item);
           });
-          cb(userListOptions);
+          cb(teamListOptions);
         }
       );
-
-      // var userListOptions = this.userListOptions;
-      // var results = queryString ? userListOptions.filter(this.createFilter(queryString)) : userListOptions;
-      // // 调用 callback 返回建议列表的数据
-      // cb(results);
     },
 
-    handleSelectTeamLeader(user) {
-      let leader = {"userid": user["userid"], "realName": user["value"]};
-      this.form.teamleaderid = leader.userid;
-      this.form.teamLeaderRealName = leader.realName;
+    handleSelectTeam(team) {
+      console.log("handleSelectTeam is " + team["value"]);
+      this.queryParams.teamid = team["teamid"];
+      this.queryParams.teamname = team["value"];
     },
 
     handleSelectUser(user) {

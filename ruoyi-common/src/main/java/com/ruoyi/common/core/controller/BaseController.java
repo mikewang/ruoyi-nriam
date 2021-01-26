@@ -59,6 +59,21 @@ public class BaseController
         }
     }
 
+    protected void startPage(String orderByColumn)
+    {
+//        不工作，显示mybatis不支持如此复杂的分页
+        PageDomain pageDomain = TableSupport.buildPageRequest();
+        pageDomain.setOrderByColumn(orderByColumn);
+        Integer pageNum = pageDomain.getPageNum();
+        Integer pageSize = pageDomain.getPageSize();
+        if (StringUtils.isNotNull(pageNum) && StringUtils.isNotNull(pageSize))
+        {
+            String orderBy = SqlUtil.escapeOrderBySql(pageDomain.getOrderBy());
+            System.out.println("orderBy is " + orderBy);
+            PageHelper.startPage(pageNum, pageSize, orderBy);
+        }
+    }
+
     /**
      * 响应请求分页数据
      */
