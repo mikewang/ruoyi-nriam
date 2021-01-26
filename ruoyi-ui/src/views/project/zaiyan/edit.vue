@@ -103,7 +103,21 @@
         </el-row>
 
         <el-row>
-          <el-col :span="24">
+          <el-col :span="8">
+            <el-form-item label="主持/参与" prop="jointype">
+                     <el-select v-model="form.jointype" placeholder="请选择">
+                <el-option
+                  v-for="item in jointypeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+               >
+                </el-option>
+              </el-select>
+
+            </el-form-item>
+          </el-col>
+          <el-col :span="16">
             <el-form-item label="备注" prop="memo">
               <el-input v-model="form.memo" placeholder="" type="textarea"/>
             </el-form-item>
@@ -142,6 +156,7 @@ export default {
       // 数据字典
       teamListOptions: [],
       userListOptions: [],
+      jointypeOptions: [{"value":1,"label":"主持"}, {"value":2,"label":"参与"}],
       // 日期范围
       // 查询参数
       // 表单参数
