@@ -1,11 +1,12 @@
 package com.ruoyi.project.domain;
 
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.enums.ProjectColor;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public class AudProject {
+public class AudProject extends BaseEntity {
 
     private Integer projectid;
 

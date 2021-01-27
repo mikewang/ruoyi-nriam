@@ -213,6 +213,8 @@ export default {
       open: false,
       // 数据字典
       teamroleListOptions: [],
+      userList: [],
+      userOptions: [],
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -257,6 +259,7 @@ export default {
 
   },
   created() {
+
     this.getList();
     listData({"dictType": "团队角色"}).then(response => {
       console.log(response);
@@ -264,6 +267,20 @@ export default {
         return a.dictValue < b.dictValue
 
       });
+
+     var listOptions = [];
+      listUser().then(response => {
+          console.log(response);
+          response.rows.forEach(function (item) {
+            const user = {"value": item.realName, "id": item.userId, "hotKey": item.hotKey};
+            listOptions.push(user);
+          });
+          this.userList = listOptions;
+          this.userOptions = listOptions;
+          // 暂时用不上。
+
+        }
+      );
 
     });
   },

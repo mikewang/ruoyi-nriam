@@ -563,8 +563,6 @@ export default {
         URL.revokeObjectURL(fileURL);
 
       }).catch(console.error);
-
-
     }
   }
 };

@@ -2,7 +2,7 @@ import request from '@/utils/request'
 /*导入的是 export default 组件，名称为service, 它在一个request.js文件中必须唯一。 */
 // import { praseStrEmpty } from "@/utils/ruoyi";
 
-// 查询项目
+// 查询项目列表
 export function listProject(query) {
   return request({
     url: '/project/zaiyan/list',
@@ -35,5 +35,25 @@ export function deleteProject(projectIds) {
   return request({
     url: '/project/zaiyan/' + projectIds,
     method: 'delete'
+  })
+}
+
+// 文件上传
+export function uploadFile(data) {
+  return request({
+    headers: {'Content-Type':'multipart/form-data'},
+    url: '/project/zaiyan/upload',
+    method: 'post',
+    data: data
+  })
+}
+
+// 文件下载
+export function downloadFile(query) {
+  return request({
+    url: '/project/zaiyan/download',
+    method: 'get',
+    responseType: 'blob',
+    params: query
   })
 }
