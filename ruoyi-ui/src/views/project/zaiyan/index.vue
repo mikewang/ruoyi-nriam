@@ -82,9 +82,6 @@
             <span v-else :key="Math.random()">{{ scope.row.statusLinkText }}</span>
           </template>
         </el-table-column>
-<!--        <el-table-column label="项目状态" align="center" prop="statusLinkText" v-if="projectColor === -1" type="danger" :key="Math.random()"/>-->
-<!--        <el-table-column label="项目状态" align="center" prop="statusLinkText" v-else-if="projectColor === 1" type="success" :key="Math.random()"/>-->
-<!--        <el-table-column label="项目状态" align="center" prop="statusLinkText" v-else :key="Math.random()"/>-->
         <el-table-column
           label="操作"
           align="center"
@@ -121,103 +118,11 @@
       />
     </el-row>
 
-    <!-- 添加或修改菜单对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px" :key="timer">
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="团队名称" prop="teamname">
-              <el-input v-model="form.teamname" placeholder="请输入团队名称"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="团队负责人" prop="teamLeaderRealName">
-              <el-autocomplete class="input-with-select"
-                               v-model="form.teamLeaderRealName"
-                               :fetch-suggestions="queryUserListSearch"
-                               placeholder="请输入团队负责人名称"
-                               @select="handleSelectTeamLeader"
-              >
-              </el-autocomplete>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="创建人员" prop="createUserRealName">
-              <el-input v-model="form.createUserRealName" placeholder="请输入创建人员名称" readonly/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="团队成员">
-              <template>
-                <div v-for="(item, index) in form.memberList" :key="index">
-                  <el-tag>{{ item.teamroleName }}</el-tag>
-<!--                  <el-tag>{{ form.checkedIdList[index] }}</el-tag>-->
-                  <!--                <el-tag>{{item.userList}} </el-tag>-->
-                  <!--                <el-label v-for="data in item.userList" name="data.realName"  >{{data.userid}}{{data.realName}} </el-label>-->
-                  <el-checkbox-group v-model="form.checkedIdList[index]"
-                                     @change="handleCheckedIdListChange(item.teamrole,index)" :key="timer">
-                    <el-checkbox v-for="data in item.userList" :label="data.userid" :key="data.userid"
-                                 @change="handleCheckedUseridChange(index,data.userid)">{{ data.realName }}
-                    </el-checkbox>
-                  </el-checkbox-group>
-                </div>
-              </template>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="团队角色">
-              <template>
-                <el-select v-model="form.teamAddTeamroleName" placeholder="请选择" @change="changeTeamAddTeamrole"
-                           :key="timer">
-                  <el-option
-                    v-for="item in this.teamroleListOptions"
-                    :key="item.dictValue"
-                    :label="item.dictLabel"
-                    :value="item.dictLabel">
-                  </el-option>
-                </el-select>
-              </template>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="添加成员">
-              <template>
-                <el-autocomplete class="input-with-select"
-                                 v-model="form.teamAddUsername"
-                                 :fetch-suggestions="queryUserListSearch"
-                                 placeholder="请输入人员名称"
-                                 @select="handleSelectUser"
-                >
-                </el-autocomplete>
-              </template>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="备注" prop="memo">
-              <el-input v-model="form.memo" placeholder="" type="textarea"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
-
   </div>
 </template>
 
 <script>
-import {listProject, addProject, updateProject,deleteProject} from "@/api/project/zaiyan";
+import {listProject, updateProject,deleteProject} from "@/api/project/zaiyan";
 import {listTeam} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
 import {listData} from "@/api/system/dict/data";
@@ -241,7 +146,7 @@ export default {
       // 总条数
       total: 0,
       // 用户表格数据
-      projectList: null,
+      projectList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -360,11 +265,6 @@ export default {
     handleAdd() {
       this.$router.push({ path: '/zaiyan/projectInfo/0' });
       return;
-      this.reset();
-      this.form.createuserid = this.$store.getters.userId;
-      this.form.createUserRealName = this.$store.getters.realName;
-      this.open = true;
-      this.title = "添加团队";
     },
 
     /**  删除按钮操作 */
@@ -398,41 +298,11 @@ export default {
     },
 
     handleUpdate(row) {
-      this.reset();
-      const teamid = row.teamid || this.ids
 
-      this.form = row;
-      this.form.checkedIdList = [];
+      const projectid = row.projectid || this.ids
 
-      let memberList = this.form.memberList;
-
-      let checkedIdList = this.form.checkedIdList;
-
-      console.log("this.form.CheckedIdList is ", this.form.checkedIdList);
-      console.log("this.form.memberList is ", memberList);
-
-
-      for (let i =0; i < memberList.length; i++) {
-        let item = memberList[i].userList;
-        if (item.length === 0) {
-          checkedIdList.push([])
-        } else {
-          let checkArr = [];
-          for (let j = 0; j < item.length; j++) {
-            checkArr.push(item[j].userid);
-          }
-          checkedIdList.push(checkArr);
-        }
-      }
-
-
-      console.log("checkedIdList is ", checkedIdList);
-
-      this.form.teamAddTeamroleName = this.teamroleListOptions[0].dictLabel;
-      console.log("teamroleListOption default is ", this.teamroleListOptions[0].dictLabel);
-
-      this.open = true;
-      this.title = "编辑团队";
+      console.log("edit project id is ", projectid);
+      this.$router.push({ path: '/zaiyan/projectInfo/' + projectid });
 
     },
 

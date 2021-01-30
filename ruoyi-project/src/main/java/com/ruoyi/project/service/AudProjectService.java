@@ -1,5 +1,6 @@
 package com.ruoyi.project.service;
 
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.ProjectColor;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
@@ -8,6 +9,7 @@ import com.ruoyi.project.mapper.AudProjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -97,6 +99,36 @@ public class AudProjectService {
         }
 
         return projectList;
+    }
+
+
+    public AudProject selectProjectById(Integer projectId)
+    {
+
+        return audProjectMapper.selectProjectById(projectId);
+    }
+
+    public Integer queryIfDuplicate(AudProject project) {
+        return audProjectMapper.queryIfDuplicate(project);
+    }
+
+    @Transactional
+    public Integer insertProject(AudProject record) {
+        log.debug("insertProject is below.");
+
+        Integer rows = audProjectMapper.insertProject(record);
+
+        log.debug("useGeneratedKeys projectid  is " + rows.toString());
+
+        return rows;
+    }
+
+    @Transactional
+    public Integer updateProject(AudProject record) {
+
+
+
+        return audProjectMapper.updateProject(record);
     }
 
 }

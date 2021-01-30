@@ -10,7 +10,6 @@ public class AudProject extends BaseEntity {
 
     private Integer projectid;
 
-
     private String projectname;
 
 
@@ -66,8 +65,12 @@ public class AudProject extends BaseEntity {
     private String statusLinkText;
     private String teamname;
 
+
+    //忘记这个 list 是做什么用的了。哦。项目的各种状态，
     private List<Integer> statusList;
 
+
+    // 查询使用的属性
     private String projectyear;
 
     private String projectDateRange;

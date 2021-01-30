@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import {praseStrEmpty} from "@/utils/ruoyi";
 /*导入的是 export default 组件，名称为service, 它在一个request.js文件中必须唯一。 */
 // import { praseStrEmpty } from "@/utils/ruoyi";
 
@@ -11,6 +12,22 @@ export function listProject(query) {
   })
 }
 
+// 查询项目详细
+export function getProject(projectId) {
+  return request({
+    url: '/project/zaiyan/' + praseStrEmpty(projectId),
+    method: 'get'
+  })
+}
+
+// 校验项目详细
+export function checkProject(query) {
+  return request({
+    url: '/project/zaiyan/check',
+    method: 'get',
+    params: query
+  })
+}
 
 // 新增项目
 export function addProject(data) {

@@ -155,7 +155,7 @@
                 </el-col>
                 <right-toolbar @queryTable="getList"></right-toolbar>
               </el-row>
-              <el-table :data="projectList" @selection-change="handleSelectionChange" style="display:block;">
+              <el-table :data="subprojectList" @selection-change="handleSelectionChange" style="display:block;">
                 <el-table-column type="selection" width="50" align="center"/>
                 <el-table-column label="子项目名称" align="center" prop="projectname"  :show-overflow-tooltip="true"/>
                 <el-table-column label="参加单位" align="center" prop="projectcode" />
@@ -201,7 +201,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="负责人）" prop="subjectcode">
+            <el-form-item label="负责人" prop="subjectcode">
               <el-input v-model="form.subjectcode" placeholder="请输入项目经费编号"/>
             </el-form-item>
           </el-col>
@@ -240,30 +240,21 @@
 
           <el-col :span="8">
             <el-form-item label="项目申报书" prop="contractFile">
-              <el-upload action="#" :http-request="requestUpload" :on-remove="handleUploadRemove"
-                         :on-preview="handleUploadPreview"
-                         :file-list="form.docList1" :before-upload="beforeUpload" v-hasPermi="['project:zaiyan:edit']">
+              <el-upload action="#" :http-request="requestUpload1"  :before-remove="beforeRemove1" :on-remove="handleUploadRemove1"
+                         :file-list="form.docList1" :before-upload="beforeUpload1" v-hasPermi="['project:zaiyan:edit']">
                 <el-button size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
                      </el-upload>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="项目合同" prop="contractFile">
-              <el-upload action="#" :http-request="requestUpload" :on-remove="handleUploadRemove"
-                         :on-preview="handleUploadPreview"
-                         :file-list="form.docList2" :before-upload="beforeUpload" v-hasPermi="['project:zaiyan:edit']">
-                <el-button size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
-              </el-upload>
+
             </el-form-item>
           </el-col>
           <el-col :span="8">
 
           <el-form-item label="实施方案" prop="contractFile">
-              <el-upload action="#" :http-request="requestUpload" :on-remove="handleUploadRemove"
-                         :on-preview="handleUploadPreview"
-                         :file-list="form.docList3" :before-upload="beforeUpload" v-hasPermi="['project:zaiyan:edit']">
-                <el-button size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
-              </el-upload>
+
             </el-form-item>
           </el-col>
         </el-row>
@@ -272,18 +263,15 @@
           <el-col :span="8">
 
           <el-form-item label="项目批复文件" prop="contractFile">
-            <el-upload action="#" :http-request="requestUpload" :on-remove="handleUploadRemove"
-                       :on-preview="handleUploadPreview"
-                       :file-list="form.docList4" :before-upload="beforeUpload" v-hasPermi="['project:zaiyan:edit']">
-              <el-button size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
-            </el-upload>
+
 
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24" align="center">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
+            <el-button  type="success" @click="saveForm">暂 存</el-button>
+          <el-button type="primary" @click="submitForm">提交审核</el-button>
           <el-button @click="close">取 消</el-button>
           </el-col>
         </el-row>
@@ -301,7 +289,8 @@ import {listTeam} from "@/api/project/team";
 import {listData} from "@/api/system/dict/data";
 import {listDept} from "@/api/system/dept";
 import {listUser} from "@/api/system/user";
-import {uploadFile, downloadFile} from "@/api/project/zaiyan";
+import {getProject, addProject,updateProject, checkProject, uploadFile, downloadFile} from "@/api/project/zaiyan";
+import {isNumber} from "@/utils/validate.js"
 
 export default {
   name: "EditInfo",
@@ -331,11 +320,11 @@ export default {
       addProjectmemberId:undefined,
       projectmemberOptions: [],
       projectmemberList: [],
+      ProjectStatus: {XinJianZhong: 48, DaiQueRen: 40},
       // 日期范围
       // 查询参数
       // 表单参数
       form: {
-        docList1:  [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}]
       },
       timer: '',
       // 表单校验
@@ -347,44 +336,43 @@ export default {
           {required: true, message: "项目编号不能为空", trigger: "blur"}
         ],
         subjectcode: [
-          {required: true, message: "项目经费编号不能为空", trigger: "blur"}
+          {required: true, message: "项目经费编号不能为空", trigger: "blur"}, {trigger: "change", validator: this.validateSubjectcode}
         ],
         projectfunds: [
-          {required: true, message: "项目总经费不能为空", trigger: "blur"}
+          {required: true, message: "项目总经费不能为空", trigger: "blur"}, {trigger: "blur", validator: isNumber}
         ],
         financefunds: [
-          {required: true, message: "财政拨款不能为空", trigger: "blur"}
+          {required: true, message: "财政拨款不能为空", trigger: "blur"}, {trigger: "blur", validator: isNumber}
         ],
         canusefunds: [
-          {required: true, message: "可支配经费不能为空", trigger: "blur"}
-        ],
-        email: [
-          {
-            type: "email",
-            message: "'请输入正确的邮箱地址",
-            trigger: ["blur", "change"]
-          }
-        ],
-        phonenumber: [
-          {
-            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-            message: "请输入正确的手机号码",
-            trigger: "blur"
-          }
+          {required: true, message: "可支配经费不能为空", trigger: "blur"}, {trigger: "blur", validator: isNumber}
         ]
       }
     };
 
   },
+
+
+
   beforeCreate() {
-    const dictId = this.$route.params && this.$route.params.projectid;
-    this.projectid = dictId;
-    if (Number(dictId) === 0) {
+    const projectid = this.$route.params && this.$route.params.projectid;
+    if (Number(projectid) === 0) {
       this.$route.meta.title = "新增项目";
     }
-
+    else {
+      this.$route.meta.title = "编辑项目";
+    }
   },
   created() {
+
+    const projectid = this.$route.params && this.$route.params.projectid;
+    if (Number(projectid) === 0) {
+
+    }
+    else {
+      this.form.projectid = projectid;
+      this.form.projectname = "项目id = " + projectid;
+    }
 
     this.getList();
 
@@ -394,6 +382,19 @@ export default {
     getList() {
       this.loading = true;
       console.log("loading is begin.");
+
+      if (this.form.projectid == undefined) {
+        this.loading = false;
+      }
+      else {
+        getProject(this.form.projectid).then(response => {
+          this.form = response.data;
+          this.loading = false;
+
+        });
+      }
+
+
       listData({"dictType": "项目类型"}).then(response => {
         console.log(response);
 
@@ -420,7 +421,6 @@ export default {
           this.deptList = listOptions;
           this.deptOptions = listOptions;
 
-
           listOptions = [];
           listTeam().then(response => {
               console.log(response);
@@ -442,56 +442,88 @@ export default {
                   });
                   this.userList = listOptions;
                   this.userOptions = listOptions;
-
-                  // 停止 转圈
-                  this.loading = false;
-
-                }
-              );
-
-            }
-          );
-
-
-        })
-
+                });
+            });
+        });
       });
 
     },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
+
+    getSubjectcode(query) {
+    return new Promise((resolve, reject) => {
+      let res = checkProject(query);
+       resolve(res);
+    });
     },
+
+    async validateSubjectcode(rule, value, callback) {
+      if (!value) {
+        callback(new Error("项目经费编号不能为空"));
+      }
+      else {
+        if (this.form.subjectcode === undefined) {
+          callback();
+        }
+        else {
+          let query = {subjectcode : value, projectid: this.form.projectid};
+          let res = await this.getSubjectcode(query);
+          console.log(res);
+          if (res.data > 0) {
+            callback(new Error("项目经费编号重复"));
+          }
+          else {
+            callback();
+          }
+        }
+
+      }
+    },
+
     // 表单重置
     reset() {
       this.form = {
-        //项目申报书
-        docList1:[],
+        projectid: undefined,
+        projectname: undefined,
+        projectcode: undefined,
+        subjectcode: undefined,
+
+        projectfunds: undefined,
+        financefunds: undefined,
+        canusefunds: undefined,
+
+        projectbegindate: undefined,
+        projectenddate: undefined,
+        projecttype: undefined,
+
+        projectmanagerid: undefined,
+        organizationid: undefined,
         teamid: undefined,
-        teamname: undefined,
-        teamleaderid: undefined,
         memo: undefined,
+
+        jointype: undefined,
         createuserid: undefined,
-        teamLeaderRealName: undefined,
-        createUserRealName: undefined,
-        memberList: [],
-        checkedIdList: [],
-        teamAddUsername: undefined,
-        teamAddUserid: undefined,
-        teamAddTeamroleName: undefined
+        status: undefined,
+
+        projectTypeLinkText: undefined,
+        dictionaryOrderNum: undefined,
+        ProjectManagerIDLinkText: undefined,
+        organizationIDLinkText: undefined,
+        statusLinkText: undefined,
+        teamname: undefined,
+
+        //项目申报书
+        docList1:[]
       };
 
       this.resetForm("form");
     },
 
+
+
     clearDeptValue() {
 
-
     },
-
     changeDeptValue(value) {
-
       if (value) {
         this.form.organizationid = value;
       } else {
@@ -500,9 +532,7 @@ export default {
     },
 
     filterDeptOptions(v) {
-
       console.log("filter value is " + v);
-
       if (v) {
         this.deptOptions = this.deptList.filter((item) => {
           // 如果直接包含输入值直接返回true
@@ -515,7 +545,6 @@ export default {
         this.deptOptions = this.deptList;
       }
     },
-
 
     clearProjectTypeValue() {
       this.form.projecttype = undefined;
@@ -548,7 +577,6 @@ export default {
         this.projectTypeOptions = this.projectTypeList;
       }
     },
-
 
     clearTeamValue() {
 
@@ -620,16 +648,13 @@ export default {
       }
     },
 
-
     clearJointypeValue() {
-
       console.log("clear jointype");
     },
 
     changeJointypeValue(value) {
 
       if (value) {
-
         this.form.jointype = value;
       } else {
         this.form.jointype = undefined;
@@ -637,12 +662,8 @@ export default {
 
     },
 
-
     filterJointypeValue() {
-
       console.log("filter jointype");
-
-
     },
 
     createFilter(v) {
@@ -665,10 +686,7 @@ export default {
       };
     },
 
-
-
     clearProjectMemberValue() {
-
 
     },
 
@@ -741,6 +759,58 @@ export default {
     },
 
 
+    /* 项目书上传 */
+    beforeUpload1(file) {
+
+      let x = true
+      let fileList = this.form.docList1;
+
+      console.log("fileList is ", fileList);
+      for (let i=0; i< fileList.length; i++) {
+        let item = fileList[i];
+        if (item.name === file.name) {
+          console.log("file existed now ,", file.name);
+          x = false;
+          break;
+        }
+      }
+      return x;
+
+    },
+
+    requestUpload1: function (params) {
+      let file = params.file;
+      console.log(file);
+      let formData = new FormData();
+      formData.append('file', file);
+      uploadFile(formData).then(response => {
+        console.log("response", response.name);
+        console.log("response", response.url);
+        console.log(this.form.docList1);
+        this.form.docList1.push({name: response.name, url: response.url});
+      });
+    },
+
+    beforeRemove1(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove1 index=" + index, file.name);
+      return true;
+    //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove1(file) {
+
+      let today = new Date();
+
+      let index = this.form.docList1.indexOf(file);
+      if (index !== -1) {
+        this.form.docList1.splice(index,1);
+      }
+
+      console.log("handleUploadRemove index=" + index, file.name, today.toDateString());
+      console.log("this.form.docList1 is ", this.form.docList1);
+      return;
+    },
 
     beforeUpload(file) {
 
@@ -754,6 +824,8 @@ export default {
       return true;
 
     },
+
+
     handleUploadError(error, file, fileList) {
     },
     handleUploadExceed(file, fileList) {
@@ -774,17 +846,7 @@ export default {
     handleUploadChange(file, fileList) {
       // this.form.fileList = fileList.slice(-10);
     },
-    handleUploadRemove(file) {
 
-      console.log("handleUploadRemove ", file.name);
-
-      this.form.docList1.forEach((item, index) => {
-        if (item.name === file.name) {
-          this.form.docList1.splice(index, 1);
-        }
-      });
-
-    },
     handleUploadPreview(file) {
 
       console.log("handleUploadPreview is ", file.url);
@@ -806,14 +868,70 @@ export default {
     },
 
 
-
+    /** 关闭按钮 */
     close() {
+      this.reset();
       this.$store.dispatch("tagsView/delView", this.$route);
       this.$router.push({ path: "/project/zaiyan" });
     },
 
 
+    /** 提交按钮 */
+    saveForm: function () {
 
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          console.log("submit form is ", this.form);
+          if (this.form.projectid !== undefined) {
+            updateProject(this.form).then(response => {
+              this.msgSuccess("修改成功");
+              getProject(this.form.projectid);
+
+            });
+          } else {
+
+            this.form.status = this.ProjectStatus.XinJianZhong;
+
+            addProject(this.form).then(response => {
+
+              if (response.data === 0 ) {
+                this.msgError("暂存失败");
+                this.form.projectid = undefined;
+              }
+              else {
+                this.msgSuccess("暂存成功");
+                this.form.projectid = response.data;
+              }
+
+            });
+          }
+        }
+      });
+    },
+
+    submitForm: function () {
+
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          console.log("submit form is ", this.form);
+          if (this.form.projectid !== undefined) {
+            // updateTeam(this.form).then(response => {
+            //   this.msgSuccess("修改成功");
+            //   this.open = false;
+            //   this.getList();
+            // });
+          } else {
+            this.form.status = this.ProjectStatus.DaiQueRen;
+
+            // addTeam(this.form).then(response => {
+            //   this.msgSuccess("新增成功");
+            //   this.open = false;
+            //   this.getList();
+            // });
+          }
+        }
+      });
+    },
 
     /** 搜索按钮操作 */
     handleQuery() {
@@ -1032,29 +1150,8 @@ export default {
     changeTeamAddTeamrole: function () {
       console.log("changeTeamAddTeamrole is working.");
       this.timer = new Date().getTime();
-    },
-
-    /** 提交按钮 */
-    submitForm: function () {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          console.log("submit form is ", this.form);
-          if (this.form.teamid != undefined) {
-            updateTeam(this.form).then(response => {
-              this.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addTeam(this.form).then(response => {
-              this.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
     }
+
 
 
   }
