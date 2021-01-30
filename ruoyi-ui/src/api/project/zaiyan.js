@@ -74,3 +74,46 @@ export function downloadFile(query) {
     params: query
   })
 }
+
+// 查询项目列表
+export function listProjectjoinorganization(query) {
+  return request({
+    url: '/project/joinorg/list',
+    method: 'get',
+    params: query
+  })
+}
+// 查询项目列表
+export function listUplevelproject(query) {
+  return request({
+    url: '/project/uplevel/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 查询项目详细
+export function getUplevelProject(projectId) {
+  return request({
+    url: '/project/uplevel/' + praseStrEmpty(projectId),
+    method: 'get'
+  })
+}
+
+// 查询项目列表
+export function listProjectmember(query) {
+  return request({
+    url: '/project/member/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 查询项目列表
+export function listProjectdoc(query) {
+  return request({
+    url: '/project/doc/list',
+    method: 'get',
+    params: query
+  })
+}

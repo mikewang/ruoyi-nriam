@@ -6,7 +6,7 @@
         <el-row>
           <el-col :span="8">
             <el-form-item label="项目名称" prop="projectname">
-              <el-input v-model="form.projectname" placeholder="请输入项目名称"/>
+              <el-input v-model="form.projectname" placeholder="请输入项目名称" :show-overflow-tooltip="true"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -42,7 +42,7 @@
             <el-form-item label="项目所属部门" prop="organizationid">
               <el-select v-model="form.organizationIDLinkText" placeholder="请选择项目所属部门" style="display:block;"
                          clearable @clear="clearDeptValue" @change="changeDeptValue"
-                         filterable :filter-method="filterDeptOptions">
+                         filterable :filter-method="filterDeptOptions" :show-overflow-tooltip="true">
                 <el-option
                   v-for="item in deptOptions"
                   :key="item.id"
@@ -137,7 +137,7 @@
                     type="primary"
                     icon="el-icon-plus"
                     size="mini"
-                    @click="handleAdd"
+                    @click="handleJoinOrganizationAdd"
                     v-hasPermi="['project:zaiyan:add']"
                   >新增
                   </el-button>
@@ -148,19 +148,19 @@
                     icon="el-icon-delete"
                     size="mini"
                     :disabled="multiple"
-                    @click="handleDelete"
+                    @click="handleJoinOrganizationDelete"
                     v-hasPermi="['project:zaiyan:remove']"
                   >删除
                   </el-button>
                 </el-col>
                 <right-toolbar @queryTable="getList"></right-toolbar>
               </el-row>
-              <el-table :data="subprojectList" @selection-change="handleSelectionChange" style="display:block;">
+              <el-table :data="projectJoinOrganizationList" @selection-change="handleJoinOrganizationSelectionChange" style="display:block;">
                 <el-table-column type="selection" width="50" align="center"/>
-                <el-table-column label="子项目名称" align="center" prop="projectname"  :show-overflow-tooltip="true"/>
-                <el-table-column label="参加单位" align="center" prop="projectcode" />
-                <el-table-column label="负责人" align="center" prop="projectManagerIDLinkText" width="100"/>
-                <el-table-column label="经费（元）" align="center" prop="statusLinkText" width="100"/>
+                <el-table-column label="子项目名称" align="center" prop="subjectname"  :show-overflow-tooltip="true"/>
+                <el-table-column label="参加单位" align="center" prop="organizationname" />
+                <el-table-column label="负责人" align="center" prop="manager" width="100"/>
+                <el-table-column label="经费（元）" align="center" prop="funds" width="100"/>
                 <el-table-column
                   label="操作"
                   align="center"
@@ -172,14 +172,14 @@
                       size="mini"
                       type="text"
                       icon="el-icon-edit"
-                      @click="handleUpdate(scope.row)"
+                      @click="handleJoinOrganizationUpdate(scope.row)"
                     >编辑
                     </el-button>
                     <el-button
                       size="mini"
                       type="text"
                       icon="el-icon-delete"
-                      @click="handleDelete(scope.row)"
+                      @click="handleJoinOrganizationDelete(scope.row)"
                       v-hasPermi="['project:zaiyan:remove']"
                     >删除
                     </el-button>
@@ -191,29 +191,29 @@
         </el-row>
         <el-row  v-if="form.jointype===2">
           <el-col :span="8">
-            <el-form-item label="参与项目名称" prop="projectname">
-              <el-input v-model="form.projectname" placeholder="请输入项目名称"/>
+            <el-form-item label="参与项目名称" prop="uplevelproject_subjectname">
+              <el-input v-model="uplevelproject.subjectname" placeholder="请输入项目名称"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="主持单位" prop="projectcode">
-              <el-input v-model="form.projectcode" placeholder="请输入项目编号"/>
+            <el-form-item label="主持单位" prop="uplevelproject_manageorganization">
+              <el-input v-model="uplevelproject.manageorganization" placeholder="请输入项目编号"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="负责人" prop="subjectcode">
-              <el-input v-model="form.subjectcode" placeholder="请输入项目经费编号"/>
+            <el-form-item label="负责人" prop="uplevelproject_manager">
+              <el-input v-model="uplevelproject.manager" placeholder="请输入项目经费编号"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="经费（元）" prop="subjectcode">
-              <el-input v-model="form.subjectcode" placeholder="请输入项目经费编号"/>
+            <el-form-item label="经费（元）" prop="uplevelproject_funds">
+              <el-input v-model="uplevelproject.funds" placeholder="0.00"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row >
           <el-col :span="24">
-            <el-form-item label="项目成员" prop="memo">
+            <el-form-item label="项目成员" prop="projectmemberList">
               <template>
                 <el-checkbox-group v-model="projectmemberList"
                                    @change="handleProjectmemberListChange" :key="timer">
@@ -289,7 +289,7 @@ import {listTeam} from "@/api/project/team";
 import {listData} from "@/api/system/dict/data";
 import {listDept} from "@/api/system/dept";
 import {listUser} from "@/api/system/user";
-import {getProject, addProject,updateProject, checkProject, uploadFile, downloadFile} from "@/api/project/zaiyan";
+import {getProject, addProject,updateProject, checkProject, uploadFile, downloadFile, listProjectjoinorganization, getUplevelProject, listProjectmember,listProjectdoc} from "@/api/project/zaiyan";
 import {isNumber} from "@/utils/validate.js"
 
 export default {
@@ -297,7 +297,13 @@ export default {
   data() {
     return {
       // 遮罩层
-      loading: false,
+      loading: true,
+      // 选中数组
+      ids: [],
+      // 非单个禁用
+      single: true,
+      // 非多个禁用
+      multiple: true,
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -321,6 +327,8 @@ export default {
       projectmemberOptions: [],
       projectmemberList: [],
       ProjectStatus: {XinJianZhong: 48, DaiQueRen: 40},
+      projectJoinOrganizationList: [],
+      uplevelproject: {},
       // 日期范围
       // 查询参数
       // 表单参数
@@ -387,9 +395,40 @@ export default {
         this.loading = false;
       }
       else {
-        getProject(this.form.projectid).then(response => {
+        let projectid = this.form.projectid;
+        getProject(projectid.toString()).then(response => {
           this.form = response.data;
           this.loading = false;
+
+        });
+
+        listProjectjoinorganization({projectid: this.form.projectid}).then(response => {
+          let rows = response.data;
+          console.log("listProjectjoinorganization is ", rows);
+          this.projectJoinOrganizationList = rows;
+        });
+
+        getUplevelProject(projectid).then(response => {
+          this.uplevelproject = response.data;
+          console.log("this.uplevelproject is ", this.uplevelproject);
+
+        });
+
+        listProjectmember({projectid: this.form.projectid}).then(response => {
+          const this_ = this;
+          let rows = response.data;
+          console.log("listProjectmember is ", rows);
+          this_.projectmemberOptions = rows;
+          this_.projectmemberList = [];
+          this_.projectmemberOptions.forEach(function (obj) {
+            this_.projectmemberList.push(obj.userid);
+          });
+        });
+
+        listProjectdoc({projectid: this.form.projectid}).then(response => {
+          const this_ = this;
+          let rows = response.data;
+          console.log("listProjectdoc is ", rows);
 
         });
       }
@@ -759,6 +798,49 @@ export default {
     },
 
 
+    /* 主持的项目 */
+
+    // 多选框选中数据
+    handleJoinOrganizationSelectionChange(selection) {
+      this.ids = selection.map(item => item.teamid);
+      this.single = selection.length != 1;
+      this.multiple = !selection.length;
+    },
+
+
+
+    handleJoinOrganizationAdd() {
+
+    },
+
+
+    handleJoinOrganizationUpdate(row) {
+
+
+    },
+
+
+    /**  删除按钮操作 */
+    handleJoinOrganizationDelete(row) {
+      // const teamIds = row.teamid || this.ids;
+      // console.log("teamIds is ", teamIds);
+      // this.$confirm('是否确认删除团队编号为"' + teamIds + '"的数据项?', "警告", {
+      //   confirmButtonText: "确定",
+      //   cancelButtonText: "取消",
+      //   type: "warning"
+      // }).then(function () {
+      //   return deleteTeam(teamIds);
+      // }).then(() => {
+      //   this.getList();
+      //   this.msgSuccess("删除成功");
+      // })
+    },
+
+
+
+
+
+
     /* 项目书上传 */
     beforeUpload1(file) {
 
@@ -931,228 +1013,7 @@ export default {
           }
         }
       });
-    },
-
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.page = 1;
-      console.log("year is ", this.queryParams.projectyear);
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.dateRange = [];
-      this.resetForm("queryForm");
-      this.handleQuery();
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.teamid);
-      this.single = selection.length != 1;
-      this.multiple = !selection.length;
-    },
-
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.$router.push({path: '/zaiyan/projectInfo/0'});
-      return;
-      this.reset();
-      this.form.createuserid = this.$store.getters.userId;
-      this.form.createUserRealName = this.$store.getters.realName;
-      this.open = true;
-      this.title = "添加团队";
-    },
-
-    /**  删除按钮操作 */
-    handleDelete(row) {
-      const teamIds = row.teamid || this.ids;
-      console.log("teamIds is ", teamIds);
-      this.$confirm('是否确认删除团队编号为"' + teamIds + '"的数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return deleteTeam(teamIds);
-      }).then(() => {
-        this.getList();
-        this.msgSuccess("删除成功");
-      })
-    },
-
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有团队数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return exportUser(queryParams);
-      }).then(response => {
-        this.download(response.msg);
-      })
-    },
-
-    handleUpdate(row) {
-      this.reset();
-      const teamid = row.teamid || this.ids
-
-      this.form = row;
-      this.form.checkedIdList = [];
-
-      let memberList = this.form.memberList;
-
-      let checkedIdList = this.form.checkedIdList;
-
-      console.log("this.form.CheckedIdList is ", this.form.checkedIdList);
-      console.log("this.form.memberList is ", memberList);
-
-
-      for (let i = 0; i < memberList.length; i++) {
-        let item = memberList[i].userList;
-        if (item.length === 0) {
-          checkedIdList.push([])
-        } else {
-          let checkArr = [];
-          for (let j = 0; j < item.length; j++) {
-            checkArr.push(item[j].userid);
-          }
-          checkedIdList.push(checkArr);
-        }
-      }
-
-
-      console.log("checkedIdList is ", checkedIdList);
-
-      this.form.teamAddTeamroleName = this.teamroleListOptions[0].dictLabel;
-      console.log("teamroleListOption default is ", this.teamroleListOptions[0].dictLabel);
-
-      this.open = true;
-      this.title = "编辑团队";
-
-    },
-
-
-    handleCheckedIdListChange(value, index) {
-      console.log("change is ", value, index);
-      // this.checkedMemberList = []
-      // let arr = this.checkedMemberList
-      // for (let i = 0; i < arr.length; i ++) {
-      //   let memGroup = arr[i]
-      //   if (memGroup.length > 0) {
-      //     let obj = {
-      //       teamrole: this.memGroup[i].teamrole,
-      //       members: []
-      //     }
-      //     for (let j = 0; j < memGroup.length; j++) {
-      //       obj.members.push(memGroup[j])
-      //     }
-      //     this.checkedMemberList.push(obj)
-      //   }
-      // }
-
-      // 刷新dialog的组件，否则不渲染。
-      this.timer = new Date().getTime();
-      console.log(this.form.checkedIdList);
-    },
-
-    handleCheckedUseridChange(index, userid) {
-
-    },
-
-
-    handleSelectUser(user) {
-
-      let select_user = {userid: user.userid, realName: user[value]};
-
-      console.log("handleSelectUser is ", select_user, this.form.teamAddTeamroleName);
-
-      let memberList = this.form.memberList;
-      let checkedIdList = this.form.checkedIdList;
-
-      console.log(memberList);
-      this.form.teamAddUserid = select_user.userid;
-      this.form.teamAddUsername = select_user.realName;
-
-      // checked userid 存在吗？
-      let checked_userid_inserted = 0;
-      for (let i = 0; i < checkedIdList.length; i++) {
-        let item = checkedIdList[i];
-        for (let j = 0; j < item.length; j++) {
-          let userid = item[j];
-          if (userid == select_user.userid) {
-            checked_userid_inserted = 1;
-            break;
-          }
-
-        }
-        if (checked_userid_inserted === 1) {
-          break;
-        }
-      }
-
-      if (checked_userid_inserted === 1) {
-        this.msgError(select_user.realName + " 选中重复，不能再次添加选中");
-        return;
-      }
-
-      // role存在吗？
-      let select_role_inserted = 0;
-      for (let i = 0; i < memberList.length; i++) {
-        let item = memberList[i];
-        if (item["teamroleName"] === this.form.teamAddTeamroleName) {
-          select_role_inserted = 1;
-          break;
-        }
-      }
-
-      if (select_role_inserted === 1) {
-        for (let i = 0; i < memberList.length; i++) {
-          let item = memberList[i];
-          let select_user_merged = 0;
-          for (let j = 0; j < item.userList.length; j++) {
-            let userItem = item.userList[j];
-            if (userItem.userid == select_user.userid) {
-              select_user_merged = 1;
-              break;
-            }
-          }
-          if (select_user_merged === 0) {
-            memberList[i].userList.push(select_user);
-            checkedIdList[i].push(select_user.userid);
-            this.msgSuccess(select_user.realName + " 添加并选中完成");
-          } else {
-            this.msgError(select_user.realName + " 重复，不能再次添加");
-          }
-        }
-      } else {
-        let teamrole = 0;
-        for (let i = 0; i < this.teamroleListOptions.length; i++) {
-          let item = this.teamroleListOptions[i];
-          if (item.dictLabel === this.form.teamAddTeamroleName) {
-            teamrole = Number(item.dictValue);
-          }
-        }
-
-        let formMember = {
-          "teamrole": teamrole,
-          "teamroleName": this.form.teamAddTeamroleName,
-          "userList": [select_user]
-        };
-
-        memberList.push(formMember);
-        checkedIdList.push([select_user.userid]);
-        this.msgSuccess(select_user.realName + " 添加之新角色并选中完成");
-      }
-
-    },
-
-    changeTeamAddTeamrole: function () {
-      console.log("changeTeamAddTeamrole is working.");
-      this.timer = new Date().getTime();
     }
-
-
 
   }
 }

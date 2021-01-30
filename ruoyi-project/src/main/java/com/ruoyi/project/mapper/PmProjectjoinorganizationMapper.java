@@ -1,13 +1,12 @@
 package com.ruoyi.project.mapper;
 
 import com.ruoyi.project.domain.PmProjectjoinorganization;
-import com.ruoyi.project.domain.PmTeam;
 
 import java.util.List;
 
 public interface PmProjectjoinorganizationMapper {
 
-    List<PmTeam> selectPmProjectjoinorganizatioList(PmProjectjoinorganization join);
+    List<PmProjectjoinorganization> selectProjectjoinorganizationList(PmProjectjoinorganization join);
 
 
     int deleteByPrimaryKey(Integer joid);

@@ -1,9 +1,9 @@
 package com.ruoyi.project.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.core.domain.model.BasDoc;
 
-
-public class AudProjectdoc extends BaseEntity {
+public class AudProjectdoc extends BasDoc {
 
     private Integer projectid;
 
@@ -21,18 +21,22 @@ public class AudProjectdoc extends BaseEntity {
         this.projectid = projectid;
     }
 
+    @Override
     public Integer getDocid() {
         return docid;
     }
 
+    @Override
     public void setDocid(Integer docid) {
         this.docid = docid;
     }
 
+    @Override
     public String getDoctype() {
         return doctype;
     }
 
+    @Override
     public void setDoctype(String doctype) {
         this.doctype = doctype;
     }

@@ -1,4 +1,4 @@
-package com.ruoyi.logis.domain;
+package com.ruoyi.common.core.domain.model;
 
 public class BasDoc {
 

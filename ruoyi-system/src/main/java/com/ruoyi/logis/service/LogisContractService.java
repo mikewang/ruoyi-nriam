@@ -2,9 +2,8 @@ package com.ruoyi.logis.service;
 
 import com.ruoyi.common.annotation.DataScope;
 
-import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.logis.domain.BasDoc;
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.logis.domain.LogisContract;
 import com.ruoyi.logis.mapper.BasDocMapper;
 import com.ruoyi.logis.mapper.LogisContractMapper;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 

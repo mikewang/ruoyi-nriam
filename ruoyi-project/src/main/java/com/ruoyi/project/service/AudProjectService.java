@@ -1,6 +1,5 @@
 package com.ruoyi.project.service;
 
-import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.ProjectColor;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
@@ -95,7 +94,6 @@ public class AudProjectService {
                 prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
             }
 
-
         }
 
         return projectList;
@@ -125,8 +123,6 @@ public class AudProjectService {
 
     @Transactional
     public Integer updateProject(AudProject record) {
-
-
 
         return audProjectMapper.updateProject(record);
     }

@@ -1,7 +1,6 @@
 package com.ruoyi.logis.mapper;
 
-import com.ruoyi.logis.domain.BasDoc;
-import org.apache.ibatis.annotations.Options;
+import com.ruoyi.common.core.domain.model.BasDoc;
 
 import java.util.List;
 
