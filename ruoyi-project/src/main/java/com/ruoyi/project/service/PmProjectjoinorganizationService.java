@@ -29,4 +29,7 @@ public class PmProjectjoinorganizationService {
         return orgList;
     }
 
+    public Integer deleteJoinorgByIds(List ids) {
+        return 1;
+    }
 }

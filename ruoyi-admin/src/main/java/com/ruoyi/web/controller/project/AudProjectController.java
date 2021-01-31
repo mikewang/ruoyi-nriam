@@ -7,17 +7,21 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.enums.ProjectStatus;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.domain.AudProject;
-import com.ruoyi.project.service.AudProjectService;
+import com.ruoyi.project.domain.PmProjectjoinorganization;
+import com.ruoyi.project.service.*;
 import io.swagger.models.auth.In;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +46,20 @@ public class AudProjectController extends BaseController {
 
     @Resource
     private AudProjectService projectService;
+    @Resource
+    private PmProjectjoinorganizationService projectjoinorganizationService;
+
+    @Resource
+    private PmUplevelprojectService uplevelprojectService;
+
+    @Resource
+    private PMProjectMemberService projectMemberService;
+
+    @Resource
+    private AudProjectdocService projectdocService;
+
+    @Resource
+    private BasDocService basDocService;
 
 
     @PreAuthorize("@ss.hasPermi('project:zaiyan:list')")
@@ -80,7 +99,7 @@ public class AudProjectController extends BaseController {
     {
         AjaxResult ajax = AjaxResult.success();
 
-        logger.debug("query parameters getProjectid is " + project.getProjectid().toString() );
+      //  logger.debug("query parameters getProjectid is " + project.getProjectid().toString() );
         logger.debug("query parameters getSubjectcode is " + project.getSubjectcode() );
 
         Integer projectid = project.getProjectid();
@@ -110,7 +129,7 @@ public class AudProjectController extends BaseController {
         if (StringUtils.isNotEmpty(project.getSubjectcode())
                 && UserConstants.NOT_UNIQUE.equals(projectService.queryIfDuplicate(project)))
         {
-            return AjaxResult.error("操作'" + project.getProjectname() + "'失败，项目经费编号\n已存在");
+            return AjaxResult.error("操作'" + project.getProjectname() + "'失败，项目经费编号已存在");
         }
 
         if (status == ProjectStatus.XinJianZhong.getCode()) {
@@ -123,10 +142,12 @@ public class AudProjectController extends BaseController {
             return AjaxResult.error(" 状态异常，请联系管理员");
         }
 
-        Integer projectid = projectService.insertProject(project);
+        Integer rows = projectService.insertProject(project);
 
-        if (projectid > 0 ) {
-            AjaxResult ajax = AjaxResult.success();
+        if (rows > 0 ) {
+            Integer projectid = project.getProjectid();
+
+             AjaxResult ajax = AjaxResult.success();
             ajax.put(AjaxResult.DATA_TAG, projectid);
             return  ajax;
         }
@@ -182,7 +203,7 @@ public class AudProjectController extends BaseController {
      * 文件上传
      */
     @PreAuthorize("@ss.hasPermi('project:zaiyan:edit')")
-    @Log(title = "合同文件上传", businessType = BusinessType.UPDATE)
+    @Log(title = "文件上传", businessType = BusinessType.UPDATE)
     @PostMapping("/upload")
     public AjaxResult upload(@RequestParam("file") MultipartFile file) throws IOException
     {
@@ -193,12 +214,34 @@ public class AudProjectController extends BaseController {
             String originalFilename = file.getOriginalFilename();
             // 上传文件路径
             String filePath = RuoYiConfig.getUploadPath() + "/Doc";
+
+            String yyyymm = DateUtils.dateTimeNow("yyyyMM");
+            String ddHHmmss = DateUtils.dateTimeNow("ddHHmmss");
+
+            filePath = filePath + "/" + yyyymm + "/" + ddHHmmss;
+
             // 上传并返回新文件名称
             String fileName = FileUploadUtils.uploadOriginalFile(filePath, file);
+            String doctype = FileTypeUtils.getFileType(fileName);
             String url = serverConfig.getUrl() + fileName;
+
+            BasDoc doc = new BasDoc();
+            doc.setDocname(originalFilename);
+            String relativepath = StringUtils.trimstart(filePath,RuoYiConfig.getProfile());
+            relativepath = StringUtils.trimend(relativepath,"/");
+
+            doc.setRelativepath(relativepath);
+            doc.setDoctype(doctype);
+
+            logger.debug("relativepath is " + filePath);
+            logger.debug("originalFilename is " + originalFilename);
+            logger.debug("doctype is " + doctype);
+
+            Integer docid = basDocService.insertBasDoc(doc);
+
             AjaxResult ajax = AjaxResult.success();
             ajax.put("name", originalFilename);
-            ajax.put("url", fileName);
+            ajax.put("url", docid);
 
             return ajax;
         }

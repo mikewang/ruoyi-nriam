@@ -96,7 +96,7 @@
 
     <select id="selectProjectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         <include refid="selectAudProject"/>
-        where ProjectID = #{projectId,jdbcType=INTEGER}
+        where ProjectID = #{projectid,jdbcType=INTEGER}
     </select>
 
     <select id="queryIfDuplicate" parameterType="com.ruoyi.project.domain.AudProject" resultType="int">

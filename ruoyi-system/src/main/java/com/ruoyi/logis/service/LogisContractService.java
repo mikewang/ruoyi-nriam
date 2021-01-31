@@ -5,7 +5,6 @@ import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.logis.domain.LogisContract;
-import com.ruoyi.logis.mapper.BasDocMapper;
 import com.ruoyi.logis.mapper.LogisContractMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +23,6 @@ public class LogisContractService {
     @Resource
     private LogisContractMapper logisContractMapper;
 
-    @Resource
-    private BasDocMapper basDocMapper;
 
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<LogisContract> selectLogisContractList(LogisContract logisContract) {
@@ -80,9 +77,9 @@ public class LogisContractService {
                 doc.setDocname(name);
                 doc.setRelativepath(RelativePath);
 
-                int docId = basDocMapper.insert(doc);
-
-                myList[i] = doc.getDocid();
+//                int docId = basDocMapper.insert(doc);
+//
+//                myList[i] = doc.getDocid();
 
                 log.debug("new item file upload. ** " + String.valueOf(doc.getDocid()) + " ** ="  + url );
             }
@@ -118,19 +115,19 @@ public class LogisContractService {
                 docIdList.add(Integer.parseInt(item));
             }
 
-            List<BasDoc> basDocList = basDocMapper.selectByIds(docIdList);
-
-            for(BasDoc doc : basDocList) {
-                HashMap fileMap = new HashMap();
-                fileMap.put("id",doc.getDocid());
-                fileMap.put("name",doc.getDocname());
-                fileMap.put("url",doc.getUrl());
-                fileList.add(fileMap);
-            }
-
-            log.debug(fileList.toString());
-
-            contract.fileList = fileList;
+//            List<BasDoc> basDocList = basDocMapper.selectByIds(docIdList);
+//
+//            for(BasDoc doc : basDocList) {
+//                HashMap fileMap = new HashMap();
+//                fileMap.put("id",doc.getDocid());
+//                fileMap.put("name",doc.getDocname());
+//                fileMap.put("url",doc.getUrl());
+//                fileList.add(fileMap);
+//            }
+//
+//            log.debug(fileList.toString());
+//
+//            contract.fileList = fileList;
 
         }
 

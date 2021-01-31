@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/project/member")
-public class PMProjectMemberController extends BaseController {
+public class PmProjectMemberController extends BaseController {
 
     @Resource
     private ServerConfig serverConfig;

@@ -4,7 +4,13 @@ import com.ruoyi.common.enums.ProjectColor;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.project.domain.AudProject;
-import com.ruoyi.project.mapper.AudProjectMapper;
+import com.ruoyi.project.domain.PmUplevelproject;
+import com.ruoyi.project.mapper.*;
+import com.ruoyi.project.domain.PmProjectjoinorganization;
+
+import com.ruoyi.project.domain.PmProjectmember;
+import com.ruoyi.project.domain.AudProjectdoc;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,6 +25,18 @@ public class AudProjectService {
 
     @Resource
     private AudProjectMapper audProjectMapper;
+
+    @Resource
+    private PmProjectjoinorganizationMapper joinorganizationMapper;
+
+    @Resource
+    private PmProjectmemberMapper projectmemberMapper;
+
+    @Resource
+    private AudProjectdocMapper projectdocMapper;
+
+    @Resource
+    private PmUplevelprojectMapper uplevelprojectMapper;
 
     public List<AudProject> selectAudProjectList(AudProject project) {
 
@@ -110,21 +128,132 @@ public class AudProjectService {
         return audProjectMapper.queryIfDuplicate(project);
     }
 
+
+    public void updateProjectDetail(AudProject project) {
+
+        Integer projectId = project.getProjectid();
+
+        if (project.getJointype() != null) {
+            if (project.getJointype() == 1) {
+                List<PmProjectjoinorganization> joinList  = project.getProjectJoinOrganizationList();
+                List<Integer> ids = new ArrayList<>();
+                for (PmProjectjoinorganization s : joinList) {
+                    s.setProjectid(projectId.toString());
+
+                    if (s.getJoid() != null) {
+                        ids.add(s.getJoid());
+                    }
+                }
+
+                PmProjectjoinorganization  join = new PmProjectjoinorganization();
+                join.setProjectid(projectId.toString());
+                List<PmProjectjoinorganization> joinList2 = joinorganizationMapper.selectProjectjoinorganizationList(join);
+
+                List<Integer> ids2 = new ArrayList<>();
+                for (PmProjectjoinorganization s : joinList2) {
+                    ids2.add(s.getJoid());
+                }
+
+                // 数据库里保存的比现在提交的多的joid. 删除。
+                ids2.removeAll(ids);
+                if (ids2.size() > 0) {
+                    joinorganizationMapper.deleteProjectjoinorganizationByIds(ids2);
+                }
+                // 现在提交的数据库里保存的 多的joid. 新增或更新。
+                for (PmProjectjoinorganization s : joinList) {
+                    Integer joid = s.getJoid();
+                    if (joid != null) {
+                        joinorganizationMapper.updateProjectjoinorganization(s);
+                    }
+                    else {
+                        joinorganizationMapper.insertProjectjoinorganization(s);
+                    }
+                }
+            }
+            else if (project.getJointype() == 2) {
+
+                PmUplevelproject uplevelProject = project.getUplevelproject();
+
+                if (uplevelProject == null) {
+                    PmUplevelproject uplevelProject2 = new PmUplevelproject();
+                    uplevelProject2.setProjectid(project.getProjectid());
+                    uplevelprojectMapper.deleteUplevelProject(uplevelProject2);
+                }
+                else {
+                    uplevelProject.setProjectid(projectId);
+
+                    PmUplevelproject uplevelproject2 = uplevelprojectMapper.selectUplevelProjectByProjectid(projectId);
+
+                    if (uplevelproject2 != null) {
+                        if (uplevelProject.getInfoid() == uplevelproject2.getInfoid()) {
+                            uplevelprojectMapper.updateUplevelProject(uplevelProject);
+                        }
+                        else {
+                            uplevelprojectMapper.deleteUplevelProject(uplevelproject2);
+                            uplevelprojectMapper.insertUplevelProject(uplevelProject);
+                        }
+                    }
+                    else {
+                        uplevelprojectMapper.insertUplevelProject(uplevelProject);
+                    }
+                }
+            }
+        }
+
+        projectmemberMapper.deleteProjectmemberByProjectId(projectId);
+
+        log.debug("project.getProjectmemberList is " + project.getProjectmemberList().toString());
+        for (Integer s: project.getProjectmemberList()) {
+            PmProjectmember projectmember = new PmProjectmember();
+            projectmember.setProjectid(projectId);
+            projectmember.setUserid(s);
+            projectmemberMapper.insertProjectmember(projectmember);
+        }
+
+        List<AudProjectdoc> doclist = project.getProjectdocList();
+
+        for(AudProjectdoc s: doclist) {
+            s.setProjectid(projectId);
+        }
+
+        log.debug("doclist is " + doclist.toString());
+
+        projectdocMapper.selectProjectdocList(new AudProjectdoc());
+    }
+
+
     @Transactional
-    public Integer insertProject(AudProject record) {
+    public Integer insertProject(AudProject project) {
         log.debug("insertProject is below.");
 
-        Integer rows = audProjectMapper.insertProject(record);
+        Integer rows = audProjectMapper.insertProject(project);
 
-        log.debug("useGeneratedKeys projectid  is " + rows.toString());
+        Integer projectId = rows > 0 ? project.getProjectid() : rows;
 
-        return rows;
+        log.debug("insertProject rows is " + rows.toString() + " projectid is " + project.getProjectid().toString());
+
+        if (projectId > 0 ) {
+
+            log.debug("projectJoinOrganizationList is " + project.getProjectJoinOrganizationList());
+            log.debug("uplevelproject is " + project.getUplevelproject());
+            log.debug("projectmemberList is " + project.getProjectmemberList());
+            log.debug("projectdocList is " + project.getProjectdocList());
+
+            this.updateProjectDetail(project);
+
+        }
+
+        return projectId;
     }
 
     @Transactional
-    public Integer updateProject(AudProject record) {
+    public Integer updateProject(AudProject project) {
 
-        return audProjectMapper.updateProject(record);
+        Integer rows = audProjectMapper.updateProject(project);
+
+        this.updateProjectDetail(project);
+
+        return rows;
     }
 
 }

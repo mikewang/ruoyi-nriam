@@ -128,37 +128,40 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row  v-if="form.jointype===1">
+        <el-row v-if="form.jointype===1">
           <el-col :span="24">
-            <el-form-item label="项目参加单位列表" prop="memo">
+            <el-form-item label="项目参加单位列表" prop="joinOrganizationList">
               <el-row :gutter="10" class="mb8">
                 <el-col :span="1.5">
-                  <el-button
-                    type="primary"
-                    icon="el-icon-plus"
-                    size="mini"
-                    @click="handleJoinOrganizationAdd"
-                    v-hasPermi="['project:zaiyan:add']"
+                  <el-button plain
+                             type="primary"
+                             icon="el-icon-plus"
+                             size="mini"
+                             @click="handleJoinOrganizationAdd"
+                             v-hasPermi="['project:zaiyan:add']"
                   >新增
                   </el-button>
                 </el-col>
                 <el-col :span="1.5">
-                  <el-button
-                    type="danger"
-                    icon="el-icon-delete"
-                    size="mini"
-                    :disabled="multiple"
-                    @click="handleJoinOrganizationDelete"
-                    v-hasPermi="['project:zaiyan:remove']"
+                  <el-button plain
+                             v-if="1===0"
+                             type="danger"
+                             icon="el-icon-delete"
+                             size="mini"
+                             :disabled="multiple"
+                             @click="handleJoinOrganizationDelete"
+                             v-hasPermi="['project:zaiyan:remove']"
                   >删除
                   </el-button>
                 </el-col>
                 <right-toolbar @queryTable="getList"></right-toolbar>
               </el-row>
-              <el-table :data="projectJoinOrganizationList" @selection-change="handleJoinOrganizationSelectionChange" style="display:block;">
+              <el-table :data="form.projectJoinOrganizationList"
+                        @selection-change="handleJoinOrganizationSelectionChange"
+                        style="display:block;">
                 <el-table-column type="selection" width="50" align="center"/>
-                <el-table-column label="子项目名称" align="center" prop="subjectname"  :show-overflow-tooltip="true"/>
-                <el-table-column label="参加单位" align="center" prop="organizationname" />
+                <el-table-column label="子项目名称" align="center" prop="subjectname" :show-overflow-tooltip="true"/>
+                <el-table-column label="参加单位" align="center" prop="organizationname"/>
                 <el-table-column label="负责人" align="center" prop="manager" width="100"/>
                 <el-table-column label="经费（元）" align="center" prop="funds" width="100"/>
                 <el-table-column
@@ -189,33 +192,33 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row  v-if="form.jointype===2">
+        <el-row v-if="form.jointype===2">
           <el-col :span="8">
-            <el-form-item label="参与项目名称" prop="uplevelproject_subjectname">
-              <el-input v-model="uplevelproject.subjectname" placeholder="请输入项目名称"/>
+            <el-form-item label="参与项目名称" prop="uplevelsubjectname">
+              <el-input v-model="form.uplevelproject.subjectname" placeholder="请输入项目名称"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="主持单位" prop="uplevelproject_manageorganization">
-              <el-input v-model="uplevelproject.manageorganization" placeholder="请输入项目编号"/>
+            <el-form-item label="主持单位" prop="uplevelmanageorganization">
+              <el-input v-model="form.uplevelproject.manageorganization" placeholder="请输入项目编号"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="负责人" prop="uplevelproject_manager">
-              <el-input v-model="uplevelproject.manager" placeholder="请输入项目经费编号"/>
+            <el-form-item label="负责人" prop="uplevelmanager">
+              <el-input v-model="form.uplevelproject.manager" placeholder="请输入项目经费编号"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="经费（元）" prop="uplevelproject_funds">
-              <el-input v-model="uplevelproject.funds" placeholder="0.00"/>
+            <el-form-item label="经费（元）" prop="uplevelfunds">
+              <el-input v-model="form.uplevelproject.funds" placeholder="0.00"/>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row >
+        <el-row>
           <el-col :span="24">
             <el-form-item label="项目成员" prop="projectmemberList">
               <template>
-                <el-checkbox-group v-model="projectmemberList"
+                <el-checkbox-group v-model="form.projectmemberList"
                                    @change="handleProjectmemberListChange" :key="timer">
                   <el-checkbox v-for="data in projectmemberOptions" :label="data.userid" :key="data.userid">
                     {{ data.realName }}
@@ -238,41 +241,41 @@
 
         <el-row>
 
-          <el-col :span="8">
-            <el-form-item label="项目申报书" prop="contractFile">
-              <el-upload action="#" :http-request="requestUpload1"  :before-remove="beforeRemove1" :on-remove="handleUploadRemove1"
-                         :file-list="form.docList1" :before-upload="beforeUpload1" v-hasPermi="['project:zaiyan:edit']">
+          <el-col :span="12">
+            <el-form-item label="项目申报书" prop="sbfileList">
+              <el-upload action="#" :http-request="requestSBUpload" :before-remove="beforeSBRemove"
+                         :on-remove="handleSBUploadRemove"
+                         :file-list="sbfileList" :before-upload="beforeSBUpload" v-hasPermi="['project:zaiyan:edit']">
                 <el-button size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
-                     </el-upload>
+              </el-upload>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="12">
             <el-form-item label="项目合同" prop="contractFile">
 
             </el-form-item>
           </el-col>
-          <el-col :span="8">
 
-          <el-form-item label="实施方案" prop="contractFile">
-
-            </el-form-item>
-          </el-col>
         </el-row>
 
         <el-row>
-          <el-col :span="8">
+          <el-col :span="12">
 
-          <el-form-item label="项目批复文件" prop="contractFile">
+            <el-form-item label="实施方案" prop="contractFile">
 
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="项目批复文件" prop="contractFile">
 
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24" align="center">
-            <el-button  type="success" @click="saveForm">暂 存</el-button>
-          <el-button type="primary" @click="submitForm">提交审核</el-button>
-          <el-button @click="close">取 消</el-button>
+            <el-button type="success" @click="saveForm">暂 存</el-button>
+            <el-button type="primary" @click="submitForm">提交审核</el-button>
+            <el-button @click="close">取 消</el-button>
           </el-col>
         </el-row>
 
@@ -281,15 +284,57 @@
     </el-row>
 
 
+    <!-- 添加或修改菜单对话框 -->
+    <el-dialog :title="joinOrganizationTitle" :visible.sync="joinOrganizationOpen" width="600px" append-to-body>
+      <el-form ref="joinForm" :model="joinForm" :rules="joinRules" label-width="100px" :key="timer">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="子项目名称" prop="subjectname">
+              <el-input v-model="joinForm.subjectname" placeholder="请输入子项目名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="参加单位" prop="organizationname">
+              <el-input v-model="joinForm.organizationname" placeholder="请输入参加单位名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="负责人名称" prop="manager">
+              <el-input v-model="joinForm.manager" placeholder="请输入负责人名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="经费（元）" prop="funds">
+              <el-input v-model="joinForm.funds" placeholder="0.00"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitJoinForm">确 定</el-button>
+        <el-button @click="cancelJoinForm">取 消</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
-import {listTeam} from "@/api/project/team";
+import {addTeam, listTeam, updateTeam} from "@/api/project/team";
 import {listData} from "@/api/system/dict/data";
 import {listDept} from "@/api/system/dept";
 import {listUser} from "@/api/system/user";
-import {getProject, addProject,updateProject, checkProject, uploadFile, downloadFile, listProjectjoinorganization, getUplevelProject, listProjectmember,listProjectdoc} from "@/api/project/zaiyan";
+import {
+  addProject,
+  checkProject,
+  getProject,
+  getUplevelProject,
+  listProjectdoc,
+  listProjectjoinorganization,
+  listProjectmember,
+  updateProject,
+  uploadFile
+} from "@/api/project/zaiyan";
 import {isNumber} from "@/utils/validate.js"
 
 export default {
@@ -323,17 +368,21 @@ export default {
       userList: [],
 
       jointypeOptions: [{value: 1, label: "主持"}, {value: 2, label: "参与"}],
-      addProjectmemberId:undefined,
+
+      addProjectmemberId: undefined,
       projectmemberOptions: [],
-      projectmemberList: [],
+
       ProjectStatus: {XinJianZhong: 48, DaiQueRen: 40},
-      projectJoinOrganizationList: [],
-      uplevelproject: {},
+
+      sbfileList: [],
+      htfileList: [],
+      fafileList: [],
+      pffileList: [],
+
       // 日期范围
       // 查询参数
       // 表单参数
-      form: {
-      },
+      form: {},
       timer: '',
       // 表单校验
       rules: {
@@ -344,7 +393,11 @@ export default {
           {required: true, message: "项目编号不能为空", trigger: "blur"}
         ],
         subjectcode: [
-          {required: true, message: "项目经费编号不能为空", trigger: "blur"}, {trigger: "change", validator: this.validateSubjectcode}
+          {required: true, message: "项目经费编号不能为空", trigger: "blur"}, {
+            required: true,
+            trigger: "change",
+            validator: this.validateSubjectcode
+          }
         ],
         projectfunds: [
           {required: true, message: "项目总经费不能为空", trigger: "blur"}, {trigger: "blur", validator: isNumber}
@@ -355,19 +408,36 @@ export default {
         canusefunds: [
           {required: true, message: "可支配经费不能为空", trigger: "blur"}, {trigger: "blur", validator: isNumber}
         ]
+      },
+
+      joinOrganizationTitle: "",
+      joinOrganizationOpen: false,
+      joinForm: {},
+      joinRules: {
+        subjectname: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        organizationname: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        manager: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        funds: [
+          {required: true, message: "不能为空", trigger: "blur"}, {trigger: "blur", validator: isNumber}
+        ]
       }
+
     };
 
   },
-
 
 
   beforeCreate() {
     const projectid = this.$route.params && this.$route.params.projectid;
     if (Number(projectid) === 0) {
       this.$route.meta.title = "新增项目";
-    }
-    else {
+    } else {
       this.$route.meta.title = "编辑项目";
     }
   },
@@ -376,8 +446,7 @@ export default {
     const projectid = this.$route.params && this.$route.params.projectid;
     if (Number(projectid) === 0) {
 
-    }
-    else {
+    } else {
       this.form.projectid = projectid;
       this.form.projectname = "项目id = " + projectid;
     }
@@ -392,45 +461,60 @@ export default {
       console.log("loading is begin.");
 
       if (this.form.projectid == undefined) {
+        this.reset();
         this.loading = false;
-      }
-      else {
+      } else {
         let projectid = this.form.projectid;
         getProject(projectid.toString()).then(response => {
           this.form = response.data;
+
+          listProjectjoinorganization({projectid: this.form.projectid}).then(response => {
+            if (response.data !== null) {
+              this.form.projectJoinOrganizationList = response.data;
+            }
+            else {
+
+            }
+            console.log("listProjectjoinorganization is ", response.data);
+          });
+
+          getUplevelProject(projectid).then(response => {
+            if (response.data !== null) {
+              this.form.uplevelproject = response.data;
+            }
+            else {
+              this.form.uplevelproject = {subjectname:null};
+            }
+
+            console.log("this.form.uplevelproject is ", this.form.uplevelproject);
+
+          });
+
+          listProjectmember({projectid: this.form.projectid}).then(response => {
+            const this_ = this;
+            let rows = response.data;
+            console.log("listProjectmember is ", rows);
+            this_.projectmemberOptions = rows;
+            this_.form.projectmemberList = [];
+            this_.projectmemberOptions.forEach(function (obj) {
+              this_.form.projectmemberList.push(obj.userid);
+            });
+          });
+
+          listProjectdoc({projectid: this.form.projectid}).then(response => {
+            const this_ = this;
+            let rows = response.data;
+            console.log("listProjectdoc is ", rows);
+            this.form.projectdocList = rows;
+            this.sbfileList = this.filterProjectdoc("项目申报书");
+            console.log("项目申报书 is ", this.sbfileList);
+          });
+
           this.loading = false;
 
         });
 
-        listProjectjoinorganization({projectid: this.form.projectid}).then(response => {
-          let rows = response.data;
-          console.log("listProjectjoinorganization is ", rows);
-          this.projectJoinOrganizationList = rows;
-        });
 
-        getUplevelProject(projectid).then(response => {
-          this.uplevelproject = response.data;
-          console.log("this.uplevelproject is ", this.uplevelproject);
-
-        });
-
-        listProjectmember({projectid: this.form.projectid}).then(response => {
-          const this_ = this;
-          let rows = response.data;
-          console.log("listProjectmember is ", rows);
-          this_.projectmemberOptions = rows;
-          this_.projectmemberList = [];
-          this_.projectmemberOptions.forEach(function (obj) {
-            this_.projectmemberList.push(obj.userid);
-          });
-        });
-
-        listProjectdoc({projectid: this.form.projectid}).then(response => {
-          const this_ = this;
-          let rows = response.data;
-          console.log("listProjectdoc is ", rows);
-
-        });
       }
 
 
@@ -462,55 +546,52 @@ export default {
 
           listOptions = [];
           listTeam().then(response => {
+            console.log(response);
+            response.rows.forEach(function (item) {
+              const team = {value: item.teamname, id: item.teamid};
+              listOptions.push(team);
+            });
+            this.teamList = listOptions;
+            this.teamOptions = listOptions;
+
+            listOptions = [];
+            listUser().then(response => {
               console.log(response);
               response.rows.forEach(function (item) {
-                const team = {value: item.teamname, id: item.teamid};
-                listOptions.push(team);
+                //console.log("item is ", item);
+                const user = {value: item.realName, id: item.userId, hotKey: item.hotKey};
+                //console.log(user);
+                listOptions.push(user);
               });
-              this.teamList = listOptions;
-              this.teamOptions = listOptions;
-
-              listOptions = [];
-              listUser().then(response => {
-                  console.log(response);
-                  response.rows.forEach(function (item) {
-                    //console.log("item is ", item);
-                    const user = {value: item.realName, id: item.userId, hotKey: item.hotKey};
-                    //console.log(user);
-                    listOptions.push(user);
-                  });
-                  this.userList = listOptions;
-                  this.userOptions = listOptions;
-                });
+              this.userList = listOptions;
+              this.userOptions = listOptions;
             });
+          });
         });
       });
 
     },
 
     getSubjectcode(query) {
-    return new Promise((resolve, reject) => {
-      let res = checkProject(query);
-       resolve(res);
-    });
+      return new Promise((resolve, reject) => {
+        let res = checkProject(query);
+        resolve(res);
+      });
     },
 
     async validateSubjectcode(rule, value, callback) {
       if (!value) {
         callback(new Error("项目经费编号不能为空"));
-      }
-      else {
+      } else {
         if (this.form.subjectcode === undefined) {
           callback();
-        }
-        else {
-          let query = {subjectcode : value, projectid: this.form.projectid};
+        } else {
+          let query = {subjectcode: value, projectid: this.form.projectid};
           let res = await this.getSubjectcode(query);
           console.log(res);
           if (res.data > 0) {
             callback(new Error("项目经费编号重复"));
-          }
-          else {
+          } else {
             callback();
           }
         }
@@ -550,13 +631,14 @@ export default {
         statusLinkText: undefined,
         teamname: undefined,
 
-        //项目申报书
-        docList1:[]
+        projectJoinOrganizationList: [],
+        uplevelproject: {},
+        projectmemberList: [],
+        projectdocList: []
       };
 
       this.resetForm("form");
     },
-
 
 
     clearDeptValue() {
@@ -708,7 +790,7 @@ export default {
     createFilter(v) {
       return (item) => {
         //  console.log("item is ", item.hotKey);
-        const  queryString = v.toLowerCase();
+        const queryString = v.toLowerCase();
         var typename = item.value;
 
         var ll = typename.indexOf(queryString);
@@ -734,8 +816,8 @@ export default {
 
         var added = false;
 
-          for (let i=0; i < this.projectmemberList.length; i++){
-          let item = this.projectmemberList[i];
+        for (let i = 0; i < this.form.projectmemberList.length; i++) {
+          let item = this.form.projectmemberList[i];
           if (value === item) {
             added = true;
             break;
@@ -744,11 +826,10 @@ export default {
 
         if (added) {
           this.$message.info("项目成员已存在。");
-        }
-        else {
-          this.projectmemberList.push(value);
+        } else {
+          this.form.projectmemberList.push(value);
 
-          for (let i=0; i < this.projectmemberOptions.length; i++){
+          for (let i = 0; i < this.projectmemberOptions.length; i++) {
             let item = this.projectmemberOptions[i];
             if (value === item.userid) {
               added = true;
@@ -758,17 +839,16 @@ export default {
 
           if (added) {
             this.$message.info("项目成员已选择。");
-          }
-          else {
+          } else {
             var realName = "";
-            for (let i=0; i < this.userList.length; i++){
+            for (let i = 0; i < this.userList.length; i++) {
               let item = this.userList[i];
               if (value === item.id) {
                 realName = item.value;
                 break;
               }
             }
-            const  member = {userid:value,realName:realName}
+            const member = {userid: value, realName: realName}
             this.projectmemberOptions.push(member);
           }
 
@@ -798,57 +878,29 @@ export default {
     },
 
 
-    /* 主持的项目 */
+    filterProjectdoc(doctype) {
+      const doclist = [];
 
-    // 多选框选中数据
-    handleJoinOrganizationSelectionChange(selection) {
-      this.ids = selection.map(item => item.teamid);
-      this.single = selection.length != 1;
-      this.multiple = !selection.length;
+      if (doctype !== "") {
+        for (let i = 0; i < this.form.projectdocList.length; i++) {
+          let item = this.form.projectdocList[i];
+          if (item.doctype === doctype) {
+            doclist.push({"name": item.docname, "url": item.docid});
+          }
+        }
+      }
+      return doclist;
     },
 
 
-
-    handleJoinOrganizationAdd() {
-
-    },
-
-
-    handleJoinOrganizationUpdate(row) {
-
-
-    },
-
-
-    /**  删除按钮操作 */
-    handleJoinOrganizationDelete(row) {
-      // const teamIds = row.teamid || this.ids;
-      // console.log("teamIds is ", teamIds);
-      // this.$confirm('是否确认删除团队编号为"' + teamIds + '"的数据项?', "警告", {
-      //   confirmButtonText: "确定",
-      //   cancelButtonText: "取消",
-      //   type: "warning"
-      // }).then(function () {
-      //   return deleteTeam(teamIds);
-      // }).then(() => {
-      //   this.getList();
-      //   this.msgSuccess("删除成功");
-      // })
-    },
-
-
-
-
-
-
-    /* 项目书上传 */
-    beforeUpload1(file) {
+    /* 项目申报书 */
+    beforeSBUpload(file) {
 
       let x = true
-      let fileList = this.form.docList1;
+      let fileList = this.sbfileList;
 
       console.log("fileList is ", fileList);
-      for (let i=0; i< fileList.length; i++) {
+      for (let i = 0; i < fileList.length; i++) {
         let item = fileList[i];
         if (item.name === file.name) {
           console.log("file existed now ,", file.name);
@@ -860,43 +912,56 @@ export default {
 
     },
 
-    requestUpload1: function (params) {
+    requestSBUpload: function (params) {
       let file = params.file;
       console.log(file);
       let formData = new FormData();
       formData.append('file', file);
       uploadFile(formData).then(response => {
-        console.log("response", response.name);
-        console.log("response", response.url);
-        console.log(this.form.docList1);
-        this.form.docList1.push({name: response.name, url: response.url});
+        console.log("response.name is ", response.name);
+        console.log("response.url is ", response.url);
+        this.sbfileList.push({name: response.name, url: response.url});
+        console.log("sbfileList is ", this.sbfileList);
+
+        this.form.projectdocList.push({docid:response.url, doctype: "项目申报书"});
+
       });
     },
 
-    beforeRemove1(file, fileList) {
+    beforeSBRemove(file, fileList) {
       let index = fileList.indexOf(file);
-      console.log("beforeRemove1 index=" + index, file.name);
+      console.log("beforeSBRemove index=" + index, file.name);
       return true;
-    //  return this.$confirm(`确定移除 ${ file.name }？`);
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
     },
 
-    handleUploadRemove1(file) {
+    handleSBUploadRemove(file) {
 
       let today = new Date();
 
-      let index = this.form.docList1.indexOf(file);
+      let docid = file.url;
+
+      let index = this.sbfileList.indexOf(file);
       if (index !== -1) {
-        this.form.docList1.splice(index,1);
+        this.sbfileList.splice(index, 1);
+      }
+      let index2 = this.form.projectJoinOrganizationList.indexOf(function (item) {
+        return item.docid === docid
+      });
+
+      if (index2 !== -1) {
+        this.form.projectJoinOrganizationList.splice(index2, 1);
       }
 
-      console.log("handleUploadRemove index=" + index, file.name, today.toDateString());
-      console.log("this.form.docList1 is ", this.form.docList1);
+      console.log("handleSBUploadRemove index=" + index, file.name, today.toDateString());
+      console.log("this.sbfileList is ", this.sbfileList);
       return;
     },
 
+
     beforeUpload(file) {
 
-      this.form.docList1.forEach(
+      this.sbfileList.forEach(
         function (item) {
           if (item.name === file.name) {
             return false;
@@ -904,7 +969,6 @@ export default {
         }
       );
       return true;
-
     },
 
 
@@ -954,7 +1018,7 @@ export default {
     close() {
       this.reset();
       this.$store.dispatch("tagsView/delView", this.$route);
-      this.$router.push({ path: "/project/zaiyan" });
+      this.$router.push({path: "/project/zaiyan"});
     },
 
 
@@ -964,6 +1028,14 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           console.log("submit form is ", this.form);
+
+          // 处理掉添加的参与单位，为了更新或修改。
+          this.form.projectJoinOrganizationList.forEach(function (item) {
+            if (item.joid < 0) {
+              item.joid = undefined;
+            }
+          });
+
           if (this.form.projectid !== undefined) {
             updateProject(this.form).then(response => {
               this.msgSuccess("修改成功");
@@ -976,11 +1048,10 @@ export default {
 
             addProject(this.form).then(response => {
 
-              if (response.data === 0 ) {
+              if (response.data === 0) {
                 this.msgError("暂存失败");
                 this.form.projectid = undefined;
-              }
-              else {
+              } else {
                 this.msgSuccess("暂存成功");
                 this.form.projectid = response.data;
               }
@@ -1013,7 +1084,103 @@ export default {
           }
         }
       });
-    }
+    },
+
+
+    /* 主持的项目 */
+
+    // 多选框选中数据
+    handleJoinOrganizationSelectionChange(selection) {
+      // this.ids = selection.map(item => item.teamid);
+      // this.single = selection.length != 1;
+      // this.multiple = !selection.length;
+    },
+
+
+    handleJoinOrganizationAdd() {
+      this.resetJoinForm();
+      this.joinOrganizationOpen = true;
+      this.joinOrganizationTitle = "添加项目参加单位";
+
+    },
+
+
+    handleJoinOrganizationUpdate(row) {
+      this.joinOrganizationOpen = true;
+      this.joinOrganizationTitle = "编辑项目参加单位";
+      const joinorg = {joid: row.joid, subjectname: row.subjectname,organizationname: row.organizationname,manager: row.manager,funds: row.funds};
+
+      this.joinForm = joinorg;
+    },
+
+
+    /**  删除按钮操作 */
+    handleJoinOrganizationDelete(row) {
+      const this_ = this;
+      const subjectname = row.subjectname
+      this.$confirm('是否确认删除"' + subjectname + '"的数据项?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        const index = this_.form.projectJoinOrganizationList.indexOf(row);
+        this_.form.projectJoinOrganizationList.splice(index, 1);
+      }).then(() => {
+        this.msgSuccess("删除成功");
+      })
+    },
+
+    cancelJoinForm: function () {
+      this.joinOrganizationOpen = false;
+      this.resetJoinForm();
+    },
+
+    submitJoinForm: function () {
+      const this_ = this;
+      this_.$refs["joinForm"].validate(valid => {
+        if (valid) {
+
+          if (this_.joinForm.joid !== undefined) {
+
+            this_.form.projectJoinOrganizationList.forEach(function (item) {
+              if (item.joid == this_.joinForm.joid) {
+                item.subjectname = this_.joinForm.subjectname;
+                item.organizationname = this_.joinForm.organizationname;
+                item.manager = this_.joinForm.manager;
+                item.funds = this_.joinForm.funds;
+              }
+            });
+            this.msgSuccess("修改成功");
+          } else {
+            let joid = 0;
+            this_.form.projectJoinOrganizationList.forEach(function (item) {
+              if (item.joid < joid) {
+                joid = item.joid;
+              }
+            });
+            joid = joid - 1;
+            const joinorg = {joid: joid, subjectname: this_.joinForm.subjectname,organizationname: this_.joinForm.organizationname,manager: this_.joinForm.manager,funds: this_.joinForm.funds};
+            this_.form.projectJoinOrganizationList.push(joinorg);
+            this.msgSuccess("添加成功");
+          }
+          console.log("submit joinForm is ", this.joinForm);
+          this_.joinOrganizationOpen = false;
+          this.resetJoinForm();
+        }
+      });
+    },
+
+    // 表单重置
+    resetJoinForm() {
+      this.joinForm = {
+        joid: undefined,
+        subjectname: undefined,
+        organizationname: undefined,
+        manager: undefined,
+        funds: undefined
+      };
+      this.resetForm("joinForm");
+    },
 
   }
 }

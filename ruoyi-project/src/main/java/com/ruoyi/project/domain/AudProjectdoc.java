@@ -1,6 +1,5 @@
 package com.ruoyi.project.domain;
 
-import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.domain.model.BasDoc;
 
 public class AudProjectdoc extends BasDoc {
@@ -28,6 +27,7 @@ public class AudProjectdoc extends BasDoc {
 
     @Override
     public void setDocid(Integer docid) {
+        super.setDocid(docid);
         this.docid = docid;
     }
 
@@ -47,5 +47,15 @@ public class AudProjectdoc extends BasDoc {
 
     public void setIfdeleted(Boolean ifdeleted) {
         this.ifdeleted = ifdeleted;
+    }
+
+    @Override
+    public String toString() {
+        return "AudProjectdoc{" +
+                "projectid=" + projectid +
+                ", docid=" + docid +
+                ", doctype='" + doctype + '\'' +
+                ", ifdeleted=" + ifdeleted +
+                '}';
     }
 }

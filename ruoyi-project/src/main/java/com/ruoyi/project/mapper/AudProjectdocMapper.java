@@ -9,4 +9,9 @@ public interface AudProjectdocMapper {
     int insert(AudProjectdoc record);
 
     List<AudProjectdoc> selectProjectdocList(AudProjectdoc record);
+
+    int deleteProjectdoc(AudProjectdoc record);
+
+    int insertProjectdoc(AudProjectdoc record);
+
 }

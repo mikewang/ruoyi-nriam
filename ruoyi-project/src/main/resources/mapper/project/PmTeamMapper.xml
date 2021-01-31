@@ -49,7 +49,7 @@
     order by a.OrderNumber, a.TeamName
   </select>
 
-  <insert id="insertTeam" parameterType="com.ruoyi.project.domain.PmTeam">
+  <insert id="insertTeam" parameterType="com.ruoyi.project.domain.PmTeam"  useGeneratedKeys="true" keyProperty="teamid">
     insert into PM_Team (TeamName, TeamLeaderID,
                          Memo, CreateUserID, CreateTime,
                          IfDeleted)

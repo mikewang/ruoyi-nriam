@@ -66,6 +66,11 @@ public class AudProject extends BaseEntity {
     private String teamname;
 
 
+    private List<PmProjectjoinorganization> projectJoinOrganizationList;
+    private PmUplevelproject uplevelproject;
+    private List<Integer> projectmemberList;
+    private List<AudProjectdoc> projectdocList;
+
     //忘记这个 list 是做什么用的了。哦。项目的各种状态，
     private List<Integer> statusList;
 
@@ -278,6 +283,37 @@ public class AudProject extends BaseEntity {
         ProjectManagerIDLinkText = projectManagerIDLinkText;
     }
 
+    public List<PmProjectjoinorganization> getProjectJoinOrganizationList() {
+        return projectJoinOrganizationList;
+    }
+
+    public void setProjectJoinOrganizationList(List<PmProjectjoinorganization> projectJoinOrganizationList) {
+        this.projectJoinOrganizationList = projectJoinOrganizationList;
+    }
+
+    public PmUplevelproject getUplevelproject() {
+        return uplevelproject;
+    }
+
+    public void setUplevelproject(PmUplevelproject uplevelproject) {
+        this.uplevelproject = uplevelproject;
+    }
+
+    public List<Integer> getProjectmemberList() {
+        return projectmemberList;
+    }
+
+    public void setProjectmemberList(List<Integer> projectmemberList) {
+        this.projectmemberList = projectmemberList;
+    }
+
+    public List<AudProjectdoc> getProjectdocList() {
+        return projectdocList;
+    }
+
+    public void setProjectdocList(List<AudProjectdoc> projectdocList) {
+        this.projectdocList = projectdocList;
+    }
 
     public List<Integer>  getStatusList() {
         return statusList;

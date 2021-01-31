@@ -1,5 +1,6 @@
 package com.ruoyi.project.mapper;
 
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.project.domain.PmProjectjoinorganization;
 
 import java.util.List;
@@ -8,6 +9,10 @@ public interface PmProjectjoinorganizationMapper {
 
     List<PmProjectjoinorganization> selectProjectjoinorganizationList(PmProjectjoinorganization join);
 
+    int deleteProjectjoinorganizationByIds(List ids);
+
+    int insertProjectjoinorganization(PmProjectjoinorganization record);
+    int updateProjectjoinorganization(PmProjectjoinorganization record);
 
     int deleteByPrimaryKey(Integer joid);
 

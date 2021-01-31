@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.mapper.BasDocMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.common.core.domain.model.BasDoc">
+    <id column="DocID" jdbcType="INTEGER" property="docid" />
+    <result column="DocName" jdbcType="VARCHAR" property="docname" />
+    <result column="RelativePath" jdbcType="VARCHAR" property="relativepath" />
+    <result column="AttachToType" jdbcType="VARCHAR" property="attachtotype" />
+    <result column="RelatedID" jdbcType="INTEGER" property="relatedid" />
+    <result column="DocType" jdbcType="VARCHAR" property="doctype" />
+  </resultMap>
+
+  <insert id="insertBasDoc" parameterType="com.ruoyi.common.core.domain.model.BasDoc"  useGeneratedKeys="true" keyProperty="docid">
+      insert into BAS_Doc(DocName, RelativePath, AttachToType, RelatedID, DocType)
+        values(#{docname,jdbcType=VARCHAR}, #{relativepath,jdbcType=VARCHAR},
+            #{attachtotype,jdbcType=VARCHAR}, #{relatedid,jdbcType=INTEGER}, #{doctype,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateBasDoc" parameterType="com.ruoyi.common.core.domain.model.BasDoc">
+    update BAS_Doc
+    set DocName = #{docname,jdbcType=VARCHAR},
+    RelativePath = #{relativepath,jdbcType=VARCHAR},
+    AttachToType = #{attachtotype,jdbcType=VARCHAR},
+    RelatedID = #{relatedid,jdbcType=INTEGER},
+    DocType = #{doctype,jdbcType=VARCHAR}
+    where DocID = #{docid,jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteBasDocById" parameterType="java.lang.Integer">
+    delete from BAS_Doc
+    where DocID = #{docid,jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteBasDocByIds" parameterType="List">
+    delete from BAS_Doc
+    where DocID in
+    <foreach  item ="docid" index="index"  collection="list" open="(" separator="," close=")">
+      #{docid}
+    </foreach>
+  </delete>
+
+  <select id="selectBasDocById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+
+    select DocID, DocName, RelativePath, AttachToType, RelatedID, DocType
+    from BAS_Doc
+    where DocID = #{docid,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectBasDocListByIds" parameterType="List" resultMap="BaseResultMap">
+
+    select DocID, DocName, RelativePath, AttachToType, RelatedID, DocType
+    from BAS_Doc
+    where DocID in
+    <foreach  item ="docid" index="index"  collection="list" open="(" separator="," close=")">
+      #{docid}
+    </foreach>
+  </select>
+
+
+  <select id="selectBasDocList" parameterType="com.ruoyi.common.core.domain.model.BasDoc" resultMap="BaseResultMap">
+
+    select DocID, DocName, RelativePath, AttachToType, RelatedID, DocType
+    from BAS_Doc
+    where 0=0
+    <if test="docid != null and docid != 0 ">
+      and docid != #{docid, jdbcType=INTEGER}
+    </if>
+
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+
+    select DocID, DocName, RelativePath, AttachToType, RelatedID, DocType
+    from BAS_Doc
+  </select>
+</mapper>

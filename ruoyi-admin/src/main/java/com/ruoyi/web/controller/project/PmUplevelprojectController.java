@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/project/uplevel")
-public class PMUplevelprojectController extends BaseController {
+public class PmUplevelprojectController extends BaseController {
 
     @Resource
     private ServerConfig serverConfig;
