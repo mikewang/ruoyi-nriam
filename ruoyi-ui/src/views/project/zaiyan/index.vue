@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <!--用户数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="年份" prop="teamname">
+        <el-form-item label="年份" prop="year">
           <el-date-picker
             type="year"
             format="yyyy"
@@ -94,8 +94,8 @@
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
-              v-hasPermi="['project:zaiyan:edit']"
-            >编辑
+              v-hasPermi="['project:zaiyan:query']"
+            >查看
             </el-button>
             <el-button
               size="mini"
@@ -210,6 +210,7 @@ export default {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
+      this.queryParams.projectyear = "2021";
       listProject(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           this.projectList = response.rows;
           console.log(this.projectList);

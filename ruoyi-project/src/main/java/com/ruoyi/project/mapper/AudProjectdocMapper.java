@@ -14,4 +14,8 @@ public interface AudProjectdocMapper {
 
     int insertProjectdoc(AudProjectdoc record);
 
+    int mergeProjectdoc(List<AudProjectdoc> records);
+    int sourceMergeProjectdoc(List<AudProjectdoc> records);
+
+
 }

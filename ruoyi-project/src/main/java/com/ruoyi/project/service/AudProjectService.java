@@ -3,21 +3,16 @@ package com.ruoyi.project.service;
 import com.ruoyi.common.enums.ProjectColor;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.project.domain.AudProject;
-import com.ruoyi.project.domain.PmUplevelproject;
+import com.ruoyi.project.domain.*;
 import com.ruoyi.project.mapper.*;
-import com.ruoyi.project.domain.PmProjectjoinorganization;
-
-import com.ruoyi.project.domain.PmProjectmember;
-import com.ruoyi.project.domain.AudProjectdoc;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AudProjectService {
@@ -51,7 +46,7 @@ public class AudProjectService {
     }
 
 
-    public List<AudProject> selectAudProjectZaiYanList(AudProject project) {
+    public List<AudProject> selectAudProjectNewList(AudProject project) {
 
 //
 //        <!--  + " and ( a.Status = " + (int)Entity.Enums.ProjectStatus.DaiQueRen    //待确认-->
@@ -97,18 +92,16 @@ public class AudProjectService {
             java.util.Date ended = DateUtils.getNowDate();
             try {
                 ended = DateUtils.parseDate(prj.getProjectenddate());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
 
             }
 
-            long days = (DateUtils.getNowDate().getTime() - ended.getTime())/(1000 * 24 * 60 * 60);
+            long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
 
-            if (days < 900) {
+            if (days < 90) {
                 prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate() + "(剩余 " + String.valueOf(days) + "天)");
                 prj.setProjectColor(ProjectColor.Red.getCode());
-            }
-            else {
+            } else {
                 prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
             }
 
@@ -118,8 +111,7 @@ public class AudProjectService {
     }
 
 
-    public AudProject selectProjectById(Integer projectId)
-    {
+    public AudProject selectProjectById(Integer projectId) {
 
         return audProjectMapper.selectProjectById(projectId);
     }
@@ -135,7 +127,7 @@ public class AudProjectService {
 
         if (project.getJointype() != null) {
             if (project.getJointype() == 1) {
-                List<PmProjectjoinorganization> joinList  = project.getProjectJoinOrganizationList();
+                List<PmProjectjoinorganization> joinList = project.getProjectJoinOrganizationList();
                 List<Integer> ids = new ArrayList<>();
                 for (PmProjectjoinorganization s : joinList) {
                     s.setProjectid(projectId.toString());
@@ -145,9 +137,9 @@ public class AudProjectService {
                     }
                 }
 
-                PmProjectjoinorganization  join = new PmProjectjoinorganization();
-                join.setProjectid(projectId.toString());
-                List<PmProjectjoinorganization> joinList2 = joinorganizationMapper.selectProjectjoinorganizationList(join);
+                PmProjectjoinorganization query = new PmProjectjoinorganization();
+                query.setProjectid(projectId.toString());
+                List<PmProjectjoinorganization> joinList2 = joinorganizationMapper.selectProjectjoinorganizationList(query);
 
                 List<Integer> ids2 = new ArrayList<>();
                 for (PmProjectjoinorganization s : joinList2) {
@@ -164,22 +156,19 @@ public class AudProjectService {
                     Integer joid = s.getJoid();
                     if (joid != null) {
                         joinorganizationMapper.updateProjectjoinorganization(s);
-                    }
-                    else {
+                    } else {
                         joinorganizationMapper.insertProjectjoinorganization(s);
                     }
                 }
-            }
-            else if (project.getJointype() == 2) {
+            } else if (project.getJointype() == 2) {
 
                 PmUplevelproject uplevelProject = project.getUplevelproject();
 
                 if (uplevelProject == null) {
-                    PmUplevelproject uplevelProject2 = new PmUplevelproject();
-                    uplevelProject2.setProjectid(project.getProjectid());
-                    uplevelprojectMapper.deleteUplevelProject(uplevelProject2);
-                }
-                else {
+                    PmUplevelproject query = new PmUplevelproject();
+                    query.setProjectid(project.getProjectid());
+                    uplevelprojectMapper.deleteUplevelProject(query);
+                } else {
                     uplevelProject.setProjectid(projectId);
 
                     PmUplevelproject uplevelproject2 = uplevelprojectMapper.selectUplevelProjectByProjectid(projectId);
@@ -187,38 +176,48 @@ public class AudProjectService {
                     if (uplevelproject2 != null) {
                         if (uplevelProject.getInfoid() == uplevelproject2.getInfoid()) {
                             uplevelprojectMapper.updateUplevelProject(uplevelProject);
-                        }
-                        else {
+                        } else {
                             uplevelprojectMapper.deleteUplevelProject(uplevelproject2);
                             uplevelprojectMapper.insertUplevelProject(uplevelProject);
                         }
-                    }
-                    else {
+                    } else {
                         uplevelprojectMapper.insertUplevelProject(uplevelProject);
                     }
                 }
             }
         }
 
+        //同步项目员工
         projectmemberMapper.deleteProjectmemberByProjectId(projectId);
 
         log.debug("project.getProjectmemberList is " + project.getProjectmemberList().toString());
-        for (Integer s: project.getProjectmemberList()) {
+        for (Integer s : project.getProjectmemberList()) {
             PmProjectmember projectmember = new PmProjectmember();
             projectmember.setProjectid(projectId);
             projectmember.setUserid(s);
             projectmemberMapper.insertProjectmember(projectmember);
         }
 
+
+        // 同步 项目文件。 使用merge方式。
         List<AudProjectdoc> doclist = project.getProjectdocList();
 
-        for(AudProjectdoc s: doclist) {
+        for (AudProjectdoc s : doclist) {
             s.setProjectid(projectId);
+            s.setIfdeleted(false);
         }
 
         log.debug("doclist is " + doclist.toString());
 
-        projectdocMapper.selectProjectdocList(new AudProjectdoc());
+        if (doclist.size() > 0) {
+            Integer rows = projectdocMapper.mergeProjectdoc(doclist);
+            rows = projectdocMapper.sourceMergeProjectdoc(doclist);
+        } else {
+            AudProjectdoc query = new AudProjectdoc();
+            query.setProjectid(project.getProjectid());
+            Integer rows = projectdocMapper.deleteProjectdoc(query);
+        }
+
     }
 
 
@@ -226,13 +225,15 @@ public class AudProjectService {
     public Integer insertProject(AudProject project) {
         log.debug("insertProject is below.");
 
+        project.setStatus(ProjectStatus.XinJianZhong.getCode());
+
         Integer rows = audProjectMapper.insertProject(project);
 
         Integer projectId = rows > 0 ? project.getProjectid() : rows;
 
         log.debug("insertProject rows is " + rows.toString() + " projectid is " + project.getProjectid().toString());
 
-        if (projectId > 0 ) {
+        if (projectId > 0) {
 
             log.debug("projectJoinOrganizationList is " + project.getProjectJoinOrganizationList());
             log.debug("uplevelproject is " + project.getUplevelproject());
@@ -241,6 +242,16 @@ public class AudProjectService {
 
             this.updateProjectDetail(project);
 
+            if (project.getOperateCode() == 2) {
+                project.setStatus(ProjectStatus.DaiQueRen.getCode());
+                audProjectMapper.updateProjectStatus(project);
+
+                String title = "新的项目信息待审核";
+                String content = "项目：“" + project.getProjectname() + "”的信息待审核。";
+                content = content + "<a href=\"/Project/ToConfirmProjectList.aspx?" + "kid=" + project.getProjectid() + "&f=todo\" target=\"_self\" >查看</a> ";
+                // 下面写操作代码。
+
+            }
         }
 
         return projectId;
@@ -253,7 +264,81 @@ public class AudProjectService {
 
         this.updateProjectDetail(project);
 
+        if (project.getOperateCode() == 2) {
+            project.setStatus(ProjectStatus.DaiQueRen.getCode());
+            audProjectMapper.updateProjectStatus(project);
+
+            String title = "新的项目信息待审核";
+            String content = "项目：“" + project.getProjectname() + "”的信息待审核。";
+            content = content + "<a href=\"/Project/ToConfirmProjectList.aspx?" + "kid=" + project.getProjectid() + "&f=todo\" target=\"_self\" >查看</a> ";
+
+
+//            //发送消息
+//            string title = "新的项目信息待审核";
+//            string content = "项目：“" + txt_ProjectName.Text + "”的信息待审核。"
+//                    + "<a href=\"/Project/ToConfirmProjectList.aspx?"
+//                    + "kid=" + lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
+//            ProjectCommonFunc.SendMessage(title, content, "项目", lab_ProjectID.Text, ConstantParameter.MID_ProjectConfirm);
+//            public static void SendMessage(string title, string content ,string type ,string kid ,string moduleID)
+//            {
+//                //发送通知消息(发送给具有“项目信息审核”功能的人员)
+//                IPermissionManager iperm = PermissionManager.GetInstance();
+//                DataSet ds = iperm.GetUserListToModule(moduleID);
+//
+//                //循环
+//                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+//                {
+//                    AudMessage am = new AudMessage();
+//                    am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//                    am.MessageTitle = title;
+//                    am.MessageContent = content;
+//                    //查询消息要发送给哪个人员
+//                    am.ToUserID = int.Parse(ds.Tables[0].Rows[i]["UserID"].ToString());
+//                    am.RelatedSheetType = type;
+//                    am.RelatedSheetID = int.Parse(kid);
+//                    IAudMessageManager iamm = AudMessageManager.GetInstance();
+//                    iamm.AddNew(am);
+//                }
+//
+//                public DataSet GetUserListToModule(string moduleID)
+//                {
+//                    string sql = "";
+//                    try
+//                    {
+//                        sql = " select distinct(userID) from UM_UserInRole "
+//                                + " where roleID in "
+//                                + " ( select RoleID from um_permission where moduleid=" + moduleID
+//                                + " and permissiontype=1 ) ";
+//                        DataSet ds = DBAccess.DB.ExecuteDataSet(CommandType.Text, sql);
+//                        return ds;
+//                    }
+//                    catch (Exception exp)
+//                    {
+//                        LogRecorder.WriteLog("获取能够访问某个功能模块的所有用户时发生错误，执行的sql为" + sql, exp.Message);
+//                        return null;
+//                    }
+//                }
+
+        }
+
         return rows;
     }
 
+    @Transactional
+    public Integer removeProject(AudProject project) {
+        log.debug("与绩效模块挂钩，后面实现。");
+
+        project.setStatus(ProjectStatus.YiShanChu.getCode());
+        Integer rows = audProjectMapper.updateProjectStatus(project);
+                   /*
+        *                 if (status == Entity.Enums.ProjectStatus.YiShanChu)   //如果是删除项目
+                {
+                    //删掉对应的绩效计分记录
+                    ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
+                    iteamper.DeleteRecordByAchieve(ConstantParameter.CHString_IndicatorProject, projectID);
+                }
+        * */
+
+        return  rows;
+    }
 }

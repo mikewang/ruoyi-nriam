@@ -16,7 +16,7 @@ public interface AudProjectMapper {
     int insertProject(AudProject record);
 
     int updateProject(AudProject record);
-
+    int updateProjectStatus(AudProject record);
 
     List<AudProject> selectAll();
 

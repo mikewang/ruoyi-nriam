@@ -39,7 +39,45 @@
   <insert id="deleteProjectdoc" parameterType="com.ruoyi.project.domain.AudProjectdoc">
     update  Aud_ProjectDoc
         set IfDeleted =1
-        where IfDeleted =0 and DocID = #{docid,jdbcType=INTEGER} and ProjectID = #{projectid,jdbcType=INTEGER}
+        where IfDeleted =0
+    <if test="docid != null and docid != 0 ">
+      and  DocID = #{docid,jdbcType=INTEGER}
+    </if>
+    <if test="projectid != null and projectid != 0 ">
+      and ProjectID = #{projectid, jdbcType=INTEGER}
+    </if>
+   </insert>
+
+  <insert id="mergeProjectdoc" parameterType="List">
+
+    merge into Aud_ProjectDoc as t
+    using (
+    <foreach item="item" index="index" collection="list" open="(" separator=" union all " close=")">
+      select #{item.projectid,jdbcType=INTEGER} as ProjectID,#{item.docid,jdbcType=INTEGER} as DocID,#{item.doctype,jdbcType=VARCHAR} as DocType, 0 as IfDeleted
+    </foreach>
+    ) as s
+        on  t.ProjectID = s.ProjectID and t.DocID = s.DocID and t.DocType = s.DocType and t.IfDeleted=0
+    when not matched
+    then insert values(s.ProjectID , s.DocID,s.DocType ,0);
+
+  </insert>
+
+  <insert id="sourceMergeProjectdoc" parameterType="List">
+    update  Aud_ProjectDoc set IfDeleted =1
+    where IfDeleted =0
+    and exists(select 1 from
+    (
+    <foreach item="item" index="index" collection="list" open="(" separator=" union all " close=")">
+      select #{item.projectid,jdbcType=INTEGER} as ProjectID,#{item.docid,jdbcType=INTEGER} as DocID,#{item.doctype,jdbcType=VARCHAR} as DocType, 0 as IfDeleted
+    </foreach>
+    ) as s where s.ProjectID = Aud_ProjectDoc.ProjectID and s.DocType=Aud_ProjectDoc.DocType)
+    and not exists(select 1 from
+    (
+    <foreach item="item" index="index" collection="list" open="(" separator=" union all " close=")">
+      select #{item.projectid,jdbcType=INTEGER} as ProjectID,#{item.docid,jdbcType=INTEGER} as DocID,#{item.doctype,jdbcType=VARCHAR} as DocType, 0 as IfDeleted
+    </foreach>
+    ) as s where s.ProjectID = Aud_ProjectDoc.ProjectID and s.DocType=Aud_ProjectDoc.DocType and s.DocID = Aud_ProjectDoc.DocID);
+
   </insert>
 
   <select id="selectAll" resultMap="BaseResultMap">

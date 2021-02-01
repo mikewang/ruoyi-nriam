@@ -13,4 +13,9 @@ public interface PmProjectmemberMapper {
     int deleteProjectmemberByProjectId(Integer projectid);
 
     int insertProjectmember(PmProjectmember record);
+
+    int mergerProjectmember(List<PmProjectmember> records);
+
+    int sourceMergerProjectmember(List<PmProjectmember> records);
+
 }

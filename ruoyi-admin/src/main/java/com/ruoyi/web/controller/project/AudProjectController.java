@@ -2,6 +2,7 @@ package com.ruoyi.web.controller.project;
 
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -17,18 +18,22 @@ import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.project.domain.PmProjectjoinorganization;
 import com.ruoyi.project.service.*;
 import io.swagger.models.auth.In;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +77,7 @@ public class AudProjectController extends BaseController {
 
         startPage();
 
-        List<AudProject> list = projectService.selectAudProjectZaiYanList(project);
+        List<AudProject> list = projectService.selectAudProjectNewList(project);
 
         return getDataTable(list);
     }
@@ -132,16 +137,7 @@ public class AudProjectController extends BaseController {
             return AjaxResult.error("操作'" + project.getProjectname() + "'失败，项目经费编号已存在");
         }
 
-        if (status == ProjectStatus.XinJianZhong.getCode()) {
-
-        }
-        else if (status == ProjectStatus.XinJianZhong.getCode()) {
-
-        }
-        else {
-            return AjaxResult.error(" 状态异常，请联系管理员");
-        }
-
+        project.setStatus(ProjectStatus.XinJianZhong.getCode());
         Integer rows = projectService.insertProject(project);
 
         if (rows > 0 ) {
@@ -167,13 +163,11 @@ public class AudProjectController extends BaseController {
 
             if (UserConstants.NOT_UNIQUE.equals(projectService.queryIfDuplicate(project)))
             {
-                return AjaxResult.error("操作'" + project.getProjectname() + "'失败，项目经费编号\n已存在");
+                return AjaxResult.error("操作'" + project.getProjectname() + "'失败，项目经费编号已存在");
             }
         }
 
-
         Integer res = projectService.updateProject(project);
-
 
         AjaxResult ajax = AjaxResult.success();
 
@@ -248,6 +242,46 @@ public class AudProjectController extends BaseController {
         catch (Exception e)
         {
             return AjaxResult.error(e.getMessage() + " 上传文件异常，请联系管理员");
+        }
+    }
+
+    /**
+     * 文件下载
+     */
+    @PreAuthorize("@ss.hasPermi('project:zaiyan:download')")
+    @Log(title = "项目文件下载", businessType = BusinessType.EXPORT)
+    @GetMapping("/download")
+    public void download(@RequestParam("file") Integer fileid, HttpServletResponse response, HttpServletRequest request) throws IOException
+    {
+        try
+        {
+            BasDoc doc = basDocService.selectBasDocById(fileid);
+
+            String resource = doc.getRelativepath() + "/" + doc.getDocname();
+
+            logger.debug("resource is " + resource);
+
+            if (!FileUtils.checkAllowDownload(resource))
+            {
+                throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));
+            }
+            // 本地资源路径
+            String localPath = RuoYiConfig.getProfile();
+            logger.debug("localPath is " + localPath);
+
+            // 数据库资源地址
+            String downloadPath = localPath + resource;
+            logger.debug("downloadPath is " + downloadPath);
+
+            // 下载名称
+            String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            FileUtils.setAttachmentResponseHeader(response, doc.getDocname());
+            FileUtils.writeBytes(downloadPath, response.getOutputStream());
+        }
+        catch (Exception e)
+        {
+            logger.error("下载文件失败", e);
         }
     }
 

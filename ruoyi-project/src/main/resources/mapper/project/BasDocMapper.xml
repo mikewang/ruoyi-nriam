@@ -68,6 +68,7 @@
 
   </select>
 
+
   <select id="selectAll" resultMap="BaseResultMap">
 
     select DocID, DocName, RelativePath, AttachToType, RelatedID, DocType

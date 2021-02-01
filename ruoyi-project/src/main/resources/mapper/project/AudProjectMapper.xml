@@ -23,9 +23,11 @@
         <result column="Status" jdbcType="INTEGER" property="status"/>
         <result column="ProjectTypeLinkText" jdbcType="VARCHAR" property="projectTypeLinkText"/>
         <result column="dictionaryOrderNum" jdbcType="VARCHAR" property="dictionaryOrderNum"/>
+        <result column="ProjectManagerIDLinkText" jdbcType="VARCHAR" property="projectManagerIDLinkText"/>
         <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationIDLinkText"/>
         <result column="StatusLinkText" jdbcType="VARCHAR" property="statusLinkText"/>
         <result column="TeamName" jdbcType="VARCHAR" property="teamname"/>
+        <result column="CreateUserIDLinkText" jdbcType="VARCHAR" property="createUserIDLinkText"/>
     </resultMap>
 
     <sql id="selectAudProject">
@@ -56,19 +58,15 @@
                       , b.dept_name   AS OrganizationIDLinkText
                       , c.dict_label  AS StatusLinkText
                       , d.TeamName
-                 FROM Aud_Project a,
-                      sys_dict_data t5,
-                      sys_user t6,
-                      sys_dept b,
-                      sys_dict_data c,
-                      PM_Team d
-                 WHERE a.ProjectType = t5.dict_value
-                   AND t5.dict_type = '项目类型'
-                   AND t6.User_ID = a.ProjectManagerID
-                   AND b.dept_id = a.OrganizationID
-                   AND c.dict_value = a.Status
-                   AND c.dict_type = '项目状态'
-                   and a.teamID = d.TeamID
+                      , e.Real_Name   as CreateUserIDLinkText
+                 FROM Aud_Project a
+                          join (select * from sys_dict_data where dict_type = '项目类型') t5
+                               on a.ProjectType = t5.dict_value
+                          join sys_user t6 on a.ProjectManagerID = t6.User_ID
+                          join sys_dept b on a.OrganizationID = b.dept_id
+                          join (select * from sys_dict_data where dict_type = '项目状态') c on a.Status = c.dict_value
+                          join PM_Team d on a.teamID = d.TeamID
+                         left join sys_user e on a.CreateUserID = e.User_ID
              ) as v1
 
     </sql>
@@ -108,43 +106,51 @@
     </select>
 
 
-    <insert id="insertProject" parameterType="com.ruoyi.project.domain.AudProject"  useGeneratedKeys="true" keyProperty="projectid">
+    <insert id="insertProject" parameterType="com.ruoyi.project.domain.AudProject" useGeneratedKeys="true"
+            keyProperty="projectid">
         insert into Aud_Project (ProjectName, ProjectCode,
-        SubjectCode, ProjectFunds, FinanceFunds,
-        CanUseFunds, ProjectBeginDate, ProjectEndDate,
-        ProjectType, ProjectManagerID, OrganizationID,
-        TeamID, Memo, JoinType,
-        CreateUserID,
-        Status)
+                                 SubjectCode, ProjectFunds, FinanceFunds,
+                                 CanUseFunds, ProjectBeginDate, ProjectEndDate,
+                                 ProjectType, ProjectManagerID, OrganizationID,
+                                 TeamID, Memo, JoinType,
+                                 CreateUserID,
+                                 Status)
         values (#{projectname,jdbcType=VARCHAR}, #{projectcode,jdbcType=VARCHAR},
-        #{subjectcode,jdbcType=VARCHAR}, #{projectfunds,jdbcType=DECIMAL}, #{financefunds,jdbcType=DECIMAL},
-        #{canusefunds,jdbcType=DECIMAL}, #{projectbegindate,jdbcType=VARCHAR}, #{projectenddate,jdbcType=VARCHAR},
-        #{projecttype,jdbcType=INTEGER}, #{projectmanagerid,jdbcType=INTEGER}, #{organizationid,jdbcType=INTEGER},
-        #{teamid,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR}, #{jointype,jdbcType=INTEGER},
-        #{createuserid,jdbcType=INTEGER},
-        #{status,jdbcType=INTEGER})
+                #{subjectcode,jdbcType=VARCHAR}, #{projectfunds,jdbcType=DECIMAL}, #{financefunds,jdbcType=DECIMAL},
+                #{canusefunds,jdbcType=DECIMAL}, #{projectbegindate,jdbcType=VARCHAR},
+                #{projectenddate,jdbcType=VARCHAR},
+                #{projecttype,jdbcType=INTEGER}, #{projectmanagerid,jdbcType=INTEGER},
+                #{organizationid,jdbcType=INTEGER},
+                #{teamid,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR}, #{jointype,jdbcType=INTEGER},
+                #{createuserid,jdbcType=INTEGER},
+                #{status,jdbcType=INTEGER})
     </insert>
 
 
     <update id="updateProject" parameterType="com.ruoyi.project.domain.AudProject">
         update Aud_Project
-        set ProjectName = #{projectname,jdbcType=VARCHAR},
-        ProjectCode = #{projectcode,jdbcType=VARCHAR},
-        SubjectCode = #{subjectcode,jdbcType=VARCHAR},
-        ProjectFunds = #{projectfunds,jdbcType=DECIMAL},
-        FinanceFunds = #{financefunds,jdbcType=DECIMAL},
-        CanUseFunds = #{canusefunds,jdbcType=DECIMAL},
-        ProjectBeginDate = #{projectbegindate,jdbcType=VARCHAR},
-        ProjectEndDate = #{projectenddate,jdbcType=VARCHAR},
-        ProjectType = #{projecttype,jdbcType=INTEGER},
-        ProjectManagerID = #{projectmanagerid,jdbcType=INTEGER},
-        OrganizationID = #{organizationid,jdbcType=INTEGER},
-        TeamID = #{teamid,jdbcType=INTEGER},
-        Memo = #{memo,jdbcType=VARCHAR},
-        JoinType = #{jointype,jdbcType=INTEGER}
+        set ProjectName      = #{projectname,jdbcType=VARCHAR},
+            ProjectCode      = #{projectcode,jdbcType=VARCHAR},
+            SubjectCode      = #{subjectcode,jdbcType=VARCHAR},
+            ProjectFunds     = #{projectfunds,jdbcType=DECIMAL},
+            FinanceFunds     = #{financefunds,jdbcType=DECIMAL},
+            CanUseFunds      = #{canusefunds,jdbcType=DECIMAL},
+            ProjectBeginDate = #{projectbegindate,jdbcType=VARCHAR},
+            ProjectEndDate   = #{projectenddate,jdbcType=VARCHAR},
+            ProjectType      = #{projecttype,jdbcType=INTEGER},
+            ProjectManagerID = #{projectmanagerid,jdbcType=INTEGER},
+            OrganizationID   = #{organizationid,jdbcType=INTEGER},
+            TeamID           = #{teamid,jdbcType=INTEGER},
+            Memo             = #{memo,jdbcType=VARCHAR},
+            JoinType         = #{jointype,jdbcType=INTEGER}
         where ProjectID = #{projectid,jdbcType=INTEGER}
     </update>
 
+    <update id="updateProjectStatus" parameterType="com.ruoyi.project.domain.AudProject">
+        update Aud_Project
+        set Status = #{status,jdbcType=INTEGER}
+        where ProjectID = #{projectid,jdbcType=INTEGER}
+    </update>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         <!--

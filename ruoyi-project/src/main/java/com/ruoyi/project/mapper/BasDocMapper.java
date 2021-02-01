@@ -11,5 +11,6 @@ public interface BasDocMapper {
     int deleteBasDocByIds(List ids);
     List<BasDoc> selectBasDocListByIds(List ids);
     List<BasDoc> selectBasDocList(BasDoc record);
+    BasDoc selectBasDocById(Integer id);
     List<BasDoc> selectAll();
 }

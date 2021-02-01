@@ -197,7 +197,6 @@ public class LogisContractController extends BaseController
             FileUtils.setAttachmentResponseHeader(response, downloadName);
             FileUtils.writeBytes(downloadPath, response.getOutputStream());
 
-
         }
         catch (Exception e)
         {

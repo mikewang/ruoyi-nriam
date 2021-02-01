@@ -45,4 +45,8 @@ public class BasDocService {
     public List<BasDoc> selectBasDocList(BasDoc record) {
         return mapper.selectBasDocList(record);
     }
+
+    public BasDoc selectBasDocById(Integer id) {
+        return mapper.selectBasDocById(id);
+    }
 }

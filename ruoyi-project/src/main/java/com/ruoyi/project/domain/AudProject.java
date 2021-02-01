@@ -64,6 +64,7 @@ public class AudProject extends BaseEntity {
     private String organizationIDLinkText;
     private String statusLinkText;
     private String teamname;
+    private String createUserIDLinkText;
 
 
     private List<PmProjectjoinorganization> projectJoinOrganizationList;
@@ -81,6 +82,12 @@ public class AudProject extends BaseEntity {
     private String projectDateRange;
 
     private Integer projectColor = ProjectColor.Default.getCode();
+
+
+    // 前端提交到后端的修改对象的操作代码，1,暂存，2，提交审核，3，撤回新建中。 4 ，删除。
+    private  Integer operateCode = 0;
+
+
 
     public Integer getProjectid() {
         return projectid;
@@ -283,6 +290,14 @@ public class AudProject extends BaseEntity {
         ProjectManagerIDLinkText = projectManagerIDLinkText;
     }
 
+    public String getCreateUserIDLinkText() {
+        return createUserIDLinkText;
+    }
+
+    public void setCreateUserIDLinkText(String createUserIDLinkText) {
+        this.createUserIDLinkText = createUserIDLinkText;
+    }
+
     public List<PmProjectjoinorganization> getProjectJoinOrganizationList() {
         return projectJoinOrganizationList;
     }
@@ -346,6 +361,14 @@ public class AudProject extends BaseEntity {
 
     public void setProjectColor(Integer projectColor) {
         this.projectColor = projectColor;
+    }
+
+    public Integer getOperateCode() {
+        return operateCode;
+    }
+
+    public void setOperateCode(Integer operateCode) {
+        this.operateCode = operateCode;
     }
 
     @Override
