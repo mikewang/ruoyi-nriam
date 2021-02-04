@@ -46,7 +46,7 @@ public class AudProjectService {
     }
 
 
-    public List<AudProject> selectAudProjectNewList(AudProject project) {
+    public List<AudProject> selectProjectNewList(AudProject project) {
 
 //
 //        <!--  + " and ( a.Status = " + (int)Entity.Enums.ProjectStatus.DaiQueRen    //待确认-->
@@ -66,6 +66,57 @@ public class AudProjectService {
 
         project.setStatusList(statusList);
 
+
+        List<AudProject> projectList = audProjectMapper.selectAudProjectList(project);
+
+        for (AudProject prj : projectList) {
+
+            List<Integer> list = new ArrayList<>();
+            list.add(ProjectStatus.DaiQueRen.getCode());
+            list.add(ProjectStatus.JieTiDaiQueRen.getCode());
+            list.add(ProjectStatus.XinJianZhong.getCode());
+
+            if (list.contains(prj.getStatus())) {
+                prj.setProjectColor(ProjectColor.Red.getCode());
+            }
+
+            list = new ArrayList<>();
+            list.add(ProjectStatus.BuTongGuo.getCode());
+            list.add(ProjectStatus.JietiBuTongGuo.getCode());
+
+            if (list.contains(prj.getStatus())) {
+                prj.setProjectColor(ProjectColor.Green.getCode());
+            }
+
+            log.debug("prj.getProjectenddate() is " + prj.getProjectenddate());
+            java.util.Date ended = DateUtils.getNowDate();
+            try {
+                ended = DateUtils.parseDate(prj.getProjectenddate());
+            } catch (Exception e) {
+
+            }
+
+            long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
+
+            if (days < 90) {
+                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate() + "(剩余 " + String.valueOf(days) + "天)");
+                prj.setProjectColor(ProjectColor.Red.getCode());
+            } else {
+                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
+            }
+
+        }
+
+        return projectList;
+    }
+
+
+    public List<AudProject> selectProjectToconfirmList(AudProject project) {
+        //+ " and a.Status = " + (int)Entity.Enums.ProjectStatus.DaiQueRen
+
+        List<Integer> statusList = new ArrayList<>();
+        statusList.add(ProjectStatus.DaiQueRen.getCode());
+        project.setStatusList(statusList);
 
         List<AudProject> projectList = audProjectMapper.selectAudProjectList(project);
 
@@ -341,4 +392,114 @@ public class AudProjectService {
 
         return  rows;
     }
+
+    @Transactional
+    public Integer confirmProject(AudProject project) {
+        log.debug("与绩效模块挂钩，后面实现。");
+        Integer rows = 0;
+
+        if (project.getStatus() != ProjectStatus.DaiQueRen.getCode()) {
+            return  rows;
+        }
+
+        if (project.getConfirmResult() == 1) {
+            AudProject record = new AudProject();
+            record.setProjectid(project.getProjectid());
+            record.setSubjectcode(project.getSubjectcode());
+            record.setStatus(ProjectStatus.ZaiYan.getCode());
+            rows = audProjectMapper.updateProjectStatus(record);
+
+        }
+        else if (project.getConfirmResult() == -1) {
+            AudProject record = new AudProject();
+            record.setProjectid(project.getProjectid());
+            record.setStatus(ProjectStatus.BuTongGuo.getCode());
+            rows =  audProjectMapper.updateProjectStatus(record);
+        }
+
+//
+
+//        if (rbtl_Result.SelectedValue == "1")  //表示通过
+//        {
+//            //状态设置成在研
+//            ipm.SetStatus(Request["kid"].ToString(), Entity.Enums.ProjectStatus.ZaiYan);
+//
+//            //修改经费编号
+//            if (txt_SubjectCode.Text.Trim() != "")
+//            {
+//                ipm.UpdateSubjectCode(Request["kid"], txt_SubjectCode.Text.Trim());
+//            }
+//
+//
+//            //增加团队的评分记录 待修改
+//            ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
+//            iteamper.AddRecord_FromProject(Request["kid"]);
+//
+//
+//        }
+//        else   //数据库里写入申请不通过的记录
+//        {
+//            ipm.SetStatus(Request["kid"].ToString(), Entity.Enums.ProjectStatus.BuTongGuo);
+//
+//            //生成确认的申请
+//            IApplyManager iappM = ApplyManager.GetInstance();
+//            Apply apply = new Apply();
+//            apply.ApplyType = "项目确认申请";
+//            apply.RelatedID = int.Parse(ProjectDetail1.lab_ProjectID.Text);
+//            apply.ApplyUserID = int.Parse(ProjectDetail1.lab_CreateUserID.Text);
+//            apply.ApplyTime = "2016-01-01 00:00:00";
+//            string newApplyID = iappM.AddNew(apply);
+//            //申请不通过
+//            iappM.AuditApply(newApplyID, false, Session["CurrentUserID"].ToString(),
+//                    txt_Opinion.Text, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+//
+//        }
+//
+//        //消除"审核人"待办事项
+//        IAudMessageManager iaudms = AudMessageManager.GetInstance();
+//        IPermissionManager iperm = PermissionManager.GetInstance();
+//        DataSet ds = iperm.GetUserListToModule(ConstantParameter.MID_ProjectConfirm);
+//        //循环
+//        for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+//        {
+//            iaudms.SetProcessed(ds.Tables[0].Rows[i]["UserID"].ToString(), "项目", Request["kid"].ToString());
+//        }
+//        ds.Dispose();
+//
+//        //发送通知 待修改
+//        string title = "";
+//        string content = "";
+//        if (rbtl_Result.SelectedValue == "1")  //通过
+//        {
+//            title = "您提交的项目审核通过";
+//            content = "项目：“" + ProjectDetail1.lab_ProjectName.Text + "”的信息已经审核通过。"
+//                    + "<a href=\"/Project/ProjectList.aspx?"
+//                    + "kid=" + ProjectDetail1.lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
+//        }
+//        else
+//        {
+//            title = "您提交的项目审核不通过";
+//            content = "项目：“" + ProjectDetail1.lab_ProjectName.Text + "”的信息审核不通过。"
+//                    + "<a href=\"/Project/ProjectList.aspx?"
+//                    + "kid=" + ProjectDetail1.lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
+//        }
+//        AudMessage am = new AudMessage();
+//        am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//        am.MessageTitle = title;
+//        am.MessageContent = content;
+//        //发送给提交人
+//        am.ToUserID = int.Parse(ProjectDetail1.lab_CreateUserID.Text);
+//        am.RelatedSheetType = "项目";
+//        am.RelatedSheetID = int.Parse(ProjectDetail1.lab_ProjectID.Text);
+//        iaudms.AddNew(am);
+//
+//
+//        Response.Write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"); //是为了保持页面样式
+//        Response.Write("<script>alert('操作成功！');</script>"); //提示错误
+//        Response.Write("<script>document.location = 'ToConfirmProjectList.aspx';</script>");
+
+        return  rows;
+    }
+
+
 }

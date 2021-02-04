@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/project/zaiyan")
+@RequestMapping("/project")
 public class AudProjectController extends BaseController {
 
     @Resource
@@ -66,10 +66,10 @@ public class AudProjectController extends BaseController {
     @Resource
     private BasDocService basDocService;
 
-
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:list')")
-    @GetMapping("/list")
-    public TableDataInfo list(AudProject project) {
+    ///Project/ProjectList.aspx 在研项目
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping("/project/list")
+    public TableDataInfo zaiyanList(AudProject project) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long userId = loginUser.getUser().getUserId();
 
@@ -77,7 +77,21 @@ public class AudProjectController extends BaseController {
 
         startPage();
 
-        List<AudProject> list = projectService.selectAudProjectNewList(project);
+        List<AudProject> list = projectService.selectProjectNewList(project);
+
+        return getDataTable(list);
+    }
+
+    ///Project/ToConfirmProjectList.aspx 项目新建审核
+    @PreAuthorize("@ss.hasPermi('project:toconfirm:list')")
+    @GetMapping("/toconfirm/list")
+    public TableDataInfo toconfirmList(AudProject project) {
+
+        logger.debug("query parameters is " + project.getProjectyear());
+
+        startPage();
+
+        List<AudProject> list = projectService.selectProjectToconfirmList(project);
 
         return getDataTable(list);
     }
@@ -85,7 +99,7 @@ public class AudProjectController extends BaseController {
     /**
      * 根据编号获取详细信息
      */
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:query')")
+    @PreAuthorize("@ss.hasPermi('project:project:query')")
     @GetMapping(value = { "/", "/{projectId}" })
     public AjaxResult getProject(@PathVariable(value = "projectId", required = false) Integer projectId)
     {
@@ -98,7 +112,7 @@ public class AudProjectController extends BaseController {
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:query')")
+    @PreAuthorize("@ss.hasPermi('project:project:query')")
     @GetMapping( "/check")
     public AjaxResult getIfDuplicate(AudProject project)
     {
@@ -118,7 +132,7 @@ public class AudProjectController extends BaseController {
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:add')")
+    @PreAuthorize("@ss.hasPermi('project:project:add')")
     @Log(title = "项目管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody AudProject project) {
@@ -152,14 +166,14 @@ public class AudProjectController extends BaseController {
         }
     }
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:edit')")
+    @PreAuthorize("@ss.hasPermi('project:project:edit')")
     @Log(title = "项目管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody  AudProject project) {
 
         AudProject undoProject = projectService.selectProjectById(project.getProjectid());
 
-        if (StringUtils.isNotEmpty(project.getSubjectcode()) &&undoProject.getProjectid() != project.getProjectid()) {
+        if (StringUtils.isNotEmpty(project.getSubjectcode()) &&undoProject.getSubjectcode() != project.getSubjectcode()) {
 
             if (UserConstants.NOT_UNIQUE.equals(projectService.queryIfDuplicate(project)))
             {
@@ -184,7 +198,7 @@ public class AudProjectController extends BaseController {
     /**
      * 删除
      */
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:remove')")
+    @PreAuthorize("@ss.hasPermi('project:project:remove')")
     @Log(title = "项目管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{projectids}")
     public AjaxResult remove(@PathVariable Integer[] projectids) {
@@ -196,7 +210,7 @@ public class AudProjectController extends BaseController {
     /**
      * 文件上传
      */
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:edit')")
+    @PreAuthorize("@ss.hasPermi('project:project:edit')")
     @Log(title = "文件上传", businessType = BusinessType.UPDATE)
     @PostMapping("/upload")
     public AjaxResult upload(@RequestParam("file") MultipartFile file) throws IOException
@@ -248,7 +262,7 @@ public class AudProjectController extends BaseController {
     /**
      * 文件下载
      */
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:download')")
+    @PreAuthorize("@ss.hasPermi('project:project:download')")
     @Log(title = "项目文件下载", businessType = BusinessType.EXPORT)
     @GetMapping("/download")
     public void download(@RequestParam("file") Integer fileid, HttpServletResponse response, HttpServletRequest request) throws IOException
@@ -283,6 +297,41 @@ public class AudProjectController extends BaseController {
         {
             logger.error("下载文件失败", e);
         }
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('project:toconfirm:confirm')")
+    @Log(title = "项目新建审核", businessType = BusinessType.UPDATE)
+    @PutMapping("/confirm")
+    public AjaxResult confirm(@Validated @RequestBody  AudProject project) {
+
+        if (project.getConfirmSubjectcode() != project.getSubjectcode()) {
+            project.setSubjectcode(project.getConfirmSubjectcode());
+
+            AudProject undoProject = projectService.selectProjectById(project.getProjectid());
+
+            if (StringUtils.isNotEmpty(project.getSubjectcode()) &&undoProject.getSubjectcode() != project.getSubjectcode()) {
+
+                if (UserConstants.NOT_UNIQUE.equals(projectService.queryIfDuplicate(project)))
+                {
+                    return AjaxResult.error("操作'" + project.getProjectname() + "'失败，项目经费编号已存在");
+                }
+            }
+        }
+
+        logger.debug("project is ",project.toString());
+
+        Integer res = projectService.confirmProject(project);
+
+        AjaxResult ajax = AjaxResult.success();
+
+        if (res == 1) {
+            return  ajax;
+        }
+        else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
     }
 
 

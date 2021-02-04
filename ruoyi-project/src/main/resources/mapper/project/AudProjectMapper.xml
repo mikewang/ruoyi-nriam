@@ -89,6 +89,9 @@
         <if test="teamid != null and teamid != 0 ">
             and teamid = #{teamid, jdbcType=INTEGER}
         </if>
+        <if test="projectname != null and projectname != '' ">
+            and ProjectName like concat('%', #{projectname,jdbcType=VARCHAR}, '%')
+        </if>
         ORDER BY DictionaryOrderNum, ProjectTypeLinkText, ProjectName
     </select>
 
@@ -149,6 +152,9 @@
     <update id="updateProjectStatus" parameterType="com.ruoyi.project.domain.AudProject">
         update Aud_Project
         set Status = #{status,jdbcType=INTEGER}
+        <if test="subjectcode != null and subjectcode != '' ">
+            ,SubjectCode      = #{subjectcode,jdbcType=VARCHAR}
+        </if>
         where ProjectID = #{projectid,jdbcType=INTEGER}
     </update>
 

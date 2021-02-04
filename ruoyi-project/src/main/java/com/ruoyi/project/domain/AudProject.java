@@ -66,27 +66,29 @@ public class AudProject extends BaseEntity {
     private String teamname;
     private String createUserIDLinkText;
 
-
     private List<PmProjectjoinorganization> projectJoinOrganizationList;
     private PmUplevelproject uplevelproject;
     private List<Integer> projectmemberList;
     private List<AudProjectdoc> projectdocList;
 
-    //忘记这个 list 是做什么用的了。哦。项目的各种状态，
+    //忘记这个 list 是做什么用的了。哦。项目的各种状态过滤用的，也是附加操作的属性，
     private List<Integer> statusList;
 
 
-    // 查询使用的属性
+    // 附加操作的查询使用的属性
     private String projectyear;
 
     private String projectDateRange;
 
     private Integer projectColor = ProjectColor.Default.getCode();
 
+    // 前端提交到后端的修改对象的操作代码，1,暂存，2，提交审核，3，撤回新建中。 4 ，删除， 5，新建审核
+    // DaiQueRen(40, "新建待审核"), ZaiYan(41, "在研"), YiJieTi(42, "已完成"), YiShanChu(43, "已删除"), BuTongGuo(44, "新建审核不通过"), JieTiDaiQueRen(45, "验收待审核"), JietiBuTongGuo(46, "验收审核不通过"), XinJianZhong(48, "新建中");
+    private  Integer operateCode = 1;
 
-    // 前端提交到后端的修改对象的操作代码，1,暂存，2，提交审核，3，撤回新建中。 4 ，删除。
-    private  Integer operateCode = 0;
-
+    private String confirmSubjectcode;
+    private Integer confirmResult;
+    private String confirmNote;
 
 
     public Integer getProjectid() {
@@ -369,6 +371,30 @@ public class AudProject extends BaseEntity {
 
     public void setOperateCode(Integer operateCode) {
         this.operateCode = operateCode;
+    }
+
+    public String getConfirmSubjectcode() {
+        return confirmSubjectcode;
+    }
+
+    public void setConfirmSubjectcode(String confirmSubjectcode) {
+        this.confirmSubjectcode = confirmSubjectcode;
+    }
+
+    public Integer getConfirmResult() {
+        return confirmResult;
+    }
+
+    public void setConfirmResult(Integer confirmResult) {
+        this.confirmResult = confirmResult;
+    }
+
+    public String getConfirmNote() {
+        return confirmNote;
+    }
+
+    public void setConfirmNote(String confirmNote) {
+        this.confirmNote = confirmNote;
     }
 
     @Override

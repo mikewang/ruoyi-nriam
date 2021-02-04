@@ -6,7 +6,16 @@ import {praseStrEmpty} from "@/utils/ruoyi";
 // 查询项目列表
 export function listProject(query) {
   return request({
-    url: '/project/zaiyan/list',
+    url: '/project/project/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 查询项目列表
+export function listToconfirm(query) {
+  return request({
+    url: '/project/toconfirm/list',
     method: 'get',
     params: query
   })
@@ -15,7 +24,7 @@ export function listProject(query) {
 // 查询项目详细
 export function getProject(projectId) {
   return request({
-    url: '/project/zaiyan/' + praseStrEmpty(projectId),
+    url: '/project/' + praseStrEmpty(projectId),
     method: 'get'
   })
 }
@@ -23,7 +32,7 @@ export function getProject(projectId) {
 // 校验项目详细
 export function checkProject(query) {
   return request({
-    url: '/project/zaiyan/check',
+    url: '/project/check',
     method: 'get',
     params: query
   })
@@ -32,7 +41,7 @@ export function checkProject(query) {
 // 新增项目
 export function addProject(data) {
   return request({
-    url: '/project/zaiyan',
+    url: '/project',
     method: 'post',
     data: data
   })
@@ -41,7 +50,7 @@ export function addProject(data) {
 // 修改项目
 export function updateProject(data) {
   return request({
-    url: '/project/zaiyan',
+    url: '/project',
     method: 'put',
     data: data
   })
@@ -50,7 +59,7 @@ export function updateProject(data) {
 // 删除项目
 export function deleteProject(projectIds) {
   return request({
-    url: '/project/zaiyan/' + projectIds,
+    url: '/project/' + projectIds,
     method: 'delete'
   })
 }
@@ -59,7 +68,7 @@ export function deleteProject(projectIds) {
 export function uploadFile(data) {
   return request({
     headers: {'Content-Type':'multipart/form-data'},
-    url: '/project/zaiyan/upload',
+    url: '/project/upload',
     method: 'post',
     data: data
   })
@@ -68,7 +77,7 @@ export function uploadFile(data) {
 // 文件下载
 export function downloadFile(query) {
   return request({
-    url: '/project/zaiyan/download',
+    url: '/project/download',
     method: 'get',
     responseType: 'blob',
     params: query
@@ -115,5 +124,16 @@ export function listProjectdoc(query) {
     url: '/project/doc/list',
     method: 'get',
     params: query
+  })
+}
+
+
+
+// 新建审核 项目
+export function confirmProject(data) {
+  return request({
+    url: '/project/confirm',
+    method: 'put',
+    data: data
   })
 }
