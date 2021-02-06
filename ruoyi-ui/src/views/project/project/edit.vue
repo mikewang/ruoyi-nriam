@@ -328,7 +328,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="验收申请书" prop="acceptfileList1">
-                <el-upload action="#" :http-request="requestUpload11" :before-remove="beforeRemove11"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload11" :before-remove="beforeRemove11"
                            :on-remove="handleUploadRemove11"  :on-preview="handleReview"
                            :file-list="acceptfileList1" :before-upload="beforeUpload11"
                            >
@@ -342,7 +342,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="验收证书" prop="acceptfileList2">
-                <el-upload action="#" :http-request="requestUpload12" :before-remove="beforeRemove12"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload12" :before-remove="beforeRemove12"
                            :on-remove="handleUploadRemove12" :on-preview="handleReview"
                            :file-list="acceptfileList2" :before-upload="beforeUpload12"
                            >
@@ -369,7 +369,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="工作总结" prop="acceptfileList4">
-                <el-upload action="#" :http-request="requestUpload14" :before-remove="beforeRemove14"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload14" :before-remove="beforeRemove14"
                            :on-remove="handleUploadRemove14" :on-preview="handleReview"
                            :file-list="acceptfileList4" :before-upload="beforeUpload14"
                            >
@@ -382,7 +382,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="查新报告" prop="acceptfileList5">
-                <el-upload action="#" :http-request="requestUpload15" :before-remove="beforeRemove15"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload15" :before-remove="beforeRemove15"
                            :on-remove="handleUploadRemove15" :on-preview="handleReview"
                            :file-list="acceptfileList5" :before-upload="beforeUpload15"
                            >
@@ -396,7 +396,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="审计报告" prop="acceptfileList6">
-                <el-upload action="#" :http-request="requestUpload16" :before-remove="beforeRemove16"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload16" :before-remove="beforeRemove16"
                            :on-remove="handleUploadRemove16" :on-preview="handleReview"
                            :file-list="acceptfileList6" :before-upload="beforeUpload16"
                            >
@@ -409,7 +409,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="检测报告" prop="acceptfileList7">
-                <el-upload action="#" :http-request="requestUpload17" :before-remove="beforeRemove17"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload17" :before-remove="beforeRemove17"
                            :on-remove="handleUploadRemove17" :on-preview="handleReview"
                            :file-list="acceptfileList7" :before-upload="beforeUpload17"
                            >
@@ -423,7 +423,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="其它附件" prop="acceptfileList8">
-                <el-upload action="#" :http-request="requestUpload18" :before-remove="beforeRemove18"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload18" :before-remove="beforeRemove18"
                            :on-remove="handleUploadRemove18" :on-preview="handleReview"
                            :file-list="acceptfileList8" :before-upload="beforeUpload18"
                            >
@@ -436,7 +436,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="用户证明" prop="acceptfileList9">
-                <el-upload action="#" :http-request="requestUpload19" :before-remove="beforeRemove19"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload19" :before-remove="beforeRemove19"
                            :on-remove="handleUploadRemove19" :on-preview="handleReview"
                            :file-list="acceptfileList9" :before-upload="beforeUpload19"
                            >
@@ -450,7 +450,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="成果照片视频" prop="acceptfileList10">
-                <el-upload action="#" :http-request="requestUpload20" :before-remove="beforeRemove20"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload20" :before-remove="beforeRemove20"
                            :on-remove="handleUploadRemove20" :on-preview="handleReview"
                            :file-list="acceptfileList10" :before-upload="beforeUpload20"
                            >
@@ -470,8 +470,8 @@
         </template>
 
         <template>
-          <el-tag v-if="this.opcode.indexOf('confirm') !== -1 && this.hidden.confirm === false" size="medium">审核新建项目信息</el-tag>
           <el-tag v-if="this.opcode.indexOf('acceptconfirm') !== -1 && this.hidden.confirm === false" size="medium">审核 验收项目信息</el-tag>
+          <el-tag v-else-if="this.opcode.indexOf('confirm') !== -1 && this.hidden.confirm === false" size="medium">审核新建项目信息</el-tag>
           <el-row  v-if="this.hidden.confirm == false">
             <el-col :span="8">
               <el-form-item v-if="this.opcode === 'confirm'" label="更正项目经费编号" prop="confirmSubjectcode">
@@ -490,9 +490,9 @@
                 </template>
               </el-form-item>
             </el-col>
-            <el-col :span="8" v-if="this.opcode.indexOf('acceptConfirm') !== -1" >
-              <el-form-item  label="" prop="confirmSubjectcode">
-                <el-checkbox v-model="checked" v-bind:disabled="this.readonly.confirm">验收材料已齐全</el-checkbox>
+            <el-col :span="8" v-if="this.opcode.indexOf('acceptconfirm') !== -1" >
+              <el-form-item  label="" prop="ifacceptancefull">
+                <el-checkbox v-model="form.ifacceptancefull" v-bind:disabled="this.readonly.confirm">验收材料已齐全</el-checkbox>
               </el-form-item>
             </el-col>
           </el-row>
@@ -765,6 +765,7 @@ export default {
           data.confirmSubjectcode = data.subjectcode;
 
           this.form = data;
+          this.form.ifacceptancefull = true;
 
           this.configTemplateStatus();
 
@@ -984,7 +985,11 @@ export default {
 
         }
         else if (this.opcode.indexOf("acceptconfirm") !== -1) {
+          this.hidden.acceptance = false;
+          this.hidden.confirm = false;
+          this.readonly.confirm =false;
           this.hidden.confirmBtn = false;
+
         }
       }
       else if (this.form.status === this.ProjectStatus.JietiBuTongGuo) {
@@ -1073,7 +1078,8 @@ export default {
         // 审核结果
         confirmSubjectcode: undefined,
         confirmResult: undefined,
-        confirmNote: undefined
+        confirmNote: undefined,
+        ifacceptancefull:true
       };
 
       this.resetForm("form");

@@ -91,7 +91,6 @@ public class AudProject extends BaseEntity {
     private String confirmNote;
     private Integer confirmUserid;
 
-
     public Integer getProjectid() {
         return projectid;
     }
@@ -405,6 +404,7 @@ public class AudProject extends BaseEntity {
     public void setConfirmUserid(Integer confirmUserid) {
         this.confirmUserid = confirmUserid;
     }
+
 
     @Override
     public String toString() {

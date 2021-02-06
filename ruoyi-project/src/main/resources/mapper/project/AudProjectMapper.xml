@@ -158,6 +158,13 @@
         where ProjectID = #{projectid,jdbcType=INTEGER}
     </update>
 
+
+    <update id="updateIfAcceptanceFull" parameterType="com.ruoyi.project.domain.AudProject">
+        update Aud_Project
+        set IfAcceptanceFull = #{ifacceptancefull, jdbcType=BIT}
+        where ProjectID = #{projectid,jdbcType=INTEGER}
+    </update>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         <!--
 

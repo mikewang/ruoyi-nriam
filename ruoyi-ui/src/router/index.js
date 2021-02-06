@@ -118,10 +118,10 @@ export const constantRoutes = [
         meta: { title: '项目验收', icon: '',opcode: 'toaccept' }
       },
       {
-        path: 'toacceptanceonfirm/:projectid(\\d+)',
+        path: 'toacceptanceconfirm/:projectid(\\d+)',
         component: (resolve) => require(['@/views/project/project/edit'], resolve),
         name: 'AcceptanceConfirmInfo',
-        meta: { title: '项目验收审核', icon: '',opcode: 'confirm' }
+        meta: { title: '项目验收审核', icon: '',opcode: 'acceptconfirm' }
       },
     ]
   },
