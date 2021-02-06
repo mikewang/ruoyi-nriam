@@ -142,7 +142,7 @@
                                icon="el-icon-plus"
                                size="mini"
                                @click="handleJoinOrganizationAdd"
-                               v-hasPermi="['project:zaiyan:add']"
+                               v-hasPermi="['project:project:add']"
                     >新增
                     </el-button>
                   </el-col>
@@ -154,7 +154,7 @@
                                size="mini"
                                :disabled="multiple"
                                @click="handleJoinOrganizationDelete"
-                               v-hasPermi="['project:zaiyan:remove']"
+                               v-hasPermi="['project:project:remove']"
                     >删除
                     </el-button>
                   </el-col>
@@ -180,6 +180,7 @@
                         type="text"
                         icon="el-icon-edit"
                         @click="handleJoinOrganizationUpdate(scope.row)"
+                        v-hasPermi="['project:project:edit']"
                       >编辑
                       </el-button>
                       <el-button
@@ -187,7 +188,7 @@
                         type="text"
                         icon="el-icon-delete"
                         @click="handleJoinOrganizationDelete(scope.row)"
-                        v-hasPermi="['project:zaiyan:remove']"
+                        v-hasPermi="['project:project:remove']"
                       >删除
                       </el-button>
                     </template>
@@ -245,24 +246,27 @@
 
           <el-row>
 
-            <el-col :span="12">
-              <el-form-item label="项目申报书" prop="sbfileList">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestSBUpload" :before-remove="beforeSBRemove"
-                           :on-remove="handleSBUploadRemove" :on-preview="handleSBUploadReview"
-                           :file-list="sbfileList" :before-upload="beforeSBUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.basic == false">上传文件<i class="el-icon-upload el-icon--right"></i>
+            <el-col :span="16">
+              <el-form-item label="项目申报书" prop="basicfileList1">
+                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload1" :before-remove="beforeRemove1"
+                           :on-remove="handleUploadRemove1" :on-preview="handleReview"
+                           :file-list="basicfileList1" :before-upload="beforeUpload1"
+                           >
+                  <el-button size="small" v-if="readonly.basic == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
-              <el-form-item label="项目合同" prop="htfileList">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestHTUpload" :before-remove="beforeHTRemove"
-                           :on-remove="handleHTUploadRemove"
-                           :file-list="htfileList" :before-upload="beforeHTUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button v-if="readonly.basic == false" size="small" >上传文件<i class="el-icon-upload el-icon--right"></i>
+          </el-row>
+
+          <el-row>
+            <el-col :span="16">
+              <el-form-item label="项目合同" prop="basicfileList2">
+                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload2" :before-remove="beforeRemove2"
+                           :on-remove="handleUploadRemove2" :on-preview="handleReview"
+                           :file-list="basicfileList2" :before-upload="beforeUpload2"
+                           >
+                  <el-button v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
               </el-form-item>
@@ -271,24 +275,27 @@
           </el-row>
 
           <el-row>
-            <el-col :span="12">
-              <el-form-item label="实施方案" prop="fafileList">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestFAUpload" :before-remove="beforeFARemove"
-                           :on-remove="handleFAUploadRemove"
-                           :file-list="fafileList" :before-upload="beforeFAUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button  v-if="readonly.basic == false" size="small">上传文件<i class="el-icon-upload el-icon--right"></i>
+            <el-col :span="16">
+              <el-form-item label="实施方案" prop="basicfileList3">
+                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload3" :before-remove="beforeRemove3"
+                           :on-remove="handleUploadRemove3" :on-preview="handleReview"
+                           :file-list="basicfileList3" :before-upload="beforeUpload3"
+                           >
+                  <el-button  v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
-              <el-form-item label="项目批复文件" prop="pffileList">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestPFUpload" :before-remove="beforePFRemove"
-                           :on-remove="handlePFUploadRemove"
-                           :file-list="pffileList" :before-upload="beforePFUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button  v-if="readonly.basic == false" size="small">上传文件<i class="el-icon-upload el-icon--right"></i>
+          </el-row>
+
+          <el-row>
+            <el-col :span="16">
+              <el-form-item label="项目批复文件" prop="basicfileList4">
+                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload4" :before-remove="beforeRemove4"
+                           :on-remove="handleUploadRemove4" :on-preview="handleReview"
+                           :file-list="basicfileList4" :before-upload="beforeUpload4"
+                           >
+                  <el-button  v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
               </el-form-item>
@@ -312,127 +319,34 @@
           <el-tag v-if="hidden.acceptance == false" size="medium" >项目验收信息</el-tag>
           <el-row>
             <el-col :span="16">
-              <el-form-item v-if="hidden.acceptance == false" label="项目验收意见" prop="confirmNote" >
-                <el-input v-model="form.confirmNote" placeholder="" type="textarea"/>
+              <el-form-item v-if="hidden.acceptance == false" label="项目验收意见" prop="acceptanceOpinion" >
+                <el-input  v-bind:disabled="readonly.acceptance"  v-model="form.acceptance.opinion" placeholder="" type="textarea"/>
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-row>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="验收申请书" prop="fafileList">
-                <el-upload action="#" :http-request="requestFAUpload" :before-remove="beforeFARemove"
-                           :on-remove="handleFAUploadRemove"
-                           :file-list="fafileList" :before-upload="beforeFAUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="验收证书" prop="pffileList">
-                <el-upload action="#" :http-request="requestPFUpload" :before-remove="beforePFRemove"
-                           :on-remove="handlePFUploadRemove"
-                           :file-list="pffileList" :before-upload="beforePFUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="验收申请书" prop="acceptfileList1">
+                <el-upload action="#" :http-request="requestUpload11" :before-remove="beforeRemove11"
+                           :on-remove="handleUploadRemove11"  :on-preview="handleReview"
+                           :file-list="acceptfileList1" :before-upload="beforeUpload11"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
               </el-form-item>
             </el-col>
           </el-row>
+
           <el-row>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="技术总结" prop="fafileList">
-                <el-upload action="#" :http-request="requestFAUpload" :before-remove="beforeFARemove"
-                           :on-remove="handleFAUploadRemove"
-                           :file-list="fafileList" :before-upload="beforeFAUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="工作总结" prop="pffileList">
-                <el-upload action="#" :http-request="requestPFUpload" :before-remove="beforePFRemove"
-                           :on-remove="handlePFUploadRemove"
-                           :file-list="pffileList" :before-upload="beforePFUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="查新报告" prop="fafileList">
-                <el-upload action="#" :http-request="requestFAUpload" :before-remove="beforeFARemove"
-                           :on-remove="handleFAUploadRemove"
-                           :file-list="fafileList" :before-upload="beforeFAUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="审计报告" prop="pffileList">
-                <el-upload action="#" :http-request="requestPFUpload" :before-remove="beforePFRemove"
-                           :on-remove="handlePFUploadRemove"
-                           :file-list="pffileList" :before-upload="beforePFUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="检测报告" prop="fafileList">
-                <el-upload action="#" :http-request="requestFAUpload" :before-remove="beforeFARemove"
-                           :on-remove="handleFAUploadRemove"
-                           :file-list="fafileList" :before-upload="beforeFAUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="其它附件" prop="pffileList">
-                <el-upload action="#" :http-request="requestPFUpload" :before-remove="beforePFRemove"
-                           :on-remove="handlePFUploadRemove"
-                           :file-list="pffileList" :before-upload="beforePFUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="用户证明" prop="fafileList">
-                <el-upload action="#" :http-request="requestFAUpload" :before-remove="beforeFARemove"
-                           :on-remove="handleFAUploadRemove"
-                           :file-list="fafileList" :before-upload="beforeFAUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item v-if="hidden.acceptance == false" label="成果照片视频" prop="pffileList">
-                <el-upload action="#" :http-request="requestPFUpload" :before-remove="beforePFRemove"
-                           :on-remove="handlePFUploadRemove"
-                           :file-list="pffileList" :before-upload="beforePFUpload"
-                           v-hasPermi="['project:project:edit']">
-                  <el-button size="small" v-if="readonly.acceptance == false">上传文件<i class="el-icon-upload el-icon--right"></i>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="验收证书" prop="acceptfileList2">
+                <el-upload action="#" :http-request="requestUpload12" :before-remove="beforeRemove12"
+                           :on-remove="handleUploadRemove12" :on-preview="handleReview"
+                           :file-list="acceptfileList2" :before-upload="beforeUpload12"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
               </el-form-item>
@@ -440,20 +354,128 @@
           </el-row>
           <el-row>
             <el-col :span="16">
-              <el-form-item v-if="hidden.acceptance == false" label="备注" prop="confirmNote">
-                <el-input v-model="form.confirmNote" placeholder="" type="textarea"/>
+              <el-form-item v-if="hidden.acceptance == false" label="技术总结" prop="acceptfileList3">
+                <el-upload action="#" :http-request="requestUpload13" :before-remove="beforeRemove13"
+                           :on-remove="handleUploadRemove13" :on-preview="handleReview"
+                           :file-list="acceptfileList3" :before-upload="beforeUpload13"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="工作总结" prop="acceptfileList4">
+                <el-upload action="#" :http-request="requestUpload14" :before-remove="beforeRemove14"
+                           :on-remove="handleUploadRemove14" :on-preview="handleReview"
+                           :file-list="acceptfileList4" :before-upload="beforeUpload14"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="查新报告" prop="acceptfileList5">
+                <el-upload action="#" :http-request="requestUpload15" :before-remove="beforeRemove15"
+                           :on-remove="handleUploadRemove15" :on-preview="handleReview"
+                           :file-list="acceptfileList5" :before-upload="beforeUpload15"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="审计报告" prop="acceptfileList6">
+                <el-upload action="#" :http-request="requestUpload16" :before-remove="beforeRemove16"
+                           :on-remove="handleUploadRemove16" :on-preview="handleReview"
+                           :file-list="acceptfileList6" :before-upload="beforeUpload16"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="检测报告" prop="acceptfileList7">
+                <el-upload action="#" :http-request="requestUpload17" :before-remove="beforeRemove17"
+                           :on-remove="handleUploadRemove17" :on-preview="handleReview"
+                           :file-list="acceptfileList7" :before-upload="beforeUpload17"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="其它附件" prop="acceptfileList8">
+                <el-upload action="#" :http-request="requestUpload18" :before-remove="beforeRemove18"
+                           :on-remove="handleUploadRemove18" :on-preview="handleReview"
+                           :file-list="acceptfileList8" :before-upload="beforeUpload18"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="用户证明" prop="acceptfileList9">
+                <el-upload action="#" :http-request="requestUpload19" :before-remove="beforeRemove19"
+                           :on-remove="handleUploadRemove19" :on-preview="handleReview"
+                           :file-list="acceptfileList9" :before-upload="beforeUpload19"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="成果照片视频" prop="acceptfileList10">
+                <el-upload action="#" :http-request="requestUpload20" :before-remove="beforeRemove20"
+                           :on-remove="handleUploadRemove20" :on-preview="handleReview"
+                           :file-list="acceptfileList10" :before-upload="beforeUpload20"
+                           >
+                  <el-button size="small" v-if="readonly.acceptance == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="16">
+              <el-form-item v-if="hidden.acceptance == false" label="备注" prop="acceptanceMemo">
+                <el-input v-bind:disabled="readonly.acceptance" v-model="form.acceptance.memo" placeholder="" type="textarea"/>
               </el-form-item>
             </el-col>
           </el-row>
         </template>
 
         <template>
-          <el-tag v-if="this.opcode.indexOf('confirm') !== -1 && this.hidden.confirm == false" size="medium">项目新建审核信息</el-tag>
-          <el-tag v-if="this.opcode.indexOf('acceptconfirm') !== -1 && this.hidden.confirm == false" size="medium">项目验收审核信息</el-tag>
+          <el-tag v-if="this.opcode.indexOf('confirm') !== -1 && this.hidden.confirm === false" size="medium">审核新建项目信息</el-tag>
+          <el-tag v-if="this.opcode.indexOf('acceptconfirm') !== -1 && this.hidden.confirm === false" size="medium">审核 验收项目信息</el-tag>
           <el-row  v-if="this.hidden.confirm == false">
             <el-col :span="8">
-              <el-form-item label="更正项目经费编号" prop="confirmSubjectcode">
-                <el-input v-if="this.opcode === 'confirm'"  v-model="form.confirmSubjectcode"/>
+              <el-form-item v-if="this.opcode === 'confirm'" label="更正项目经费编号" prop="confirmSubjectcode">
+                <el-input   v-model="form.confirmSubjectcode"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -461,45 +483,43 @@
             <el-col :span="12">
               <el-form-item label="请选择审核结果" prop="confirmResult">
                 <template>
-                  <el-radio-group v-model="form.confirmResult">
+                  <el-radio-group v-model="form.confirmResult" v-bind:disabled="this.readonly.confirm">
                     <el-radio :label="1">通过</el-radio>
-                    <el-radio :label="-1">不通过</el-radio>
+                    <el-radio :label="2">不通过</el-radio>
                   </el-radio-group>
                 </template>
               </el-form-item>
             </el-col>
             <el-col :span="8" v-if="this.opcode.indexOf('acceptConfirm') !== -1" >
               <el-form-item  label="" prop="confirmSubjectcode">
-                <el-checkbox v-model="checked">验收材料已齐全</el-checkbox>
+                <el-checkbox v-model="checked" v-bind:disabled="this.readonly.confirm">验收材料已齐全</el-checkbox>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row v-if="this.hidden.confirm == false">
             <el-col :span="16">
               <el-form-item label="请输入意见" prop="confirmNote">
-                <el-input v-model="form.confirmNote" placeholder="" type="textarea"/>
+                <el-input v-model="form.confirmNote" placeholder="" type="textarea" v-bind:disabled="this.readonly.confirm"/>
               </el-form-item>
             </el-col>
           </el-row>
         </template>
 
-
-        <template>
-          <el-row >
-            <el-col :span="24" align="center">
-              <el-button v-if="hidden.saveBtn !== true" type="success" @click="saveForm">暂 存</el-button>
-              <el-button v-if="hidden.changeBtn !== true" type="primary" @click="changeForm">修改项目信息</el-button>
-              <el-button v-if="hidden.deleteBtn !== true" type="danger" @click="deleteForm">删除</el-button>
-              <el-button v-if="hidden.submitBtn !== true" type="primary" @click="submitForm">提交审核</el-button>
-              <el-button v-if="hidden.changeAcceptanceBtn !== true" type="warning" @click="changeForm">修改验收信息</el-button>
-              <el-button v-if="hidden.returnBtn !== true" type="warning" @click="returnForm">退回新建</el-button>
-              <el-button v-if="hidden.confirmBtn !== true" type="primary" @click="confirmForm">确 认</el-button>
-              <el-button @click="closeForm">取 消</el-button>
-            </el-col>
-          </el-row>
-        </template>
-
       </el-form>
+
+
+        <el-row >
+          <el-col :span="24" align="center">
+            <el-button v-if="hidden.saveBtn !== true" type="success" @click="saveForm">暂 存</el-button>
+            <el-button v-if="hidden.changeBtn !== true" type="primary" @click="changeForm">修改项目信息</el-button>
+            <el-button v-if="hidden.deleteBtn !== true" type="danger" @click="deleteForm">删除</el-button>
+            <el-button v-if="hidden.submitBtn !== true" type="primary" @click="submitForm">提交审核</el-button>
+            <el-button v-if="hidden.changeAcceptanceBtn !== true" type="warning" @click="changeAcceptanceForm">修改验收信息</el-button>
+            <el-button v-if="hidden.returnBtn !== true" type="warning" @click="returnForm">退回新建</el-button>
+            <el-button v-if="hidden.confirmBtn !== true" type="primary" @click="confirmForm">确 认</el-button>
+            <el-button @click="closeForm">取 消</el-button>
+          </el-col>
+        </el-row>
 
 
     </el-row>
@@ -547,7 +567,7 @@ import {listDept} from "@/api/system/dept";
 import {listUser} from "@/api/system/user";
 import {
   addProject,
-  checkProject,
+  uniqueProject,
   downloadFile,
   getProject,
   getUplevelProject,
@@ -556,9 +576,15 @@ import {
   listProjectmember,
   updateProject,
   uploadFile,
-  confirmProject
+  confirmProject,
+  getProjectConfirm,
+  getProjectacceptance,
+  addProjectacceptance,
+  xinjianzhongProject
 } from "@/api/project/project";
-import {isNumber} from "@/utils/validate.js"
+import {beforeUpload, requestUpload, beforeRemove, handleUploadRemove, handleUploadReview} from "@/api/project/projectdoc";
+
+import {isNumber} from "@/utils/validate.js";
 
 export default {
   name: "EditInfo",
@@ -601,21 +627,21 @@ export default {
 
       ProjectStatus: {XinJianZhong: 48, DaiQueRen: 40,BuTongGuo:44, ZaiYan: 41, JieTiDaiQueRen: 45,JietiBuTongGuo:46, YiJieTi: 42, YiShanChu: 43},
 
-      sbfileList: [],
-      htfileList: [],
-      fafileList: [],
-      pffileList: [],
+      basicfileList1: [],
+      basicfileList2: [],
+      basicfileList3: [],
+      basicfileList4: [],
 
-      yssqfileList: [],
-      yszsfileList: [],
-      jszjfileList: [],
-      gzzjfileList: [],
-      cxbgfileList: [],
-      jsbgfileList: [],
-      jcbgfileList: [],
-      qtfjfileList: [],
-      yhzmfileList: [],
-      cgzpfileList: [],
+      acceptfileList1: [],
+      acceptfileList2: [],
+      acceptfileList3: [],
+      acceptfileList4: [],
+      acceptfileList5: [],
+      acceptfileList6: [],
+      acceptfileList7: [],
+      acceptfileList8: [],
+      acceptfileList9: [],
+      acceptfileList10: [],
 
 
       // 日期范围
@@ -734,12 +760,31 @@ export default {
           const data = response.data;
 
           data.uplevelproject = {"subjectname": null};
+          data.acceptance = {projectid: projectid, opinion: null, memo: null};
 
           data.confirmSubjectcode = data.subjectcode;
 
           this.form = data;
 
           this.configTemplateStatus();
+
+          // 获取 审核结果信息。
+          if (this.form.status === this.ProjectStatus.BuTongGuo) {
+            getProjectConfirm(projectid).then(response => {
+              console.log("getProjectConfirm is ", response);
+              this.form.confirmResult = response.data.applystatus;
+              this.form.confirmNote =  response.data.auditopinion;
+            });
+          }
+
+          getProjectacceptance(projectid).then(response => {
+            console.log("this.form.acceptance is ", response.data);
+            if (response.data !== null) {
+              this_.form.acceptance = response.data;
+            } else {
+              this_.form.acceptance = {projectid: projectid, opinion: null, memo: null};
+            }
+          });
 
           listProjectjoinorganization({projectid: this.form.projectid}).then(response => {
             if (response.data !== null) {
@@ -774,21 +819,41 @@ export default {
                   let rows = response.data;
                   console.log("listProjectdoc is ", rows);
                   this.form.projectdocList = rows;
-                  this.sbfileList = this.filterProjectdoc("项目申报书");
-                  console.log("项目申报书 is ", this.sbfileList);
-                  this.htfileList = this.filterProjectdoc("项目合同");
-                  console.log("项目合同 is ", this.htfileList);
-                  this.fafileList = this.filterProjectdoc("实施方案");
-                  console.log("实施方案 is ", this.fafileList);
-                  this.pffileList = this.filterProjectdoc("项目批复文件");
-                  console.log("项目批复文件 is ", this.pffileList);
+                  this.basicfileList1 = this.filterProjectdoc("项目申报书");
+                  console.log("项目申报书 is ", this.basicfileList1);
+                  this.basicfileList2 = this.filterProjectdoc("项目合同");
+                  console.log("项目合同 is ", this.basicfileList2);
+                  this.basicfileList3 = this.filterProjectdoc("实施方案");
+                  console.log("实施方案 is ", this.basicfileList3);
+                  this.basicfileList4 = this.filterProjectdoc("项目批复文件");
+                  console.log("项目批复文件 is ", this.basicfileList4);
+
+                  this.acceptfileList1 = this.filterProjectdoc("验收申请书");
+                  console.log("验收申请书 is ", this.acceptfileList1);
+                  this.acceptfileList2 = this.filterProjectdoc("验收证书");
+                  console.log("验收证书 is ", this.acceptfileList2);
+                  this.acceptfileList3 = this.filterProjectdoc("技术总结");
+                  console.log("技术总结 is ", this.acceptfileList3);
+                  this.acceptfileList4 = this.filterProjectdoc("工作总结");
+                  console.log("工作总结 is ", this.acceptfileList4);
+                  this.acceptfileList5 = this.filterProjectdoc("查新报告");
+                  console.log("查新报告 is ", this.acceptfileList5);
+                  this.acceptfileList6 = this.filterProjectdoc("审计报告");
+                  console.log("审计报告 is ", this.acceptfileList6);
+                  this.acceptfileList7 = this.filterProjectdoc("检测报告");
+                  console.log("检测报告 is ", this.acceptfileList7);
+                  this.acceptfileList8 = this.filterProjectdoc("其它附件");
+                  console.log("其它附件 is ", this.acceptfileList8);
+                  this.acceptfileList9 = this.filterProjectdoc("用户证明");
+                  console.log("用户证明 is ", this.acceptfileList9);
+                  this.acceptfileList10 = this.filterProjectdoc("成果照片视频");
+                  console.log("成果照片视频 is ", this.acceptfileList10);
                 });
 
                 this.loading = false;
               });
 
             });
-
 
           });
 
@@ -837,7 +902,7 @@ export default {
 
             listOptions = [];
             listUser().then(response => {
-              console.log(response);
+              console.log("listUser is ", response);
               response.rows.forEach(function (item) {
                 //console.log("item is ", item);
                 const user = {value: item.realName, id: item.userId, hotKey: item.hotKey};
@@ -854,7 +919,8 @@ export default {
     },
 
     resetTemplateStatus() {
-      this.readonly = {basic: true,acceptance:true};
+      // 初始化各个组件的状态。
+      this.readonly = {basic: true,acceptance:true, confirm: true};
       this.hidden = {basic:false,acceptance:true,confirm:true, saveBtn:true,changeBtn:true,deleteBtn:true,submitBtn:true,changeAcceptanceBtn:true,returnBtn:true,confirmBtn:true };
     },
 
@@ -872,25 +938,65 @@ export default {
       }
       else if (this.form.status === this.ProjectStatus.DaiQueRen) {
         console.log("this.opcode is ", this.opcode);
-        if (this.opcode === "query") {
+        if (this.opcode.indexOf("query") !== -1) {
           this.hidden.changeBtn = false;
           this.hidden.deleteBtn = false;
           this.hidden.returnBtn = false;
         }
-        else if (this.opcode === "confirm") {
+        else if (this.opcode.indexOf("confirm") !== -1) {
+          this.readonly.confirm = false;
+          this.hidden.confirm = false;
+
           this.hidden.confirmBtn = false;
         }
 
       }
+      else if (this.form.status === this.ProjectStatus.BuTongGuo) {
+        console.log("this.opcode is ", this.opcode);
+        if (this.opcode.indexOf("query") !== -1) {
+          this.readonly.confirm = true;
+          this.hidden.confirm = false;
+
+          this.hidden.changeBtn = false;
+          this.hidden.deleteBtn = false;
+          this.hidden.returnBtn = false;
+        }
+      }
       else if (this.form.status === this.ProjectStatus.ZaiYan) {
         console.log("this.opcode is ", this.opcode);
-        if (this.opcode === "query") {
+        if (this.opcode.indexOf("query") !== -1) {
+          this.hidden.returnBtn = false;
+          this.hidden.acceptance = false;
+        }
+        else if (this.opcode.indexOf("toaccept") !== -1) {
           this.hidden.acceptance = false;
           this.readonly.acceptance = false;
           this.hidden.confirmBtn = false;
+
         }
-        else if (this.opcode === "toaccept") {
+      }
+      else if (this.form.status === this.ProjectStatus.JieTiDaiQueRen) {
+        console.log("this.opcode is ", this.opcode);
+        if (this.opcode.indexOf("query") !== -1) {
+          this.hidden.acceptance = false;
+
+          this.hidden.changeAcceptanceBtn = false;
+
+        }
+        else if (this.opcode.indexOf("acceptconfirm") !== -1) {
           this.hidden.confirmBtn = false;
+        }
+      }
+      else if (this.form.status === this.ProjectStatus.JietiBuTongGuo) {
+        console.log("this.opcode is ", this.opcode);
+        if (this.opcode.indexOf("query") !== -1) {
+          this.hidden.acceptance = false;
+
+          this.hidden.changeBtn = false;
+          this.hidden.deleteBtn = false;
+          this.hidden.returnBtn = false;
+          this.hidden.changeAcceptanceBtn = false;
+
         }
 
       }
@@ -901,7 +1007,7 @@ export default {
 
     getSubjectcode(query) {
       return new Promise((resolve, reject) => {
-        let res = checkProject(query);
+        let res = uniqueProject(query);
         resolve(res);
       });
     },
@@ -962,6 +1068,7 @@ export default {
         uplevelproject: {subjectname: null},
         projectmemberList: [],
         projectdocList: [],
+        acceptance:{projectid: projectid, opinion: null, memo: null},
 
         // 审核结果
         confirmSubjectcode: undefined,
@@ -1226,322 +1333,353 @@ export default {
 
 
     /* 项目申报书 */
-    beforeSBUpload(file) {
+    beforeUpload1(file) {
 
-      let x = true
-      let fileList = this.sbfileList;
-
-      console.log("fileList is ", fileList);
-      for (let i = 0; i < fileList.length; i++) {
-        let item = fileList[i];
-        if (item.name === file.name) {
-          console.log("file existed now ,", file.name);
-          x = false;
-          break;
-        }
-      }
-      return x;
+      return beforeUpload(file, this.basicfileList2, "项目申报书");
 
     },
 
-    requestSBUpload: function (params) {
-      let file = params.file;
-      console.log(file);
-      let formData = new FormData();
-      formData.append('file', file);
-      uploadFile(formData).then(response => {
-        console.log("response.name is ", response.name);
-        console.log("response.url is ", response.url);
-        this.sbfileList.push({name: response.name, url: response.url});
-        console.log("sbfileList is ", this.sbfileList);
-
-        this.form.projectdocList.push({docid: response.url, doctype: "项目申报书"});
-
-      });
+    requestUpload1: function (params) {
+      requestUpload(params, this.basicfileList1, "项目申报书", this.form.projectdocList);
     },
 
-    beforeSBRemove(file, fileList) {
+    beforeRemove1(file, fileList) {
       let index = fileList.indexOf(file);
-      console.log("beforeSBRemove index=" + index, file.name);
+      console.log("beforeRemove1 index=" + index, file.name);
       return true;
       //  return this.$confirm(`确定移除 ${ file.name }？`);
     },
 
-    handleSBUploadRemove(file) {
+    handleUploadRemove1(file) {
 
-      let today = new Date();
-
-      let docid = file.url;
-
-      let index = this.sbfileList.indexOf(file);
-      if (index !== -1) {
-        this.sbfileList.splice(index, 1);
-      }
-      console.log("handleSBUploadRemove index=" + index, file.name, today.toDateString());
-      console.log("this.sbfileList is ", this.sbfileList);
-
-      let index2 = -1;
-      for (let i = 0; i < this.form.projectdocList.length; i++) {
-        let item = this.form.projectdocList[i];
-        if (item.docid === docid) {
-          index2 = i;
-          break;
-        }
-      }
-
-      if (index2 !== -1) {
-        this.form.projectdocList.splice(index2, 1);
-      }
-      console.log("projectdocList all items,", this.form.projectdocList);
+      handleUploadRemove(file, this.basicfileList1,"项目申报书", this.form.projectdocList );
 
       return;
     },
 
-    handleSBUploadReview(file) {
+    handleReview(file) {
       this.$confirm('是否确认下载"' + file.name + '"的文件?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        downloadFile({"file": file.url}).then(response => {
-          var fileURL = window.URL.createObjectURL(new Blob([response]));
-          var fileLink = document.createElement('a');
 
-          console.log("response.data is ", response);
+        handleUploadReview(file);
 
-          fileLink.href = fileURL;
-          fileLink.setAttribute('download', file.name);
-          document.body.appendChild(fileLink);
-
-          fileLink.click();
-          URL.revokeObjectURL(fileURL);
-
-        }).catch(console.error);
       }).then(() => {
         this.msgSuccess("下载开始");
       })
+
     },
 
     /* 项目合同 */
-    beforeHTUpload(file) {
-
-      let x = true
-      let fileList = this.htfileList;
-
-      console.log("fileList is ", fileList);
-      for (let i = 0; i < fileList.length; i++) {
-        let item = fileList[i];
-        if (item.name === file.name) {
-          console.log("file existed now ,", file.name);
-          x = false;
-          break;
-        }
-      }
-      return x;
-
+    beforeUpload2(file) {
+      return beforeUpload(file, this.basicfileList2, "项目合同");
     },
 
-    requestHTUpload: function (params) {
-      let file = params.file;
-      console.log(file);
-      let formData = new FormData();
-      formData.append('file', file);
-      uploadFile(formData).then(response => {
-        console.log("response.name is ", response.name);
-        console.log("response.url is ", response.url);
-        this.htfileList.push({name: response.name, url: response.url});
-        console.log("htfileList is ", this.htfileList);
-
-        this.form.projectdocList.push({docid: response.url, doctype: "项目合同"});
-
-      });
+    requestUpload2: function (params) {
+      requestUpload(params, this.basicfileList2, "项目合同", this.form.projectdocList);
     },
 
-    beforeHTRemove(file, fileList) {
+    beforeRemove2(file, fileList) {
       let index = fileList.indexOf(file);
-      console.log("beforeSBRemove index=" + index, file.name);
+      console.log("beforeRemove1 index=" + index, file.name);
       return true;
       //  return this.$confirm(`确定移除 ${ file.name }？`);
     },
 
-    handleHTUploadRemove(file) {
-
-      let today = new Date();
-
-      let docid = file.url;
-
-      let index = this.htfileList.indexOf(file);
-      if (index !== -1) {
-        this.htfileList.splice(index, 1);
-      }
-      console.log("handleSBUploadRemove index=" + index, file.name, today.toDateString());
-      console.log("this.htfileList is ", this.htfileList);
-
-      let index2 = -1;
-      for (let i = 0; i < this.form.projectdocList.length; i++) {
-        let item = this.form.projectdocList[i];
-        if (item.docid === docid) {
-          index2 = i;
-          break;
-        }
-      }
-
-      if (index2 !== -1) {
-        this.form.projectdocList.splice(index2, 1);
-      }
-      console.log("projectdocList all items,", this.form.projectdocList);
-
-      return;
+    handleUploadRemove2(file) {
+      handleUploadRemove(file, this.basicfileList2,"项目合同", this.form.projectdocList );
     },
 
     /* 实施方案 */
-    beforeFAUpload(file) {
+    beforeUpload3(file) {
 
-      let x = true
-      let fileList = this.fafileList;
-
-      console.log("fileList is ", fileList);
-      for (let i = 0; i < fileList.length; i++) {
-        let item = fileList[i];
-        if (item.name === file.name) {
-          console.log("file existed now ,", file.name);
-          x = false;
-          break;
-        }
-      }
-      return x;
+      return beforeUpload(file, this.basicfileList3, "实施方案");
 
     },
 
-    requestFAUpload: function (params) {
-      let file = params.file;
-      console.log(file);
-      let formData = new FormData();
-      formData.append('file', file);
-      uploadFile(formData).then(response => {
-        console.log("response.name is ", response.name);
-        console.log("response.url is ", response.url);
-        this.fafileList.push({name: response.name, url: response.url});
-        console.log("fafileList is ", this.fafileList);
-
-        this.form.projectdocList.push({docid: response.url, doctype: "实施方案"});
-
-      });
+    requestUpload3: function (params) {
+      requestUpload(params, this.basicfileList3, "实施方案", this.form.projectdocList);
     },
 
-    beforeFARemove(file, fileList) {
+    beforeRemove3(file, fileList) {
       let index = fileList.indexOf(file);
-      console.log("beforeFARemove index=" + index, file.name);
+      console.log("beforeRemove3 index=" + index, file.name);
       return true;
       //  return this.$confirm(`确定移除 ${ file.name }？`);
     },
 
-    handleFAUploadRemove(file) {
-
-      let today = new Date();
-
-      let docid = file.url;
-
-      let index = this.fafileList.indexOf(file);
-      if (index !== -1) {
-        this.fafileList.splice(index, 1);
-      }
-      console.log("handleFAUploadRemove index=" + index, file.name, today.toDateString());
-      console.log("this.fafileList is ", this.fafileList);
-
-      let index2 = -1;
-      for (let i = 0; i < this.form.projectdocList.length; i++) {
-        let item = this.form.projectdocList[i];
-        if (item.docid === docid) {
-          index2 = i;
-          break;
-        }
-      }
-
-      if (index2 !== -1) {
-        this.form.projectdocList.splice(index2, 1);
-      }
-      console.log("projectdocList all items,", this.form.projectdocList);
-
-      return;
+    handleUploadRemove3(file) {
+      handleUploadRemove(file, this.basicfileList3,"实施方案", this.form.projectdocList );
     },
 
     /* 项目批复文件 */
-    beforePFUpload(file) {
+    beforeUpload4(file) {
 
-      let x = true
-      let fileList = this.pffileList;
-
-      console.log("fileList is ", fileList);
-      for (let i = 0; i < fileList.length; i++) {
-        let item = fileList[i];
-        if (item.name === file.name) {
-          console.log("file existed now ,", file.name);
-          x = false;
-          break;
-        }
-      }
+      let x = beforeUpload(file, this.basicfileList4, "项目批复文件");
       return x;
 
     },
 
-    requestPFUpload: function (params) {
-      let file = params.file;
-      console.log(file);
-      let formData = new FormData();
-      formData.append('file', file);
-      uploadFile(formData).then(response => {
-        console.log("response.name is ", response.name);
-        console.log("response.url is ", response.url);
-        this.pffileList.push({name: response.name, url: response.url});
-        console.log("pffileList is ", this.pffileList);
-
-        this.form.projectdocList.push({docid: response.url, doctype: "项目批复文件"});
-
-      });
+    requestUpload4: function (params) {
+      requestUpload(params, this.basicfileList4, "项目批复文件", this.form.projectdocList);
     },
 
-    beforePFRemove(file, fileList) {
+    beforeRemove4(file, fileList) {
       let index = fileList.indexOf(file);
-      console.log("beforePFRemove index=" + index, file.name);
+      console.log("beforeRemove4 index=" + index, file.name);
       return true;
       //  return this.$confirm(`确定移除 ${ file.name }？`);
     },
 
-    handlePFUploadRemove(file) {
-
-      let today = new Date();
-
-      let docid = file.url;
-
-      let index = this.pffileList.indexOf(file);
-      if (index !== -1) {
-        this.pffileList.splice(index, 1);
-      }
-      console.log("handlePFUploadRemove index=" + index, file.name, today.toDateString());
-      console.log("this.pffileList is ", this.pffileList);
-
-      let index2 = -1;
-      for (let i = 0; i < this.form.projectdocList.length; i++) {
-        let item = this.form.projectdocList[i];
-        if (item.docid === docid) {
-          index2 = i;
-          break;
-        }
-      }
-
-      if (index2 !== -1) {
-        this.form.projectdocList.splice(index2, 1);
-      }
-      console.log("projectdocList all items,", this.form.projectdocList);
-
-      return;
+    handleUploadRemove4(file) {
+      handleUploadRemove(file, this.basicfileList4,"项目批复文件", this.form.projectdocList );
     },
 
+
+
+
+    /* 验收申请书 */
+
+    beforeUpload11(file) {
+
+      let x = beforeUpload(file, this.acceptfileList1, "验收申请书");
+      return x;
+
+    },
+
+    requestUpload11: function (params) {
+      requestUpload(params, this.acceptfileList1, "验收申请书", this.form.projectdocList);
+    },
+
+    beforeRemove11(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove11 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove11(file) {
+      handleUploadRemove(file, this.acceptfileList1,"验收申请书", this.form.projectdocList );
+    },
+
+    /* 验收证书 */
+
+    beforeUpload12(file) {
+
+      let x = beforeUpload(file, this.acceptfileList2, "验收证书");
+      return x;
+
+    },
+
+    requestUpload12: function (params) {
+      requestUpload(params, this.acceptfileList2, "验收证书", this.form.projectdocList);
+    },
+
+    beforeRemove12(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove12 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove12(file) {
+      handleUploadRemove(file, this.acceptfileList2,"验收证书", this.form.projectdocList );
+    },
+
+    /* 技术总结 */
+
+    beforeUpload13(file) {
+
+      let x = beforeUpload(file, this.acceptfileList3, "技术总结");
+      return x;
+
+    },
+
+    requestUpload13: function (params) {
+      requestUpload(params, this.acceptfileList3, "技术总结", this.form.projectdocList);
+    },
+
+    beforeRemove13(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove13 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove13(file) {
+      handleUploadRemove(file, this.acceptfileList3,"技术总结", this.form.projectdocList );
+    },
+
+    /* 工作总结 */
+
+    beforeUpload14(file) {
+
+      let x = beforeUpload(file, this.acceptfileList4, "工作总结");
+      return x;
+
+    },
+
+    requestUpload14: function (params) {
+      requestUpload(params, this.acceptfileList4, "工作总结", this.form.projectdocList);
+    },
+
+    beforeRemove14(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove14 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove14(file) {
+      handleUploadRemove(file, this.acceptfileList4,"工作总结", this.form.projectdocList );
+    },
+
+    /* 查新报告 */
+
+    beforeUpload15(file) {
+
+      let x = beforeUpload(file, this.acceptfileList5, "查新报告");
+      return x;
+
+    },
+
+    requestUpload15: function (params) {
+      requestUpload(params, this.acceptfileList5, "查新报告", this.form.projectdocList);
+    },
+
+    beforeRemove15(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove15 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove15(file) {
+      handleUploadRemove(file, this.acceptfileList5,"查新报告", this.form.projectdocList );
+    },
+
+    /* 审计报告 */
+
+    beforeUpload16(file) {
+
+      let x = beforeUpload(file, this.acceptfileList6, "审计报告");
+      return x;
+
+    },
+
+    requestUpload16: function (params) {
+      requestUpload(params, this.acceptfileList6, "审计报告", this.form.projectdocList);
+    },
+
+    beforeRemove16(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove16 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove16(file) {
+      handleUploadRemove(file, this.acceptfileList6,"审计报告", this.form.projectdocList );
+    },
+    /* 检测报告 */
+
+    beforeUpload17(file) {
+
+      let x = beforeUpload(file, this.acceptfileList7, "检测报告");
+      return x;
+
+    },
+
+    requestUpload17: function (params) {
+      requestUpload(params, this.acceptfileList7, "检测报告", this.form.projectdocList);
+    },
+
+    beforeRemove17(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove17 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove17(file) {
+      handleUploadRemove(file, this.acceptfileList7,"检测报告", this.form.projectdocList );
+    },
+    /* 其它附件 */
+
+    beforeUpload18(file) {
+
+      let x = beforeUpload(file, this.acceptfileList8, "其它附件");
+      return x;
+
+    },
+
+    requestUpload18: function (params) {
+      requestUpload(params, this.acceptfileList8, "其它附件", this.form.projectdocList);
+    },
+
+    beforeRemove18(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove18 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove18(file) {
+      handleUploadRemove(file, this.acceptfileList8,"其它附件", this.form.projectdocList );
+    },
+    /* 用户证明 */
+
+    beforeUpload19(file) {
+
+      let x = beforeUpload(file, this.acceptfileList9, "用户证明");
+      return x;
+
+    },
+
+    requestUpload19: function (params) {
+      requestUpload(params, this.acceptfileList9, "用户证明", this.form.projectdocList);
+    },
+
+    beforeRemove19(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove19 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove19(file) {
+      handleUploadRemove(file, this.acceptfileList9,"用户证明", this.form.projectdocList );
+    },
+
+    /* 成果照片视频 */
+
+    beforeUpload20(file) {
+
+      let x = beforeUpload(file, this.acceptfileList10, "成果照片视频");
+      return x;
+
+    },
+
+    requestUpload20: function (params) {
+      requestUpload(params, this.acceptfileList10, "成果照片视频", this.form.projectdocList);
+    },
+
+    beforeRemove20(file, fileList) {
+      let index = fileList.indexOf(file);
+      console.log("beforeRemove20 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemove20(file) {
+      handleUploadRemove(file, this.acceptfileList10,"成果照片视频", this.form.projectdocList );
+    },
     /** 关闭按钮 */
     closeForm() {
 
-      this.reset();
+      // this.reset();
       this.$router.go(-1)// 返回
       //关闭子页面
 
@@ -1579,16 +1717,8 @@ export default {
             }
           });
 
-          if (this.form.projectid !== undefined) {
-            updateProject(this.form).then(response => {
-              this.msgSuccess("修改成功");
-              getProject(this.form.projectid);
-
-            });
-          } else {
-
+          if (this.form.projectid === undefined) {
             addProject(this.form).then(response => {
-
               if (response.data === 0) {
                 this.msgError("暂存失败");
                 this.form.projectid = undefined;
@@ -1596,7 +1726,11 @@ export default {
                 this.msgSuccess("暂存成功");
                 this.form.projectid = response.data;
               }
-
+            });
+          } else {
+            updateProject(this.form).then(response => {
+              this.msgSuccess("修改成功");
+              getProject(this.form.projectid);
             });
           }
         }
@@ -1617,16 +1751,8 @@ export default {
             }
           });
 
-          if (this.form.projectid !== undefined) {
-            updateProject(this.form).then(response => {
-              this.msgSuccess("提交审核成功");
-              this.closeForm();
-
-            });
-          } else {
-
+          if (this.form.projectid === undefined) {
             addProject(this.form).then(response => {
-
               if (response.data === 0) {
                 this.msgError("提交审核失败");
                 this.form.projectid = undefined;
@@ -1635,8 +1761,13 @@ export default {
                 this.form.projectid = response.data;
                 this.closeForm();
               }
-
             });
+          } else {
+            updateProject(this.form).then(response => {
+              this.msgSuccess("提交审核成功");
+              this.closeForm();
+            });
+
           }
         }
       });
@@ -1644,115 +1775,115 @@ export default {
 
     /** 编辑模式按钮 */
     changeForm() {
-      this.form.status = this.ProjectStatus.XinJianZhong
+      this.form.status = this.ProjectStatus.XinJianZhong;
       this.configTemplateStatus();
 
     },
 
     /** 修改验收信息模式按钮 */
-    verifyAcceptanceForm() {
-      // Response.Redirect("FinishProject.aspx?mode=edit&kid=" + ProjectDetail1.lab_ProjectID.Text
-      //   + "&from=" + Request["from"].ToString() + "&steam="
-      //   + Request["steam"] + "&syear=" + Request["syear"]);
+    changeAcceptanceForm() {
+      console.log(" 修改验收信息 ",this.form.status);
+
+      this.form.status = this.ProjectStatus.ZaiYan;
+      this.opcode = "toaccept";
+      this.configTemplateStatus();
     },
 
     /** 退回到新建中 模式按钮 */
     returnForm() {
-      this.$confirm('是否确认将"' + this.form.projectname + '"的项目退回"新建中"状态?', "警告", {
+      const this_ = this;
+      this_.$confirm('是否确认将"' + this_.form.projectname + '"的项目退回"新建中"状态?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
         // 发送到后台。
-
+        xinjianzhongProject(this_.form);
       }).then(() => {
-        this.msgSuccess("退回成功");
-        this.closeForm();
-
+        this_.closeForm();
+        this_.msgSuccess("退回成功");
       });
     },
 
-    /** 新建审核确认 模式按钮 */
+    /**  验收申请确认 和 新建审核确认 模式按钮 */
     confirmForm() {
 
       const this_ = this;
 
-      this.$refs["form"].validate(
-        valid => {
-          if (valid) {
-            console.log("confirmResult is " + this.form.confirmResult);
+      if (this.form.status === this.ProjectStatus.ZaiYan) {
+        this_.$confirm('是否确认提交"' + this.form.projectname + '"的项目 验收信息?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function () {
+          this_.form.acceptance.projectdocList = this_.form.projectdocList;
+          return addProjectacceptance(this_.form.acceptance);
+        }).then(() => {
+          this_.closeForm();
+          this_.msgSuccess("验收信息提交成功");
+        });
+      }
+      else if (this.form.status === this.ProjectStatus.DaiQueRen || this.form.status === this.ProjectStatus.JieTiDaiQueRen){
+        this.$refs["form"].validate(
+          valid => {
+            if (valid) {
+              console.log("confirmResult is " + this.form.confirmResult);
 
-            if (this_.form.confirmResult == undefined) {
-              this.msgError("请选择审核结果");
-              return;
-            }
+              if (this_.form.confirmResult == undefined) {
+                this.msgError("请选择审核结果");
+                return;
+              }
 
-            const result = this_.form.confirmResult;
+              this_.form.confirmUserid = this_.$store.getters.userId;
+              const result = this_.form.confirmResult;
 
-            if (result === 1) {
-              this_.$confirm('是否确认审核"' + this.form.projectname + '"的项目 通过?', "警告", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-              }).then(function () {
-                confirmProject(this_.form).then(response => {
-                  this_.msgSuccess("新建审核成功");
-                  this_.closeForm();
-                });
-              });
-            }
-            else if (result === -1) {
-
-              var note = this_.form.confirmNote;
-              console.log("confirmNote is ", note);
-              if (note !== null && note !== undefined && note.trim() !== '' ) {
-                this_.$confirm('是否确认审核"' + this.form.projectname + '"的项目 不通过?', "警告", {
+              if (result === 1) {
+                this_.$confirm('是否确认审核"' + this.form.projectname + '"的项目 通过?', "警告", {
                   confirmButtonText: "确定",
                   cancelButtonText: "取消",
                   type: "warning"
                 }).then(function () {
-                  confirmProject(this_.form).then(response => {
-                    this_.msgSuccess("新建审核不通过 完成");
+                  return confirmProject(this_.form);
+                  }).then(() => {
                     this_.closeForm();
+                    this_.msgSuccess("新建审核成功");
                   });
-                });
               }
-              else {
-                this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
-                  confirmButtonText: "确定",
-                  type: "warning"
-                }).then(function () {
+              else if (result === 2) {
 
-                });
+                var note = this_.form.confirmNote;
+                console.log("confirmNote is ", note);
+                if (note !== null && note !== undefined && note.trim() !== '' ) {
+                  this_.$confirm('是否确认审核"' + this.form.projectname + '"的项目 不通过?', "警告", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                  }).then(function () {
+                   return  confirmProject(this_.form);
+                  }).then(() => {
+                    this_.closeForm();
+                    this_.msgSuccess("新建审核不通过 完成");
+                  });
+                }
+                else {
+                  this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
+                    confirmButtonText: "确定",
+                    type: "warning"
+                  }).then(function () {
+
+                  });
+                }
               }
             }
           }
-        }
-      );
-    },
+        );
+      }
+      else {
 
-    acceptanceForm() {
 
-      const this_ = this;
+      }
 
-      this.$refs["form"].validate(
-        valid => {
-          if (valid) {
-            console.log("confirmResult is " + this.form.confirmResult);
 
-            this_.$confirm('是否确认提交"' + this.form.projectname + '"的项目的验收信息?', "警告", {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
-              type: "warning"
-            }).then(function () {
-              confirmProject(this_.form).then(response => {
-                this_.msgSuccess("验收信息提交成功");
-                this_.closeForm();
-              });
-            });
-          }
-        }
-      );
     },
 
     /* 主持的项目 子 form */

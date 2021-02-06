@@ -32,7 +32,7 @@ public class PmProjectMemberController extends BaseController {
     private PMProjectMemberService projectMemberService;
 
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:list')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @GetMapping("/list")
     public AjaxResult list(PmProjectmember query) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
@@ -51,7 +51,7 @@ public class PmProjectMemberController extends BaseController {
 
 
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:add')")
+    @PreAuthorize("@ss.hasPermi('project:project:add')")
     @Log(title = "项目管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody PmProjectmember project) {
@@ -62,7 +62,7 @@ public class PmProjectMemberController extends BaseController {
 
     }
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:edit')")
+    @PreAuthorize("@ss.hasPermi('project:project:edit')")
     @Log(title = "项目管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody  PmProjectmember project) {
@@ -76,7 +76,7 @@ public class PmProjectMemberController extends BaseController {
     /**
      * 删除
      */
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:remove')")
+    @PreAuthorize("@ss.hasPermi('project:project:remove')")
     @Log(title = "项目管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{projectids}")
     public AjaxResult remove(@PathVariable Integer[] projectids) {

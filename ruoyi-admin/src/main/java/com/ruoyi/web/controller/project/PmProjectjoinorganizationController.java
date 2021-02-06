@@ -39,7 +39,7 @@ public class PmProjectjoinorganizationController extends BaseController {
     private PmProjectjoinorganizationService projectjoinorganizationService;
 
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:list')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @GetMapping("/list")
     public AjaxResult list(PmProjectjoinorganization joinorg) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
@@ -57,7 +57,7 @@ public class PmProjectjoinorganizationController extends BaseController {
     }
 
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:add')")
+    @PreAuthorize("@ss.hasPermi('project:project:add')")
     @Log(title = "项目管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody PmProjectjoinorganization project) {
@@ -81,7 +81,7 @@ public class PmProjectjoinorganizationController extends BaseController {
 //        }
     }
 
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:edit')")
+    @PreAuthorize("@ss.hasPermi('project:project:edit')")
     @Log(title = "项目管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody  PmProjectjoinorganization project) {
@@ -96,7 +96,7 @@ public class PmProjectjoinorganizationController extends BaseController {
     /**
      * 删除
      */
-    @PreAuthorize("@ss.hasPermi('project:zaiyan:remove')")
+    @PreAuthorize("@ss.hasPermi('project:project:remove')")
     @Log(title = "项目管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{projectids}")
     public AjaxResult remove(@PathVariable Integer[] projectids) {

@@ -63,6 +63,7 @@ public class SysLoginService
         Authentication authentication = null;
         try
         {
+//            System.out.println("username is " + username + " password is " + password);
             // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
             authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(username, password));

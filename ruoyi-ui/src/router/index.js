@@ -95,7 +95,7 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/zaiyan',
+    path: '/project',
     component: Layout,
     hidden: true,
     children: [
@@ -104,20 +104,25 @@ export const constantRoutes = [
         component: (resolve) => require(['@/views/project/project/edit'], resolve),
         name: 'EditInfo',
         meta: { title: '编辑项目', icon: '', opcode: 'query' }
-      }
-    ]
-  },
-  {
-    path: '/toconfirm',
-    component: Layout,
-    hidden: true,
-    children: [
+      },
       {
-        path: 'project/:projectid(\\d+)',
+        path: 'toconfirm/:projectid(\\d+)',
         component: (resolve) => require(['@/views/project/project/edit'], resolve),
         name: 'ConfirmInfo',
-        meta: { title: '审核新建项目', icon: '',opcode: 'confirm' }
-      }
+        meta: { title: '新建项目审核', icon: '',opcode: 'confirm' }
+      },
+      {
+        path: 'toaccept/:projectid(\\d+)',
+        component: (resolve) => require(['@/views/project/project/edit'], resolve),
+        name: 'AcceptInfo',
+        meta: { title: '项目验收', icon: '',opcode: 'toaccept' }
+      },
+      {
+        path: 'toacceptanceonfirm/:projectid(\\d+)',
+        component: (resolve) => require(['@/views/project/project/edit'], resolve),
+        name: 'AcceptanceConfirmInfo',
+        meta: { title: '项目验收审核', icon: '',opcode: 'confirm' }
+      },
     ]
   },
   {

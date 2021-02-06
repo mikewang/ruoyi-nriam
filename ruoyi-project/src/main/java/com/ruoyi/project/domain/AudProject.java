@@ -86,9 +86,10 @@ public class AudProject extends BaseEntity {
     // DaiQueRen(40, "新建待审核"), ZaiYan(41, "在研"), YiJieTi(42, "已完成"), YiShanChu(43, "已删除"), BuTongGuo(44, "新建审核不通过"), JieTiDaiQueRen(45, "验收待审核"), JietiBuTongGuo(46, "验收审核不通过"), XinJianZhong(48, "新建中");
     private  Integer operateCode = 1;
 
-    private String confirmSubjectcode;
+    private String confirmSubjectcode; // 二次修改经费编码
     private Integer confirmResult;
     private String confirmNote;
+    private Integer confirmUserid;
 
 
     public Integer getProjectid() {
@@ -395,6 +396,14 @@ public class AudProject extends BaseEntity {
 
     public void setConfirmNote(String confirmNote) {
         this.confirmNote = confirmNote;
+    }
+
+    public Integer getConfirmUserid() {
+        return confirmUserid;
+    }
+
+    public void setConfirmUserid(Integer confirmUserid) {
+        this.confirmUserid = confirmUserid;
     }
 
     @Override

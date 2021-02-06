@@ -22,6 +22,7 @@ import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.domain.AudProject;
+import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.project.domain.PmProjectjoinorganization;
 import com.ruoyi.project.service.*;
 import io.swagger.models.auth.In;
@@ -96,11 +97,26 @@ public class AudProjectController extends BaseController {
         return getDataTable(list);
     }
 
+
+    ///Project/ToAcceptanceConfirmList.aspx 项目验收审核
+    @PreAuthorize("@ss.hasPermi('project:toacceptanceconfirm:list')")
+    @GetMapping("/toacceptanceconfirm/list")
+    public TableDataInfo toacceptanceconfirmList(AudProject project) {
+
+        logger.debug("query parameters is " + project.getProjectyear());
+
+        startPage();
+
+        List<AudProject> list = projectService.selectProjectToacceptanceconfirmList(project);
+
+        return getDataTable(list);
+    }
+
     /**
      * 根据编号获取详细信息
      */
     @PreAuthorize("@ss.hasPermi('project:project:query')")
-    @GetMapping(value = { "/", "/{projectId}" })
+    @GetMapping(value = { "/{projectId}" })
     public AjaxResult getProject(@PathVariable(value = "projectId", required = false) Integer projectId)
     {
         AjaxResult ajax = AjaxResult.success();
@@ -113,12 +129,11 @@ public class AudProjectController extends BaseController {
     }
 
     @PreAuthorize("@ss.hasPermi('project:project:query')")
-    @GetMapping( "/check")
+    @GetMapping( "/unique")
     public AjaxResult getIfDuplicate(AudProject project)
     {
         AjaxResult ajax = AjaxResult.success();
 
-      //  logger.debug("query parameters getProjectid is " + project.getProjectid().toString() );
         logger.debug("query parameters getSubjectcode is " + project.getSubjectcode() );
 
         Integer projectid = project.getProjectid();
@@ -195,6 +210,24 @@ public class AudProjectController extends BaseController {
     }
 
 
+    @PreAuthorize("@ss.hasPermi('project:project:edit')")
+    @Log(title = "项目管理", businessType = BusinessType.UPDATE)
+    @PutMapping( "/xinjianzhong")
+    public AjaxResult updateStatus(@Validated @RequestBody  AudProject project) {
+
+        Integer res = projectService.xinjianzhongProject(project);
+
+        AjaxResult ajax = AjaxResult.success();
+
+        if (res == 1) {
+            return  ajax;
+        }
+        else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
     /**
      * 删除
      */
@@ -206,6 +239,9 @@ public class AudProjectController extends BaseController {
 
         return AjaxResult.success("");
     }
+
+
+
 
     /**
      * 文件上传
@@ -299,8 +335,61 @@ public class AudProjectController extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping("/doc/list")
+    public AjaxResult doclist(AudProjectdoc query) {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+        AjaxResult ajax = AjaxResult.success();
 
-    @PreAuthorize("@ss.hasPermi('project:toconfirm:confirm')")
+        Integer projectid = query.getProjectid();
+        String doctype = query.getDoctype();
+
+        if (projectid != null) {
+            List<AudProjectdoc> list = projectdocService.selectProjectdocList(query);
+            logger.debug("selectProjectdocList is ", list.toString());
+            ajax.put(AjaxResult.DATA_TAG, list);
+        }
+
+        return ajax;
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('project:project:add')")
+    @Log(title = "项目管理", businessType = BusinessType.INSERT)
+    @PostMapping("/doc")
+    public AjaxResult addDoc(@Validated @RequestBody AudProjectdoc project) {
+
+        AjaxResult ajax = AjaxResult.success();
+        return ajax;
+
+
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('project:project:edit')")
+    @Log(title = "项目管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/doc")
+    public AjaxResult editDoc(@Validated @RequestBody  AudProjectdoc project) {
+
+        AjaxResult ajax = AjaxResult.success();
+        return ajax;
+
+    }
+
+    /**
+     * 删除
+     */
+    @PreAuthorize("@ss.hasPermi('project:project:remove')")
+    @Log(title = "项目管理", businessType = BusinessType.DELETE)
+    @DeleteMapping("/doc/{projectids}")
+    public AjaxResult removeDoc(@PathVariable Integer[] projectids) {
+
+        return AjaxResult.success("");
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('project:toconfirm:list')")
     @Log(title = "项目新建审核", businessType = BusinessType.UPDATE)
     @PutMapping("/confirm")
     public AjaxResult confirm(@Validated @RequestBody  AudProject project) {
@@ -334,5 +423,20 @@ public class AudProjectController extends BaseController {
 
     }
 
+    /**
+     * 根据编号获取审核详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('project:project:query')")
+    @GetMapping(value = { "/confirm/{projectId}" })
+    public AjaxResult getProjectConfirm(@PathVariable(value = "projectId", required = false) Integer projectId)
+    {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(projectId))
+        {
+            ajax.put(AjaxResult.DATA_TAG, projectService.selectApplyByTypeAndRelatedID(projectId));
+        }
+        return ajax;
+    }
 
 }

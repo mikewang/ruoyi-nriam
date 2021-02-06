@@ -144,7 +144,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="createBy != null and createBy != ''">#{createBy},</if>
  			<if test="remark != null and remark != ''">#{remark},</if>
 			<if test="jobTitle != null and jobTitle != ''">#{jobTitle},</if>
- 			sysdate()
+ 			getdate()
  		)
 	</insert>
 	
@@ -166,7 +166,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="remark != null">remark = #{remark},</if>
 			<if test="jobTitle != null and jobTitle != ''">job_title =
  		    #{jobTitle},</if>
- 			update_time = sysdate()
+ 			update_time = getdate()
  		</set>
  		where user_id = #{userId}
 	</update>

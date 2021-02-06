@@ -68,6 +68,15 @@
 
   </select>
 
+  <update id="updateBasDocAttachTo" parameterType="com.ruoyi.common.core.domain.model.BasDoc">
+    update BAS_Doc
+    set AttachToType = #{attachtotype,jdbcType=VARCHAR},
+        RelatedID = #{relatedid,jdbcType=INTEGER},
+        DocType = #{doctype,jdbcType=VARCHAR}
+    where DocID = #{docid,jdbcType=INTEGER}
+  </update>
+
+
 
   <select id="selectAll" resultMap="BaseResultMap">
 

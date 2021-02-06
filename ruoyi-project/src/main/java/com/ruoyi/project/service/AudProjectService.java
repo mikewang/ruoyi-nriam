@@ -1,5 +1,7 @@
 package com.ruoyi.project.service;
 
+import com.ruoyi.audit.domain.AudApply;
+import com.ruoyi.audit.mapper.AudApplyMapper;
 import com.ruoyi.common.enums.ProjectColor;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
@@ -33,18 +35,54 @@ public class AudProjectService {
     @Resource
     private PmUplevelprojectMapper uplevelprojectMapper;
 
-    public List<AudProject> selectAudProjectList(AudProject project) {
+    @Resource
+    private AudApplyMapper applyMapper;
 
-        List<AudProject> projectList = audProjectMapper.selectAudProjectList(project);
+
+    private   List<AudProject> selectProjectList(AudProject statusProject) {
+
+        List<AudProject> projectList = audProjectMapper.selectAudProjectList(statusProject);
 
         for (AudProject prj : projectList) {
-            prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
+
+            List<Integer> list = new ArrayList<>();
+            list.add(ProjectStatus.DaiQueRen.getCode());
+            list.add(ProjectStatus.JieTiDaiQueRen.getCode());
+            list.add(ProjectStatus.XinJianZhong.getCode());
+
+            if (list.contains(prj.getStatus())) {
+                prj.setProjectColor(ProjectColor.Red.getCode());
+            }
+
+            list = new ArrayList<>();
+            list.add(ProjectStatus.BuTongGuo.getCode());
+            list.add(ProjectStatus.JietiBuTongGuo.getCode());
+
+            if (list.contains(prj.getStatus())) {
+                prj.setProjectColor(ProjectColor.Green.getCode());
+            }
+
+            log.debug("prj.getProjectenddate() is " + prj.getProjectenddate());
+            java.util.Date ended = DateUtils.getNowDate();
+            try {
+                ended = DateUtils.parseDate(prj.getProjectenddate());
+            } catch (Exception e) {
+
+            }
+
+            long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
+
+            if (days < 90) {
+                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate() + "(剩余 " + String.valueOf(days) + "天)");
+                prj.setProjectColor(ProjectColor.Red.getCode());
+            } else {
+                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
+            }
 
         }
 
         return projectList;
     }
-
 
     public List<AudProject> selectProjectNewList(AudProject project) {
 
@@ -66,48 +104,9 @@ public class AudProjectService {
 
         project.setStatusList(statusList);
 
+        return selectProjectList(project);
 
-        List<AudProject> projectList = audProjectMapper.selectAudProjectList(project);
 
-        for (AudProject prj : projectList) {
-
-            List<Integer> list = new ArrayList<>();
-            list.add(ProjectStatus.DaiQueRen.getCode());
-            list.add(ProjectStatus.JieTiDaiQueRen.getCode());
-            list.add(ProjectStatus.XinJianZhong.getCode());
-
-            if (list.contains(prj.getStatus())) {
-                prj.setProjectColor(ProjectColor.Red.getCode());
-            }
-
-            list = new ArrayList<>();
-            list.add(ProjectStatus.BuTongGuo.getCode());
-            list.add(ProjectStatus.JietiBuTongGuo.getCode());
-
-            if (list.contains(prj.getStatus())) {
-                prj.setProjectColor(ProjectColor.Green.getCode());
-            }
-
-            log.debug("prj.getProjectenddate() is " + prj.getProjectenddate());
-            java.util.Date ended = DateUtils.getNowDate();
-            try {
-                ended = DateUtils.parseDate(prj.getProjectenddate());
-            } catch (Exception e) {
-
-            }
-
-            long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
-
-            if (days < 90) {
-                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate() + "(剩余 " + String.valueOf(days) + "天)");
-                prj.setProjectColor(ProjectColor.Red.getCode());
-            } else {
-                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
-            }
-
-        }
-
-        return projectList;
     }
 
 
@@ -118,47 +117,20 @@ public class AudProjectService {
         statusList.add(ProjectStatus.DaiQueRen.getCode());
         project.setStatusList(statusList);
 
-        List<AudProject> projectList = audProjectMapper.selectAudProjectList(project);
+        return selectProjectList(project);
 
-        for (AudProject prj : projectList) {
+    }
 
-            List<Integer> list = new ArrayList<>();
-            list.add(ProjectStatus.DaiQueRen.getCode());
-            list.add(ProjectStatus.JieTiDaiQueRen.getCode());
-            list.add(ProjectStatus.XinJianZhong.getCode());
 
-            if (list.contains(prj.getStatus())) {
-                prj.setProjectColor(ProjectColor.Red.getCode());
-            }
+    public List<AudProject> selectProjectToacceptanceconfirmList(AudProject project) {
+        //+ " and a.Status = " + (int)Entity.Enums.ProjectStatus.JieTiDaiQueRen
 
-            list = new ArrayList<>();
-            list.add(ProjectStatus.BuTongGuo.getCode());
-            list.add(ProjectStatus.JietiBuTongGuo.getCode());
+        List<Integer> statusList = new ArrayList<>();
+        statusList.add(ProjectStatus.JieTiDaiQueRen.getCode());
+        project.setStatusList(statusList);
 
-            if (list.contains(prj.getStatus())) {
-                prj.setProjectColor(ProjectColor.Green.getCode());
-            }
+        return selectProjectList(project);
 
-            log.debug("prj.getProjectenddate() is " + prj.getProjectenddate());
-            java.util.Date ended = DateUtils.getNowDate();
-            try {
-                ended = DateUtils.parseDate(prj.getProjectenddate());
-            } catch (Exception e) {
-
-            }
-
-            long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
-
-            if (days < 90) {
-                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate() + "(剩余 " + String.valueOf(days) + "天)");
-                prj.setProjectColor(ProjectColor.Red.getCode());
-            } else {
-                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
-            }
-
-        }
-
-        return projectList;
     }
 
 
@@ -394,6 +366,15 @@ public class AudProjectService {
     }
 
     @Transactional
+    public Integer xinjianzhongProject(AudProject project) {
+
+        project.setStatus(ProjectStatus.XinJianZhong.getCode());
+        Integer rows = audProjectMapper.updateProjectStatus(project);
+
+        return  rows;
+    }
+
+    @Transactional
     public Integer confirmProject(AudProject project) {
         log.debug("与绩效模块挂钩，后面实现。");
         Integer rows = 0;
@@ -410,11 +391,24 @@ public class AudProjectService {
             rows = audProjectMapper.updateProjectStatus(record);
 
         }
-        else if (project.getConfirmResult() == -1) {
+        else if (project.getConfirmResult() == 2) {
             AudProject record = new AudProject();
             record.setProjectid(project.getProjectid());
             record.setStatus(ProjectStatus.BuTongGuo.getCode());
             rows =  audProjectMapper.updateProjectStatus(record);
+
+            Integer status = 2;      //表示不通过
+            AudApply apply = new AudApply();
+            apply.setApplytype("项目确认申请");
+            apply.setRelatedid(project.getProjectid());
+            apply.setApplyuserid(project.getCreateuserid());
+            apply.setApplytime(DateUtils.dateTimeNow());
+            apply.setApplystatus(status);
+            apply.setAuditopinion(project.getConfirmNote());
+            apply.setAudittime(DateUtils.dateTimeNow());
+            apply.setAudituserid(project.getConfirmUserid());
+            applyMapper.insertAudApply(apply);
+
         }
 
 //
@@ -499,6 +493,16 @@ public class AudProjectService {
 //        Response.Write("<script>document.location = 'ToConfirmProjectList.aspx';</script>");
 
         return  rows;
+    }
+
+
+
+    public AudApply selectApplyByTypeAndRelatedID(Integer projectId) {
+
+        AudApply apply = new AudApply();
+        apply.setApplytype("项目确认申请");
+        apply.setRelatedid(projectId);
+        return applyMapper.selectApplyByTypeAndRelatedID(apply);
     }
 
 

@@ -43,12 +43,13 @@
         order by MessageTime desc
     </select>
 
-    <insert id="insert" parameterType="com.ruoyi.audit.domain.AudMessage">
+    <insert id="insert" parameterType="com.ruoyi.audit.domain.AudMessage" useGeneratedKeys="true"
+            keyProperty="messageid">
 
-        insert into Aud_Message (MessageID, MessageTitle, MessageContent,
+        insert into Aud_Message ( MessageTitle, MessageContent,
                                  MessageTime, ToUserID, RelatedSheetType,
                                  RelatedSheetID, ProcessedTime, IfProcessed)
-        values (#{messageid,jdbcType=INTEGER}, #{messagetitle,jdbcType=VARCHAR}, #{messagecontent,jdbcType=VARCHAR},
+        values ( #{messagetitle,jdbcType=VARCHAR}, #{messagecontent,jdbcType=VARCHAR},
                 #{messagetime,jdbcType=VARCHAR}, #{touserid,jdbcType=INTEGER}, #{relatedsheettype,jdbcType=VARCHAR},
                 #{relatedsheetid,jdbcType=INTEGER}, #{processedtime,jdbcType=VARCHAR}, #{ifprocessed,jdbcType=BIT})
     </insert>

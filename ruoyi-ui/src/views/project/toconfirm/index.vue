@@ -83,7 +83,7 @@
               type="text"
               icon="el-icon-edit"
               @click="handleToconfirm(scope.row)"
-              v-hasPermi="['project:project:confirm']"
+              v-hasPermi="['project:toconfirm:list']"
             >审核
             </el-button>
           </template>
@@ -108,7 +108,7 @@ import {listTeam} from "@/api/project/team";
 
 
 export default {
-  name: "zaiyan",
+  name: "toconfirm",
   // components: {  },
   data() {
     return {
@@ -212,7 +212,7 @@ export default {
     handleToconfirm(row) {
       const projectid = row.projectid
       console.log("toconfirm project id is ", projectid);
-      this.$router.push({ path: '/toconfirm/project/' + projectid });
+      this.$router.push({ path: '/project/toconfirm/' + projectid });
     },
 
     /** 导出按钮操作 */

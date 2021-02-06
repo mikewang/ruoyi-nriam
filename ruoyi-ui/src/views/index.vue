@@ -1,69 +1,6 @@
 <template>
    <div class="app-container home">
-        <el-row :gutter="24">
-          <!--用户数据-->
-          <el-col :span="24" :xs="24">
 
-            <el-row :gutter="10" class="mb8">
-              <el-col :span="1.5">
-                <el-button
-                  type="danger"
-                  icon="el-icon-edit"
-                  size="mini"
-                  :disabled="multiple"
-                  @click="handleUpdate"
-                  v-hasPermi="['audit:message:edit']"
-                >设置为已读
-                </el-button>
-              </el-col>
-              <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-            </el-row>
-
-            <el-table v-loading="loading" :data="messageList" @selection-change="handleSelectionChange">
-              <el-table-column type="selection" width="50" align="center"/>
-              <el-table-column label="时间" align="center" prop="messagetime" width="160">
-                <template slot-scope="scope">
-                  <span>{{ parseTime(scope.row.messagetime) }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="标题" align="left" prop="messagetitle"/>
-              <el-table-column label="内容" align="left" prop="messagecontent" :show-overflow-tooltip="true"/>
-
-              <el-table-column
-                label="操作"
-                align="center"
-                width="160"
-                class-name="small-padding fixed-width"
-              >
-                <template slot-scope="scope">
-                  <el-button
-                    size="mini"
-                    type="text"
-                    icon="el-icon-link"
-                    @click="handleLink(scope.row)"
-                    v-hasPermi="['audit:message:link']"
-                  >查看</el-button>
-                  <el-button
-                    size="mini"
-                    type="text"
-                    icon="el-icon-edit"
-                    @click="handleUpdate(scope.row)"
-                    v-hasPermi="['audit:message:edit']"
-                  >设置已读
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-
-            <pagination
-              v-show="total>0"
-              :total="total"
-              :page.sync="queryParams.pageNum"
-              :limit.sync="queryParams.pageSize"
-              @pagination="getList"
-            />
-          </el-col>
-        </el-row>
    </div>
 </template>
 
@@ -109,7 +46,7 @@ export default {
 
   },
   created() {
-    this.getList();
+   // this.getList();
   },
   methods: {
     /** 查询合同列表 */

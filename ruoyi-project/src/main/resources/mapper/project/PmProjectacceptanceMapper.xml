@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.mapper.PmProjectacceptanceMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.project.domain.PmProjectacceptance">
+    <id column="ProjectID" jdbcType="INTEGER" property="projectid" />
+    <result column="Memo" jdbcType="VARCHAR" property="memo" />
+    <result column="Opinion" jdbcType="VARCHAR" property="opinion" />
+  </resultMap>
+
+  <select id="selectProjectacceptanceById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select ProjectID, Memo, Opinion
+    from PM_ProjectAcceptance
+    where ProjectID = #{projectid,jdbcType=INTEGER}
+  </select>
+
+  <insert id="insertProjectacceptance" parameterType="com.ruoyi.project.domain.PmProjectacceptance">
+    insert into PM_ProjectAcceptance (ProjectID, Memo, Opinion
+    )
+    values (#{projectid,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR}, #{opinion,jdbcType=VARCHAR}
+           )
+  </insert>
+
+  <delete id="deleteProjectacceptanceById" parameterType="java.lang.Integer">
+    delete from PM_ProjectAcceptance
+    where ProjectID = #{projectid,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateProjectacceptance" parameterType="com.ruoyi.project.domain.PmProjectacceptance">
+    update PM_ProjectAcceptance
+    set Memo = #{memo,jdbcType=VARCHAR},
+      Opinion = #{opinion,jdbcType=VARCHAR}
+    where ProjectID = #{projectid,jdbcType=INTEGER}
+  </update>
+
+
+</mapper>
