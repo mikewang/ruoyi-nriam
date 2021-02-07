@@ -112,6 +112,36 @@ public class AudProjectController extends BaseController {
         return getDataTable(list);
     }
 
+
+    ///Project/FinishedProjectList.aspx 项目已完成
+    @PreAuthorize("@ss.hasPermi('project:finished:list')")
+    @GetMapping("/finished/list")
+    public TableDataInfo finishedList(AudProject project) {
+
+        logger.debug("query parameters is " + project.getProjectyear());
+
+        startPage();
+
+        List<AudProject> list = projectService.selectProjectTofinishedList(project);
+
+        return getDataTable(list);
+    }
+
+
+    ///Project/ToAddAcceptanceList.aspx 项目已完成,等待补充验收材料。
+    @PreAuthorize("@ss.hasPermi('project:toaddacceptance:list')")
+    @GetMapping("/toaddacceptance/list")
+    public TableDataInfo toaddacceptanceList(AudProject project) {
+
+        logger.debug("query parameters is " + project.getProjectyear());
+
+        startPage();
+
+        List<AudProject> list = projectService.selectProjectToaddacceptanceList(project);
+
+        return getDataTable(list);
+    }
+
     /**
      * 根据编号获取详细信息
      */
@@ -425,19 +455,41 @@ public class AudProjectController extends BaseController {
     }
 
     /**
-     * 根据编号获取审核详细信息
+     * 根据编号获取审核详细信息 或 验收审核详细信息。
      */
     @PreAuthorize("@ss.hasPermi('project:project:query')")
-    @GetMapping(value = { "/confirm/{projectId}" })
-    public AjaxResult getProjectConfirm(@PathVariable(value = "projectId", required = false) Integer projectId)
+    @GetMapping(value = { "/confirm/{projectId}/{status}" })
+    public AjaxResult getProjectConfirm(@PathVariable(value = "projectId") Integer projectId, @PathVariable(value = "status") Integer status)
     {
         AjaxResult ajax = AjaxResult.success();
 
         if (StringUtils.isNotNull(projectId))
         {
-            ajax.put(AjaxResult.DATA_TAG, projectService.selectApplyByTypeAndRelatedID(projectId));
+            ajax.put(AjaxResult.DATA_TAG, projectService.selectApplyByTypeAndRelatedID(projectId, status));
         }
         return ajax;
     }
+
+    @PreAuthorize("@ss.hasPermi('project:toacceptanceconfirm:list')")
+    @Log(title = "项目验收审核", businessType = BusinessType.UPDATE)
+    @PutMapping("/acceptanceconfirm")
+    public AjaxResult acceptanceconfirm(@Validated @RequestBody  AudProject project) {
+
+        logger.debug("project is ",project.toString());
+
+        Integer res = projectService.acceptanceconfirm(project);
+
+        AjaxResult ajax = AjaxResult.success();
+
+        if (res == 1) {
+            return  ajax;
+        }
+        else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+
 
 }

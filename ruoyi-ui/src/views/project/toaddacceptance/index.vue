@@ -30,23 +30,13 @@
         <el-form-item label="项目名称" prop="projectname">
           <el-input v-model="queryParams.projectname" clearable />
         </el-form-item>
-              <el-form-item>
+        <el-form-item>
           <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
         </el-form-item>
       </el-form>
 
       <el-row :gutter="10" class="mb8">
-        <el-col :span="1.5">
-          <el-button
-            type="primary"
-            icon="el-icon-plus"
-            size="mini"
-            @click="handleAdd"
-            v-hasPermi="['project:project:add']"
-          >新增
-          </el-button>
-        </el-col>
         <el-col :span="1.5" v-if="1==0">
           <el-button
             type="warning"
@@ -92,18 +82,9 @@
               size="mini"
               type="text"
               icon="el-icon-edit"
-              @click="handleUpdate(scope.row)"
-              v-hasPermi="['project:project:query']"
+              @click="handleToaddacceptance(scope.row)"
+              v-hasPermi="['project:toaddacceptance:list']"
             >查看
-            </el-button>
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-check"
-              @click="handleToAccept(scope.row)"
-              v-hasPermi="['project:project:edit']"
-              v-if="scope.row.toAcceptBtnHidden === false"
-            >申请验收
             </el-button>
           </template>
         </el-table-column>
@@ -122,14 +103,12 @@
 </template>
 
 <script>
-import {listProject, updateProject,deleteProject} from "@/api/project/project";
+import {listToaddacceptance} from "@/api/project/project";
 import {listTeam} from "@/api/project/team";
-import {listUser} from "@/api/system/user";
-import {listData} from "@/api/system/dict/data";
 
 
 export default {
-  name: "zaiyan",
+  name: "toaddacceptance",
   // components: {  },
   data() {
     return {
@@ -153,7 +132,6 @@ export default {
       open: false,
       // 数据字典
       teamListOptions: [],
-      ProjectStatus: {XinJianZhong: 48, DaiQueRen: 40,BuTongGuo:44, ZaiYan: 41, JieTiDaiQueRen: 45,JietiBuTongGuo:46, YiJieTi: 42, YiShanChu: 43},
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -162,12 +140,11 @@ export default {
         pageSize: 10,
         teamid: 0,
         teamname: undefined,
-        projectyear: "2021",
+        projectyear: undefined,
         projectname: undefined
       },
       // 表单参数
       form: {},
-      // 状态为在研的项目，申请审核 功能按钮是否显示？
       timer: '',
       // 表单校验
       rules: { }
@@ -192,25 +169,7 @@ export default {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      listProject(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-
-        let currentUserId = this.$store.getters.userId;
-        for (let i=0; i < response.rows.length; i++)  {
-          let project = response.rows[i];
-          if (project.projectmanagerid === currentUserId || project.createuserid  === currentUserId || project.createuserid === 2) {
-            if (project.status == this.ProjectStatus.ZaiYan) {
-              project.toAcceptBtnHidden = false;
-            }
-            else {
-              project.toAcceptBtnHidden = true;
-            }
-          }
-          else {
-            project.toAcceptBtnHidden = true;
-          }
-
-        //  console.log("project projectmanagerid is ", project.projectmanagerid, "createuserid is", project.createuserid);
-        }
+      listToaddacceptance(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           this.projectList = response.rows;
           console.log(this.projectList);
           this.total = response.total;
@@ -250,21 +209,10 @@ export default {
       this.multiple = !selection.length;
     },
 
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.$router.push({ path: '/project/project' });
-    },
-
-    handleUpdate(row) {
+    handleToaddacceptance(row) {
       const projectid = row.projectid
-      console.log("edit project id is ", projectid);
-      this.$router.push({ path: '/project/project/' + projectid });
-    },
-
-    handleToAccept(row) {
-      const projectid = row.projectid
-      console.log("toaccept project id is ", projectid);
-      this.$router.push({ path: '/project/toaccept/' + projectid });
+      console.log("toaddacceptance project id is ", projectid);
+      this.$router.push({ path: '/project/toaddacceptance/' + projectid });
     },
 
     /** 导出按钮操作 */

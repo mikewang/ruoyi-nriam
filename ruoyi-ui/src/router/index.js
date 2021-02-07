@@ -100,16 +100,22 @@ export const constantRoutes = [
     hidden: true,
     children: [
       {
+        path: 'project',
+        component: (resolve) => require(['@/views/project/project/edit'], resolve),
+        name: 'AddInfo',
+        meta: { title: '项目新建', icon: '', opcode: 'add' }
+      },
+      {
         path: 'project/:projectid(\\d+)',
         component: (resolve) => require(['@/views/project/project/edit'], resolve),
         name: 'EditInfo',
-        meta: { title: '编辑项目', icon: '', opcode: 'query' }
+        meta: { title: '项目编辑', icon: '', opcode: 'query' }
       },
       {
         path: 'toconfirm/:projectid(\\d+)',
         component: (resolve) => require(['@/views/project/project/edit'], resolve),
         name: 'ConfirmInfo',
-        meta: { title: '新建项目审核', icon: '',opcode: 'confirm' }
+        meta: { title: '项目新建审核', icon: '',opcode: 'confirm' }
       },
       {
         path: 'toaccept/:projectid(\\d+)',
@@ -123,6 +129,18 @@ export const constantRoutes = [
         name: 'AcceptanceConfirmInfo',
         meta: { title: '项目验收审核', icon: '',opcode: 'acceptconfirm' }
       },
+      {
+        path: 'finished/:projectid(\\d+)',
+        component: (resolve) => require(['@/views/project/project/edit'], resolve),
+        name: 'FinishedInfo',
+        meta: { title: '项目已完成', icon: '',opcode: 'query' }
+      },
+      {
+        path: 'toaddacceptance/:projectid(\\d+)',
+        component: (resolve) => require(['@/views/project/project/edit'], resolve),
+        name: 'ToAddAcceptanceInfo',
+        meta: { title: '项目验收材料补充', icon: '',opcode: 'acceptance' }
+      }
     ]
   },
   {

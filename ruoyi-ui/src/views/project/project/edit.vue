@@ -9,41 +9,41 @@
           <el-row >
             <el-col :span="8">
               <el-form-item label="项目名称" prop="projectname">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.projectname" placeholder="请输入项目名称" :show-overflow-tooltip="true" />
+                <el-input v-bind:readonly="readonly.basic" v-model="form.projectname" placeholder="请输入项目名称" :show-overflow-tooltip="true" />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目编号" prop="projectcode">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.projectcode" placeholder="请输入项目编号"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.projectcode" placeholder="请输入项目编号"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目经费编号" prop="subjectcode">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.subjectcode" placeholder="请输入项目经费编号"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.subjectcode" placeholder="请输入项目经费编号"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目总经费（元）" prop="projectfunds">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.projectfunds" placeholder="请输入项目总经费（元）"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.projectfunds" placeholder="请输入项目总经费（元）"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="财政拨款（元）" prop="financefunds">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.financefunds" placeholder="请输入财政拨款（元）"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.financefunds" placeholder="请输入财政拨款（元）"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="可支配经费（元）" prop="canusefunds">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.canusefunds" placeholder="请输入可支配经费（元）"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.canusefunds" placeholder="请输入可支配经费（元）"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目所属部门" prop="organizationid">
-                <el-select v-bind:disabled="readonly.basic" v-model="form.organizationIDLinkText" placeholder="请选择项目所属部门" style="display:block;"
+                <el-select v-bind:readonly="readonly.basic" v-model="form.organizationIDLinkText" placeholder="请选择项目所属部门" style="display:block;"
                            clearable @clear="clearDeptValue" @change="changeDeptValue"
                            filterable :filter-method="filterDeptOptions" :show-overflow-tooltip="true">
                   <el-option
@@ -56,14 +56,14 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目开始日期" prop="projectbegindate">
-                <el-date-picker v-bind:disabled="readonly.basic" v-model="form.projectbegindate" type="date" placeholder="请选择日期"
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.projectbegindate" type="date" placeholder="请选择日期"
                                 value-format="yyyy-MM-dd"
                                 style="display:block;"></el-date-picker>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目结束日期" prop="projectenddate">
-                <el-date-picker v-bind:disabled="readonly.basic" v-model="form.projectenddate" type="date" placeholder="请选择日期" value-format="yyyy-MM-dd"
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.projectenddate" type="date" placeholder="请选择日期" value-format="yyyy-MM-dd"
                                 style="display:block;"></el-date-picker>
               </el-form-item>
             </el-col>
@@ -71,7 +71,7 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目类型" prop="projecttype">
-                <el-select v-bind:disabled="readonly.basic" v-model="form.projectTypeLinkText" placeholder="请选择项目类型" style="display:block;"
+                <el-select v-bind:readonly="readonly.basic" v-model="form.projectTypeLinkText" placeholder="请选择项目类型" style="display:block;"
                            clearable @clear="clearProjectTypeValue" @change="changeProjectTypeValue"
                            filterable :filter-method="filterProjectTypeOptions">
                   <el-option
@@ -85,7 +85,7 @@
 
             <el-col :span="8">
               <el-form-item label="项目所属团队" prop="teamid">
-                <el-select v-bind:disabled="readonly.basic" v-model="form.teamname" placeholder="请选择项目所属团队" style="display:block;"
+                <el-select v-bind:readonly="readonly.basic" v-model="form.teamname" placeholder="请选择项目所属团队" style="display:block;"
                            clearable @clear="clearTeamValue" @change="changeTeamValue"
                            filterable :filter-method="filterTeamOptions">
                   <el-option
@@ -98,7 +98,7 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目负责人" prop="projectmanagerid">
-                <el-select v-bind:disabled="readonly.basic" v-model="form.projectmanagerid" placeholder="请选择项目负责人" style="display:block;"
+                <el-select v-bind:readonly="readonly.basic" v-model="form.projectmanagerid" placeholder="请选择项目负责人" style="display:block;"
                            clearable @clear="clearManagerValue" @change="changeManagerValue"
                            filterable :filter-method="filterManagerOptions">
                   <el-option
@@ -116,7 +116,7 @@
             <el-col :span="8">
               <el-form-item label="主持/参与" prop="jointype">
 
-                <el-select v-bind:disabled="readonly.basic" v-model="form.jointype" placeholder="请选择" style="display:block;" clearable
+                <el-select v-bind:readonly="readonly.basic" v-model="form.jointype" placeholder="请选择" style="display:block;" clearable
                            @clear="clearJointypeValue" @change="changeJointypeValue">
                   <el-option
                     v-for="item in jointypeOptions"
@@ -128,7 +128,7 @@
             </el-col>
             <el-col :span="16">
               <el-form-item label="备注" prop="memo">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.memo" placeholder="" type="textarea"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.memo" placeholder="" type="textarea"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -158,7 +158,6 @@
                     >删除
                     </el-button>
                   </el-col>
-                  <right-toolbar @queryTable="getList"></right-toolbar>
                 </el-row>
                 <el-table :data="form.projectJoinOrganizationList"
                           @selection-change="handleJoinOrganizationSelectionChange"
@@ -200,22 +199,22 @@
           <el-row v-if="form.jointype===2">
             <el-col :span="8">
               <el-form-item label="参与项目名称" prop="uplevelsubjectname">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.uplevelproject.subjectname" placeholder="请输入项目名称"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.subjectname" placeholder="请输入项目名称"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="主持单位" prop="uplevelmanageorganization">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.uplevelproject.manageorganization" placeholder="请输入项目编号"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.manageorganization" placeholder="请输入项目编号"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="负责人" prop="uplevelmanager">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.uplevelproject.manager" placeholder="请输入项目经费编号"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.manager" placeholder="请输入项目经费编号"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="经费（元）" prop="uplevelfunds">
-                <el-input v-bind:disabled="readonly.basic" v-model="form.uplevelproject.funds" placeholder="0.00"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.funds" placeholder="0.00"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -223,7 +222,7 @@
             <el-col :span="24">
               <el-form-item label="项目成员" prop="projectmemberList">
                 <template>
-                  <el-checkbox-group v-bind:disabled="readonly.basic" v-model="form.projectmemberList"
+                  <el-checkbox-group v-bind:readonly="readonly.basic" v-model="form.projectmemberList"
                                      @change="handleProjectmemberListChange" :key="timer">
                     <el-checkbox v-for="data in projectmemberOptions" :label="data.userid" :key="data.userid">
                       {{ data.realName }}
@@ -304,12 +303,12 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目状态" prop="statusLinkText">
-                <el-input v-model="form.statusLinkText" readonly disabled/>
+                <el-input v-model="form.statusLinkText" disabled/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="信息输入人员" prop="createUserIDLinkText">
-                <el-input v-model="form.createUserIDLinkText" readonly disabled/>
+                <el-input v-model="form.createUserIDLinkText"  disabled/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -320,7 +319,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="项目验收意见" prop="acceptanceOpinion" >
-                <el-input  v-bind:disabled="readonly.acceptance"  v-model="form.acceptance.opinion" placeholder="" type="textarea"/>
+                <el-input  v-bind:readonly="readonly.acceptance"  v-model="form.acceptance.opinion" placeholder="" type="textarea"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -355,7 +354,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="技术总结" prop="acceptfileList3">
-                <el-upload action="#" :http-request="requestUpload13" :before-remove="beforeRemove13"
+                <el-upload v-bind:disabled="readonly.acceptance" action="#" :http-request="requestUpload13" :before-remove="beforeRemove13"
                            :on-remove="handleUploadRemove13" :on-preview="handleReview"
                            :file-list="acceptfileList3" :before-upload="beforeUpload13"
                            >
@@ -463,7 +462,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance == false" label="备注" prop="acceptanceMemo">
-                <el-input v-bind:disabled="readonly.acceptance" v-model="form.acceptance.memo" placeholder="" type="textarea"/>
+                <el-input v-bind:readonly="readonly.acceptance" v-model="form.acceptance.memo" placeholder="" type="textarea"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -481,9 +480,9 @@
           </el-row>
           <el-row v-if="this.hidden.confirm == false">
             <el-col :span="12">
-              <el-form-item label="请选择审核结果" prop="confirmResult">
+              <el-form-item label="审核结果" prop="confirmResult">
                 <template>
-                  <el-radio-group v-model="form.confirmResult" v-bind:disabled="this.readonly.confirm">
+                  <el-radio-group v-model="form.confirmResult" v-bind:readonly="this.readonly.confirm">
                     <el-radio :label="1">通过</el-radio>
                     <el-radio :label="2">不通过</el-radio>
                   </el-radio-group>
@@ -492,14 +491,14 @@
             </el-col>
             <el-col :span="8" v-if="this.opcode.indexOf('acceptconfirm') !== -1" >
               <el-form-item  label="" prop="ifacceptancefull">
-                <el-checkbox v-model="form.ifacceptancefull" v-bind:disabled="this.readonly.confirm">验收材料已齐全</el-checkbox>
+                <el-checkbox v-model="form.ifacceptancefull" v-bind:readonly="this.readonly.confirm">验收材料已齐全</el-checkbox>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row v-if="this.hidden.confirm == false">
             <el-col :span="16">
-              <el-form-item label="请输入意见" prop="confirmNote">
-                <el-input v-model="form.confirmNote" placeholder="" type="textarea" v-bind:disabled="this.readonly.confirm"/>
+              <el-form-item label="意见" prop="confirmNote">
+                <el-input v-model="form.confirmNote" placeholder="请输入意见" type="textarea" v-bind:readonly="this.readonly.confirm"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -510,13 +509,14 @@
 
         <el-row >
           <el-col :span="24" align="center">
-            <el-button v-if="hidden.saveBtn !== true" type="success" @click="saveForm">暂 存</el-button>
-            <el-button v-if="hidden.changeBtn !== true" type="primary" @click="changeForm">修改项目信息</el-button>
-            <el-button v-if="hidden.deleteBtn !== true" type="danger" @click="deleteForm">删除</el-button>
-            <el-button v-if="hidden.submitBtn !== true" type="primary" @click="submitForm">提交审核</el-button>
-            <el-button v-if="hidden.changeAcceptanceBtn !== true" type="warning" @click="changeAcceptanceForm">修改验收信息</el-button>
-            <el-button v-if="hidden.returnBtn !== true" type="warning" @click="returnForm">退回新建</el-button>
-            <el-button v-if="hidden.confirmBtn !== true" type="primary" @click="confirmForm">确 认</el-button>
+            <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">暂 存</el-button>
+            <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改项目信息</el-button>
+            <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除</el-button>
+            <el-button v-if="hidden.submitBtn === false" type="primary" @click="submitForm">提交审核</el-button>
+            <el-button v-if="hidden.changeAcceptanceBtn === false" type="warning" @click="changeAcceptanceForm">修改验收信息</el-button>
+            <el-button v-if="hidden.returnBtn === false" type="warning" @click="returnForm">退回新建</el-button>
+            <el-button v-if="hidden.confirmBtn === false" type="primary" @click="confirmForm">确 认</el-button>
+            <el-button v-if="hidden.addAcceptanceBtn === false" type="primary" @click="addAcceptanceForm">补充验收材料</el-button>
             <el-button @click="closeForm">取 消</el-button>
           </el-col>
         </el-row>
@@ -580,7 +580,8 @@ import {
   getProjectConfirm,
   getProjectacceptance,
   addProjectacceptance,
-  xinjianzhongProject
+  xinjianzhongProject,
+  acceptanceconfirmProject
 } from "@/api/project/project";
 import {beforeUpload, requestUpload, beforeRemove, handleUploadRemove, handleUploadReview} from "@/api/project/projectdoc";
 
@@ -728,32 +729,35 @@ export default {
   },
   created() {
     console.log(" created this.$route.meta is ",   this.$route.meta);
-    const projectid = this.$route.params && this.$route.params.projectid;
-    if (Number(projectid) === 0) {
+    this.resetTemplateStatus();
+    var projectid = this.$route.params && this.$route.params.projectid;
+    if (projectid === undefined || Number(projectid) === 0) {
+      projectid = undefined;
     } else {
-      this.form.projectid = projectid;
+
     }
 
     this.opcode = this.$route.meta.opcode;
 
-    this.getList();
+    this.getData(projectid);
 
   },
   methods: {
-    /** 查询用户列表 */
-    getList() {
+    /** 查询项目信息 */
+    getData(projectid) {
 
       const this_ = this;
 
       this.loading = true;
-      console.log("loading is begin.");
+      console.log("loading is begin, projectid is ", projectid);
 
-      if (this.form.projectid == undefined) {
-        this.reset();
+      if (projectid === undefined) {
+        console.log("add a new project now.");
+        this.reset(projectid);
+        console.log("add a new project now.2");
         this.configTemplateStatus();
         this.loading = false;
       } else {
-        let projectid = this.form.projectid;
         getProject(projectid.toString()).then(response => {
           console.log("this.form is ", response.data);
 
@@ -771,8 +775,15 @@ export default {
 
           // 获取 审核结果信息。
           if (this.form.status === this.ProjectStatus.BuTongGuo) {
-            getProjectConfirm(projectid).then(response => {
+            getProjectConfirm(projectid,this.ProjectStatus.BuTongGuo).then(response => {
               console.log("getProjectConfirm is ", response);
+              this.form.confirmResult = response.data.applystatus;
+              this.form.confirmNote =  response.data.auditopinion;
+            });
+          }
+          else if (this.form.status === this.ProjectStatus.JietiBuTongGuo) {
+            getProjectConfirm(projectid,this.ProjectStatus.JietiBuTongGuo).then(response => {
+              console.log("getProjectAcceptanceConfirm is ", response);
               this.form.confirmResult = response.data.applystatus;
               this.form.confirmNote =  response.data.auditopinion;
             });
@@ -860,8 +871,6 @@ export default {
 
 
         });
-
-
       }
 
 
@@ -922,7 +931,7 @@ export default {
     resetTemplateStatus() {
       // 初始化各个组件的状态。
       this.readonly = {basic: true,acceptance:true, confirm: true};
-      this.hidden = {basic:false,acceptance:true,confirm:true, saveBtn:true,changeBtn:true,deleteBtn:true,submitBtn:true,changeAcceptanceBtn:true,returnBtn:true,confirmBtn:true };
+      this.hidden = {basic:false,acceptance:true,confirm:true, saveBtn:true,changeBtn:true,deleteBtn:true,submitBtn:true,changeAcceptanceBtn:true,returnBtn:true,confirmBtn:true,addAcceptanceBtn:true };
     },
 
     configTemplateStatus() {
@@ -933,8 +942,7 @@ export default {
         this.readonly.basic = false;
         this.hidden.saveBtn = false;
         this.hidden.submitBtn = false;
-        console.log("configTemplateStatus projectid is", this.form.projectid);
-        this.hidden.deleteBtn = (this.form.projectid === 0 || this.form.projectid === undefined)
+        this.hidden.deleteBtn = (this.form.projectid === undefined || this.form.projectid === 0)
 
       }
       else if (this.form.status === this.ProjectStatus.DaiQueRen) {
@@ -995,18 +1003,35 @@ export default {
       else if (this.form.status === this.ProjectStatus.JietiBuTongGuo) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
+          this.readonly.confirm = true;
+          this.hidden.confirm = false;
+
           this.hidden.acceptance = false;
 
           this.hidden.changeBtn = false;
           this.hidden.deleteBtn = false;
           this.hidden.returnBtn = false;
           this.hidden.changeAcceptanceBtn = false;
-
         }
-
+      }
+      else if (this.form.status === this.ProjectStatus.YiJieTi) {
+        console.log("this.opcode is ", this.opcode);
+        if (this.opcode.indexOf("query") !== -1) {
+          this.hidden.acceptance = false;
+        }
+        else if (this.opcode.indexOf("addacceptance") !== -1) {
+          this.hidden.acceptance = false;
+          this.hidden.confirmBtn = false;
+          this.readonly.acceptance = false;
+        }
+        else if (this.opcode.indexOf("acceptance") !== -1) {
+          this.hidden.acceptance = false;
+          this.hidden.addAcceptanceBtn = false;
+        }
       }
       else {
         this.readonly.basic = true;
+        this.hidden.acceptance = false;
       }
     },
 
@@ -1038,7 +1063,7 @@ export default {
     },
 
     // 表单重置
-    reset() {
+    reset(prjId) {
       this.form = {
         projectid: undefined,
         projectname: undefined,
@@ -1073,7 +1098,7 @@ export default {
         uplevelproject: {subjectname: null},
         projectmemberList: [],
         projectdocList: [],
-        acceptance:{projectid: projectid, opinion: null, memo: null},
+        acceptance:{projectid: prjId, opinion: null, memo: null},
 
         // 审核结果
         confirmSubjectcode: undefined,
@@ -1798,7 +1823,7 @@ export default {
     /** 退回到新建中 模式按钮 */
     returnForm() {
       const this_ = this;
-      this_.$confirm('是否确认将"' + this_.form.projectname + '"的项目退回"新建中"状态?', "警告", {
+      this_.$confirm('是否确认将项目退回"新建中"状态?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -1817,19 +1842,20 @@ export default {
       const this_ = this;
 
       if (this.form.status === this.ProjectStatus.ZaiYan) {
-        this_.$confirm('是否确认提交"' + this.form.projectname + '"的项目 验收信息?', "警告", {
+        this_.$confirm('是否确认提交项目 验收信息?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function () {
           this_.form.acceptance.projectdocList = this_.form.projectdocList;
+          this_.form.acceptance.status = this_.form.status;
           return addProjectacceptance(this_.form.acceptance);
         }).then(() => {
           this_.closeForm();
           this_.msgSuccess("验收信息提交成功");
         });
       }
-      else if (this.form.status === this.ProjectStatus.DaiQueRen || this.form.status === this.ProjectStatus.JieTiDaiQueRen){
+      else if (this.form.status === this.ProjectStatus.DaiQueRen){
         this.$refs["form"].validate(
           valid => {
             if (valid) {
@@ -1844,7 +1870,7 @@ export default {
               const result = this_.form.confirmResult;
 
               if (result === 1) {
-                this_.$confirm('是否确认审核"' + this.form.projectname + '"的项目 通过?', "警告", {
+                this_.$confirm('是否确认项目新建审核 通过?', "警告", {
                   confirmButtonText: "确定",
                   cancelButtonText: "取消",
                   type: "warning"
@@ -1860,7 +1886,7 @@ export default {
                 var note = this_.form.confirmNote;
                 console.log("confirmNote is ", note);
                 if (note !== null && note !== undefined && note.trim() !== '' ) {
-                  this_.$confirm('是否确认审核"' + this.form.projectname + '"的项目 不通过?', "警告", {
+                  this_.$confirm('是否确认项目新建审核 不通过?', "警告", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
                     type: "warning"
@@ -1884,13 +1910,90 @@ export default {
           }
         );
       }
+      else if (this.form.status === this.ProjectStatus.JieTiDaiQueRen){
+        this.$refs["form"].validate(
+          valid => {
+            if (valid) {
+              console.log("confirmResult is " + this.form.confirmResult);
+
+              if (this_.form.confirmResult == undefined) {
+                this.msgError("请选择审核结果");
+                return;
+              }
+
+              this_.form.confirmUserid = this_.$store.getters.userId;
+              const result = this_.form.confirmResult;
+
+              if (result === 1) {
+                this_.$confirm('是否确认项目验收审核 通过?', "警告", {
+                  confirmButtonText: "确定",
+                  cancelButtonText: "取消",
+                  type: "warning"
+                }).then(function () {
+                  return acceptanceconfirmProject(this_.form);
+                }).then(() => {
+                  this_.closeForm();
+                  this_.msgSuccess("项目验收审核成功");
+                });
+              }
+              else if (result === 2) {
+
+                var note = this_.form.confirmNote;
+                console.log("confirmNote is ", note);
+                if (note !== null && note !== undefined && note.trim() !== '' ) {
+                  this_.$confirm('是否确认项目验收审核 不通过?', "警告", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                  }).then(function () {
+                    return  acceptanceconfirmProject(this_.form);
+                  }).then(() => {
+                    this_.closeForm();
+                    this_.msgSuccess("验收审核不通过 完成");
+                  });
+                }
+                else {
+                  this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
+                    confirmButtonText: "确定",
+                    type: "warning"
+                  }).then(function () {
+
+                  });
+                }
+              }
+            }
+          }
+        );
+      }
+      else if (this.form.status === this.ProjectStatus.YiJieTi) {
+        this_.$confirm('是否确认提交 补充验收材料?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function () {
+          this_.form.acceptance.projectdocList = this_.form.projectdocList;
+          this_.form.acceptance.status = this_.form.status;
+          return addProjectacceptance(this_.form.acceptance);
+        }).then(() => {
+          this_.closeForm();
+          this_.msgSuccess("补充验收材料提交成功");
+        });
+      }
       else {
 
 
       }
-
-
     },
+
+    /** 补充验收材料模式按钮 */
+    addAcceptanceForm() {
+      console.log(" 补充验收材料 ",this.form.status);
+
+      this.form.status = this.ProjectStatus.YiJieTi;
+      this.opcode = "addacceptance";
+      this.configTemplateStatus();
+    },
+
 
     /* 主持的项目 子 form */
 

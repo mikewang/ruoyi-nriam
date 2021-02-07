@@ -30,6 +30,23 @@ export function listToacceptanceconfirm(query) {
 }
 
 
+// 查询项目列表
+export function listToaddacceptance(query) {
+  return request({
+    url: '/project/toaddacceptance/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 查询项目列表
+export function listFinished(query) {
+  return request({
+    url: '/project/finished/list',
+    method: 'get',
+    params: query
+  })
+}
 
 // 查询项目详细
 export function getProject(projectId) {
@@ -139,18 +156,27 @@ export function listProjectdoc(query) {
 
 
 // 查询项目 审核详细
-export function getProjectConfirm(projectId) {
+export function getProjectConfirm(projectId,status) {
   return request({
-    url: '/project/confirm/' + praseStrEmpty(projectId),
+    url: '/project/confirm/' + praseStrEmpty(projectId) + '/' + status,
     method: 'get'
   })
 }
 
 
-// 新建审核 项目
+// 新建审核项目
 export function confirmProject(data) {
   return request({
     url: '/project/confirm',
+    method: 'put',
+    data: data
+  })
+}
+
+// 验收审核 项目
+export function acceptanceconfirmProject(data) {
+  return request({
+    url: '/project/acceptanceconfirm',
     method: 'put',
     data: data
   })
@@ -184,3 +210,4 @@ export function xinjianzhongProject(data) {
     data: data
   })
 }
+

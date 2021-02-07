@@ -85,11 +85,18 @@ public class PmProjectacceptanceService {
             }
         }
 
-        AudProject project = new AudProject();
-        project.setProjectid(record.getProjectid());
-        project.setStatus(ProjectStatus.JieTiDaiQueRen.getCode());
-
-        audProjectMapper.updateProjectStatus(project);
+        if (record.getStatus() == ProjectStatus.YiJieTi.getCode()) {
+            AudProject project = new AudProject();
+            project.setProjectid(record.getProjectid());
+            project.setIfacceptancefull(true);
+            audProjectMapper.updateIfAcceptanceFull(project);
+        }
+        else {
+            AudProject project = new AudProject();
+            project.setProjectid(record.getProjectid());
+            project.setStatus(ProjectStatus.JieTiDaiQueRen.getCode());
+            audProjectMapper.updateProjectStatus(project);
+        }
 
         mapper.deleteProjectacceptanceById(record.getProjectid());
 
