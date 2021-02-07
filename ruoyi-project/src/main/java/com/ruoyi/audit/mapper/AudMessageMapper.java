@@ -8,7 +8,7 @@ public interface AudMessageMapper {
 
     List<AudMessage> selectByUserId(Long userId);
 
-    int insert(AudMessage record);
+    int insertAudMessage(AudMessage record);
 
     AudMessage selectByPrimaryKey(Integer messageid);
 

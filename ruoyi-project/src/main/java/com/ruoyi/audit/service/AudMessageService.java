@@ -37,11 +37,6 @@ public class AudMessageService {
     }
 
     public Integer updateProcessedByIds(List<Integer> ids) {
-
-//        String[] messageIds = ids.split(",");
-//
-//        List<String> items = Arrays.asList(messageIds);
-
         return audMessageMapper.updateProcessedByIds(ids);
     }
 

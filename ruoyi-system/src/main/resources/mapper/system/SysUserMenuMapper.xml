@@ -4,7 +4,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.SysUserMenuMapper">
 
-	<resultMap id="BaseResultMap" type="com.ruoyi.system.mapper.SysUserMenu" >
+	<resultMap id="BaseResultMap" type="com.ruoyi.system.domain.SysUserMenu" >
 		<result property="userId" jdbcType="BIGINT"    column="user_id"      />
 		<result property="roleId" jdbcType="BIGINT"    column="role_id"      />
 		<result column="role_name" jdbcType="VARCHAR" property="roleName" />
@@ -29,7 +29,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result column="remark" jdbcType="VARCHAR" property="remark" />
 	</resultMap>
 
-	<select id="selectUserMenuList" parameterType="com.ruoyi.system.mapper.SysUserMenu" resultMap="BaseResultMap">
+	<select id="selectUserMenuList" parameterType="com.ruoyi.system.domain.SysUserMenu" resultMap="BaseResultMap">
 		SELECT
 			c.user_id,c.role_id,d.role_name, d.role_key,
 			a.menu_id

@@ -43,7 +43,7 @@
         order by MessageTime desc
     </select>
 
-    <insert id="insert" parameterType="com.ruoyi.audit.domain.AudMessage" useGeneratedKeys="true"
+    <insert id="insertAudMessage" parameterType="com.ruoyi.audit.domain.AudMessage" useGeneratedKeys="true"
             keyProperty="messageid">
 
         insert into Aud_Message ( MessageTitle, MessageContent,

@@ -1,7 +1,9 @@
 package com.ruoyi.project.service;
 
 import com.ruoyi.audit.domain.AudApply;
+import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudApplyMapper;
+import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.common.enums.ProjectColor;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
@@ -44,6 +46,9 @@ public class AudProjectService {
 
     @Resource
     private SysUserMenuMapper userMenuMapper;
+
+    @Resource
+    private AudMessageMapper messageMapper;
 
 
     private   List<AudProject> selectProjectList(AudProject statusProject) {
@@ -312,6 +317,29 @@ public class AudProjectService {
                 content = content + "<a href=\"/Project/ToConfirmProjectList.aspx?" + "kid=" + project.getProjectid() + "&f=todo\" target=\"_self\" >查看</a> ";
                 // 下面写操作代码。
 
+                String perms = "project:toconfirm:list";
+
+                SysUserMenu userMenu = new SysUserMenu();
+                userMenu.setPerms(perms);
+
+                List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
+
+                Set<Long> useridSet = new HashSet<>();
+                for(SysUserMenu um : userMenuList) {
+                    useridSet.add(um.getUserId());
+                }
+
+                for (Long userid : useridSet) {
+                    AudMessage message = new AudMessage();
+                    message.setMessagetime(DateUtils.dateTimeNow());
+                    message.setMessagetitle(title);
+                    message.setMessagecontent(content);
+                    message.setTouserid(userid.intValue());
+                    message.setRelatedsheettype("项目");
+                    message.setRelatedsheetid(project.getProjectid());
+
+                    messageMapper.insertAudMessage(message);
+                }
 
 
             }
@@ -348,13 +376,16 @@ public class AudProjectService {
             }
 
             for (Long userid : useridSet) {
+                AudMessage message = new AudMessage();
+                message.setMessagetime(DateUtils.dateTimeNow());
+                message.setMessagetitle(title);
+                message.setMessagecontent(content);
+                message.setTouserid(userid.intValue());
+                message.setRelatedsheettype("项目");
+                message.setRelatedsheetid(project.getProjectid());
 
-
+                messageMapper.insertAudMessage(message);
             }
-
-
-
-
 
 //            //发送消息
 //            string title = "新的项目信息待审核";
