@@ -17,7 +17,7 @@ public class AudApplyService {
     private AudMessageMapper audMessageMapper;
 
     public List<AudMessage> selectByUserId(Long userId) {
-        List<AudMessage> messageList = audMessageMapper.selectByUserId(userId);
+        List<AudMessage> messageList = audMessageMapper.selectMessageByToUserId(userId.intValue());
 
         // messagecontent 需要做 <a href > 过滤处理，如何link也需要处理。原来ASP系统写入功能到内容中。
 

@@ -20,6 +20,8 @@ import com.ruoyi.framework.security.filter.JwtAuthenticationTokenFilter;
 import com.ruoyi.framework.security.handle.AuthenticationEntryPointImpl;
 import com.ruoyi.framework.security.handle.LogoutSuccessHandlerImpl;
 
+import java.util.Locale;
+
 /**
  * spring security配置
  * 
@@ -149,12 +151,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
         auth.userDetailsService(userDetailsService).passwordEncoder(new PasswordEncoder(){
             @Override
             public String encode(CharSequence rawPassword) {
-                return (Md5Utils.hash((String)rawPassword));
+                return (Md5Utils.hash((String)rawPassword).toUpperCase(Locale.ROOT));
             }
 
             @Override
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return encodedPassword.equals(Md5Utils.hash((String)rawPassword));
+                return encodedPassword.equals(Md5Utils.hash((String)rawPassword).toUpperCase(Locale.ROOT));
             }
         });
     }

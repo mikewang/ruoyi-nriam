@@ -17,19 +17,24 @@ public class AudMessageService {
     @Resource
     private AudMessageMapper audMessageMapper;
 
-    public List<AudMessage> selectByUserId(Long userId) {
-        List<AudMessage> messageList = audMessageMapper.selectByUserId(userId);
+    public List<AudMessage> selectMessageByToUserId(Integer userId) {
+        List<AudMessage> messageList = audMessageMapper.selectMessageByToUserId(userId);
 
         // messagecontent 需要做 <a href > 过滤处理，如何link也需要处理。原来ASP系统写入功能到内容中。
 
         for (AudMessage s : messageList) {
 
-            String content = s.getMessagecontent();
-            log.debug("original content is " + content);
-            Integer index = content.indexOf("<a href");
-            content = content.substring(0, index);
-            log.debug("now      content is " + content);
-            s.setMessagecontent(content);
+            String messagecontent = s.getMessagecontent();
+            log.debug("original content is " + messagecontent);
+            Integer index = messagecontent.indexOf("<a href");
+            String content = messagecontent.substring(0, index);
+            log.debug("now content is " + content);
+            s.setContent(content);
+
+            String link = messagecontent.substring(index + 9);
+            index = link.indexOf(".aspx");
+            link = link.substring(0, index);
+            s.setLink(link);
         }
 
         log.debug("message list is request.");

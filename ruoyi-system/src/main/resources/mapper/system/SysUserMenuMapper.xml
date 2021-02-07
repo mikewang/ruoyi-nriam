@@ -52,7 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			 ,a.remark
 		FROM sys_menu a join sys_role_menu b on a.menu_id = b.menu_id join sys_user_role c on b.role_id = c.role_id
 						join sys_role d on c.role_id = d.role_id
-		where 0 = 0 and a.status = 1
+		where 0 = 0 and a.status = 0
 		<if test="userId != null and userId != 0 ">
 			and user_id = #{userId, jdbcType="BIGINT"}
 		</if>

@@ -6,6 +6,8 @@ public class PmProjectacceptance {
 
     private Integer projectid;
 
+    private String projectname;
+
     private Integer status;
 
     private String opinion;
@@ -20,6 +22,14 @@ public class PmProjectacceptance {
 
     public void setProjectid(Integer projectid) {
         this.projectid = projectid;
+    }
+
+    public String getProjectname() {
+        return projectname;
+    }
+
+    public void setProjectname(String projectname) {
+        this.projectname = projectname;
     }
 
     public Integer getStatus() {

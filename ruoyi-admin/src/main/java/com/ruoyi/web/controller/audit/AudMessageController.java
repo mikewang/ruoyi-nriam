@@ -36,10 +36,8 @@ public class AudMessageController extends BaseController {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long userId = loginUser.getUser().getUserId();
 
-        userId = new Long(87);
-
         startPage();
-        List<AudMessage> list = audMessageService.selectByUserId(userId);
+        List<AudMessage> list = audMessageService.selectMessageByToUserId(userId.intValue());
 
         return getDataTable(list);
     }
@@ -47,7 +45,7 @@ public class AudMessageController extends BaseController {
     /**
      * 消息已读设置 更新操作
      */
-    @PreAuthorize("@ss.hasPermi('audit:message:remove')")
+    @PreAuthorize("@ss.hasPermi('audit:message:list')")
     @Log(title = "待办事项消息已读", businessType = BusinessType.DELETE)
     @DeleteMapping("/{messageids}")
     public AjaxResult remove(@PathVariable List<Integer> messageids) {

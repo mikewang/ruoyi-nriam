@@ -1,7 +1,10 @@
 package com.ruoyi.project.service;
 
+import com.ruoyi.audit.domain.AudMessage;
+import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.ProjectStatus;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.project.domain.PmProjectacceptance;
@@ -9,6 +12,8 @@ import com.ruoyi.project.mapper.AudProjectMapper;
 import com.ruoyi.project.mapper.AudProjectdocMapper;
 import com.ruoyi.project.mapper.PmProjectacceptanceMapper;
 import com.ruoyi.project.mapper.BasDocMapper;
+import com.ruoyi.system.domain.SysUserMenu;
+import com.ruoyi.system.mapper.SysUserMenuMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,9 +40,49 @@ public class PmProjectacceptanceService {
     @Resource
     private AudProjectMapper audProjectMapper;
 
+    @Resource
+    private SysUserMenuMapper userMenuMapper;
+
+    @Resource
+    private AudMessageMapper messageMapper;
+
     public PmProjectacceptance selectProjectacceptanceById(Integer projectId) {
 
         return mapper.selectProjectacceptanceById(projectId);
+    }
+
+    private void sendMessage(String projectname, Integer projectid, String relatedsheettype) {
+        String title =  "项目验收信息待审核";
+        String content = "项目：“" + projectname+ "”的验收信息待审核。"
+                + "<a href=\"/Project/ToAcceptanceConfirmList.aspx?"
+                + "kid=" + projectid.toString() + "&f=todo\" target=\"_self\" >查看</a> ";
+
+        // 下面写操作代码。
+
+        String perms = "project:toacceptanceconfirm:list";
+
+        SysUserMenu userMenu = new SysUserMenu();
+        userMenu.setPerms(perms);
+
+        List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
+
+        Set<Long> useridSet = new HashSet<>();
+        for (SysUserMenu um : userMenuList) {
+            useridSet.add(um.getUserId());
+        }
+        log.debug("send message " + relatedsheettype + " userid is " + useridSet.toString());
+
+        for (Long userid : useridSet) {
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+            message.setTouserid(userid.intValue());
+            message.setRelatedsheettype(relatedsheettype);
+            message.setRelatedsheetid(projectid);
+            messageMapper.insertAudMessage(message);
+        }
+
     }
 
     public int mergeProjectacceptance(PmProjectacceptance record) {
@@ -100,7 +145,20 @@ public class PmProjectacceptanceService {
 
         mapper.deleteProjectacceptanceById(record.getProjectid());
 
-        return mapper.insertProjectacceptance(record);
+        Integer rows = mapper.insertProjectacceptance(record);
+
+        if (record.getStatus() != ProjectStatus.YiJieTi.getCode()) {
+            //发送通知
+            //发送消息
+            sendMessage(record.getProjectname(), record.getProjectid(), "项目验收");
+
+//        string title = "项目验收信息待审核";
+//        string content = "项目：“" + lab_ProjectName.Text + "”的验收信息待审核。"
+//                + "<a href=\"/Project/ToAcceptanceConfirmList.aspx?"
+//                + "kid=" + lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
+//        ProjectCommonFunc.SendMessage(title, content, "项目验收", lab_ProjectID.Text, ConstantParameter.MID_ProjectAcceptanceConfirm);
+        }
+        return rows;
     }
 
     public int insertProjectacceptance(PmProjectacceptance record) {

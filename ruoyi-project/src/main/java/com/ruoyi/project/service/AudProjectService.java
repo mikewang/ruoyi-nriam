@@ -51,7 +51,7 @@ public class AudProjectService {
     private AudMessageMapper messageMapper;
 
 
-    private   List<AudProject> selectProjectList(AudProject statusProject) {
+    private List<AudProject> selectProjectList(AudProject statusProject) {
 
         List<AudProject> projectList = audProjectMapper.selectAudProjectList(statusProject);
 
@@ -61,7 +61,7 @@ public class AudProjectService {
             list.add(ProjectStatus.DaiQueRen.getCode());
             list.add(ProjectStatus.JieTiDaiQueRen.getCode());
             list.add(ProjectStatus.XinJianZhong.getCode());
-            List<Integer>  list2 = new ArrayList<>();
+            List<Integer> list2 = new ArrayList<>();
             list2.add(ProjectStatus.BuTongGuo.getCode());
             list2.add(ProjectStatus.JietiBuTongGuo.getCode());
 
@@ -92,8 +92,7 @@ public class AudProjectService {
                 } else {
                     prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
                 }
-            }
-            else {
+            } else {
                 prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
             }
 
@@ -286,6 +285,37 @@ public class AudProjectService {
 
     }
 
+    private void sendMessage(String projectname, Integer projectid, String relatedsheettype) {
+        String title = "新的项目信息待审核(Java)";
+        String content = "项目：“" + projectname + "”的信息待审核。";
+        content = content + "<a href=\"/Project/ToConfirmProjectList.aspx?" + "kid=" + projectid.toString() + "&f=todo\" target=\"_self\" >查看</a> ";
+        // 下面写操作代码。
+
+        String perms = "project:toconfirm:list";
+
+        SysUserMenu userMenu = new SysUserMenu();
+        userMenu.setPerms(perms);
+
+        List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
+
+        Set<Long> useridSet = new HashSet<>();
+        for (SysUserMenu um : userMenuList) {
+            useridSet.add(um.getUserId());
+        }
+        log.debug("send message " + relatedsheettype + " userid is " + useridSet.toString());
+
+        for (Long userid : useridSet) {
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+            message.setTouserid(userid.intValue());
+            message.setRelatedsheettype(relatedsheettype);
+            message.setRelatedsheetid(projectid);
+            messageMapper.insertAudMessage(message);
+        }
+
+    }
 
     @Transactional
     public Integer insertProject(AudProject project) {
@@ -309,38 +339,14 @@ public class AudProjectService {
             this.updateProjectDetail(project);
 
             if (project.getOperateCode() == 2) {
+                // 提交新建审核
                 project.setStatus(ProjectStatus.DaiQueRen.getCode());
                 audProjectMapper.updateProjectStatus(project);
+                // 发送消息
+                sendMessage(project.getProjectname(), project.getProjectid(), "项目");
 
-                String title = "新的项目信息待审核";
-                String content = "项目：“" + project.getProjectname() + "”的信息待审核。";
-                content = content + "<a href=\"/Project/ToConfirmProjectList.aspx?" + "kid=" + project.getProjectid() + "&f=todo\" target=\"_self\" >查看</a> ";
-                // 下面写操作代码。
-
-                String perms = "project:toconfirm:list";
-
-                SysUserMenu userMenu = new SysUserMenu();
-                userMenu.setPerms(perms);
-
-                List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
-
-                Set<Long> useridSet = new HashSet<>();
-                for(SysUserMenu um : userMenuList) {
-                    useridSet.add(um.getUserId());
-                }
-
-                for (Long userid : useridSet) {
-                    AudMessage message = new AudMessage();
-                    message.setMessagetime(DateUtils.dateTimeNow());
-                    message.setMessagetitle(title);
-                    message.setMessagecontent(content);
-                    message.setTouserid(userid.intValue());
-                    message.setRelatedsheettype("项目");
-                    message.setRelatedsheetid(project.getProjectid());
-
-                    messageMapper.insertAudMessage(message);
-                }
-
+            } else {
+                // 暂存
 
             }
         }
@@ -356,83 +362,16 @@ public class AudProjectService {
         this.updateProjectDetail(project);
 
         if (project.getOperateCode() == 2) {
+            // 提交新建审核
             project.setStatus(ProjectStatus.DaiQueRen.getCode());
             audProjectMapper.updateProjectStatus(project);
+            // 发送消息
+            sendMessage(project.getProjectname(), project.getProjectid(), "项目");
 
-            String title = "新的项目信息待审核";
-            String content = "项目：“" + project.getProjectname() + "”的信息待审核。";
-            content = content + "<a href=\"/Project/ToConfirmProjectList.aspx?" + "kid=" + project.getProjectid() + "&f=todo\" target=\"_self\" >查看</a> ";
+        } else {
 
-            String perms = "project:toconfirm:list";
-
-            SysUserMenu userMenu = new SysUserMenu();
-            userMenu.setPerms(perms);
-
-            List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
-
-            Set<Long> useridSet = new HashSet<>();
-            for(SysUserMenu um : userMenuList) {
-                useridSet.add(um.getUserId());
-            }
-
-            for (Long userid : useridSet) {
-                AudMessage message = new AudMessage();
-                message.setMessagetime(DateUtils.dateTimeNow());
-                message.setMessagetitle(title);
-                message.setMessagecontent(content);
-                message.setTouserid(userid.intValue());
-                message.setRelatedsheettype("项目");
-                message.setRelatedsheetid(project.getProjectid());
-
-                messageMapper.insertAudMessage(message);
-            }
-
-//            //发送消息
-//            string title = "新的项目信息待审核";
-//            string content = "项目：“" + txt_ProjectName.Text + "”的信息待审核。"
-//                    + "<a href=\"/Project/ToConfirmProjectList.aspx?"
-//                    + "kid=" + lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
-//            ProjectCommonFunc.SendMessage(title, content, "项目", lab_ProjectID.Text, ConstantParameter.MID_ProjectConfirm);
-//            public static void SendMessage(string title, string content ,string type ,string kid ,string moduleID)
-//            {
-//                //发送通知消息(发送给具有“项目信息审核”功能的人员)
-//                IPermissionManager iperm = PermissionManager.GetInstance();
-//                DataSet ds = iperm.GetUserListToModule(moduleID);
-//
-//                //循环
-//                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
-//                {
-//                    AudMessage am = new AudMessage();
-//                    am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-//                    am.MessageTitle = title;
-//                    am.MessageContent = content;
-//                    //查询消息要发送给哪个人员
-//                    am.ToUserID = int.Parse(ds.Tables[0].Rows[i]["UserID"].ToString());
-//                    am.RelatedSheetType = type;
-//                    am.RelatedSheetID = int.Parse(kid);
-//                    IAudMessageManager iamm = AudMessageManager.GetInstance();
-//                    iamm.AddNew(am);
-//                }
-//
-//                public DataSet GetUserListToModule(string moduleID)
-//                {
-//                    string sql = "";
-//                    try
-//                    {
-//                        sql = " select distinct(userID) from UM_UserInRole "
-//                                + " where roleID in "
-//                                + " ( select RoleID from um_permission where moduleid=" + moduleID
-//                                + " and permissiontype=1 ) ";
-//                        DataSet ds = DBAccess.DB.ExecuteDataSet(CommandType.Text, sql);
-//                        return ds;
-//                    }
-//                    catch (Exception exp)
-//                    {
-//                        LogRecorder.WriteLog("获取能够访问某个功能模块的所有用户时发生错误，执行的sql为" + sql, exp.Message);
-//                        return null;
-//                    }
-//                }
-
+            project.setStatus(ProjectStatus.XinJianZhong.getCode());
+            audProjectMapper.updateProjectStatus(project);
         }
 
         return rows;
@@ -453,7 +392,7 @@ public class AudProjectService {
                 }
         * */
 
-        return  rows;
+        return rows;
     }
 
     @Transactional
@@ -462,7 +401,7 @@ public class AudProjectService {
         project.setStatus(ProjectStatus.XinJianZhong.getCode());
         Integer rows = audProjectMapper.updateProjectStatus(project);
 
-        return  rows;
+        return rows;
     }
 
     @Transactional
@@ -471,7 +410,7 @@ public class AudProjectService {
         Integer rows = 0;
 
         if (project.getStatus() != ProjectStatus.DaiQueRen.getCode()) {
-            return  rows;
+            return rows;
         }
 
         if (project.getConfirmResult() == 1) {
@@ -481,38 +420,18 @@ public class AudProjectService {
             record.setStatus(ProjectStatus.ZaiYan.getCode());
             rows = audProjectMapper.updateProjectStatus(record);
 
-            //发送消息
-//            string title = "新的项目信息待审核";
-//            string content = "项目：“" + txt_ProjectName.Text + "”的信息待审核。"
-//                    + "<a href=\"/Project/ToConfirmProjectList.aspx?"
-//                    + "kid=" + lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
-//            ProjectCommonFunc.SendMessage(title, content, "项目", lab_ProjectID.Text, ConstantParameter.MID_ProjectConfirm);
-            //发送通知消息(发送给具有“项目信息审核”功能的人员)
-//            IPermissionManager iperm = PermissionManager.GetInstance();
-//            DataSet ds = iperm.GetUserListToModule(moduleID);
-//
-//            //循环
-//            for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
-//            {
-//                AudMessage am = new AudMessage();
-//                am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-//                am.MessageTitle = title;
-//                am.MessageContent = content;
-//                //查询消息要发送给哪个人员
-//                am.ToUserID = int.Parse(ds.Tables[0].Rows[i]["UserID"].ToString());
-//                am.RelatedSheetType = type;
-//                am.RelatedSheetID = int.Parse(kid);
-//                IAudMessageManager iamm = AudMessageManager.GetInstance();
-//                iamm.AddNew(am);
-//            }
+// 稍后开发， 需要 等团队评分记录 有了之后 才能继续。
+            //增加团队的评分记录 待修改
+//            ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
+//            iteamper.AddRecord_FromProject(Request["kid"]);
 
 
-        }
-        else if (project.getConfirmResult() == 2) {
+
+        } else if (project.getConfirmResult() == 2) {
             AudProject record = new AudProject();
             record.setProjectid(project.getProjectid());
             record.setStatus(ProjectStatus.BuTongGuo.getCode());
-            rows =  audProjectMapper.updateProjectStatus(record);
+            rows = audProjectMapper.updateProjectStatus(record);
 
             Integer status = 2;      //表示不通过
             AudApply apply = new AudApply();
@@ -528,88 +447,54 @@ public class AudProjectService {
 
         }
 
-//
+        String perms = "project:toconfirm:list";
 
-//        if (rbtl_Result.SelectedValue == "1")  //表示通过
-//        {
-//            //状态设置成在研
-//            ipm.SetStatus(Request["kid"].ToString(), Entity.Enums.ProjectStatus.ZaiYan);
-//
-//            //修改经费编号
-//            if (txt_SubjectCode.Text.Trim() != "")
-//            {
-//                ipm.UpdateSubjectCode(Request["kid"], txt_SubjectCode.Text.Trim());
-//            }
-//
-//
-//            //增加团队的评分记录 待修改
-//            ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
-//            iteamper.AddRecord_FromProject(Request["kid"]);
-//
-//
-//        }
-//        else   //数据库里写入申请不通过的记录
-//        {
-//            ipm.SetStatus(Request["kid"].ToString(), Entity.Enums.ProjectStatus.BuTongGuo);
-//
-//            //生成确认的申请
-//            IApplyManager iappM = ApplyManager.GetInstance();
-//            Apply apply = new Apply();
-//            apply.ApplyType = "项目确认申请";
-//            apply.RelatedID = int.Parse(ProjectDetail1.lab_ProjectID.Text);
-//            apply.ApplyUserID = int.Parse(ProjectDetail1.lab_CreateUserID.Text);
-//            apply.ApplyTime = "2016-01-01 00:00:00";
-//            string newApplyID = iappM.AddNew(apply);
-//            //申请不通过
-//            iappM.AuditApply(newApplyID, false, Session["CurrentUserID"].ToString(),
-//                    txt_Opinion.Text, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-//
-//        }
-//
-//        //消除"审核人"待办事项
-//        IAudMessageManager iaudms = AudMessageManager.GetInstance();
-//        IPermissionManager iperm = PermissionManager.GetInstance();
-//        DataSet ds = iperm.GetUserListToModule(ConstantParameter.MID_ProjectConfirm);
-//        //循环
-//        for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
-//        {
-//            iaudms.SetProcessed(ds.Tables[0].Rows[i]["UserID"].ToString(), "项目", Request["kid"].ToString());
-//        }
-//        ds.Dispose();
-//
-//        //发送通知 待修改
-//        string title = "";
-//        string content = "";
-//        if (rbtl_Result.SelectedValue == "1")  //通过
-//        {
-//            title = "您提交的项目审核通过";
-//            content = "项目：“" + ProjectDetail1.lab_ProjectName.Text + "”的信息已经审核通过。"
-//                    + "<a href=\"/Project/ProjectList.aspx?"
-//                    + "kid=" + ProjectDetail1.lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
-//        }
-//        else
-//        {
-//            title = "您提交的项目审核不通过";
-//            content = "项目：“" + ProjectDetail1.lab_ProjectName.Text + "”的信息审核不通过。"
-//                    + "<a href=\"/Project/ProjectList.aspx?"
-//                    + "kid=" + ProjectDetail1.lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
-//        }
-//        AudMessage am = new AudMessage();
-//        am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-//        am.MessageTitle = title;
-//        am.MessageContent = content;
-//        //发送给提交人
-//        am.ToUserID = int.Parse(ProjectDetail1.lab_CreateUserID.Text);
-//        am.RelatedSheetType = "项目";
-//        am.RelatedSheetID = int.Parse(ProjectDetail1.lab_ProjectID.Text);
-//        iaudms.AddNew(am);
-//
-//
-//        Response.Write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"); //是为了保持页面样式
-//        Response.Write("<script>alert('操作成功！');</script>"); //提示错误
-//        Response.Write("<script>document.location = 'ToConfirmProjectList.aspx';</script>");
+        SysUserMenu userMenu = new SysUserMenu();
+        userMenu.setPerms(perms);
 
-        return  rows;
+        List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
+
+        Set<Long> useridSet = new HashSet<>();
+        for (SysUserMenu um : userMenuList) {
+            useridSet.add(um.getUserId());
+        }
+
+        for (Long userid : useridSet) {
+            AudMessage message = new AudMessage();
+            message.setProcessedtime(DateUtils.dateTimeNow());
+            message.setTouserid(userid.intValue());
+            message.setRelatedsheettype("项目");
+            message.setRelatedsheetid(project.getProjectid());
+            messageMapper.updateIfProcessedById(message);
+        }
+
+        String title = "";
+        String content = "";
+        if (project.getConfirmResult() == 1) {
+                        title = "您提交的项目审核通过";
+            content = "项目：“" + project.getProjectname() + "”的信息已经审核通过。"
+                    + "<a href=\"/Project/ProjectList.aspx?"
+                    + "kid=" + project.getProjectid().toString() + "&f=todo\" target=\"_self\" >查看</a> ";
+        }
+        else if (project.getConfirmResult() == 2) {
+                        title = "您提交的项目审核不通过";
+            content = "项目：“" + project.getProjectname() + "”的信息审核不通过。"
+                    + "<a href=\"/Project/ProjectList.aspx?"
+                    + "kid=" + project.getProjectid().toString() + "&f=todo\" target=\"_self\" >查看</a> ";
+        }
+
+        //发送通知
+
+        AudMessage message = new AudMessage();
+        message.setMessagetime(DateUtils.dateTimeNow());
+        message.setMessagetitle(title);
+        message.setMessagecontent(content);
+        message.setTouserid(project.getCreateuserid());
+        message.setRelatedsheettype("项目");
+        message.setRelatedsheetid(project.getProjectid());
+        messageMapper.insertAudMessage(message);
+
+        return rows;
     }
 
     @Transactional
@@ -618,7 +503,7 @@ public class AudProjectService {
         Integer rows = 0;
 
         if (project.getStatus() != ProjectStatus.JieTiDaiQueRen.getCode()) {
-            return  rows;
+            return rows;
         }
 
         if (project.getConfirmResult() == 1) {
@@ -629,17 +514,16 @@ public class AudProjectService {
             rows = audProjectMapper.updateProjectStatus(record);
 
             if (project.getIfacceptancefull() == false)  //表示材料还不齐全
-                {
+            {
                 record.setIfacceptancefull(project.getIfacceptancefull());
                 audProjectMapper.updateIfAcceptanceFull(record);
             }
 
-        }
-        else if (project.getConfirmResult() == 2) {
+        } else if (project.getConfirmResult() == 2) {
             AudProject record = new AudProject();
             record.setProjectid(project.getProjectid());
             record.setStatus(ProjectStatus.JietiBuTongGuo.getCode());
-            rows =  audProjectMapper.updateProjectStatus(record);
+            rows = audProjectMapper.updateProjectStatus(record);
 
             Integer status = 2;      //表示不通过
             AudApply apply = new AudApply();
@@ -655,88 +539,54 @@ public class AudProjectService {
 
         }
 
-//
+        String perms = "project:toacceptanceconfirm:list";
 
-//        if (rbtl_Result.SelectedValue == "1")  //表示通过
-//        {
-//            //状态设置成在研
-//            ipm.SetStatus(Request["kid"].ToString(), Entity.Enums.ProjectStatus.ZaiYan);
-//
-//            //修改经费编号
-//            if (txt_SubjectCode.Text.Trim() != "")
-//            {
-//                ipm.UpdateSubjectCode(Request["kid"], txt_SubjectCode.Text.Trim());
-//            }
-//
-//
-//            //增加团队的评分记录 待修改
-//            ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
-//            iteamper.AddRecord_FromProject(Request["kid"]);
-//
-//
-//        }
-//        else   //数据库里写入申请不通过的记录
-//        {
-//            ipm.SetStatus(Request["kid"].ToString(), Entity.Enums.ProjectStatus.BuTongGuo);
-//
-//            //生成确认的申请
-//            IApplyManager iappM = ApplyManager.GetInstance();
-//            Apply apply = new Apply();
-//            apply.ApplyType = "项目确认申请";
-//            apply.RelatedID = int.Parse(ProjectDetail1.lab_ProjectID.Text);
-//            apply.ApplyUserID = int.Parse(ProjectDetail1.lab_CreateUserID.Text);
-//            apply.ApplyTime = "2016-01-01 00:00:00";
-//            string newApplyID = iappM.AddNew(apply);
-//            //申请不通过
-//            iappM.AuditApply(newApplyID, false, Session["CurrentUserID"].ToString(),
-//                    txt_Opinion.Text, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-//
-//        }
-//
-//        //消除"审核人"待办事项
-//        IAudMessageManager iaudms = AudMessageManager.GetInstance();
-//        IPermissionManager iperm = PermissionManager.GetInstance();
-//        DataSet ds = iperm.GetUserListToModule(ConstantParameter.MID_ProjectConfirm);
-//        //循环
-//        for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
-//        {
-//            iaudms.SetProcessed(ds.Tables[0].Rows[i]["UserID"].ToString(), "项目", Request["kid"].ToString());
-//        }
-//        ds.Dispose();
-//
-//        //发送通知 待修改
-//        string title = "";
-//        string content = "";
-//        if (rbtl_Result.SelectedValue == "1")  //通过
-//        {
-//            title = "您提交的项目审核通过";
-//            content = "项目：“" + ProjectDetail1.lab_ProjectName.Text + "”的信息已经审核通过。"
-//                    + "<a href=\"/Project/ProjectList.aspx?"
-//                    + "kid=" + ProjectDetail1.lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
-//        }
-//        else
-//        {
-//            title = "您提交的项目审核不通过";
-//            content = "项目：“" + ProjectDetail1.lab_ProjectName.Text + "”的信息审核不通过。"
-//                    + "<a href=\"/Project/ProjectList.aspx?"
-//                    + "kid=" + ProjectDetail1.lab_ProjectID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
-//        }
-//        AudMessage am = new AudMessage();
-//        am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-//        am.MessageTitle = title;
-//        am.MessageContent = content;
-//        //发送给提交人
-//        am.ToUserID = int.Parse(ProjectDetail1.lab_CreateUserID.Text);
-//        am.RelatedSheetType = "项目";
-//        am.RelatedSheetID = int.Parse(ProjectDetail1.lab_ProjectID.Text);
-//        iaudms.AddNew(am);
-//
-//
-//        Response.Write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"); //是为了保持页面样式
-//        Response.Write("<script>alert('操作成功！');</script>"); //提示错误
-//        Response.Write("<script>document.location = 'ToConfirmProjectList.aspx';</script>");
+        SysUserMenu userMenu = new SysUserMenu();
+        userMenu.setPerms(perms);
 
-        return  rows;
+        List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
+
+        Set<Long> useridSet = new HashSet<>();
+        for (SysUserMenu um : userMenuList) {
+            useridSet.add(um.getUserId());
+        }
+
+        for (Long userid : useridSet) {
+            AudMessage message = new AudMessage();
+            message.setProcessedtime(DateUtils.dateTimeNow());
+            message.setTouserid(userid.intValue());
+            message.setRelatedsheettype("项目验收");
+            message.setRelatedsheetid(project.getProjectid());
+            messageMapper.updateIfProcessedById(message);
+        }
+
+        String title = "";
+        String content = "";
+        if (project.getConfirmResult() == 1) {
+            title = "您提交的项目验收信息审核通过";
+            content = "项目：“" + project.getProjectname() + "”的验收信息已经审核通过。"
+                    + "<a href=\"/Project/FinishedProjectList.aspx?"
+                    + "kid=" + project.getProjectid().toString() + "&f=todo\" target=\"_self\" >查看</a> ";
+        }
+        else if (project.getConfirmResult() == 2) {
+            title = "您提交的项目验收信息审核不通过";
+            content = "项目：“" + project.getProjectname()  + "”的验收信息审核不通过。"
+                    + "<a href=\"/Project/ProjectList.aspx?"
+                    + "kid=" + project.getProjectid().toString() + "&f=todo\" target=\"_self\" >查看</a> ";
+        }
+
+        //发送通知
+
+        AudMessage message = new AudMessage();
+        message.setMessagetime(DateUtils.dateTimeNow());
+        message.setMessagetitle(title);
+        message.setMessagecontent(content);
+        message.setTouserid(project.getCreateuserid());
+        message.setRelatedsheettype("项目验收");
+        message.setRelatedsheetid(project.getProjectid());
+        messageMapper.insertAudMessage(message);
+
+        return rows;
     }
 
     public AudApply selectApplyByTypeAndRelatedID(Integer projectId, Integer status) {
@@ -744,8 +594,7 @@ public class AudProjectService {
         AudApply apply = new AudApply();
         if (status == ProjectStatus.BuTongGuo.getCode()) {
             apply.setApplytype("项目确认申请");
-        }
-        else {
+        } else {
             apply.setApplytype("项目结题确认申请");
         }
         apply.setRelatedid(projectId);

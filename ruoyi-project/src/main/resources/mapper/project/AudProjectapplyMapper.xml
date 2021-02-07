@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.mapper.AudProjectapplyMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.domain.AudProjectapply">
+        <id column="ProjectApplyID" jdbcType="INTEGER" property="projectapplyid"/>
+        <result column="OrganizationID" jdbcType="INTEGER" property="organizationid"/>
+        <result column="PMID" jdbcType="INTEGER" property="pmid"/>
+        <result column="SheetUSerID" jdbcType="INTEGER" property="sheetuserid"/>
+        <result column="SheetTime" jdbcType="VARCHAR" property="sheettime"/>
+        <result column="ProjectType" jdbcType="INTEGER" property="projecttype"/>
+        <result column="ManageDept" jdbcType="VARCHAR" property="managedept"/>
+        <result column="ProjectName" jdbcType="VARCHAR" property="projectname"/>
+        <result column="JoinType" jdbcType="VARCHAR" property="jointype"/>
+        <result column="LeaderOrganization" jdbcType="VARCHAR" property="leaderorganization"/>
+        <result column="ProjectYear" jdbcType="INTEGER" property="projectyear"/>
+        <result column="TotalMoney" jdbcType="DECIMAL" property="totalmoney"/>
+        <result column="SelfGetMoney" jdbcType="DECIMAL" property="selfgetmoney"/>
+        <result column="LeaveMoney" jdbcType="DECIMAL" property="leavemoney"/>
+        <result column="IfMoneyPlan" jdbcType="BIT" property="ifmoneyplan"/>
+        <result column="Memo" jdbcType="VARCHAR" property="memo"/>
+        <result column="SheetStatus" jdbcType="INTEGER" property="sheetstatus"/>
+        <result column="organizationIDLinkText" jdbcType="VARCHAR" property="organizationIDLinkText"/>
+        <result column="pmIDLinkText" jdbcType="VARCHAR" property="pmIDLinkText"/>
+        <result column="sheetUSerIDLinkText" jdbcType="VARCHAR" property="sheetUSerIDLinkText"/>
+        <result column="sheetStatusLinkText" jdbcType="VARCHAR" property="sheetStatusLinkText"/>
+        <result column="projectTypeLinkText" jdbcType="VARCHAR" property="projectTypeLinkText"/>
+    </resultMap>
+
+    <sql id="selectProjectapply">
+      select *
+      from (
+             SELECT a.ProjectApplyID
+                  , a.OrganizationID
+                  , a.PMID
+                  , a.SheetUSerID
+                  , a.SheetTime
+                  , a.ProjectType
+                  , a.ManageDept
+                  , a.ProjectName
+                  , a.JoinType
+                  , a.LeaderOrganization
+                  , a.ProjectYear
+                  , a.TotalMoney
+                  , a.SelfGetMoney
+                  , a.LeaveMoney
+                  , a.IfMoneyPlan
+                  , a.Memo
+                  , a.SheetStatus
+                  , t1.dept_name   AS OrganizationIDLinkText
+                  , t2.real_name   AS PMIDLinkText
+                  , t3.real_name   AS SheetUSerIDLinkText
+                  , t14.dict_label AS SheetStatusLinkText
+                  , t15.dict_label AS ProjectTypeLinkText
+             FROM aud_projectapply a
+                    LEFT JOIN sys_dept t1 ON a.OrganizationID = t1.dept_id
+                    LEFT JOIN sys_user t2 ON a.PMID = t2.user_id
+                    LEFT JOIN sys_user t3 ON a.SheetUSerID = t3.user_id
+                    LEFT JOIN (SELECT * FROM sys_dict_data WHERE dict_type = '单据状态') t14
+                              ON a.SheetStatus = t14.dict_value
+                    LEFT JOIN (SELECT * FROM sys_dict_data WHERE dict_type = '项目类型') t15
+                              ON a.ProjectType = t15.dict_value
+           ) as v1
+    </sql>
+
+  <select id="selectProjectapplyList" parameterType="com.ruoyi.project.domain.AudProjectapply" resultMap="BaseResultMap">
+    <include refid="selectProjectapply"/>
+    where 0=0
+    <if test="SheetUSerID != null and SheetUSerID != 0 ">
+      and SheetUSerID = #{sheetuserid, jdbcType=INTEGER}
+    </if>
+    ORDER BY ProjectApplyID desc
+  </select>
+
+  <select id="selectProjectapplyById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <include refid="selectProjectapply"/>
+    where ProjectApplyID = #{projectapplyid,jdbcType=INTEGER}
+  </select>
+
+
+    <insert id="insert" parameterType="com.ruoyi.project.domain.AudProjectapply">
+        insert into Aud_ProjectApply (ProjectApplyID, OrganizationID, PMID,
+                                      SheetUSerID, SheetTime, ProjectType,
+                                      ManageDept, ProjectName, JoinType,
+                                      LeaderOrganization, ProjectYear, TotalMoney,
+                                      SelfGetMoney, LeaveMoney, IfMoneyPlan,
+                                      Memo, SheetStatus)
+        values (#{projectapplyid,jdbcType=INTEGER}, #{organizationid,jdbcType=INTEGER}, #{pmid,jdbcType=INTEGER},
+                #{sheetuserid,jdbcType=INTEGER}, #{sheettime,jdbcType=VARCHAR}, #{projecttype,jdbcType=INTEGER},
+                #{managedept,jdbcType=VARCHAR}, #{projectname,jdbcType=VARCHAR}, #{jointype,jdbcType=VARCHAR},
+                #{leaderorganization,jdbcType=VARCHAR}, #{projectyear,jdbcType=INTEGER}, #{totalmoney,jdbcType=DECIMAL},
+                #{selfgetmoney,jdbcType=DECIMAL}, #{leavemoney,jdbcType=DECIMAL}, #{ifmoneyplan,jdbcType=BIT},
+                #{memo,jdbcType=VARCHAR}, #{sheetstatus,jdbcType=INTEGER})
+    </insert>
+    <update id="updateByPrimaryKey" parameterType="com.ruoyi.project.domain.AudProjectapply">
+        update Aud_ProjectApply
+        set OrganizationID     = #{organizationid,jdbcType=INTEGER},
+            PMID               = #{pmid,jdbcType=INTEGER},
+            SheetUSerID        = #{sheetuserid,jdbcType=INTEGER},
+            SheetTime          = #{sheettime,jdbcType=VARCHAR},
+            ProjectType        = #{projecttype,jdbcType=INTEGER},
+            ManageDept         = #{managedept,jdbcType=VARCHAR},
+            ProjectName        = #{projectname,jdbcType=VARCHAR},
+            JoinType           = #{jointype,jdbcType=VARCHAR},
+            LeaderOrganization = #{leaderorganization,jdbcType=VARCHAR},
+            ProjectYear        = #{projectyear,jdbcType=INTEGER},
+            TotalMoney         = #{totalmoney,jdbcType=DECIMAL},
+            SelfGetMoney       = #{selfgetmoney,jdbcType=DECIMAL},
+            LeaveMoney         = #{leavemoney,jdbcType=DECIMAL},
+            IfMoneyPlan        = #{ifmoneyplan,jdbcType=BIT},
+            Memo               = #{memo,jdbcType=VARCHAR},
+            SheetStatus        = #{sheetstatus,jdbcType=INTEGER}
+        where ProjectApplyID = #{projectapplyid,jdbcType=INTEGER}
+    </update>
+
+
+</mapper>

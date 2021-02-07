@@ -9,6 +9,8 @@ public class AudMessage extends BaseEntity {
     private String messagetitle;
 
     private String messagecontent;
+    private String content;
+    private String link;
 
     private String messagetime;
 
@@ -92,6 +94,22 @@ public class AudMessage extends BaseEntity {
 
     public void setIfprocessed(Boolean ifprocessed) {
         this.ifprocessed = ifprocessed;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
     @Override

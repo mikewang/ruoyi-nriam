@@ -511,7 +511,7 @@
           <el-col :span="24" align="center">
             <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">暂 存</el-button>
             <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改项目信息</el-button>
-            <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除</el-button>
+            <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除项目</el-button>
             <el-button v-if="hidden.submitBtn === false" type="primary" @click="submitForm">提交审核</el-button>
             <el-button v-if="hidden.changeAcceptanceBtn === false" type="warning" @click="changeAcceptanceForm">修改验收信息</el-button>
             <el-button v-if="hidden.returnBtn === false" type="warning" @click="returnForm">退回新建</el-button>
@@ -948,14 +948,13 @@ export default {
       else if (this.form.status === this.ProjectStatus.DaiQueRen) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
-          this.hidden.changeBtn = false;
-          this.hidden.deleteBtn = false;
-          this.hidden.returnBtn = false;
+          // this.hidden.changeBtn = false;
+          // this.hidden.deleteBtn = false;
+          // this.hidden.returnBtn = false;
         }
         else if (this.opcode.indexOf("confirm") !== -1) {
           this.readonly.confirm = false;
           this.hidden.confirm = false;
-
           this.hidden.confirmBtn = false;
         }
 
@@ -968,7 +967,6 @@ export default {
 
           this.hidden.changeBtn = false;
           this.hidden.deleteBtn = false;
-          this.hidden.returnBtn = false;
         }
       }
       else if (this.form.status === this.ProjectStatus.ZaiYan) {
@@ -1733,7 +1731,7 @@ export default {
       });
     },
 
-    /** 提交按钮 */
+    /** 暂存 按钮 */
     saveForm: function () {
 
       this.$refs["form"].validate(valid => {
@@ -1768,6 +1766,7 @@ export default {
       });
     },
 
+    /*提交 审核 按钮*/
     submitForm: function () {
 
       this.$refs["form"].validate(valid => {
@@ -1849,6 +1848,7 @@ export default {
         }).then(function () {
           this_.form.acceptance.projectdocList = this_.form.projectdocList;
           this_.form.acceptance.status = this_.form.status;
+          this_.form.acceptance.projectname = this_.form.projectname;
           return addProjectacceptance(this_.form.acceptance);
         }).then(() => {
           this_.closeForm();
@@ -1973,6 +1973,7 @@ export default {
         }).then(function () {
           this_.form.acceptance.projectdocList = this_.form.projectdocList;
           this_.form.acceptance.status = this_.form.status;
+          this_.form.acceptance.projectname = this_.form.projectname;
           return addProjectacceptance(this_.form.acceptance);
         }).then(() => {
           this_.closeForm();

@@ -6,9 +6,10 @@ import java.util.List;
 
 public interface AudMessageMapper {
 
-    List<AudMessage> selectByUserId(Long userId);
+    List<AudMessage> selectMessageByToUserId(Integer touserId);
 
     int insertAudMessage(AudMessage record);
+    int updateIfProcessedById(AudMessage record);
 
     AudMessage selectByPrimaryKey(Integer messageid);
 

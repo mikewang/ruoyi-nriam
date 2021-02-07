@@ -225,6 +225,8 @@ public class AudProjectController extends BaseController {
                 return AjaxResult.error("操作'" + project.getProjectname() + "'失败，项目经费编号已存在");
             }
         }
+        Integer status = project.getStatus();
+        logger.debug("project.getStatus is " + status.toString());
 
         Integer res = projectService.updateProject(project);
 
