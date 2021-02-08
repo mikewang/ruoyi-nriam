@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.achieve.mapper.AchAuthorMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.achieve.domain.AchAuthor">
+        <id column="AuthorID" jdbcType="INTEGER" property="authorid"/>
+        <result column="AchieveType" jdbcType="VARCHAR" property="achievetype"/>
+        <result column="RelatedID" jdbcType="INTEGER" property="relatedid"/>
+        <result column="OrderNumber" jdbcType="INTEGER" property="ordernumber"/>
+        <result column="IfOurUnit" jdbcType="INTEGER" property="ifourunit"/>
+        <result column="UnitName" jdbcType="VARCHAR" property="unitname"/>
+        <result column="UserID" jdbcType="INTEGER" property="userid"/>
+        <result column="PersonName" jdbcType="VARCHAR" property="personname"/>
+        <result column="IfReporter" jdbcType="BIT" property="ifreporter"/>
+        <result column="UserIDLinkText" jdbcType="VARCHAR" property="useridlinktext"/>
+    </resultMap>
+    <sql id="selectVo">
+        select *
+        from (
+                 SELECT a.AuthorID
+                      , a.AchieveType
+                      , a.RelatedID
+                      , a.OrderNumber
+                      , a.IfOurUnit
+                      , a.UnitName
+                      , a.UserID
+                      , a.PersonName
+                      , a.IfReporter
+                      , b.real_name as UserIDLinkText
+                 FROM ACH_Author a
+                          join sys_user b ON a.UserID = b.user_id
+             ) as v1
+    </sql>
+
+    <select id="selectAchAuthorList" parameterType="com.ruoyi.achieve.domain.AchAuthor" resultMap="BaseResultMap">
+
+        <include refid="selectVo"/>
+        where 0 = 0
+        <if test="achievetype != null and achievetype != '' ">
+            and AchieveType = #{achievetype,jdbcType=VARCHAR}
+        </if>
+        <if test="relatedid != null and relatedid != 0 ">
+            and RelatedID = #{relatedid, jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="selectAchAuthorById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <include refid="selectVo"/>
+        where AuthorID = #{authorid,jdbcType=INTEGER}
+    </select>
+
+    <insert id="insertAchAuthor" parameterType="com.ruoyi.achieve.domain.AchAuthor" useGeneratedKeys="true"
+            keyProperty="authorid">
+        insert into ACH_Author (AchieveType, RelatedID,
+                                OrderNumber, IfOurUnit, UnitName,
+                                UserID, PersonName, IfReporter)
+        values (#{achievetype,jdbcType=VARCHAR}, #{relatedid,jdbcType=INTEGER},
+                #{ordernumber,jdbcType=INTEGER}, #{ifourunit,jdbcType=INTEGER}, #{unitname,jdbcType=VARCHAR},
+                #{userid,jdbcType=INTEGER}, #{personname,jdbcType=VARCHAR}, #{ifreporter,jdbcType=BIT})
+    </insert>
+    <update id="updateAchAuthor" parameterType="com.ruoyi.achieve.domain.AchAuthor">
+        update ACH_Author
+        set AchieveType = #{achievetype,jdbcType=VARCHAR},
+            RelatedID   = #{relatedid,jdbcType=INTEGER},
+            OrderNumber = #{ordernumber,jdbcType=INTEGER},
+            IfOurUnit   = #{ifourunit,jdbcType=INTEGER},
+            UnitName    = #{unitname,jdbcType=VARCHAR},
+            UserID      = #{userid,jdbcType=INTEGER},
+            PersonName  = #{personname,jdbcType=VARCHAR},
+            IfReporter  = #{ifreporter,jdbcType=BIT}
+        where AuthorID = #{authorid,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteAchAuthorById" parameterType="java.lang.Integer">
+        delete
+        from ACH_Author
+        where AuthorID = #{authorid,jdbcType=INTEGER}
+    </delete>
+
+
+</mapper>

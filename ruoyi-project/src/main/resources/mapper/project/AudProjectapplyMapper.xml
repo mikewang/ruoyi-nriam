@@ -65,7 +65,7 @@
   <select id="selectProjectapplyList" parameterType="com.ruoyi.project.domain.AudProjectapply" resultMap="BaseResultMap">
     <include refid="selectProjectapply"/>
     where 0=0
-    <if test="SheetUSerID != null and SheetUSerID != 0 ">
+    <if test="sheetuserid != null and sheetuserid != 0 ">
       and SheetUSerID = #{sheetuserid, jdbcType=INTEGER}
     </if>
     ORDER BY ProjectApplyID desc

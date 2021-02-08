@@ -65,6 +65,15 @@
     <if test="docid != null and docid != 0 ">
       and docid != #{docid, jdbcType=INTEGER}
     </if>
+    <if test="attachtotype != null and attachtotype != '' ">
+      and AttachToType != #{attachtotype,jdbcType=VARCHAR}
+    </if>
+    <if test="relatedid != null and relatedid != '' ">
+      and RelatedID != #{relatedid,jdbcType=INTEGER}
+    </if>
+    <if test="doctype != null and doctype != '' ">
+      and DocType != #{doctype,jdbcType=VARCHAR}
+    </if>
 
   </select>
 
@@ -75,8 +84,6 @@
         DocType = #{doctype,jdbcType=VARCHAR}
     where DocID = #{docid,jdbcType=INTEGER}
   </update>
-
-
 
   <select id="selectAll" resultMap="BaseResultMap">
 

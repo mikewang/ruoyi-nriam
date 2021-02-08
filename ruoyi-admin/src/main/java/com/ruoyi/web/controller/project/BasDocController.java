@@ -55,10 +55,7 @@ public class BasDocController extends BaseController {
 
         AjaxResult ajax = AjaxResult.success();
         basDocService.insertBasDoc(doc);
-
-
         return ajax;
-
 
     }
 

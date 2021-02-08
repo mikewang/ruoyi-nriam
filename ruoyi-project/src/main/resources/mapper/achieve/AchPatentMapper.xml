@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.achieve.mapper.AchPatentMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.achieve.domain.AchPatent">
+        <id column="PatentID" jdbcType="INTEGER" property="patentid"/>
+        <result column="PatentCode" jdbcType="VARCHAR" property="patentcode"/>
+        <result column="PatentName" jdbcType="VARCHAR" property="patentname"/>
+        <result column="PatentType" jdbcType="VARCHAR" property="patenttype"/>
+        <result column="ApplyYear" jdbcType="VARCHAR" property="applyyear"/>
+        <result column="PassTime" jdbcType="VARCHAR" property="passtime"/>
+        <result column="PatentPerson" jdbcType="VARCHAR" property="patentperson"/>
+        <result column="OurUnitOrder" jdbcType="INTEGER" property="ourunitorder"/>
+        <result column="ProjectID" jdbcType="INTEGER" property="projectid"/>
+        <result column="TeamID" jdbcType="INTEGER" property="teamid"/>
+        <result column="Memo" jdbcType="VARCHAR" property="memo"/>
+        <result column="CreateUserID" jdbcType="INTEGER" property="createuserid"/>
+        <result column="CreateTime" jdbcType="VARCHAR" property="createtime"/>
+        <result column="Status" jdbcType="INTEGER" property="status"/>
+        <result column="projectidlinktext" jdbcType="VARCHAR" property="projectidlinktext"/>
+        <result column="teamname" jdbcType="VARCHAR" property="teamname"/>
+        <result column="createuseridlinktext" jdbcType="VARCHAR" property="createuseridlinktext"/>
+        <result column="statuslinktext" jdbcType="VARCHAR" property="statuslinktext"/>
+        <result column="fixparamordernum" jdbcType="INTEGER" property="fixparamordernum"/>
+    </resultMap>
+
+    <sql id="selectVo">
+        SELECT *
+        FROM (
+                 SELECT a.PatentID
+                      , a.PatentCode
+                      , a.PatentName
+                      , a.PatentType
+                      , a.ApplyYear
+                      , a.PassTime
+                      , a.PatentPerson
+                      , a.OurUnitOrder
+                      , a.ProjectID
+                      , a.TeamID
+                      , a.Memo
+                      , a.CreateUserID
+                      , a.CreateTime
+                      , a.Status
+                      , b.ProjectName  AS ProjectIDLinkText
+                      , c.TeamName     AS teamname
+                      , t10.real_name  AS CreateUserIDLinkText
+                      , t12.dict_label AS StatusLinkText
+                      , bs.dict_sort   AS FixParamOrderNum
+                 FROM ACH_Patent a
+                          JOIN sys_user t10 ON t10.user_id = a.CreateUserID
+                          JOIN (
+                     SELECT *
+                     FROM sys_dict_data
+                     WHERE dict_type = '科技成果状态'
+                 ) t12
+                               ON t12.dict_value = a.Status
+                          JOIN (
+                     SELECT *
+                     FROM sys_dict_data
+                     WHERE dict_type = '专利类型'
+                 ) bs
+                               ON bs.dict_label = a.PatentType
+                          LEFT JOIN Aud_Project b ON a.ProjectID = b.ProjectID
+                          LEFT JOIN PM_Team c ON a.TeamID = c.TeamID
+             ) v1
+    </sql>
+
+    <select id="selectAchPatentList" parameterType="com.ruoyi.achieve.domain.AchPatent" resultMap="BaseResultMap">
+        <include refid="selectVo"/>
+        where 0 = 0
+        <if test="statusList != null">
+            and Status in
+            <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="patentYear != null and patentYear != '' ">
+            and #{patentYear,jdbcType=VARCHAR} &gt;= SUBSTRING(passtime,1,4)
+            and #{patentYear,jdbcType=VARCHAR} &lt;= SUBSTRING(passtime,1,4)
+        </if>
+        <if test="teamid != null and teamid != 0 ">
+            and teamid = #{teamid, jdbcType=INTEGER}
+        </if>
+
+        order by PatentID desc
+    </select>
+
+    <insert id="insertAchPatent" parameterType="com.ruoyi.achieve.domain.AchPatent" useGeneratedKeys="true"
+            keyProperty="patentid">
+        insert into ACH_Patent (PatentCode, PatentName,
+                                PatentType, ApplyYear, PassTime,
+                                PatentPerson, OurUnitOrder, ProjectID,
+                                TeamID, Memo, CreateUserID,
+                                CreateTime, Status)
+        values (#{patentcode,jdbcType=VARCHAR}, #{patentname,jdbcType=VARCHAR},
+                #{patenttype,jdbcType=VARCHAR}, #{applyyear,jdbcType=VARCHAR}, #{passtime,jdbcType=VARCHAR},
+                #{patentperson,jdbcType=VARCHAR}, #{ourunitorder,jdbcType=INTEGER}, #{projectid,jdbcType=INTEGER},
+                #{teamid,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR}, #{createuserid,jdbcType=INTEGER},
+                #{createtime,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER})
+    </insert>
+
+    <select id="queryIfDuplicate" parameterType="com.ruoyi.achieve.domain.AchPatent" resultType="int">
+        select count(*) from ACH_Patent
+        where status != 39 and PatentCode = #{patentcode,jdbcType=VARCHAR}
+        <if test="patentid != null and patentid != 0 ">
+            and PatentID != #{patentid,jdbcType=INTEGER, jdbcType=INTEGER}
+        </if>
+
+    </select>
+
+    <update id="updateAchPatent" parameterType="com.ruoyi.achieve.domain.AchPatent">
+        update ACH_Patent
+        set PatentCode   = #{patentcode,jdbcType=VARCHAR},
+            PatentName   = #{patentname,jdbcType=VARCHAR},
+            PatentType   = #{patenttype,jdbcType=VARCHAR},
+            ApplyYear    = #{applyyear,jdbcType=VARCHAR},
+            PassTime     = #{passtime,jdbcType=VARCHAR},
+            PatentPerson = #{patentperson,jdbcType=VARCHAR},
+            OurUnitOrder = #{ourunitorder,jdbcType=INTEGER},
+            ProjectID    = #{projectid,jdbcType=INTEGER},
+            TeamID       = #{teamid,jdbcType=INTEGER},
+            Memo         = #{memo,jdbcType=VARCHAR},
+            CreateUserID = #{createuserid,jdbcType=INTEGER},
+            CreateTime   = #{createtime,jdbcType=VARCHAR}
+        where PatentID = #{patentid,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateStatusAchPatent" parameterType="com.ruoyi.achieve.domain.AchPatent">
+        update ACH_Patent
+        set Status = #{status,jdbcType=INTEGER}
+        where PatentID = #{patentid,jdbcType=INTEGER}
+    </update>
+
+    <select id="selectAchPatentById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <include refid="selectVo"/>
+        where PatentID = #{patentid,jdbcType=INTEGER}
+    </select>
+
+</mapper>

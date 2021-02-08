@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface AudProjectapplyMapper {
 
-    List<AudProjectapply> selectProjectapplyList(Integer userid);
+    List<AudProjectapply> selectProjectapplyList(AudProjectapply projectapply);
 
     AudProjectapply selectProjectapplyById(Integer projectapplyid);
 

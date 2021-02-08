@@ -1,14 +1,14 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <!--用户数据-->
+      <!--查询数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
         <el-form-item label="年份" prop="year">
           <el-date-picker
             type="year"
             format="yyyy"
             value-format="yyyy"
-            v-model="queryParams.projectyear"
+            v-model="queryParams.patentYear"
             placeholder="请输入"
             clearable
             size="small"
@@ -27,12 +27,6 @@
           >
           </el-autocomplete>
         </el-form-item>
-        <el-form-item label="项目名称" prop="projectname">
-          <el-input v-model="queryParams.projectname" clearable/>
-        </el-form-item>
-        <el-form-item label="经费编号" prop="subjectcode">
-          <el-input v-model="queryParams.subjectcode" clearable/>
-        </el-form-item>
         <el-form-item>
           <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -46,44 +40,47 @@
             icon="el-icon-plus"
             size="mini"
             @click="handleAdd"
-            v-hasPermi="['project:project:add']"
+            v-hasPermi="['achieve:patent:list']"
           >新增
           </el-button>
         </el-col>
-        <el-col :span="1.5" v-if="1==0">
+        <el-col :span="1.5">
           <el-button
             type="warning"
             icon="el-icon-download"
             size="mini"
             @click="handleExport"
-            v-hasPermi="['project:project:export']"
+            v-hasPermi="['achieve:patent:list']"
           >导出
           </el-button>
         </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
-      <el-table v-loading="loading" :data="projectList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="achieveList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" align="center"/>
-        <el-table-column label="项目名称" align="center" prop="projectname" :show-overflow-tooltip="true">
+        <el-table-column label="专利名称" align="center" prop="patentname" :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            <span v-if="scope.row.projectColor === -1" style="color:red">{{ scope.row.projectname }}</span>
-            <span v-else-if="scope.row.projectColor === 1" style="color:green">{{ scope.row.projectname }}</span>
-            <span v-else>{{ scope.row.projectname }}</span>
+            <span v-if="scope.row.statusColor === -1" style="color:red">{{ scope.row.patentname }}</span>
+            <span v-else-if="scope.row.statusColor === 1" style="color:green">{{ scope.row.patentname }}</span>
+            <span v-else>{{ scope.row.patentname }}</span>
           </template>
         </el-table-column>
+        <el-table-column label="专利号" align="center" prop="patentcode" width="200"/>
 
-        <el-table-column label="项目编号" align="center" prop="projectcode" width="120"/>
-        <el-table-column label="项目起止日期" align="center" prop="projectDateRange" width="250"/>
-        <el-table-column label="项目类型" align="center" prop="projectTypeLinkText" width="300"/>
-        <el-table-column label="负责人" align="center" prop="projectManagerIDLinkText" width="100"/>
-        <el-table-column label="项目状态" align="center" prop="statusLinkText" width="100">
+        <el-table-column label="专利类型" align="center" prop="patenttype" width="100"/>
+        <el-table-column label="专利授权日期" align="center" prop="passtime" width="100"/>
+
+        <el-table-column label="专利人" align="center" prop="authors" />
+
+        <el-table-column label="所属团队" align="center" prop="teamname" width="100"/>
+        <el-table-column label="状态" align="center" prop="statuslinktext" width="100">
           <template slot-scope="scope">
-            <span v-if="scope.row.projectColor === -1" style="color:red"
-                  :key="Math.random()">{{ scope.row.statusLinkText }}</span>
-            <span v-else-if="scope.row.projectColor === 1" style="color:green"
-                  :key="Math.random()">{{ scope.row.statusLinkText }}</span>
-            <span v-else :key="Math.random()">{{ scope.row.statusLinkText }}</span>
+            <span v-if="scope.row.statusColor === -1" style="color:red"
+                  :key="Math.random()">{{ scope.row.statuslinktext }}</span>
+            <span v-else-if="scope.row.statusColor === 1" style="color:green"
+                  :key="Math.random()">{{ scope.row.statuslinktext }}</span>
+            <span v-else :key="Math.random()">{{ scope.row.statuslinktext }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -98,17 +95,8 @@
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
-              v-hasPermi="['project:project:query']"
+              v-hasPermi="['achieve:patent:list']"
             >查看
-            </el-button>
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-check"
-              @click="handleToAccept(scope.row)"
-              v-hasPermi="['project:project:edit']"
-              v-if="scope.row.toAcceptBtnHidden === false"
-            >申请验收
             </el-button>
           </template>
         </el-table-column>
@@ -127,12 +115,12 @@
 </template>
 
 <script>
-import {listProject} from "@/api/project/project";
+import {listAchieve} from "@/api/achieve/patent";
 import {listTeam} from "@/api/project/team";
 
 
 export default {
-  name: "zaiyan",
+  name: "patent",
   // components: {  },
   data() {
     return {
@@ -149,23 +137,14 @@ export default {
       // 总条数
       total: 0,
       // 用户表格数据
-      projectList: [],
+      achieveList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
       // 数据字典
       teamListOptions: [],
-      ProjectStatus: {
-        XinJianZhong: 48,
-        DaiQueRen: 40,
-        BuTongGuo: 44,
-        ZaiYan: 41,
-        JieTiDaiQueRen: 45,
-        JietiBuTongGuo: 46,
-        YiJieTi: 42,
-        YiShanChu: 43
-      },
+      AchieveStatus: {DaiQueRen: 36, BuTongGuo: 38, ZhengChang: 37, YiShanChu: 39},
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -204,25 +183,9 @@ export default {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      listProject(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-
-          let currentUserId = this.$store.getters.userId;
-          for (let i = 0; i < response.rows.length; i++) {
-            let project = response.rows[i];
-            if (project.projectmanagerid === currentUserId || project.createuserid === currentUserId || project.createuserid === 2) {
-              if (project.status == this.ProjectStatus.ZaiYan) {
-                project.toAcceptBtnHidden = false;
-              } else {
-                project.toAcceptBtnHidden = true;
-              }
-            } else {
-              project.toAcceptBtnHidden = true;
-            }
-
-            //  console.log("project projectmanagerid is ", project.projectmanagerid, "createuserid is", project.createuserid);
-          }
-          this.projectList = response.rows;
-          console.log(this.projectList);
+      listAchieve(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+          console.log("response is ", response);
+          this.achieveList = response.rows;
           this.total = response.total;
           this.loading = false;
         }
@@ -242,7 +205,6 @@ export default {
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.page = 1;
-      console.log("year is ", this.queryParams.projectyear);
       this.getList();
     },
     /** 重置按钮操作 */
@@ -253,26 +215,20 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.projectid);
+      this.ids = selection.map(item => item.patentid);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
 
     /** 新增按钮操作 */
     handleAdd() {
-      this.$router.push({path: '/project/project'});
+      this.$router.push({path: '/achieve/patent'});
     },
 
     handleUpdate(row) {
       const projectid = row.projectid
       console.log("edit project id is ", projectid);
-      this.$router.push({path: '/project/project/' + projectid});
-    },
-
-    handleToAccept(row) {
-      const projectid = row.projectid
-      console.log("toaccept project id is ", projectid);
-      this.$router.push({path: '/project/toaccept/' + projectid});
+      this.$router.push({path: '/achieve/patent' + projectid});
     },
 
     /** 导出按钮操作 */

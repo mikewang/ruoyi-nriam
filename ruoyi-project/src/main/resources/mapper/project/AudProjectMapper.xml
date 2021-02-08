@@ -92,6 +92,9 @@
         <if test="projectname != null and projectname != '' ">
             and ProjectName like concat('%', #{projectname,jdbcType=VARCHAR}, '%')
         </if>
+        <if test="subjectcode != null and subjectcode != '' ">
+            and subjectcode like concat('%', #{subjectcode,jdbcType=VARCHAR}, '%')
+        </if>
         <if test="ifacceptancefull != null">
             and IfAcceptanceFull = #{ifacceptancefull, jdbcType=BIT}
         </if>

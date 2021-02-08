@@ -144,6 +144,25 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/achieve',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'patent',
+        component: (resolve) => require(['@/views/achieve/patent/edit'], resolve),
+        name: 'AddPatent',
+        meta: {title: '专利新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'patent/:patentid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/patent/edit'], resolve),
+        name: 'EditPatent',
+        meta: { title: '专利编辑', icon: '', opcode: 'query',noCache: true }
+      }
+    ]
+  },
+  {
     path: '/job',
     component: Layout,
     hidden: true,
