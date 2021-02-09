@@ -121,7 +121,8 @@
             TeamID       = #{teamid,jdbcType=INTEGER},
             Memo         = #{memo,jdbcType=VARCHAR},
             CreateUserID = #{createuserid,jdbcType=INTEGER},
-            CreateTime   = #{createtime,jdbcType=VARCHAR}
+            CreateTime   = #{createtime,jdbcType=VARCHAR},
+            Status = #{status,jdbcType=INTEGER}
         where PatentID = #{patentid,jdbcType=INTEGER}
     </update>
 

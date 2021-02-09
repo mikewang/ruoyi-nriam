@@ -16,4 +16,6 @@ public interface AchAuthorMapper {
 
     int deleteAchAuthorById(Integer authorid);
 
+    int deleteAchAuthor(AchAuthor record);
+
 }

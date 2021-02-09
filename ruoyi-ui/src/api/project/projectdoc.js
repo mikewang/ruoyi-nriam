@@ -19,7 +19,7 @@ export function beforeUpload(file, fileList, docType) {
 }
 
 
-export function requestUpload(params, fileList, docType, projectdocList) {
+export function requestUpload(params, fileList, docType, docList) {
   let file = params.file;
   console.log(file);
   let formData = new FormData();
@@ -29,7 +29,7 @@ export function requestUpload(params, fileList, docType, projectdocList) {
     console.log("response.url is ", response.url);
     fileList.push({name: response.name, url: response.url});
     console.log(docType, "fileList is ", fileList);
-    projectdocList.push({docid: response.url, doctype: docType});
+    docList.push({docid: response.url, doctype: docType});
 
   });
 }
@@ -41,7 +41,7 @@ export function  beforeRemove(file, fileList) {
   //  return this.$confirm(`确定移除 ${ file.name }？`);
 }
 
-export function handleUploadRemove(file, fileList, docType, projectdocList) {
+export function handleUploadRemove(file, fileList, docType, docList) {
 
   let today = new Date();
 
@@ -55,8 +55,8 @@ export function handleUploadRemove(file, fileList, docType, projectdocList) {
   console.log(docType, "fileList is ", fileList);
 
   let index2 = -1;
-  for (let i = 0; i < projectdocList.length; i++) {
-    let item = projectdocList[i];
+  for (let i = 0; i < docList.length; i++) {
+    let item = docList[i];
     if (item.docid === docid) {
       index2 = i;
       break;
@@ -64,9 +64,9 @@ export function handleUploadRemove(file, fileList, docType, projectdocList) {
   }
 
   if (index2 !== -1) {
-    projectdocList.splice(index2, 1);
+    docList.splice(index2, 1);
   }
-  console.log(docType, "projectdocList is ", projectdocList);
+  console.log(docType, "docList is ", docList);
 
   return;
 }

@@ -48,7 +48,7 @@ public class AudProjectapplyController extends BaseController {
     private AudProjectapplyService projectService;
 
 
-    ///Project/ProjectList.aspx 在研项目
+    ///Project/ProjectList.aspx 项目申请
     @PreAuthorize("@ss.hasPermi('project:applytijiaoren:list')")
     @GetMapping("/tijiaoren/list")
     public TableDataInfo tijiaorenList(AudProjectapply project) {

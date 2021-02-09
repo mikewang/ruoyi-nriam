@@ -27,7 +27,7 @@
                       , a.IfReporter
                       , b.real_name as UserIDLinkText
                  FROM ACH_Author a
-                          join sys_user b ON a.UserID = b.user_id
+                          left join sys_user b ON a.UserID = b.user_id
              ) as v1
     </sql>
 
@@ -41,6 +41,7 @@
         <if test="relatedid != null and relatedid != 0 ">
             and RelatedID = #{relatedid, jdbcType=INTEGER}
         </if>
+        order by OrderNumber asc
     </select>
 
     <select id="selectAchAuthorById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -76,5 +77,11 @@
         where AuthorID = #{authorid,jdbcType=INTEGER}
     </delete>
 
+
+    <delete id="deleteAchAuthor" parameterType="com.ruoyi.achieve.domain.AchAuthor">
+        delete
+        from ACH_Author
+        where AchieveType = #{achievetype,jdbcType=VARCHAR} and   RelatedID   = #{relatedid,jdbcType=INTEGER}
+    </delete>
 
 </mapper>

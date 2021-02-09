@@ -10,6 +10,8 @@ import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.domain.PmTeam;
+import com.ruoyi.project.domain.PmTeamMember;
+import com.ruoyi.project.service.PmTeamMemberService;
 import com.ruoyi.project.service.PmTeamService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +27,8 @@ public class PmTeamController extends BaseController {
     private PmTeamService pmTeamService;
 
     @Resource
+    private PmTeamMemberService pmTeamMemberService;
+    @Resource
     private TokenService tokenService;
 
     @PreAuthorize("@ss.hasPermi('project:team:list')")
@@ -36,6 +40,20 @@ public class PmTeamController extends BaseController {
         startPage();
         List<PmTeam> list = pmTeamService.selectTeamList(team);
 
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('project:team:list')")
+    @GetMapping("/member/list")
+    public TableDataInfo listMember(PmTeamMember member) {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+        logger.debug("query member is " + member.toString());
+
+        startPage();
+        List<PmTeamMember> list = pmTeamMemberService.selectTeamMemberList(member);
+
+        logger.debug("list is " + list.toString());
         return getDataTable(list);
     }
 

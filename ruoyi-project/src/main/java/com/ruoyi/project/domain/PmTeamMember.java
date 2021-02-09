@@ -1,6 +1,8 @@
 package com.ruoyi.project.domain;
 
-public class PmTeamMember {
+import com.ruoyi.common.core.domain.BaseEntity;
+
+public class PmTeamMember extends BaseEntity {
 
     private Integer teamid;
 
@@ -11,6 +13,7 @@ public class PmTeamMember {
 
     private Integer userid;
     private String realName;
+    private String hotKey;
 
     public String getRealName() {
         return realName;
@@ -50,6 +53,14 @@ public class PmTeamMember {
 
     public void setUserid(Integer userid) {
         this.userid = userid;
+    }
+
+    public String getHotKey() {
+        return hotKey;
+    }
+
+    public void setHotKey(String hotKey) {
+        this.hotKey = hotKey;
     }
 
     @Override

@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import {listAchieve} from "@/api/achieve/patent";
+import {listPatent} from "@/api/achieve/patent";
 import {listTeam} from "@/api/project/team";
 
 
@@ -183,7 +183,7 @@ export default {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      listAchieve(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      listPatent(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
           this.achieveList = response.rows;
           this.total = response.total;
@@ -226,9 +226,9 @@ export default {
     },
 
     handleUpdate(row) {
-      const projectid = row.projectid
-      console.log("edit project id is ", projectid);
-      this.$router.push({path: '/achieve/patent' + projectid});
+      const patentid = row.patentid
+      console.log("edit patent id is ", patentid);
+      this.$router.push({path: '/achieve/patent/' + patentid});
     },
 
     /** 导出按钮操作 */

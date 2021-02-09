@@ -37,3 +37,13 @@ export function deleteTeam(teamIds) {
     method: 'delete'
   })
 }
+
+
+// 查询团队成员
+export function listTeamMember(query) {
+  return request({
+    url: '/project/team/member/list',
+    method: 'get',
+    params: query
+  })
+}

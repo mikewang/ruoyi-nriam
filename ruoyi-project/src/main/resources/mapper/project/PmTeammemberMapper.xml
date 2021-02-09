@@ -7,6 +7,7 @@
     <result column="TeamRoleName" jdbcType="VARCHAR" property="teamroleName" />
     <result column="UserID" jdbcType="INTEGER" property="userid" />
     <result column="real_Name" jdbcType="VARCHAR" property="realName" />
+    <result column="hot_key" jdbcType="VARCHAR" property="hotKey" />
   </resultMap>
   <insert id="insertTeamMember" parameterType="com.ruoyi.project.domain.PmTeamMember">
 
@@ -18,11 +19,14 @@
 
   <select id="selectTeamMemberList" resultMap="BaseResultMap">
 
-    select a.TeamID, a.TeamRole, a.UserID,b.real_name,c.dict_label as TeamRoleName
+    select a.TeamID, a.TeamRole, a.UserID,b.real_name,c.dict_label as TeamRoleName, b.hot_key
     from PM_TeamMember a, sys_user b, sys_dict_data c
     where a.UserID=b.user_id and a.TeamRole=c.dict_value and   c.dict_type = '团队角色'
     <if test="teamid != null and teamid != 0 ">
       AND  a.TeamID = #{teamid,jdbcType=INTEGER}
+    </if>
+    <if test="realName != null and realName != '' ">
+      AND (b.real_Name like concat('%', #{realName,jdbcType=VARCHAR}, '%') or b.hot_key  like concat('%', #{realName,jdbcType=VARCHAR}, '%'))
     </if>
 order by a.TeamID,a.TeamRole, b.real_name
 

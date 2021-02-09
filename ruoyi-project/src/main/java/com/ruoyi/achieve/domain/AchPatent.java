@@ -1,6 +1,7 @@
 package com.ruoyi.achieve.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.core.domain.model.BasDoc;
 
 import java.util.List;
 
@@ -44,6 +45,7 @@ public class AchPatent extends BaseEntity {
     private List<AchAuthor> authorList;
     private String authors;
 
+    private List<BasDoc> docList;
 
     //忘记这个 list 是做什么用的了。哦。项目的各种状态过滤用的，也是附加操作的属性，
     private List<Integer> statusList;
@@ -216,6 +218,14 @@ public class AchPatent extends BaseEntity {
 
     public String getAuthors() {
         return authors;
+    }
+
+    public List<BasDoc> getDocList() {
+        return docList;
+    }
+
+    public void setDocList(List<BasDoc> docList) {
+        this.docList = docList;
     }
 
     public void setAuthors(String authors) {

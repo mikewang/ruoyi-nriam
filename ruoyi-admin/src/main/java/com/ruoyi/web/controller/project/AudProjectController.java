@@ -185,7 +185,7 @@ public class AudProjectController extends BaseController {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long userId = loginUser.getUser().getUserId();
 
-        project.setCreateuserid(Math.toIntExact(userId));
+        project.setCreateuserid(userId.intValue());
 
         Integer status = project.getStatus();
         logger.debug("project.getStatus is " + status.toString());

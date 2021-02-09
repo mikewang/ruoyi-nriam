@@ -6,10 +6,11 @@
       >
         <template>
           <el-tag size="medium" type="info">专利信息</el-tag>
-          <el-row >
+          <el-row>
             <el-col :span="8">
               <el-form-item label="专利名称" prop="patentname">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.patentname" placeholder="请输入专利名称" :show-overflow-tooltip="true" />
+                <el-input v-bind:readonly="readonly.basic" v-model="form.patentname" placeholder="请输入专利名称"
+                          :show-overflow-tooltip="true"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -19,7 +20,8 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="专利类型" prop="patenttype">
-                  <el-select v-bind:readonly="readonly.basic" v-model="form.patenttype" placeholder="请选择" style="display:block;" clearable
+                <el-select v-bind:readonly="readonly.basic" v-model="form.patenttype" placeholder="请选择"
+                           style="display:block;" clearable
                            @change="changePatenttypeValue">
                   <el-option
                     v-for="item in patenttypeOptions"
@@ -40,7 +42,8 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="本所排名" prop="ourunitorder">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.ourunitorder" placeholder="请选择" style="display:block;" clearable
+                <el-select v-bind:readonly="readonly.basic" v-model="form.ourunitorder" placeholder="请选择"
+                           style="display:block;" clearable
                            @change="changeOurunitorderValue">
                   <el-option
                     v-for="item in ourunitorderOptions"
@@ -52,7 +55,8 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="所属团队" prop="teamid">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.teamname" placeholder="请选择项目所属团队" style="display:block;"
+                <el-select v-bind:readonly="readonly.basic" v-model="form.teamname" placeholder="请选择项目所属团队"
+                           style="display:block;"
                            clearable @clear="clearTeamValue" @change="changeTeamValue"
                            filterable :filter-method="filterTeamOptions">
                   <el-option
@@ -96,7 +100,13 @@
                           @selection-change="handleAuthorSelectionChange"
                           style="display:block;">
                   <el-table-column type="selection" width="50" align="center"/>
-                  <el-table-column label="所属单位" align="center" prop="ifourunit" :show-overflow-tooltip="true"/>
+                  <el-table-column label="所属单位" align="center" prop="ifourunit" :show-overflow-tooltip="true">
+                    <template slot-scope="scope">
+                      <span v-if="scope.row.ifourunit === 1">本所</span>
+                      <span v-else>外单位</span>
+                    </template>
+
+                  </el-table-column>
                   <el-table-column label="单位名称" align="center" prop="unitname"/>
                   <el-table-column label="人员" align="center" prop="personname" width="100"/>
                   <el-table-column
@@ -133,11 +143,13 @@
 
             <el-col :span="16">
               <el-form-item label="专利证书" prop="basicfileList1">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload1" :before-remove="beforeRemove1"
+                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload1"
+                           :before-remove="beforeRemove1"
                            :on-remove="handleUploadRemove1" :on-preview="handleReview"
                            :file-list="basicfileList1" :before-upload="beforeUpload1"
-                           >
-                  <el-button size="small" v-if="readonly.basic == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                >
+                  <el-button size="small" v-if="readonly.basic == false" v-hasPermi="['project:project:edit']">上传文件<i
+                    class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
               </el-form-item>
@@ -147,11 +159,13 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="其他附件" prop="basicfileList2">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload2" :before-remove="beforeRemove2"
+                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload2"
+                           :before-remove="beforeRemove2"
                            :on-remove="handleUploadRemove2" :on-preview="handleReview"
                            :file-list="basicfileList2" :before-upload="beforeUpload2"
-                           >
-                  <el-button v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
+                >
+                  <el-button v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i
+                    class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
               </el-form-item>
@@ -169,13 +183,13 @@
 
           <el-row>
             <el-col :span="8">
-              <el-form-item label="专利状态" prop="statuslinktext">
-                <el-input v-model="form.achieveStatus" disabled/>
+              <el-form-item label="状态" prop="statuslinktext">
+                <el-input v-model="form.statuslinktext" disabled/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="信息输入人员" prop="createuseridlinktext">
-                <el-input v-model="form.createuseridlinktext"  disabled/>
+                <el-input v-model="form.createuseridlinktext" disabled/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -199,7 +213,8 @@
           <el-row v-if="this.hidden.confirm == false">
             <el-col :span="16">
               <el-form-item label="意见" prop="confirmNote">
-                <el-input v-model="form.confirmNote" placeholder="请输入意见" type="textarea" v-bind:readonly="this.readonly.confirm"/>
+                <el-input v-model="form.confirmNote" placeholder="请输入意见" type="textarea"
+                          v-bind:readonly="this.readonly.confirm"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -208,19 +223,15 @@
       </el-form>
 
 
-        <el-row >
-          <el-col :span="24" align="center">
-            <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">暂 存</el-button>
-            <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改项目信息</el-button>
-            <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除项目</el-button>
-            <el-button v-if="hidden.submitBtn === false" type="primary" @click="submitForm">提交审核</el-button>
-            <el-button v-if="hidden.changeAcceptanceBtn === false" type="warning" @click="changeAcceptanceForm">修改验收信息</el-button>
-            <el-button v-if="hidden.returnBtn === false" type="warning" @click="returnForm">退回新建</el-button>
-            <el-button v-if="hidden.confirmBtn === false" type="primary" @click="confirmForm">确 认</el-button>
-            <el-button v-if="hidden.addAcceptanceBtn === false" type="primary" @click="addAcceptanceForm">补充验收材料</el-button>
-            <el-button @click="closeForm">取 消</el-button>
-          </el-col>
-        </el-row>
+      <el-row>
+        <el-col :span="24" align="center">
+          <el-button v-if="hidden.submitBtn === false" type="success" @click="submitForm">确 定</el-button>
+          <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改信息</el-button>
+          <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除</el-button>
+
+          <el-button @click="closeForm">取 消</el-button>
+        </el-col>
+      </el-row>
 
 
     </el-row>
@@ -233,7 +244,8 @@
           <el-col :span="24">
             <el-form-item label="所属单位" prop="ifourunit">
               <template>
-                <el-radio-group v-model="authorForm.ifourunit"  @change="changeAuthorIfourunit" v-bind:readonly="this.readonly.ifourunit">
+                <el-radio-group v-model="authorForm.ifourunit" @change="changeAuthorIfourunit"
+                                v-bind:readonly="this.readonly.ifourunit">
                   <el-radio :label="1">本所</el-radio>
                   <el-radio :label="0">外单位</el-radio>
                 </el-radio-group>
@@ -247,7 +259,7 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="人员" prop="personname">
-              <el-autocomplete class="input-with-select"
+              <el-autocomplete v-if="authorForm.ifourunit == 1" class="input-with-select"
                                v-model="authorForm.personname"
                                :fetch-suggestions="queryAuthorPersonListSearch"
                                placeholder="请输入人员名称"
@@ -257,6 +269,8 @@
                                @select="handleSelectAuthorPerson"
               >
               </el-autocomplete>
+              <el-input v-if="authorForm.ifourunit == 0" v-model="authorForm.personname"
+                        placeholder="请输入人员名称"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -271,38 +285,28 @@
 </template>
 
 <script>
-import {listTeam} from "@/api/project/team";
-import {listData} from "@/api/system/dict/data";
-import {listDept} from "@/api/system/dept";
+import {listTeam, listTeamMember} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
 import {
+  acceptanceconfirmProject,
   addProject,
-  uniqueProject,
-  downloadFile,
-  getProject,
-  getUplevelProject,
-  listProjectdoc,
-  listProjectjoinorganization,
-  listProjectmember,
-  updateProject,
-  uploadFile,
-  confirmProject,
-  getProjectConfirm,
-  getProjectacceptance,
   addProjectacceptance,
-  xinjianzhongProject,
-  acceptanceconfirmProject
+  confirmProject,
+  getProject,
+  uniqueProject,
+  updateProject,
+  xinjianzhongProject
 } from "@/api/project/project";
-import {listAchieve,getPatent, uniquePatent} from "@/api/achieve/patent";
-import {beforeUpload, beforeRemove, handleUploadRemove, handleUploadReview} from "@/api/project/projectdoc";
-import {listBasDoc} from "@/api/achieve/basdoc";
+import {getPatent, addPatent, updatePatent, deletePatent} from "@/api/achieve/patent";
+import {listBasDoc,requestUpload, beforeRemove, beforeUpload, handleUploadRemove, handleUploadReview} from "@/api/achieve/basdoc";
+
 export default {
   name: "EditPatent",
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
       readonly: {},
-      hidden:{},
+      hidden: {},
       opcode: undefined,
       // 遮罩层
       loading: true,
@@ -318,14 +322,16 @@ export default {
       open: false,
 
       // 数据字典  专利类型
-      patenttypeOptions: [{value: "发明", label: "发明"}, {value: "实用新型", label: "实用新型"},{value: "外观设计", label: "外观设计"},{value: "国际专利", label: "国际专利"}],
-      ourunitorderOptions:[{value: 1, label: 1},{value: 2, label: 2},{value: 3, label: 3},{value: 4, label: 4},{value: 5, label: 5}],
+      patenttypeOptions: [{value: "发明", label: "发明"}, {value: "实用新型", label: "实用新型"}, {value: "外观设计",label: "外观设计"}, {value: "国际专利", label: "国际专利"}],
+      ourunitorderOptions: [{value: 1, label: 1}, {value: 2, label: 2}, {value: 3, label: 3}, {value: 4,label: 4}, {value: 5, label: 5}],
       // 数据字典
       teamOptions: [],
       teamList: [],
 
       userOptions: [],
       userList: [],
+
+      teamMemberList: [],
 
       AchieveStatus: {DaiQueRen: 36, BuTongGuo: 38, ZhengChang: 37, YiShanChu: 39},
 
@@ -381,16 +387,16 @@ export default {
   },
 
   mounted() {
-    console.log("mounted this.$route.meta is ",   this.$route.meta);
+    console.log("mounted this.$route.meta is ", this.$route.meta);
   },
 
   beforeCreate() {
-    console.log(" beforeCreate this.$route.meta is ",   this.$route.meta);
+    console.log(" beforeCreate this.$route.meta is ", this.$route.meta);
     const patentid = this.$route.params && this.$route.params.patentid;
 
   },
   created() {
-    console.log(" created this.$route.meta is ",   this.$route.meta);
+    console.log(" created this.$route.meta is ", this.$route.meta);
     this.resetTemplateStatus();
     var patentid = this.$route.params && this.$route.params.patentid;
     if (patentid === undefined || Number(patentid) === 0) {
@@ -427,7 +433,7 @@ export default {
 
           this_.configTemplateStatus();
 
-          listBasDoc({relatedid: this_.form.patentid, attachtotype:"专利"}).then(response => {
+          listBasDoc({relatedid: this_.form.patentid, attachtotype: "专利"}).then(response => {
 
             let rows = response.data;
             console.log("listBasDoc is ", rows);
@@ -481,31 +487,39 @@ export default {
 
     resetTemplateStatus() {
       // 初始化各个组件的状态。
-      this.readonly = {basic: true,acceptance:true, confirm: true};
-      this.hidden = {basic:false,acceptance:true,confirm:true, saveBtn:true,changeBtn:true,deleteBtn:true,submitBtn:true,changeAcceptanceBtn:true,returnBtn:true,confirmBtn:true,addAcceptanceBtn:true };
+      this.readonly = {basic: true, acceptance: true, confirm: true};
+      this.hidden = {
+        basic: false,
+        acceptance: true,
+        confirm: true,
+        saveBtn: true,
+        changeBtn: true,
+        deleteBtn: true,
+        submitBtn: true,
+        changeAcceptanceBtn: true,
+        returnBtn: true,
+        confirmBtn: true,
+        addAcceptanceBtn: true
+      };
     },
 
     configTemplateStatus() {
       this.resetTemplateStatus();
       console.log("configTemplateStatus is ", this.form.status);
-     if (this.form.achieveStatus === this.AchieveStatus.DaiQueRen) {
+      if (this.form.status === this.AchieveStatus.DaiQueRen) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("add") !== -1) {
           this.readonly.basic = false;
-        }
-        else if (this.opcode.indexOf("query") !== -1) {
-          this.readonly.confirm = false;
-          this.hidden.confirm = false;
-          this.hidden.confirmBtn = false;
+          this.hidden.submitBtn = false;
+        } else if (this.opcode.indexOf("query") !== -1) {
+          this.hidden.changeBtn = false;
+          this.hidden.deleteBtn = false;
         }
         else if (this.opcode.indexOf("confirm") !== -1) {
           this.readonly.confirm = false;
           this.hidden.confirm = false;
-          this.hidden.confirmBtn = false;
         }
-
-      }
-      else if (this.form.achieveStatus === this.AchieveStatus.BuTongGuo) {
+      } else if (this.form.status === this.AchieveStatus.BuTongGuo) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
           this.readonly.confirm = true;
@@ -514,37 +528,26 @@ export default {
           this.hidden.changeBtn = false;
           this.hidden.deleteBtn = false;
         }
-      }
-      else if (this.form.achieveStatus === this.AchieveStatus.ZhengChang) {
+      } else if (this.form.status === this.AchieveStatus.ZhengChang) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
-          this.hidden.returnBtn = false;
-          this.hidden.acceptance = false;
-        }
-        else if (this.opcode.indexOf("toaccept") !== -1) {
-          this.hidden.acceptance = false;
-          this.readonly.acceptance = false;
-          this.hidden.confirmBtn = false;
 
         }
-      }
-      else if (this.form.achieveStatus === this.AchieveStatus.YiShanChu) {
+      } else if (this.form.status === this.AchieveStatus.YiShanChu) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
           this.hidden.changeAcceptanceBtn = false;
 
-        }
-        else if (this.opcode.indexOf("acceptconfirm") !== -1) {
+        } else if (this.opcode.indexOf("acceptconfirm") !== -1) {
           this.hidden.acceptance = false;
           this.hidden.confirm = false;
-          this.readonly.confirm =false;
+          this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
 
         }
-      }
-      else {
+      } else {
         this.readonly.basic = true;
         this.hidden.acceptance = false;
       }
@@ -596,7 +599,7 @@ export default {
         memo: undefined,
 
         createuserid: undefined,
-        achieveStatus: this.AchieveStatus.DaiQueRen,
+        status: this.AchieveStatus.DaiQueRen,
 
         statusLinkText: undefined,
         teamname: undefined,
@@ -633,16 +636,36 @@ export default {
 
 
     clearTeamValue() {
-
-
+      this.form.teamid = undefined;
+      this.teamMemberList = [];
     },
 
     changeTeamValue(value) {
 
       if (value) {
         this.form.teamid = value;
+        this.teamMemberList = [];
+
+        const queryParams = {
+          pageNum: 1,
+          pageSize: 30,
+          teamid: this.form.teamid
+        };
+
+        listTeamMember(queryParams).then(response => {
+            const teamMemberListOptions = [];
+            const teamMemberList = response.rows;
+            teamMemberList.forEach(function (member) {
+              const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
+              teamMemberListOptions.push(item);
+            });
+            this.teamMemberList = teamMemberListOptions;
+          }
+        );
+
       } else {
         this.form.teamid = undefined;
+        this.teamMemberList = [];
       }
     },
 
@@ -664,27 +687,25 @@ export default {
     },
 
     changeAuthorIfourunit() {
-    if (this.authorForm.ifourunit === 1) {
-      this.authorForm.unitname= "农业部南京农业机械化研究所";
-    }
-    else {
-      this.authorForm.unitname= "";
-    }
+      if (this.authorForm.ifourunit === 1) {
+        this.authorForm.unitname = "农业部南京农业机械化研究所";
+
+      } else {
+        this.authorForm.unitname = "";
+        this.authorForm.userid = -1;
+        this.authorForm.personname = "";
+      }
 
     },
-
 
     createFilter(v) {
       return (item) => {
         //  console.log("item is ", item.hotKey);
         const queryString = v.toLowerCase();
-        var typename = item.value;
-
-        var ll = typename.indexOf(queryString);
-
-        var py = item.hotKey;
-
-        var hh = -1;
+        const typename = item.value;
+        const ll = typename.indexOf(queryString);
+        const py = item.hotKey;
+        let hh = -1;
         if (py !== undefined && py !== null) {
           hh = py.indexOf(queryString);
         }
@@ -695,39 +716,63 @@ export default {
     },
 
     queryAuthorPersonListSearch(queryString, cb) {
+      // 调用 callback 返回建议列表的数据
+      var options = [];
+      if (this.teamMemberList.length > 0) {
+        options = this.teamMemberList;
+        const results = queryString ? options.filter(this.createFilter(queryString)) : options;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      } else if (this.userList.length > 0) {
+        options = this.userList;
+        const results = queryString ? options.filter(this.createFilter(queryString)) : options;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      } else {
+        // 在线查询。
+        const queryParams = {
+          pageNum: 1,
+          pageSize: 30,
+          teamid: this.form.teamid,
+          realName: queryString
+        };
 
-      const queryParams = {
-        pageNum: 1,
-        pageSize: 30,
-        teamname: queryString
-      };
-      listTeam(queryParams).then(response => {
-          const teamListOptions = [];
-          const teamList = response.rows;
-          teamList.forEach(function (team) {
-            const item = {"value": team.teamname, "teamid": team.teamid};
-            teamListOptions.push(item);
-          });
-          cb(teamListOptions);
-        }
-      );
+        listTeamMember(queryParams).then(response => {
+            const teamMemberListOptions = [];
+            const teamMemberList = response.rows;
+            teamMemberList.forEach(function (member) {
+              const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
+              var x = true;
+              for (let i = 0; i < teamMemberListOptions.length; i++) {
+                let opt = teamMemberListOptions[i];
+                if (opt.value === member.realName) {
+                  x = false;
+                  break;
+                }
+              }
+              if (x) {
+                teamMemberListOptions.push(item);
+              }
+            });
+            cb(teamMemberListOptions);
+          }
+        );
+
+      }
     },
 
-    handleSelectAuthorPerson(team) {
-      console.log("handleSelectTeam is " + team["value"]);
-      this.queryParams.teamid = team["teamid"];
-      this.queryParams.teamname = team["value"];
+    handleSelectAuthorPerson(member) {
+      console.log("handleSelectAuthorPerson is " + member["value"] + " userid is " +  member["id"]);
+      this.authorForm.personname = member["value"];
+      this.authorForm.userid = member["id"];
     },
-
-
-
 
     filterDocList(doctype) {
       const doclist = [];
 
       if (doctype !== "") {
-        for (let i = 0; i < this.form.projectdocList.length; i++) {
-          let item = this.form.projectdocList[i];
+        for (let i = 0; i < this.form.docList.length; i++) {
+          let item = this.form.docList[i];
           if (item.doctype === doctype) {
             doclist.push({"name": item.docname, "url": item.docid});
           }
@@ -737,15 +782,15 @@ export default {
     },
 
 
-    /* 项目申报书 */
+    /* 专利证书 */
     beforeUpload1(file) {
 
-      return beforeUpload(file, this.basicfileList2, "项目申报书");
+      return beforeUpload(file, this.basicfileList1, "专利证书");
 
     },
 
     requestUpload1: function (params) {
-      requestUpload(params, this.basicfileList1, "项目申报书", this.form.projectdocList);
+      requestUpload(2, params, this.basicfileList1, "专利证书", this.form.docList);
     },
 
     beforeRemove1(file, fileList) {
@@ -757,7 +802,7 @@ export default {
 
     handleUploadRemove1(file) {
 
-      handleUploadRemove(file, this.basicfileList1,"项目申报书", this.form.projectdocList );
+      handleUploadRemove(file, this.basicfileList1, "专利证书", this.form.docList);
 
       return;
     },
@@ -777,24 +822,24 @@ export default {
 
     },
 
-    /* 项目合同 */
+    /* 其它附件 */
     beforeUpload2(file) {
-      return beforeUpload(file, this.basicfileList2, "项目合同");
+      return beforeUpload(file, this.basicfileList2, "其它附件");
     },
 
     requestUpload2: function (params) {
-      requestUpload(params, this.basicfileList2, "项目合同", this.form.projectdocList);
+      requestUpload(2, params, this.basicfileList2, "其它附件", this.form.docList);
     },
 
     beforeRemove2(file, fileList) {
       let index = fileList.indexOf(file);
-      console.log("beforeRemove1 index=" + index, file.name);
+      console.log("beforeRemove2 index=" + index, file.name);
       return true;
       //  return this.$confirm(`确定移除 ${ file.name }？`);
     },
 
     handleUploadRemove2(file) {
-      handleUploadRemove(file, this.basicfileList2,"项目合同", this.form.projectdocList );
+      handleUploadRemove(file, this.basicfileList2, "其它附件", this.form.docList);
     },
 
     /** 关闭按钮 */
@@ -823,40 +868,6 @@ export default {
       });
     },
 
-    /** 暂存 按钮 */
-    saveForm: function () {
-
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          console.log("submit form is ", this.form);
-          this.form.operateCode = 1; // 暂存代码 提交给后端。
-
-          // 处理掉添加的参与单位，为了更新或修改。
-          this.form.projectJoinOrganizationList.forEach(function (item) {
-            if (item.joid < 0) {
-              item.joid = undefined;
-            }
-          });
-
-          if (this.form.projectid === undefined) {
-            addProject(this.form).then(response => {
-              if (response.data === 0) {
-                this.msgError("暂存失败");
-                this.form.projectid = undefined;
-              } else {
-                this.msgSuccess("暂存成功");
-                this.form.projectid = response.data;
-              }
-            });
-          } else {
-            updateProject(this.form).then(response => {
-              this.msgSuccess("修改成功");
-              getProject(this.form.projectid);
-            });
-          }
-        }
-      });
-    },
 
     /*提交 审核 按钮*/
     submitForm: function () {
@@ -867,25 +878,30 @@ export default {
           this.form.operateCode = 2; // 提交审核代码 提交给后端。
 
           // 处理掉添加的参与单位，为了更新或修改。
-          this.form.projectJoinOrganizationList.forEach(function (item) {
-            if (item.joid < 0) {
-              item.joid = undefined;
+          this.form.authorList.forEach(function (item) {
+            if (item.authorid < 0) {
+              item.authorid = undefined;
             }
           });
 
-          if (this.form.projectid === undefined) {
-            addProject(this.form).then(response => {
+          if (this.form.patentid === undefined) {
+            addPatent(this.form).then(response => {
               if (response.data === 0) {
                 this.msgError("提交审核失败");
                 this.form.projectid = undefined;
               } else {
                 this.msgSuccess("提交审核成功");
                 this.form.projectid = response.data;
-                this.closeForm();
+
               }
+            }).then(() => {
+
+              this.closeForm();
             });
           } else {
-            updateProject(this.form).then(response => {
+            updatePatent(this.form).then(response => {
+
+            }).then(()=> {
               this.msgSuccess("提交审核成功");
               this.closeForm();
             });
@@ -897,188 +913,10 @@ export default {
 
     /** 编辑模式按钮 */
     changeForm() {
-      this.form.status = this.ProjectStatus.XinJianZhong;
-      this.configTemplateStatus();
-
-    },
-
-    /** 修改验收信息模式按钮 */
-    changeAcceptanceForm() {
-      console.log(" 修改验收信息 ",this.form.status);
-
-      this.form.status = this.ProjectStatus.ZaiYan;
-      this.opcode = "toaccept";
+      this.form.status = this.AchieveStatus.DaiQueRen;
+      this.opcode = "add";
       this.configTemplateStatus();
     },
-
-    /** 退回到新建中 模式按钮 */
-    returnForm() {
-      const this_ = this;
-      this_.$confirm('是否确认将项目退回"新建中"状态?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        // 发送到后台。
-        xinjianzhongProject(this_.form);
-      }).then(() => {
-        this_.closeForm();
-        this_.msgSuccess("退回成功");
-      });
-    },
-
-    /**  验收申请确认 和 新建审核确认 模式按钮 */
-    confirmForm() {
-
-      const this_ = this;
-
-      if (this.form.status === this.ProjectStatus.ZaiYan) {
-        this_.$confirm('是否确认提交项目 验收信息?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function () {
-          this_.form.acceptance.projectdocList = this_.form.projectdocList;
-          this_.form.acceptance.status = this_.form.status;
-          this_.form.acceptance.projectname = this_.form.projectname;
-          return addProjectacceptance(this_.form.acceptance);
-        }).then(() => {
-          this_.closeForm();
-          this_.msgSuccess("验收信息提交成功");
-        });
-      }
-      else if (this.form.status === this.ProjectStatus.DaiQueRen){
-        this.$refs["form"].validate(
-          valid => {
-            if (valid) {
-              console.log("confirmResult is " + this.form.confirmResult);
-
-              if (this_.form.confirmResult == undefined) {
-                this.msgError("请选择审核结果");
-                return;
-              }
-
-              this_.form.confirmUserid = this_.$store.getters.userId;
-              const result = this_.form.confirmResult;
-
-              if (result === 1) {
-                this_.$confirm('是否确认项目新建审核 通过?', "警告", {
-                  confirmButtonText: "确定",
-                  cancelButtonText: "取消",
-                  type: "warning"
-                }).then(function () {
-                  return confirmProject(this_.form);
-                  }).then(() => {
-                    this_.closeForm();
-                    this_.msgSuccess("新建审核成功");
-                  });
-              }
-              else if (result === 2) {
-
-                var note = this_.form.confirmNote;
-                console.log("confirmNote is ", note);
-                if (note !== null && note !== undefined && note.trim() !== '' ) {
-                  this_.$confirm('是否确认项目新建审核 不通过?', "警告", {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                  }).then(function () {
-                   return  confirmProject(this_.form);
-                  }).then(() => {
-                    this_.closeForm();
-                    this_.msgSuccess("新建审核不通过 完成");
-                  });
-                }
-                else {
-                  this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
-                    confirmButtonText: "确定",
-                    type: "warning"
-                  }).then(function () {
-
-                  });
-                }
-              }
-            }
-          }
-        );
-      }
-      else if (this.form.status === this.ProjectStatus.JieTiDaiQueRen){
-        this.$refs["form"].validate(
-          valid => {
-            if (valid) {
-              console.log("confirmResult is " + this.form.confirmResult);
-
-              if (this_.form.confirmResult == undefined) {
-                this.msgError("请选择审核结果");
-                return;
-              }
-
-              this_.form.confirmUserid = this_.$store.getters.userId;
-              const result = this_.form.confirmResult;
-
-              if (result === 1) {
-                this_.$confirm('是否确认项目验收审核 通过?', "警告", {
-                  confirmButtonText: "确定",
-                  cancelButtonText: "取消",
-                  type: "warning"
-                }).then(function () {
-                  return acceptanceconfirmProject(this_.form);
-                }).then(() => {
-                  this_.closeForm();
-                  this_.msgSuccess("项目验收审核成功");
-                });
-              }
-              else if (result === 2) {
-
-                var note = this_.form.confirmNote;
-                console.log("confirmNote is ", note);
-                if (note !== null && note !== undefined && note.trim() !== '' ) {
-                  this_.$confirm('是否确认项目验收审核 不通过?', "警告", {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                  }).then(function () {
-                    return  acceptanceconfirmProject(this_.form);
-                  }).then(() => {
-                    this_.closeForm();
-                    this_.msgSuccess("验收审核不通过 完成");
-                  });
-                }
-                else {
-                  this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
-                    confirmButtonText: "确定",
-                    type: "warning"
-                  }).then(function () {
-
-                  });
-                }
-              }
-            }
-          }
-        );
-      }
-      else if (this.form.status === this.ProjectStatus.YiJieTi) {
-        this_.$confirm('是否确认提交 补充验收材料?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function () {
-          this_.form.acceptance.projectdocList = this_.form.projectdocList;
-          this_.form.acceptance.status = this_.form.status;
-          this_.form.acceptance.projectname = this_.form.projectname;
-          return addProjectacceptance(this_.form.acceptance);
-        }).then(() => {
-          this_.closeForm();
-          this_.msgSuccess("补充验收材料提交成功");
-        });
-      }
-      else {
-
-
-      }
-    },
-
-
 
     /* 主持的项目 子 form */
 
@@ -1105,6 +943,7 @@ export default {
         authorid: row.authorid,
         ifourunit: row.ifourunit,
         unitname: row.unitname,
+        userid: row.userid,
         personname: row.personname
       };
 
@@ -1115,14 +954,14 @@ export default {
     /**  删除按钮操作 */
     handleAuthorDelete(row) {
       const this_ = this;
-      const subjectname = row.subjectname
-      this.$confirm('是否确认删除"' + subjectname + '"的数据项?', "警告", {
+      const personname = row.personname
+      this.$confirm('是否确认删除"' + personname + '"的数据项?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        const index = this_.form.projectJoinOrganizationList.indexOf(row);
-        this_.form.projectJoinOrganizationList.splice(index, 1);
+        const index = this_.form.authorList.indexOf(row);
+        this_.form.authorList.splice(index, 1);
       }).then(() => {
         this.msgSuccess("删除成功");
       });
@@ -1138,33 +977,33 @@ export default {
       this_.$refs["authorForm"].validate(valid => {
         if (valid) {
 
-          if (this_.authorForm.joid !== undefined) {
+          if (this_.authorForm.authorid !== undefined) {
 
-            this_.form.projectJoinOrganizationList.forEach(function (item) {
-              if (item.joid == this_.authorForm.joid) {
-                item.subjectname = this_.authorForm.subjectname;
-                item.organizationname = this_.authorForm.organizationname;
-                item.manager = this_.authorForm.manager;
-                item.funds = this_.authorForm.funds;
+            this_.form.authorList.forEach(function (item) {
+              if (item.authorid == this_.authorForm.authorid) {
+                item.ifourunit = this_.authorForm.ifourunit;
+                item.unitname = this_.authorForm.unitname;
+                item.userid = this_.authorForm.userid;
+                item.personname = this_.authorForm.personname;
               }
             });
             this.msgSuccess("修改成功");
           } else {
-            let joid = 0;
-            this_.form.projectJoinOrganizationList.forEach(function (item) {
-              if (item.joid !== undefined && item.joid < joid) {
-                joid = item.joid;
+            let authorid = 0;
+            this_.form.authorList.forEach(function (item) {
+              if (item.authorid !== undefined && item.authorid < authorid) {
+                authorid = item.authorid;
               }
             });
-            joid = joid - 1;
-            const joinorg = {
-              joid: joid,
-              subjectname: this_.authorForm.subjectname,
-              organizationname: this_.authorForm.organizationname,
-              manager: this_.authorForm.manager,
-              funds: this_.authorForm.funds
+            authorid = authorid - 1;
+            const author2 = {
+              authorid: authorid,
+              ifourunit: this_.authorForm.ifourunit,
+              unitname: this_.authorForm.unitname,
+              userid : this_.authorForm.userid,
+              personname: this_.authorForm.personname
             };
-            this_.form.projectJoinOrganizationList.push(joinorg);
+            this_.form.authorList.push(author2);
             this.msgSuccess("添加成功");
           }
           console.log("submit authorForm is ", this.authorForm);
@@ -1180,6 +1019,7 @@ export default {
         authorid: undefined,
         ifourunit: 1,
         unitname: "农业部南京农业机械化研究所",
+        userid: -1,
         personname: undefined
       };
       this.resetForm("authorForm");
