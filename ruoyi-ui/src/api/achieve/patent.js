@@ -56,9 +56,14 @@ export function deletePatent(patentids) {
     method: 'delete'
   })
 }
-
-
-
+// 审核专利
+export function confirmPatent(data) {
+  return request({
+    url: '/achieve/patent/confirm',
+    method: 'put',
+    data: data
+  })
+}
 
 // 查询专利列表 审核
 export function listToconfirm(query) {

@@ -259,7 +259,16 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="人员" prop="personname">
-              <el-autocomplete v-if="authorForm.ifourunit == 1" class="input-with-select"
+              <el-select v-if="authorForm.ifourunit == 1"  v-model="authorForm.personname" placeholder="请选择人员名称" style="display:block;"
+                         clearable @clear="clearAuthorPersonname" @change="changeAuthorPersonname"
+                         filterable :filter-method="filterAuthorPersonnameOptions" :show-overflow-tooltip="true">
+                <el-option
+                  v-for="item in teamMemberOptions"
+                  :key="item.id"
+                  :label="item.value"
+                  :value="item.id"/>
+              </el-select>
+              <el-autocomplete v-if="0 == 1" class="input-with-select"
                                v-model="authorForm.personname"
                                :fetch-suggestions="queryAuthorPersonListSearch"
                                placeholder="请输入人员名称"
@@ -287,17 +296,7 @@
 <script>
 import {listTeam, listTeamMember} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
-import {
-  acceptanceconfirmProject,
-  addProject,
-  addProjectacceptance,
-  confirmProject,
-  getProject,
-  uniqueProject,
-  updateProject,
-  xinjianzhongProject
-} from "@/api/project/project";
-import {getPatent, addPatent, updatePatent, deletePatent} from "@/api/achieve/patent";
+import {getPatent, addPatent, updatePatent, deletePatent, confirmPatent, uniquePatent} from "@/api/achieve/patent";
 import {listBasDoc,requestUpload, beforeRemove, beforeUpload, handleUploadRemove, handleUploadReview} from "@/api/achieve/basdoc";
 
 export default {
@@ -331,6 +330,7 @@ export default {
       userOptions: [],
       userList: [],
 
+      teamMemberOptions: [],
       teamMemberList: [],
 
       AchieveStatus: {DaiQueRen: 36, BuTongGuo: 38, ZhengChang: 37, YiShanChu: 39},
@@ -481,6 +481,7 @@ export default {
           this.userList = listOptions;
           this.userOptions = listOptions;
         });
+
       });
 
     },
@@ -555,7 +556,7 @@ export default {
 
     getPatentcode(query) {
       return new Promise((resolve, reject) => {
-        let res = uniqueProject(query);
+        let res = uniquePatent(query);
         resolve(res);
       });
     },
@@ -638,6 +639,7 @@ export default {
     clearTeamValue() {
       this.form.teamid = undefined;
       this.teamMemberList = [];
+      this.teamMemberOptions = [];
     },
 
     changeTeamValue(value) {
@@ -645,6 +647,7 @@ export default {
       if (value) {
         this.form.teamid = value;
         this.teamMemberList = [];
+        this.teamMemberOptions = [];
 
         const queryParams = {
           pageNum: 1,
@@ -653,37 +656,27 @@ export default {
         };
 
         listTeamMember(queryParams).then(response => {
-            const teamMemberListOptions = [];
+            const teamMemberOptions = [];
             const teamMemberList = response.rows;
             teamMemberList.forEach(function (member) {
               const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
-              teamMemberListOptions.push(item);
+              teamMemberOptions.push(item);
             });
-            this.teamMemberList = teamMemberListOptions;
+            this.teamMemberList = teamMemberOptions;
+            this.teamMemberOptions = teamMemberOptions;
           }
         );
 
       } else {
         this.form.teamid = undefined;
         this.teamMemberList = [];
+        this.teamMemberOptions = [];
       }
     },
 
-    filterTeamOptions(v) {
-
-      console.log("filter value is " + v);
-
-      if (v) {
-        this.teamOptions = this.teamList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.teamOptions = this.teamList;
-      }
+    filterTeamOptions(queryString) {
+      console.log("filter value is " + queryString);
+      this.teamOptions = queryString ? this.teamList.filter(this.createFilter(queryString)) : this.teamList;
     },
 
     changeAuthorIfourunit() {
@@ -697,6 +690,59 @@ export default {
       }
 
     },
+
+    clearAuthorPersonname() {
+
+    },
+    changeAuthorPersonname(value,id) {
+        console.log("id is " + id , "value is " + value);
+    },
+
+    filterAuthorPersonnameOptions(queryString) {
+      console.log("filter value is " + queryString);
+      console.log("teamMemberList is " , this.teamMemberList);
+
+      let options = [];
+      if (this.teamMemberList.length > 0) {
+        options = this.teamMemberList;
+        this.teamMemberOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
+      }
+     else if (this.userList.length > 0) {
+        options = this.userList;
+        this.teamMemberOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
+      }
+     else  {
+        // 在线查询。
+        const queryParams = {
+          pageNum: 1,
+          pageSize: 30,
+          teamid: this.form.teamid,
+          realName: queryString
+        };
+
+        listTeamMember(queryParams).then(response => {
+            const teamMemberOptions = [];
+            const teamMemberList = response.rows;
+            teamMemberList.forEach(function (member) {
+              const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
+              var x = true;
+              for (let i = 0; i < teamMemberOptions.length; i++) {
+                let opt = teamMemberOptions[i];
+                if (opt.value === member.realName) {
+                  x = false;
+                  break;
+                }
+              }
+              if (x) {
+                teamMemberOptions.push(item);
+              }
+            });
+            this.teamMemberOptions = teamMemberOptions;
+          }
+        );
+      }
+    },
+
 
     createFilter(v) {
       return (item) => {
@@ -877,36 +923,89 @@ export default {
           console.log("submit form is ", this.form);
           this.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          // 处理掉添加的参与单位，为了更新或修改。
-          this.form.authorList.forEach(function (item) {
-            if (item.authorid < 0) {
-              item.authorid = undefined;
-            }
-          });
-
-          if (this.form.patentid === undefined) {
-            addPatent(this.form).then(response => {
-              if (response.data === 0) {
-                this.msgError("提交审核失败");
-                this.form.projectid = undefined;
-              } else {
-                this.msgSuccess("提交审核成功");
-                this.form.projectid = response.data;
-
+          if (this.opcode === "add") {
+            // 处理掉添加 专利人，为了更新或修改。
+            this.form.authorList.forEach(function (item) {
+              if (item.authorid < 0) {
+                item.authorid = undefined;
               }
-            }).then(() => {
-
-              this.closeForm();
-            });
-          } else {
-            updatePatent(this.form).then(response => {
-
-            }).then(()=> {
-              this.msgSuccess("提交审核成功");
-              this.closeForm();
             });
 
+            if (this.form.patentid === undefined) {
+              addPatent(this.form).then(response => {
+                if (response.data === 0) {
+                  this.msgError("提交审核失败");
+                  this.form.projectid = undefined;
+                } else {
+                  this.msgSuccess("提交审核成功");
+                  this.form.projectid = response.data;
+
+                }
+              }).then(() => {
+
+                this.closeForm();
+              });
+            } else {
+              updatePatent(this.form).then(response => {
+
+              }).then(()=> {
+                this.msgSuccess("提交审核成功");
+                this.closeForm();
+              });
+
+            }
           }
+          else if (this.opcode === "confirm") {
+            console.log("confirmResult is " + this.form.confirmResult);
+
+            if (this_.form.confirmResult == undefined) {
+              this.msgError("请选择审核结果");
+              return;
+            }
+
+            this_.form.confirmUserid = this_.$store.getters.userId;
+            const result = this_.form.confirmResult;
+
+            if (result === 1) {
+              this_.$confirm('是否确认项目新建审核 通过?', "警告", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+              }).then(function () {
+                return confirmPatent(this_.form);
+              }).then(() => {
+                this_.closeForm();
+                this_.msgSuccess("审核通过，完成");
+              });
+            }
+            else if (result === 2) {
+
+              var note = this_.form.confirmNote;
+              console.log("confirmNote is ", note);
+              if (note !== null && note !== undefined && note.trim() !== '' ) {
+                this_.$confirm('是否确认项目新建审核 不通过?', "警告", {
+                  confirmButtonText: "确定",
+                  cancelButtonText: "取消",
+                  type: "warning"
+                }).then(function () {
+                  return  confirmPatent(this_.form);
+                }).then(() => {
+                  this_.closeForm();
+                  this_.msgSuccess("新核不通过 完成");
+                });
+              }
+              else {
+                this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
+                  confirmButtonText: "确定",
+                  type: "warning"
+                }).then(function () {
+
+                });
+              }
+            }
+          }
+
+
         }
       });
     },
@@ -928,13 +1027,36 @@ export default {
     },
 
 
+    getTeamMember(teamid) {
+      const queryParams = {
+        pageNum: 1,
+        pageSize: 30,
+        teamid: teamid
+      };
+
+      listTeamMember(queryParams).then(response => {
+          const teamMemberOptions = [];
+          const teamMemberList = response.rows;
+          teamMemberList.forEach(function (member) {
+            const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
+            teamMemberOptions.push(item);
+          });
+          this.teamMemberList = teamMemberOptions;
+          this.teamMemberOptions = teamMemberOptions;
+        }
+      );
+
+    },
+
     handleAuthorAdd() {
       this.resetAuthorForm();
       this.authorFormOpen = true;
       this.authorFormTitle = "添加专利人";
 
+      if (this.form.teamid !== undefined) {
+        this.getTeamMember(this.form.teamid);
+      }
     },
-
 
     handleAuthorUpdate(row) {
       this.authorFormOpen = true;
@@ -948,6 +1070,10 @@ export default {
       };
 
       this.authorForm = author;
+
+      if (this.form.teamid !== undefined) {
+        this.getTeamMember(this.form.teamid);
+      }
     },
 
 

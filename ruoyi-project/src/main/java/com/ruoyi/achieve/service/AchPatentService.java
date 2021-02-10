@@ -260,4 +260,31 @@ public class AchPatentService {
     public Integer updateStatusAchPatent(AchPatent patent) {
         return patentMapper.updateStatusAchPatent(patent);
     }
+
+    public Integer confirmAchPatent(AchPatent patent) {
+
+        AchPatent record = new AchPatent();
+        record.setPatentid(patent.getPatentid());
+        if (patent.getConfirmResult() == 1) {
+            record.setStatus(AchieveStatus.ZhengChang.getCode());
+
+            //审核通过时，团队绩效加分, 后续开发，等绩效模块到位。
+//            if (Confirm1.rbtl_Result.SelectedValue == "1")  //通过
+//            {
+//                ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
+//                iteamper.AddRecord_FromPatent(Request["kid"]);
+//            }
+        }
+        else if (patent.getConfirmResult() == 2) {
+            record.setStatus(AchieveStatus.BuTongGuo.getCode());
+        }
+        else {return 0;}
+
+        patentMapper.updateStatusAchPatent(record);
+
+
+
+        return  1;
+    }
+
 }

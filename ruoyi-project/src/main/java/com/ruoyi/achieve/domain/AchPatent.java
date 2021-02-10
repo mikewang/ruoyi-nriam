@@ -55,6 +55,10 @@ public class AchPatent extends BaseEntity {
     private Integer statusColor = 0;
 
 
+    private Integer confirmResult;
+    private String confirmNote;
+    private Integer confirmUserid;
+
 
     public Integer getPatentid() {
         return patentid;
@@ -254,6 +258,30 @@ public class AchPatent extends BaseEntity {
 
     public void setPatentYear(String patentYear) {
         this.patentYear = patentYear;
+    }
+
+    public Integer getConfirmResult() {
+        return confirmResult;
+    }
+
+    public void setConfirmResult(Integer confirmResult) {
+        this.confirmResult = confirmResult;
+    }
+
+    public String getConfirmNote() {
+        return confirmNote;
+    }
+
+    public void setConfirmNote(String confirmNote) {
+        this.confirmNote = confirmNote;
+    }
+
+    public Integer getConfirmUserid() {
+        return confirmUserid;
+    }
+
+    public void setConfirmUserid(Integer confirmUserid) {
+        this.confirmUserid = confirmUserid;
     }
 
     @Override

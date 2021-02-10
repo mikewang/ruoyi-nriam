@@ -149,4 +149,31 @@ public class AchPatentController extends BaseController {
         }
 
     }
+
+    @PreAuthorize("@ss.hasPermi('achieve:toconfirm:list')")
+    @Log(title = "成果审核", businessType = BusinessType.UPDATE)
+    @PutMapping("/confirm")
+    public AjaxResult confirm(@Validated @RequestBody  AchPatent patent) {
+
+        AchPatent undoPatent = patentService.selectAchPatentById(patent.getPatentid());
+        if (undoPatent.getStatus() == AchieveStatus.DaiQueRen.getCode())
+        {
+            return AjaxResult.error("操作'" + patent.getPatentname() + "'失败，状态不对");
+        }
+
+        Integer status = patent.getStatus();
+        logger.debug("patent.getStatus is " + status.toString());
+
+        Integer res = patentService.confirmAchPatent(patent);
+
+        AjaxResult ajax = AjaxResult.success();
+
+        if (res == 1) {
+            return  ajax;
+        }
+        else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
 }
