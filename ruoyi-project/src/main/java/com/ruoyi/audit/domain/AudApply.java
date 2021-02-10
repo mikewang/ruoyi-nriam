@@ -4,11 +4,9 @@ public class AudApply {
 
     private Integer applyid;
 
-
     private String applytype;
 
     private Integer relatedid;
-
 
     private Integer applyuserid;
 
@@ -16,15 +14,11 @@ public class AudApply {
 
     private String applyreason;
 
-
     private Integer audituserid;
-
 
     private String audittime;
 
-
     private String auditopinion;
-
 
     private Integer applystatus;
 

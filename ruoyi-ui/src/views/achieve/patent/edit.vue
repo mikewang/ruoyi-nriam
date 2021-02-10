@@ -519,6 +519,7 @@ export default {
         else if (this.opcode.indexOf("confirm") !== -1) {
           this.readonly.confirm = false;
           this.hidden.confirm = false;
+          this.hidden.submitBtn = false;
         }
       } else if (this.form.status === this.AchieveStatus.BuTongGuo) {
         console.log("this.opcode is ", this.opcode);
@@ -536,21 +537,9 @@ export default {
         }
       } else if (this.form.status === this.AchieveStatus.YiShanChu) {
         console.log("this.opcode is ", this.opcode);
-        if (this.opcode.indexOf("query") !== -1) {
-          this.hidden.acceptance = false;
 
-          this.hidden.changeAcceptanceBtn = false;
-
-        } else if (this.opcode.indexOf("acceptconfirm") !== -1) {
-          this.hidden.acceptance = false;
-          this.hidden.confirm = false;
-          this.readonly.confirm = false;
-          this.hidden.confirmBtn = false;
-
-        }
       } else {
-        this.readonly.basic = true;
-        this.hidden.acceptance = false;
+
       }
     },
 
@@ -918,27 +907,29 @@ export default {
     /*提交 审核 按钮*/
     submitForm: function () {
 
+      const this_ = this;
+
       this.$refs["form"].validate(valid => {
         if (valid) {
           console.log("submit form is ", this.form);
-          this.form.operateCode = 2; // 提交审核代码 提交给后端。
+          this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          if (this.opcode === "add") {
+          if (this_.opcode === "add") {
             // 处理掉添加 专利人，为了更新或修改。
-            this.form.authorList.forEach(function (item) {
+            this_.form.authorList.forEach(function (item) {
               if (item.authorid < 0) {
                 item.authorid = undefined;
               }
             });
 
-            if (this.form.patentid === undefined) {
+            if (this_.form.patentid === undefined) {
               addPatent(this.form).then(response => {
                 if (response.data === 0) {
-                  this.msgError("提交审核失败");
-                  this.form.projectid = undefined;
+                  this_.msgError("提交审核失败");
+                  this_.form.patentid = undefined;
                 } else {
                   this.msgSuccess("提交审核成功");
-                  this.form.projectid = response.data;
+                  this.form.patentid = response.data;
 
                 }
               }).then(() => {
@@ -967,7 +958,7 @@ export default {
             const result = this_.form.confirmResult;
 
             if (result === 1) {
-              this_.$confirm('是否确认项目新建审核 通过?', "警告", {
+              this_.$confirm('是否确认专利审核 通过?', "警告", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning"
@@ -983,7 +974,7 @@ export default {
               var note = this_.form.confirmNote;
               console.log("confirmNote is ", note);
               if (note !== null && note !== undefined && note.trim() !== '' ) {
-                this_.$confirm('是否确认项目新建审核 不通过?', "警告", {
+                this_.$confirm('是否确认专利审核 不通过?', "警告", {
                   confirmButtonText: "确定",
                   cancelButtonText: "取消",
                   type: "warning"

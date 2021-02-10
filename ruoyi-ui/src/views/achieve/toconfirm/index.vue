@@ -3,17 +3,16 @@
     <el-row :gutter="20">
       <!--查询数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="年份" prop="year">
-          <el-date-picker
-            type="year"
-            format="yyyy"
-            value-format="yyyy"
-            v-model="queryParams.patentYear"
-            placeholder="请输入"
-            clearable
-            size="small"
-            style="width: 240px"
-          />
+        <el-form-item label="成果类型" prop="applytype">
+          <el-select v-model="queryParams.applytype" placeholder="请选择"
+                     style="display:block;" clearable
+                     @change="changeAchieveTypeValue">
+            <el-option
+              v-for="item in achieveTypeOptions"
+              :key="item.link"
+              :label="item.info"
+              :value="item.info"/>
+          </el-select>
         </el-form-item>
         <el-form-item label="所属团队" prop="teamid">
           <el-select v-model="queryParams.teamid" placeholder="请选择所属团队"
@@ -27,6 +26,9 @@
               :value="item.id"/>
           </el-select>
         </el-form-item>
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="queryParams.name" clearable/>
+        </el-form-item>
         <el-form-item>
           <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -34,54 +36,19 @@
       </el-form>
 
       <el-row :gutter="10" class="mb8">
-        <el-col :span="1.5">
-          <el-button
-            type="primary"
-            icon="el-icon-plus"
-            size="mini"
-            @click="handleAdd"
-            v-hasPermi="['achieve:patent:list']"
-          >新增
-          </el-button>
-        </el-col>
-        <el-col :span="1.5">
-          <el-button
-            type="warning"
-            icon="el-icon-download"
-            size="mini"
-            @click="handleExport"
-            v-hasPermi="['achieve:patent:list']"
-          >导出
-          </el-button>
-        </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
-      <el-table v-loading="loading" :data="achieveList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="applyList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" align="center"/>
-        <el-table-column label="专利名称" align="center" prop="patentname" :show-overflow-tooltip="true">
-          <template slot-scope="scope">
-            <span v-if="scope.row.statusColor === -1" style="color:red">{{ scope.row.patentname }}</span>
-            <span v-else-if="scope.row.statusColor === 1" style="color:green">{{ scope.row.patentname }}</span>
-            <span v-else>{{ scope.row.patentname }}</span>
-          </template>
+        <el-table-column label="成果名称" align="center" prop="name" :show-overflow-tooltip="true">
         </el-table-column>
-        <el-table-column label="专利号" align="center" prop="patentcode" width="200"/>
+        <el-table-column label="类型" align="center" prop="applytype" width="200"/>
 
-        <el-table-column label="专利类型" align="center" prop="patenttype" width="100"/>
-        <el-table-column label="专利授权日期" align="center" prop="passtime" width="100"/>
+        <el-table-column label="提交人" align="center" prop="realName"/>
+        <el-table-column label="提交时间" align="center" prop="applytime" width="180"/>
 
-        <el-table-column label="专利人" align="center" prop="authors" />
-
-        <el-table-column label="所属团队" align="center" prop="teamname" width="100"/>
         <el-table-column label="状态" align="center" prop="statuslinktext" width="100">
-          <template slot-scope="scope">
-            <span v-if="scope.row.statusColor === -1" style="color:red"
-                  :key="Math.random()">{{ scope.row.statuslinktext }}</span>
-            <span v-else-if="scope.row.statusColor === 1" style="color:green"
-                  :key="Math.random()">{{ scope.row.statuslinktext }}</span>
-            <span v-else :key="Math.random()">{{ scope.row.statuslinktext }}</span>
-          </template>
         </el-table-column>
         <el-table-column
           label="操作"
@@ -95,8 +62,8 @@
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
-              v-hasPermi="['achieve:patent:list']"
-            >查看
+              v-hasPermi="['achieve:toconfirm:list']"
+            >审核
             </el-button>
           </template>
         </el-table-column>
@@ -115,7 +82,7 @@
 </template>
 
 <script>
-import {listPatent} from "@/api/achieve/patent";
+import {listAchievetype, listToconfirm} from "@/api/achieve/toconfirm";
 import {listTeam} from "@/api/project/team";
 
 
@@ -136,13 +103,15 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 用户表格数据
-      achieveList: [],
+      // 表格数据
+      applyList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
       // 数据字典
+      // 科技成果类型
+      achieveTypeOptions: [],
       teamOptions: [],
       teamList: [],
       AchieveStatus: {DaiQueRen: 36, BuTongGuo: 38, ZhengChang: 37, YiShanChu: 39},
@@ -153,8 +122,8 @@ export default {
         pageNum: 1,
         pageSize: 10,
         teamid: undefined,
-        projectyear: "2021",
-        projectname: undefined
+        applytype:undefined,
+        name: undefined
       },
       // 表单参数
       form: {},
@@ -182,16 +151,20 @@ export default {
       });
       this.teamList = listOptions;
       this.teamOptions = listOptions;
-
+    });
+    listAchievetype().then(response => {
+      console.log("listAchievetype is ", response);
+      this.achieveTypeOptions = response.data;
     });
   },
   methods: {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      listPatent(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      console.log("queryParams is ", this.queryParams);
+      listToconfirm(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
-          this.achieveList = response.rows;
+          this.applyList = response.rows;
           this.total = response.total;
           this.loading = false;
         }
@@ -226,29 +199,16 @@ export default {
       this.multiple = !selection.length;
     },
 
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.$router.push({path: '/achieve/patent'});
-    },
 
-    handleUpdate(row) {
-      const patentid = row.patentid
-      console.log("edit patent id is ", patentid);
-      this.$router.push({path: '/achieve/patent/' + patentid});
-    },
+    changeAchieveTypeValue(value) {
 
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有项目的数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        // return exportUser(queryParams);
-      }).then(response => {
-        // this.download(response.msg);
-      });
+      console.log("value is ", value);
+      if (value) {
+        this.queryParams.applytype = value;
+      } else {
+        this.queryParams.applytype = undefined;
+      }
+
     },
 
     clearTeamValue() {
@@ -257,6 +217,7 @@ export default {
 
     changeTeamValue(value) {
 
+      console.log("value is " + value);
       if (value) {
         this.queryParams.teamid = value;
 
@@ -284,7 +245,26 @@ export default {
 
         return (ll >= 0 || hh >= 0);
       };
-    }
+    },
+
+    /** 按钮操作 */
+
+    handleUpdate(row) {
+      console.log("update row is  ", row);
+
+      for(let i = 0; i < this.achieveTypeOptions.length; i++) {
+        let item = this.achieveTypeOptions[i];
+        if (row.applytype == item.info) {
+          const path = '/achieve/'+ item.link + '/confirm/' + row.relatedid;
+          console.log("path is " + path);
+          this.$router.push({path: path});
+        }
+      }
+
+
+
+    },
+
   }
 };
 </script>

@@ -61,7 +61,14 @@ public class AchPatentController extends BaseController {
 
         if (StringUtils.isNotNull(patentid))
         {
-            ajax.put(AjaxResult.DATA_TAG, patentService.selectAchPatentById(patentid));
+            AchPatent p = patentService.selectAchPatentById(patentid);
+            if (p != null) {
+                ajax.put(AjaxResult.DATA_TAG, patentService.selectAchPatentById(patentid));
+            }
+            else {
+                ajax = AjaxResult.error("patentid：" + patentid.toString() + " 不存在");
+            }
+
         }
         return ajax;
     }
@@ -156,9 +163,10 @@ public class AchPatentController extends BaseController {
     public AjaxResult confirm(@Validated @RequestBody  AchPatent patent) {
 
         AchPatent undoPatent = patentService.selectAchPatentById(patent.getPatentid());
-        if (undoPatent.getStatus() == AchieveStatus.DaiQueRen.getCode())
+        logger.debug("undoPatent is " + undoPatent.toString());
+        if (undoPatent.getStatus() != AchieveStatus.DaiQueRen.getCode())
         {
-            return AjaxResult.error("操作'" + patent.getPatentname() + "'失败，状态不对");
+            return AjaxResult.error("操作'" + patent.getPatentname() + "' 失败，状态不对");
         }
 
         Integer status = patent.getStatus();

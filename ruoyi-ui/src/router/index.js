@@ -159,6 +159,12 @@ export const constantRoutes = [
         component: (resolve) => require(['@/views/achieve/patent/edit'], resolve),
         name: 'EditPatent',
         meta: { title: '专利编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'patent/confirm/:patentid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/patent/edit'], resolve),
+        name: 'ConfirmPatent',
+        meta: { title: '专利审核', icon: '', opcode: 'confirm',noCache: true }
       }
     ]
   },

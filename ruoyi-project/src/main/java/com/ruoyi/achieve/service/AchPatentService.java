@@ -10,6 +10,7 @@ import com.ruoyi.audit.mapper.AudApplyMapper;
 import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.AchieveStatus;
+import com.ruoyi.common.enums.AchieveType;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.project.domain.AudProject;
@@ -49,7 +50,7 @@ public class AchPatentService {
     @Resource
     private AudMessageMapper messageMapper;
 
-    private String achieveType = "专利";
+    private String achieveType = AchieveType.PATENT.getInfo();
 
     public List<AchPatent> selectAchPatentList(AchPatent patent) {
         List<AchPatent> patentList = patentMapper.selectAchPatentList(patent);
@@ -89,19 +90,25 @@ public class AchPatentService {
     public AchPatent selectAchPatentById(Integer patentid) {
 
         AchPatent p =  patentMapper.selectAchPatentById(patentid);
+        if (p == null) {
+            return null;
+        }
 
         AchAuthor query = new AchAuthor();
+        log.debug("achieveType is " + achieveType + " patentid is " + patentid.toString());
         query.setAchievetype(achieveType);
         query.setRelatedid(patentid);
 
         List<AchAuthor> achAuthorList = authorMapper.selectAchAuthorList(query);
+        log.debug("achAuthorList is " + achAuthorList.toString());
+
+        p.setAuthorList(achAuthorList);
         List<String> personnames = new ArrayList<>();
         for (AchAuthor a : achAuthorList) {
             personnames.add(a.getPersonname());
         }
         String authors = StringUtils.joinWith(",", personnames);
 
-        p.setAuthorList(achAuthorList);
         p.setAuthors(authors);
 
         return  p;
@@ -281,8 +288,6 @@ public class AchPatentService {
         else {return 0;}
 
         patentMapper.updateStatusAchPatent(record);
-
-
 
         return  1;
     }
