@@ -65,13 +65,13 @@ export function confirmPatent(data) {
   })
 }
 
-// 查询专利列表 审核
-export function listToconfirm(query) {
+// 查询专利 审核详细
+export function getPatentConfirm(patentid,status) {
   return request({
-    url: '/achieve/patent/toconfirm/list',
-    method: 'get',
-    params: query
+    url: '/achieve/patent/confirm/' + praseStrEmpty(patentid) + '/' + status,
+    method: 'get'
   })
 }
+
 
 

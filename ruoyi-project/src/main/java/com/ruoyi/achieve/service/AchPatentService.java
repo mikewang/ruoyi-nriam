@@ -11,6 +11,7 @@ import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.AchieveStatus;
 import com.ruoyi.common.enums.AchieveType;
+import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.project.domain.AudProject;
@@ -241,7 +242,7 @@ public class AchPatentService {
 
     public Integer insertAchPatent(AchPatent patent) {
         patent.setCreatetime(DateUtils.dateTimeNow());
-        patent.setProjectid(-1);
+        patent.setPatentid(-1);
         Integer rows = patentMapper.insertAchPatent(patent);
         updatePatentDetail(patent);
         //发申请和通知
@@ -289,7 +290,148 @@ public class AchPatentService {
 
         patentMapper.updateStatusAchPatent(record);
 
+        AudApply apply = new AudApply();
+        apply.setApplyid(patent.getApplyid());
+        apply.setAudituserid(patent.getConfirmUserid());
+        apply.setAudittime(DateUtils.dateTimeNow());
+        apply.setAuditopinion(patent.getConfirmNote());
+        apply.setApplystatus(patent.getConfirmResult());
+
+        applyMapper.updateAuditAudApply(apply);
+
+
+        //消除"审核人"待办事项
+        String perms = "achieve:toconfirm:list";
+
+        SysUserMenu userMenu = new SysUserMenu();
+        userMenu.setPerms(perms);
+
+        List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
+
+        Set<Long> useridSet = new HashSet<>();
+        for (SysUserMenu um : userMenuList) {
+            useridSet.add(um.getUserId());
+        }
+
+        for (Long userid : useridSet) {
+            AudMessage message = new AudMessage();
+            message.setProcessedtime(DateUtils.dateTimeNow());
+            message.setTouserid(userid.intValue());
+            message.setRelatedsheettype(achieveType);
+            message.setRelatedsheetid(patent.getPatentid());
+            messageMapper.updateIfProcessedById(message);
+        }
+
+        String title = "";
+        String content = "";
+        if (patent.getConfirmResult() == 1) {
+            title = "您提交的科技成果审核通过";
+            content = "专利：“" + patent.getPatentname() + "”的信息已经审核通过。"
+                    + "<a href=\"/Achieve/PatentList.aspx?"
+                    + "kid=" + patent.getPatentid() + "&f=todo\" target=\"_self\" >查看</a> ";
+        }
+        else if (patent.getConfirmResult() == 2) {
+            title = "您提交的科技成果审核不通过";
+            content = "专利：“" + patent.getPatentname()  + "”的信息审核不通过。"
+                    + "<a href=\"/Achieve/PatentList.aspx?"
+                    + "kid=" + patent.getPatentid() + "&f=todo\" target=\"_self\" >查看</a> ";
+        }
+
+        //发送通知
+        //发送给提交人
+        AudMessage message = new AudMessage();
+        message.setMessagetime(DateUtils.dateTimeNow());
+        message.setMessagetitle(title);
+        message.setMessagecontent(content);
+        message.setTouserid(patent.getCreateuserid());
+        message.setRelatedsheettype(achieveType);
+        message.setRelatedsheetid(patent.getPatentid());
+        messageMapper.insertAudMessage(message);
+
+//        //消除"审核人"待办事项
+//        IPermissionManager iperm = PermissionManager.GetInstance();
+//        DataSet ds = iperm.GetUserListToModule(ConstantParameter.MID_AchieveConfirm);
+//        //循环
+//        for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+//        {
+//            iaudms.SetProcessed(ds.Tables[0].Rows[i]["UserID"].ToString(), ConstantParameter.CHString_Patent, PatentDetail1.lab_ID.Text);
+//        }
+//        ds.Dispose();
+//
+//
+//        //发送消息给提交人
+//        string title = "";
+//        string content = "";
+//        if (Confirm1.rbtl_Result.SelectedValue == "1")  //通过
+//        {
+//            title = "您提交的科技成果审核通过";
+//            content = "专利：“" + PatentDetail1.lab_Name.Text + "”的信息已经审核通过。"
+//                    + "<a href=\"/Achieve/PatentList.aspx?"
+//                    + "kid=" + PatentDetail1.lab_ID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
+//        }
+//        else
+//        {
+//            title = "您提交的科技成果审核不通过";
+//            content = "专利：“" + PatentDetail1.lab_Name.Text + "”的信息审核不通过。"
+//                    + "<a href=\"/Achieve/PatentList.aspx?"
+//                    + "kid=" + PatentDetail1.lab_ID.Text + "&f=todo\" target=\"_self\" >查看</a> ";
+//        }
+//        AudMessage am = new AudMessage();
+//        am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//        am.MessageTitle = title;
+//        am.MessageContent = content;
+//        //发送给提交人
+//        am.ToUserID = int.Parse(PatentDetail1.lab_CreateUserID.Text);
+//        am.RelatedSheetType = ConstantParameter.CHString_Patent;
+//        am.RelatedSheetID = int.Parse(PatentDetail1.lab_ID.Text);
+//        iaudms.AddNew(am);
+
         return  1;
+    }
+
+    public AudApply selectApplyByTypeAndRelatedID(Integer patentid, Integer status) {
+
+        AudApply apply = new AudApply();
+
+        if (status == AchieveStatus.BuTongGuo.getCode()) {
+            apply.setApplytype(AchieveType.PATENT.getInfo());
+        }
+        else {
+            return  null;
+        }
+        apply.setRelatedid(patentid);
+        return applyMapper.selectApplyByTypeAndRelatedID(apply);
+    }
+
+    public Integer removeAchPatent(Integer patentid) {
+
+        AchPatent record = new AchPatent();
+        record.setPatentid(patentid);
+        record.setStatus(AchieveStatus.YiShanChu.getCode());
+        Integer rows = patentMapper.updateStatusAchPatent(record);
+        //如果该成果对应的有待审核的“申请”和消息，则清除掉
+
+        AudApply apply = new AudApply();
+
+        apply.setApplytype(AchieveType.PATENT.getInfo());
+        apply.setRelatedid(patentid);
+        apply.setApplystatus(0);
+        AudApply apply2 = applyMapper.selectApplyByTypeAndRelatedID(apply);
+
+        if (apply2 != null) {
+            applyMapper.deleteAudApplyById(apply2.getApplyid());
+            AudMessage message = new AudMessage();
+            message.setRelatedsheettype(AchieveType.PATENT.getInfo());
+            message.setRelatedsheetid(patentid);
+            messageMapper.updateIfProcessedAudMessageBySheetAndId(message);
+        }
+
+        //删掉对应的绩效计分记录, 后续开发。
+//        ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
+//        iteamper.DeleteRecordByAchieve(achieveType, relatedID);
+
+
+        return  rows;
     }
 
 }

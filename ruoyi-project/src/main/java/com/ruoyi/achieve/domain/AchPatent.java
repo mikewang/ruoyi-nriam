@@ -58,6 +58,8 @@ public class AchPatent extends BaseEntity {
     private Integer confirmResult;
     private String confirmNote;
     private Integer confirmUserid;
+    private Integer applyid;
+
 
 
     public Integer getPatentid() {
@@ -282,6 +284,14 @@ public class AchPatent extends BaseEntity {
 
     public void setConfirmUserid(Integer confirmUserid) {
         this.confirmUserid = confirmUserid;
+    }
+
+    public Integer getApplyid() {
+        return applyid;
+    }
+
+    public void setApplyid(Integer applyid) {
+        this.applyid = applyid;
     }
 
     @Override

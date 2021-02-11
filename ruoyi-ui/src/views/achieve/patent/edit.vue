@@ -258,15 +258,15 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="人员" prop="personname">
-              <el-select v-if="authorForm.ifourunit == 1"  v-model="authorForm.personname" placeholder="请选择人员名称" style="display:block;"
+            <el-form-item label="人员" prop="userid">
+              <el-select v-if="authorForm.ifourunit == 1"  v-model="authorForm.userid" placeholder="请选择人员" style="display:block;"
                          clearable @clear="clearAuthorPersonname" @change="changeAuthorPersonname"
                          filterable :filter-method="filterAuthorPersonnameOptions" :show-overflow-tooltip="true">
                 <el-option
                   v-for="item in teamMemberOptions"
                   :key="item.id"
                   :label="item.value"
-                  :value="item.id"/>
+                  :value="item.id"></el-option>
               </el-select>
               <el-autocomplete v-if="0 == 1" class="input-with-select"
                                v-model="authorForm.personname"
@@ -296,7 +296,7 @@
 <script>
 import {listTeam, listTeamMember} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
-import {getPatent, addPatent, updatePatent, deletePatent, confirmPatent, uniquePatent} from "@/api/achieve/patent";
+import {getPatent, addPatent, updatePatent, deletePatent, confirmPatent, uniquePatent,getPatentConfirm} from "@/api/achieve/patent";
 import {listBasDoc,requestUpload, beforeRemove, beforeUpload, handleUploadRemove, handleUploadReview} from "@/api/achieve/basdoc";
 
 export default {
@@ -307,6 +307,7 @@ export default {
       readonly: {},
       hidden: {},
       opcode: undefined,
+      applyid: undefined,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -378,7 +379,7 @@ export default {
         unitname: [
           {required: true, message: "不能为空", trigger: "blur"}
         ],
-        personname: [
+        userid: [
           {required: true, message: "不能为空", trigger: "blur"}
         ]
       }
@@ -398,6 +399,8 @@ export default {
   created() {
     console.log(" created this.$route.meta is ", this.$route.meta);
     this.resetTemplateStatus();
+    console.log(" created this.$route.params is ", this.$route.params);
+
     var patentid = this.$route.params && this.$route.params.patentid;
     if (patentid === undefined || Number(patentid) === 0) {
       patentid = undefined;
@@ -406,6 +409,7 @@ export default {
     }
 
     this.opcode = this.$route.meta.opcode;
+    this.applyid = this.$route.params.applyid;
 
     this.getData(patentid);
 
@@ -425,11 +429,16 @@ export default {
         this.loading = false;
       } else {
         getPatent(patentid).then(response => {
-          console.log("this.form is ", response.data);
+          console.log("response is ", response.data);
 
           const data = response.data;
 
           this_.form = data;
+
+          if (this.applyid !== undefined) {
+            this_.form.applyid = this.applyid;
+          }
+          console.log("this.form is ", this_.form);
 
           this_.configTemplateStatus();
 
@@ -448,13 +457,13 @@ export default {
           this.loading = false;
 
           // 获取 审核结果信息。
-          // if (this.form.status === this.ProjectStatus.BuTongGuo) {
-          //   getProjectConfirm(projectid,this.ProjectStatus.BuTongGuo).then(response => {
-          //     console.log("getProjectConfirm is ", response);
-          //     this.form.confirmResult = response.data.applystatus;
-          //     this.form.confirmNote =  response.data.auditopinion;
-          //   });
-          // }
+          if (this.form.status === this.AchieveStatus.BuTongGuo) {
+            getPatentConfirm(patentid,this.AchieveStatus.BuTongGuo).then(response => {
+              console.log("getPatentConfirm is ", response);
+              this.form.confirmResult = response.data.applystatus;
+              this.form.confirmNote =  response.data.auditopinion;
+            });
+          }
 
         });
       }
@@ -554,10 +563,10 @@ export default {
       if (!value) {
         callback(new Error("专利号不能为空"));
       } else {
-        if (this.form.subjectcode === undefined) {
+        if (this.form.patentcode === undefined) {
           callback();
         } else {
-          let query = {subjectcode: value, projectid: this.form.projectid};
+          let query = {patentcode: value, patentid: this.form.patentid};
           let res = await this.getPatentcode(query);
           console.log(res);
           if (res.data > 0) {
@@ -683,8 +692,22 @@ export default {
     clearAuthorPersonname() {
 
     },
-    changeAuthorPersonname(value,id) {
-        console.log("id is " + id , "value is " + value);
+    changeAuthorPersonname(value) {
+        console.log("changeAuthorPersonname value is " + value);
+      if (value) {
+        this.authorForm.userid = value;
+        for (let i=0; i< this.teamMemberOptions.length; i++) {
+          let member = this.teamMemberOptions[i];
+          if (member.id === value) {
+            this.authorForm.personname = member.value;
+            break;
+          }
+        }
+
+      } else {
+        this.authorForm.userid = undefined;
+        this.authorForm.personname = undefined;
+      }
     },
 
     filterAuthorPersonnameOptions(queryString) {
@@ -891,12 +914,14 @@ export default {
     /** 删除按钮 */
     deleteForm() {
 
-      this.$confirm('是否确认删除"' + this.form.projectname + '"的项目?', "警告", {
+      const patentid = this.form.patentid;
+
+      this.$confirm('是否确认删除"' + this.form.patentname + '"的成果?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-
+        deletePatent(patentid);
       }).then(() => {
         this.msgSuccess("删除成功");
         this.closeForm();
@@ -1120,6 +1145,7 @@ export default {
               userid : this_.authorForm.userid,
               personname: this_.authorForm.personname
             };
+            console.log("添加专利人", author2);
             this_.form.authorList.push(author2);
             this.msgSuccess("添加成功");
           }
@@ -1136,7 +1162,7 @@ export default {
         authorid: undefined,
         ifourunit: 1,
         unitname: "农业部南京农业机械化研究所",
-        userid: -1,
+        userid: undefined,
         personname: undefined
       };
       this.resetForm("authorForm");

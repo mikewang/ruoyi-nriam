@@ -18,6 +18,7 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.domain.AudProject;
+import io.swagger.models.auth.In;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -183,5 +184,40 @@ public class AchPatentController extends BaseController {
             return AjaxResult.error(" 操作失败，请联系管理员");
         }
 
+    }
+
+    /**
+     * 根据编号获取审核详细信息。
+     */
+    @PreAuthorize("@ss.hasPermi('achieve:patent:list')")
+    @GetMapping(value = { "/confirm/{patentid}/{status}" })
+    public AjaxResult getPatentConfirm(@PathVariable(value = "patentid") Integer patentid, @PathVariable(value = "status") Integer status)
+    {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(patentid))
+        {
+            ajax.put(AjaxResult.DATA_TAG, patentService.selectApplyByTypeAndRelatedID(patentid, status));
+        }
+        return ajax;
+    }
+
+    /**
+     * 根据编号获取详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('achieve:patent:list')")
+    @DeleteMapping(value = { "/{patentid}" })
+    public AjaxResult removePatent(@PathVariable(value = "patentid", required = false) Integer patentid)
+    {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(patentid))
+        {
+            Integer rows = patentService.removeAchPatent(patentid);
+            if (rows != 1) {
+                ajax = AjaxResult.error("patentid：" + patentid.toString() + " 删除失败");
+            }
+        }
+        return ajax;
     }
 }

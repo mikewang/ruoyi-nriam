@@ -161,10 +161,10 @@ export const constantRoutes = [
         meta: { title: '专利编辑', icon: '', opcode: 'query',noCache: true }
       },
       {
-        path: 'patent/confirm/:patentid(\\d+)',
+        path: 'patent/confirm/:patentid(\\d+)/:applyid(\\d+)',
         component: (resolve) => require(['@/views/achieve/patent/edit'], resolve),
         name: 'ConfirmPatent',
-        meta: { title: '专利审核', icon: '', opcode: 'confirm',noCache: true }
+        meta: { title: '专利审核', icon: '', opcode: 'confirm',noCache: true,}
       }
     ]
   },

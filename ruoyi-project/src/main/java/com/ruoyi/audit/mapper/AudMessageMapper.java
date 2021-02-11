@@ -10,6 +10,7 @@ public interface AudMessageMapper {
 
     int insertAudMessage(AudMessage record);
     int updateIfProcessedById(AudMessage record);
+    int updateIfProcessedAudMessageBySheetAndId(AudMessage record);
 
     AudMessage selectByPrimaryKey(Integer messageid);
 

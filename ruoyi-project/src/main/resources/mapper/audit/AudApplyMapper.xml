@@ -62,15 +62,20 @@
         from Aud_Apply
         where ApplyType = #{applytype,jdbcType=VARCHAR}
           and RelatedID = #{relatedid,jdbcType=INTEGER}
+        <if test="applystatus != null and applystatus != 0 ">
+            and ApplyStatus = #{applystatus,jdbcType=INTEGER}
+        </if>
+
         order by ApplyID desc
     </select>
 
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteAudApplyById" parameterType="java.lang.Integer">
         delete
         from Aud_Apply
         where ApplyID = #{applyid,jdbcType=INTEGER}
     </delete>
+
     <insert id="insertAudApply" parameterType="com.ruoyi.audit.domain.AudApply" useGeneratedKeys="true"
             keyProperty="applyid">
         insert into Aud_Apply (ApplyType, RelatedID,
@@ -82,6 +87,16 @@
                 #{audituserid,jdbcType=INTEGER}, #{audittime,jdbcType=VARCHAR}, #{auditopinion,jdbcType=VARCHAR},
                 #{applystatus,jdbcType=INTEGER})
     </insert>
+
+    <update id="updateAuditAudApply" parameterType="com.ruoyi.audit.domain.AudApply">
+        update Aud_Apply
+        set AuditUserID  = #{audituserid,jdbcType=INTEGER},
+            AuditTime    = #{audittime,jdbcType=VARCHAR},
+            AuditOpinion = #{auditopinion,jdbcType=VARCHAR},
+            ApplyStatus  = #{applystatus,jdbcType=INTEGER}
+        where ApplyID = #{applyid,jdbcType=INTEGER}
+    </update>
+
     <update id="updateByPrimaryKey" parameterType="com.ruoyi.audit.domain.AudApply">
         update Aud_Apply
         set ApplyType    = #{applytype,jdbcType=VARCHAR},
@@ -95,6 +110,8 @@
             ApplyStatus  = #{applystatus,jdbcType=INTEGER}
         where ApplyID = #{applyid,jdbcType=INTEGER}
     </update>
+
+
 
     <select id="selectAll" resultMap="BaseResultMap">
         select ApplyID,

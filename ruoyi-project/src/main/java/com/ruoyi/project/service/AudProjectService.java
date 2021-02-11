@@ -4,6 +4,8 @@ import com.ruoyi.audit.domain.AudApply;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudApplyMapper;
 import com.ruoyi.audit.mapper.AudMessageMapper;
+import com.ruoyi.common.enums.AchieveStatus;
+import com.ruoyi.common.enums.AchieveType;
 import com.ruoyi.common.enums.ProjectColor;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;

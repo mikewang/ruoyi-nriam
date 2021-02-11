@@ -18,6 +18,8 @@ public interface AudApplyMapper {
 
     List<AudApply> selectAll();
 
+    int updateAuditAudApply(AudApply record);
+
     int updateByPrimaryKey(AudApply record);
 
     List<AudApplyAchieve> selectAchieveToConfirmList(HashMap map);

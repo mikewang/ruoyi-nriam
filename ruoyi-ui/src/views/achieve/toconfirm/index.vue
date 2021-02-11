@@ -255,7 +255,7 @@ export default {
       for(let i = 0; i < this.achieveTypeOptions.length; i++) {
         let item = this.achieveTypeOptions[i];
         if (row.applytype == item.info) {
-          const path = '/achieve/'+ item.link + '/confirm/' + row.relatedid;
+          const path = '/achieve/'+ item.link + '/confirm/' + row.relatedid + '/' + row.applyid;
           console.log("path is " + path);
           this.$router.push({path: path});
         }
