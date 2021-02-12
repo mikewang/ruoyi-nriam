@@ -169,6 +169,25 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/sheet',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'tijiaoren',
+        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        name: 'AddPatent',
+        meta: {title: '拨付单新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'tijiaoren/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        name: 'EditPatent',
+        meta: { title: '拨付单编辑', icon: '', opcode: 'query',noCache: true }
+      }
+    ]
+  },
+  {
     path: '/job',
     component: Layout,
     hidden: true,

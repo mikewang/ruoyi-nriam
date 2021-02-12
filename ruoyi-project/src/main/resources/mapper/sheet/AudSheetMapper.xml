@@ -27,6 +27,13 @@
     <result column="PayConfirmTime" jdbcType="VARCHAR" property="payconfirmtime" />
     <result column="PayConfirmUserID" jdbcType="INTEGER" property="payconfirmuserid" />
     <result column="SheetStatus" jdbcType="INTEGER" property="sheetstatus" />
+    <result column="SheetUserIDLinkText" jdbcType="VARCHAR" property="sheetuseridlinktext" />
+    <result column="ProjectIDLinkText" jdbcType="VARCHAR" property="projectidlinktext" />
+    <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationidlinktext" />
+    <result column="SheetStatusLinkText" jdbcType="VARCHAR" property="sheetstatuslinktext" />
+    <result column="PayConfirmUserIDLinkText" jdbcType="VARCHAR" property="payconfirmuseridlinktext" />
+
+
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
