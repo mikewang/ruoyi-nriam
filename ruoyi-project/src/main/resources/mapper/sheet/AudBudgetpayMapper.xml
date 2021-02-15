@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.sheet.mapper.AudBudgetpayMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.sheet.domain.AudBudgetpay">
+        <id column="PayID" jdbcType="INTEGER" property="payid"/>
+        <result column="SheetID" jdbcType="INTEGER" property="sheetid"/>
+        <result column="ProjectID" jdbcType="INTEGER" property="projectid"/>
+        <result column="SupplierID" jdbcType="INTEGER" property="supplierid"/>
+        <result column="zong" jdbcType="DECIMAL" property="zong"/>
+        <result column="xiaoji" jdbcType="DECIMAL" property="xiaoji"/>
+        <result column="yiqian" jdbcType="DECIMAL" property="yiqian"/>
+        <result column="bennian" jdbcType="DECIMAL" property="bennian"/>
+        <result column="benci" jdbcType="DECIMAL" property="benci"/>
+        <result column="AuditTime" jdbcType="VARCHAR" property="audittime"/>
+        <result column="ProjectIDLinkText" jdbcType="VARCHAR" property="projectidlinktext"/>
+        <result column="SupplierIDLinkText" jdbcType="VARCHAR" property="supplieridlinktext"/>
+        <result column="Character" jdbcType="VARCHAR" property="character"/>
+        <result column="SheetType" jdbcType="VARCHAR" property="sheettype"/>
+        <result column="ProjectIDLinkText" jdbcType="VARCHAR" property="projectidlinktext"/>
+        <result column="SupplierIDLinkText" jdbcType="VARCHAR" property="supplieridlinktext"/>
+    </resultMap>
+
+    <select id="selectBudgetPayOfSheetBySheetid" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select a.PayID
+             , a.SheetID
+             , a.ProjectID
+             , a.SupplierID
+             , a.zong
+             , a.xiaoji
+             , a.yiqian
+             , a.bennian
+             , a.benci
+             , a.AuditTime
+             , t1.ProjectName  as ProjectIDLinkText
+             , t2.SupplierName as SupplierIDLinkText
+             , t3.DictionaryName as Character
+         ,b.sheettype
+        from Aud_BudgetPay a join Aud_Project t1
+        on t1.ProjectID = a.ProjectID join SRM_SupplierInfo t2 on t2.SupplierID = a.SupplierID left join (select sup.SupplierID as SupplierID, dc.DictionaryName as DictionaryName from BAS_Dictionary dc join SRM_SupplierInfo sup on dc.DictionaryID = sup.Character ) t3
+            on a.SupplierID = t3.SupplierID
+            left join Aud_Sheet b on b.SheetID = a.SheetID
+        where a.SheetID = #{sheetid,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectBudgetPayRecord" parameterType="com.ruoyi.sheet.domain.AudBudgetpayRecordQuery" resultMap="BaseResultMap">
+        select a.PayID
+        ,a.SheetID
+        ,a.ProjectID
+        ,a.SupplierID
+        ,a.zong
+        ,a.xiaoji
+        ,a.yiqian
+        ,a.bennian
+        ,a.benci
+        ,a.AuditTime
+        ,t1.ProjectName as ProjectIDLinkText
+        ,t2.SupplierName as SupplierIDLinkText
+        ,b.sheettype
+        from Aud_BudgetPay a join Aud_Project t1
+        on t1.ProjectID = a.ProjectID
+        join SRM_SupplierInfo t2
+        on t2.SupplierID = a.SupplierID
+        join Aud_Sheet b on b.SheetID = a.SheetID where a.AuditTime is not null
+        <if test="sheettype != null and sheettype != '' ">
+            AND b.SheetType = #{sheettype, jdbcType=VARCHAR}
+        </if>
+        <if test="projectid != null and projectid != -1  and projectid != 0 ">
+            AND a.ProjectID = #{projectid, jdbcType=INTEGER}
+        </if>
+
+        <if test="supplieridList != null">
+            and a.SupplierID in
+            <foreach item="item" index="index" collection="supplieridList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        union
+        select a.PayID
+        ,a.SheetID
+        ,a.ProjectID
+        ,a.SupplierID
+        ,a.zong
+        ,a.xiaoji
+        ,a.yiqian
+        ,a.bennian
+        ,a.benci
+        ,a.AuditTime
+        ,t1.ProjectName as ProjectIDLinkText
+        ,t2.SupplierName as SupplierIDLinkText
+        ,'' as sheettype
+        from Aud_BudgetPay a join Aud_Project t1
+        on t1.ProjectID = a.ProjectID
+        join SRM_SupplierInfo t2
+        on t2.SupplierID = a.SupplierID
+        where a.SheetID = -1 and a.AuditTime is not null
+        <if test="projectid != null and projectid != '-1'  and projectid != '' ">
+            AND a.ProjectID = #{projectid, jdbcType=INTEGER}
+        </if>
+        <if test="supplieridList != null">
+            and a.SupplierID in
+            <foreach item="item" index="index" collection="supplieridList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Sun Feb 14 17:47:13 CST 2021.
+        -->
+        delete from Aud_BudgetPay
+        where PayID = #{payid,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.ruoyi.sheet.domain.AudBudgetpay">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Sun Feb 14 17:47:13 CST 2021.
+        -->
+        insert into Aud_BudgetPay (PayID, SheetID, ProjectID,
+        SupplierID, zong, xiaoji,
+        yiqian, bennian, benci,
+        AuditTime)
+        values (#{payid,jdbcType=INTEGER}, #{sheetid,jdbcType=INTEGER}, #{projectid,jdbcType=INTEGER},
+        #{supplierid,jdbcType=INTEGER}, #{zong,jdbcType=DECIMAL}, #{xiaoji,jdbcType=DECIMAL},
+        #{yiqian,jdbcType=DECIMAL}, #{bennian,jdbcType=DECIMAL}, #{benci,jdbcType=DECIMAL},
+        #{audittime,jdbcType=VARCHAR})
+    </insert>
+    <update id="updateByPrimaryKey" parameterType="com.ruoyi.sheet.domain.AudBudgetpay">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Sun Feb 14 17:47:13 CST 2021.
+        -->
+        update Aud_BudgetPay
+        set SheetID = #{sheetid,jdbcType=INTEGER},
+        ProjectID = #{projectid,jdbcType=INTEGER},
+        SupplierID = #{supplierid,jdbcType=INTEGER},
+        zong = #{zong,jdbcType=DECIMAL},
+        xiaoji = #{xiaoji,jdbcType=DECIMAL},
+        yiqian = #{yiqian,jdbcType=DECIMAL},
+        bennian = #{bennian,jdbcType=DECIMAL},
+        benci = #{benci,jdbcType=DECIMAL},
+        AuditTime = #{audittime,jdbcType=VARCHAR}
+        where PayID = #{payid,jdbcType=INTEGER}
+    </update>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Sun Feb 14 17:47:13 CST 2021.
+        -->
+        select PayID, SheetID, ProjectID, SupplierID, zong, xiaoji, yiqian, bennian, benci,
+        AuditTime
+        from Aud_BudgetPay
+        where PayID = #{payid,jdbcType=INTEGER}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Sun Feb 14 17:47:13 CST 2021.
+        -->
+        select PayID, SheetID, ProjectID, SupplierID, zong, xiaoji, yiqian, bennian, benci,
+        AuditTime
+        from Aud_BudgetPay
+    </select>
+</mapper>

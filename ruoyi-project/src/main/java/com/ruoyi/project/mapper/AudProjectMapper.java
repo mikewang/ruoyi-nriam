@@ -19,6 +19,8 @@ public interface AudProjectMapper {
     int updateProjectStatus(AudProject record);
     int updateIfAcceptanceFull(AudProject record);
 
+    List<AudProject> selectProjectAfterSetup(AudProject record);
+
     List<AudProject> selectAll();
 
 

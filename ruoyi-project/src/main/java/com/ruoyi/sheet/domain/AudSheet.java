@@ -1,8 +1,10 @@
 package com.ruoyi.sheet.domain;
 
+import com.ruoyi.common.core.domain.BaseEntity;
+
 import java.math.BigDecimal;
 
-public class AudSheet {
+public class AudSheet extends BaseEntity {
 
     private Integer sheetid;
 
@@ -13,17 +15,13 @@ public class AudSheet {
 
     private Integer relatedcontractid;
 
-
     private String thispaytimes;
 
-
     private Integer sheetuserid;
-
 
     private String sheettime;
 
     private Integer projectid;
-
 
     private Integer organizationid;
 
@@ -294,3 +292,4 @@ public class AudSheet {
                 '}';
     }
 }
+

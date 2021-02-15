@@ -7,7 +7,9 @@ public interface AudSheetMapper {
 
 
     List<AudSheet> selectSheetTijiaorenByUserid(Integer userid);
-    
+
+    AudSheet selectSheetById(Integer sheetid);
+
     int deleteByPrimaryKey(Integer sheetid);
 
     /**

@@ -178,9 +178,33 @@ public class AudProjectService {
     }
 
 
-    public AudProject selectProjectById(Integer projectId) {
 
-        return audProjectMapper.selectProjectById(projectId);
+    // 外拨款管理模块使用
+    public List<AudProject> selectProjectAfterSetup(AudProject project) {
+
+//        + " and ( a.Status = " + (int)Entity.Enums.ProjectStatus.ZaiYan    //在研
+//                + " or a.Status = " + (int)Entity.Enums.ProjectStatus.YiJieTi       //已完成的
+//                + " or a.Status = " + (int)Entity.Enums.ProjectStatus.JieTiDaiQueRen   //验收待审核
+//                + " or a.Status = " + (int)Entity.Enums.ProjectStatus.JietiBuTongGuo  //验收不通过
+        List<Integer> statusList = new ArrayList<>();
+        statusList.add(ProjectStatus.ZaiYan.getCode());
+        statusList.add(ProjectStatus.YiJieTi.getCode());
+        statusList.add(ProjectStatus.JieTiDaiQueRen.getCode());
+        statusList.add(ProjectStatus.JietiBuTongGuo.getCode());
+        project.setStatusList(statusList);
+
+        List<AudProject> projectList = audProjectMapper.selectAudProjectList(project);
+        for (AudProject prj : projectList) {
+            prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
+        }
+
+        return projectList;
+    }
+
+    public AudProject selectProjectById(Integer projectId) {
+        AudProject prj = audProjectMapper.selectProjectById(projectId);
+
+        return prj;
     }
 
     public Integer queryIfDuplicate(AudProject project) {

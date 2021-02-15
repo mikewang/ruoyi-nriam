@@ -48,6 +48,17 @@ export function listFinished(query) {
   })
 }
 
+
+// 查询外拨款管理模块使用
+export function listAftersetup(query) {
+  return request({
+    url: '/project/aftersetup/list',
+    method: 'get',
+    params: query
+  })
+}
+
+
 // 查询项目详细
 export function getProject(projectId) {
   return request({

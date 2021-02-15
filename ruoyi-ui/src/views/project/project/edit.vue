@@ -162,7 +162,7 @@
                 <el-table :data="form.projectJoinOrganizationList"
                           @selection-change="handleJoinOrganizationSelectionChange"
                           style="display:block;">
-                  <el-table-column type="selection" width="50" align="center"/>
+                  <el-table-column type="index" width="50" align="center"/>
                   <el-table-column label="子项目名称" align="center" prop="subjectname" :show-overflow-tooltip="true"/>
                   <el-table-column label="参加单位" align="center" prop="organizationname"/>
                   <el-table-column label="负责人" align="center" prop="manager" width="100"/>
@@ -1257,21 +1257,24 @@ export default {
 
     createFilter(v) {
       return (item) => {
-        //  console.log("item is ", item.hotKey);
         const queryString = v.toLowerCase();
-        var typename = item.value;
 
-        var ll = typename.indexOf(queryString);
+        let x = false;
 
-        var py = item.hotKey;
-
-        var hh = -1;
-        if (py !== undefined && py !== null) {
-          hh = py.indexOf(queryString);
+        const keys =  Object.keys(item);
+        for(let i=0; i < keys.length; i++) {
+          let key = keys[i];
+          let value = item[key];
+          let pp = -1;
+          if (value !== undefined && value !== null) {
+            pp = value.toString().indexOf(queryString);
+          }
+          if (pp != -1) {
+            x = true;
+            break;
+          }
         }
-        //console.log("type is " + typename, queryString, ll);
-
-        return (ll >= 0 || hh >= 0);
+        return x;
       };
     },
 

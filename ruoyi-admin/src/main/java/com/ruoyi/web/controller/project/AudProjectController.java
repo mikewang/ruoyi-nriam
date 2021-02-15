@@ -142,6 +142,23 @@ public class AudProjectController extends BaseController {
         return getDataTable(list);
     }
 
+    //外拨款管理模块使用
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping("/aftersetup/list")
+    public AjaxResult aftersetupList(AudProject project) {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (project.getProjectname() == "") {
+            project.setProjectname("%");
+        }
+
+        List<AudProject> list = projectService.selectProjectAfterSetup(project);
+
+        ajax.put(AjaxResult.DATA_TAG, list);
+
+        return ajax;
+    }
+
     /**
      * 根据编号获取详细信息
      */

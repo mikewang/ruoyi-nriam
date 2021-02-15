@@ -176,13 +176,13 @@ export const constantRoutes = [
       {
         path: 'tijiaoren',
         component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
-        name: 'AddPatent',
+        name: 'AddSheet',
         meta: {title: '拨付单新建', icon: '', opcode: 'add', noCache: true}
       },
       {
         path: 'tijiaoren/:sheetid(\\d+)',
         component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
-        name: 'EditPatent',
+        name: 'EditSheet',
         meta: { title: '拨付单编辑', icon: '', opcode: 'query',noCache: true }
       }
     ]

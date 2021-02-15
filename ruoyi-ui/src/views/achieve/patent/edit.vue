@@ -99,7 +99,7 @@
                 <el-table :data="form.authorList"
                           @selection-change="handleAuthorSelectionChange"
                           style="display:block;">
-                  <el-table-column type="selection" width="50" align="center"/>
+                  <el-table-column type="index" width="50" align="center"/>
                   <el-table-column label="所属单位" align="center" prop="ifourunit" :show-overflow-tooltip="true">
                     <template slot-scope="scope">
                       <span v-if="scope.row.ifourunit === 1">本所</span>
@@ -755,21 +755,26 @@ export default {
       }
     },
 
-
     createFilter(v) {
       return (item) => {
-        //  console.log("item is ", item.hotKey);
         const queryString = v.toLowerCase();
-        const typename = item.value;
-        const ll = typename.indexOf(queryString);
-        const py = item.hotKey;
-        let hh = -1;
-        if (py !== undefined && py !== null) {
-          hh = py.indexOf(queryString);
-        }
-        //console.log("type is " + typename, queryString, ll);
 
-        return (ll >= 0 || hh >= 0);
+        let x = false;
+
+        const keys =  Object.keys(item);
+        for(let i=0; i < keys.length; i++) {
+          let key = keys[i];
+          let value = item[key];
+          let pp = -1;
+          if (value !== undefined && value !== null) {
+            pp = value.toString().indexOf(queryString);
+          }
+          if (pp != -1) {
+            x = true;
+            break;
+          }
+        }
+        return x;
       };
     },
 

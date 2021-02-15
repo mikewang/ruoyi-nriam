@@ -269,20 +269,27 @@ export default {
       console.log("filter value is " + queryString);
       this.teamOptions = queryString ? this.teamList.filter(this.createFilter(queryString)) : this.teamList;
     },
+
     createFilter(v) {
       return (item) => {
-        //  console.log("item is ", item.hotKey);
         const queryString = v.toLowerCase();
-        const typename = item.value;
-        const ll = typename.indexOf(queryString);
-        const py = item.hotKey;
-        let hh = -1;
-        if (py !== undefined && py !== null) {
-          hh = py.indexOf(queryString);
-        }
-        //console.log("type is " + typename, queryString, ll);
 
-        return (ll >= 0 || hh >= 0);
+        let x = false;
+
+        const keys =  Object.keys(item);
+        for(let i=0; i < keys.length; i++) {
+          let key = keys[i];
+          let value = item[key];
+          let pp = -1;
+          if (value !== undefined && value !== null) {
+            pp = value.toString().indexOf(queryString);
+          }
+          if (pp != -1) {
+            x = true;
+            break;
+          }
+        }
+        return x;
       };
     }
   }

@@ -26,7 +26,7 @@
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
-      <el-table v-loading="loading" :data="sheetList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="sheetList" @selection-change="handleSelectionChange" stripe>
         <el-table-column type="selection" width="50" align="center"/>
         <el-table-column label="单据编号" align="center" prop="sheetcode" :show-overflow-tooltip="true">
         </el-table-column>
@@ -71,12 +71,11 @@
 </template>
 
 <script>
-import {listTijiaoren} from "@/api/sheet/tijiaoren";
-import {listTeam} from "@/api/project/team";
+import {listTijiaorenSheet} from "@/api/sheet/sheet";
 
 
 export default {
-  name: "sheet_tijiaoren",
+  name: "tijiaorenSheet",
   // components: {  },
   data() {
     return {
@@ -129,28 +128,13 @@ export default {
   },
   created() {
     this.getList();
-
-    listTeam().then(response => {
-      console.log(response);
-      var listOptions = [];
-      response.rows.forEach(function (item) {
-        const team = {value: item.teamname, id: item.teamid};
-        listOptions.push(team);
-      });
-      this.teamList = listOptions;
-      this.teamOptions = listOptions;
-    });
-    listAchievetype().then(response => {
-      console.log("listAchievetype is ", response);
-      this.achieveTypeOptions = response.data;
-    });
   },
   methods: {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
       console.log("queryParams is ", this.queryParams);
-      listTijiaoren(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      listTijiaorenSheet(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
           this.sheetList = response.rows;
           this.total = response.total;
@@ -166,7 +150,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {};
-
       this.resetForm("form");
     },
     /** 搜索按钮操作 */
@@ -187,55 +170,6 @@ export default {
       this.multiple = !selection.length;
     },
 
-
-    changeAchieveTypeValue(value) {
-
-      console.log("value is ", value);
-      if (value) {
-        this.queryParams.applytype = value;
-      } else {
-        this.queryParams.applytype = undefined;
-      }
-
-    },
-
-    clearTeamValue() {
-      this.queryParams.teamid = undefined;
-    },
-
-    changeTeamValue(value) {
-
-      console.log("value is " + value);
-      if (value) {
-        this.queryParams.teamid = value;
-
-      } else {
-        this.queryParams.teamid = undefined;
-      }
-    },
-
-    filterTeamOptions(queryString) {
-      console.log("filter value is " + queryString);
-      this.teamOptions = queryString ? this.teamList.filter(this.createFilter(queryString)) : this.teamList;
-    },
-    createFilter(v) {
-      return (item) => {
-        //  console.log("item is ", item.hotKey);
-        const queryString = v.toLowerCase();
-        const typename = item.value;
-        const ll = typename.indexOf(queryString);
-        const py = item.hotKey;
-        let hh = -1;
-        if (py !== undefined && py !== null) {
-          hh = py.indexOf(queryString);
-        }
-        //console.log("type is " + typename, queryString, ll);
-
-        return (ll >= 0 || hh >= 0);
-      };
-    },
-
-
     /** 新增按钮操作 */
     handleAdd() {
       this.$router.push({path: '/sheet/tijiaoren'});
@@ -247,9 +181,6 @@ export default {
       const path = '/sheet/tijiaoren/' + row.sheetid;
       console.log("path is " + path);
       this.$router.push({path: path});
-
-
-
     },
 
   }

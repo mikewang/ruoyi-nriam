@@ -350,7 +350,12 @@ public class AudProject extends BaseEntity {
     }
 
     public String getProjectDateRange() {
-        return projectDateRange;
+        if (projectDateRange == null) {
+            return projectbegindate + "至" + projectenddate;
+        }
+        else {
+            return projectDateRange;
+        }
     }
 
     public void setProjectDateRange(String projectDateRange) {
