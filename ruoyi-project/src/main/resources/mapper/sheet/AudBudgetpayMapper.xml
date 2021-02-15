@@ -60,7 +60,7 @@
         on t1.ProjectID = a.ProjectID
         join SRM_SupplierInfo t2
         on t2.SupplierID = a.SupplierID
-        join Aud_Sheet b on b.SheetID = a.SheetID where a.AuditTime is not null
+        join Aud_Sheet b on b.SheetID = a.SheetID where  a.AuditTime is not null
         <if test="sheettype != null and sheettype != '' ">
             AND b.SheetType = #{sheettype, jdbcType=VARCHAR}
         </if>

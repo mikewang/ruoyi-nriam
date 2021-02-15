@@ -11,9 +11,12 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.ServletUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.sheet.domain.AudBudgetpay;
+import io.swagger.models.auth.In;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,6 +72,46 @@ public class AudSignpicController extends BaseController {
         }
         return getDataTable(list);
     }
+
+    @PreAuthorize("@ss.hasPermi('audit:signpic:list')")
+    @GetMapping(value = { "/{userId}" })
+    public AjaxResult getSignpic(@PathVariable(value = "userId", required = true) Integer userId) {
+
+        AudSignpic s = audSignpicService.selectSignpicByUserId(userId);
+
+        // 本地资源路径
+
+        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" +  "/signpic/";
+
+        if (s.getSignpicName() != null && s.getSignpicName().isEmpty() == false ) {
+            String checkFilePath = RuoYiConfig.getUploadPath() + "/signpic/" + s.getSignpicName();
+            logger.debug("checkFilePath is " + s.getSignpicName());
+            File desc = new File(checkFilePath);
+            if (desc.exists() == true) {
+                String filePath = fileDirPath + s.getSignpicName();
+                s.setSignpicName(filePath);
+                logger.debug("url is " + filePath);
+            }
+            else {
+                s.setSignpicName("");
+            }
+        }
+        else {
+            s.setSignpicName("");
+        }
+
+        AjaxResult ajax = AjaxResult.success();
+
+        if (s.getSignpicName().equals(""))
+        {
+            ajax = AjaxResult.error("签名：" + s.getRealName() + " 不存在");
+        }
+        else {
+            ajax.put(AjaxResult.DATA_TAG, s);
+        }
+        return ajax;
+    }
+
 
 
     /**

@@ -24,7 +24,7 @@
 
 
     <select id="selectSignpicByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select SignPicID,
+        select top 1 SignPicID,
                UserID,
                SignPicName
         from Aud_SignPic

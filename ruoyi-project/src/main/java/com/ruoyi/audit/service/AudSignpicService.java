@@ -18,11 +18,14 @@ public class AudSignpicService {
     @Resource
     private AudSignpicMapper audSignpicMapper;
 
-
     public List<AudSignpic> selectSignpicList(AudSignpic signpic) {
         List<AudSignpic> signpicList = audSignpicMapper.selectSignpicList(signpic);
-
         return signpicList;
+    }
+
+    public AudSignpic selectSignpicByUserId(Integer userId) {
+         AudSignpic signpic  = audSignpicMapper.selectSignpicByUserId(userId);
+        return signpic;
     }
 
     public Integer mergeSignpic(AudSignpic signpic) {

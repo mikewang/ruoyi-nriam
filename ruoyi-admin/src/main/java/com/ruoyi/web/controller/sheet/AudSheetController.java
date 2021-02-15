@@ -3,6 +3,8 @@ package com.ruoyi.web.controller.sheet;
 import com.ruoyi.achieve.domain.AchPatent;
 import com.ruoyi.achieve.service.AchPatentService;
 import com.ruoyi.common.annotation.Log;
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -17,12 +19,14 @@ import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.sheet.domain.AudBudgetpay;
 import com.ruoyi.sheet.domain.AudBudgetpayRecordQuery;
 import com.ruoyi.sheet.domain.AudSheet;
+import com.ruoyi.sheet.domain.AudSheetauditrecord;
 import com.ruoyi.sheet.service.AudSheetService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -110,7 +114,46 @@ public class AudSheetController extends BaseController {
         startPage();
         logger.debug("getSheetBudgetpayRecord query = " + query.toString());
         List<AudBudgetpay> list = sheetService.selectBudgetPayRecord(query);
+        logger.debug("getSheetBudgetpayRecord list = " + list.toString());
         return getDataTable(list);
+    }
+
+    /**
+     * 根据项目号，供应商号，获取 历史记录
+     */
+    @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
+    @GetMapping(value = { "/audit/record" })
+    public AjaxResult getSheetAuditRecord(AudSheetauditrecord record)
+    {
+        AjaxResult ajax = AjaxResult.success();
+        logger.debug("getSheetBudgetpayRecord record = " + record.toString());
+        List<AudSheetauditrecord> list = sheetService.selectSheetauditRecord(record);
+
+        // 本地资源路径
+
+        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" +  "/signpic/";
+
+        for(AudSheetauditrecord s: list) {
+            if (s.getSignpicName() != null && s.getSignpicName().isEmpty() == false ) {
+                String checkFilePath = RuoYiConfig.getUploadPath() + "/signpic/" + s.getSignpicName();
+                logger.debug("checkFilePath is " + s.getSignpicName());
+                File desc = new File(checkFilePath);
+                if (desc.exists() == true) {
+                    String filePath = fileDirPath + s.getSignpicName();
+                    s.setSignpicName(filePath);
+                    logger.debug("url is " + filePath);
+                }
+                else {
+                    s.setSignpicName("");
+                }
+            }
+            else {
+                s.setSignpicName("");
+            }
+        }
+        logger.debug("getSheetBudgetpayRecord list = " + list.toString());
+        ajax.put(AjaxResult.DATA_TAG, list);
+        return ajax;
     }
 
 }

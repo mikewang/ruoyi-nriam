@@ -27,10 +27,20 @@ export function getSheetBudgetpay(sheetid) {
 }
 
 
-// 查询外拨单的协作单位信息
+// 查询外拨单的协作单位的历史记录
 export function getSheetBudgetpayRecord(query) {
   return request({
     url: '/sheet/budgetpay/record',
+    method: 'get',
+    params: query
+  })
+}
+
+
+// 查询外拨单的审批记录
+export function getSheetAuditRecord(query) {
+  return request({
+    url: '/sheet/audit/record',
     method: 'get',
     params: query
   })

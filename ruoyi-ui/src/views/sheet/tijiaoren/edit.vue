@@ -24,7 +24,7 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目名称" prop="projectname">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.projectid" placeholder="请选择"
+                <el-select v-bind:readonly="readonly.basic" v-model="form.projectname" placeholder="请选择"
                            style="display:block;" clearable @clear="clearProjectid" @change="changeProjectid"
                            filterable :filter-method="filterProjectOptions" :show-overflow-tooltip="true">
                   <el-option
@@ -173,7 +173,7 @@
             <el-col :span="24">
               <el-form-item label="本次拨付经费" prop="sheetuseridlinktext">
 
-                <el-tag>人民币{{form.daxie}}</el-tag>
+                <span>人民币{{form.daxie}}</span>
               </el-form-item>
 
             </el-col>
@@ -213,6 +213,17 @@
             </el-col>
           </el-row>
         </template>
+        <template>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="经办人签名" prop="sheetuseridlinktext">
+                <img :src="form.sheetuseridImage"  min-width="120" height="60" />
+                <span>  {{form.sheettime}}</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </template>
+
       </el-form>
 
 
@@ -286,9 +297,10 @@
 
 <script>
 import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
-import {getSheet, getSheetBudgetpay, getSheetBudgetpayRecord} from "@/api/sheet/sheet";
+import {getSheet, getSheetBudgetpay, getSheetBudgetpayRecord, getSheetAuditRecord} from "@/api/sheet/sheet";
 import {addPatent, confirmPatent, deletePatent, updatePatent} from "@/api/achieve/patent";
 import {handleUploadReview} from "@/api/achieve/basdoc";
+import {getSignpic} from "@/api/audit/signpic"
 
 export default {
   name: "EditTijiaorenSheet",
@@ -465,6 +477,15 @@ export default {
 
           });
 
+          getSignpic(this_.form.sheetuserid).then(response => {
+            console.log("response is ", response);
+            this_.form.sheetuseridImage = response.data.signpicName;
+          });
+
+          getSheetAuditRecord({"sheettype":"拨付单", "sheetid": this_.form.sheetid}).then(response => {
+            console.log("getSheetAuditRecord response is ", response);
+
+          });
 
           console.log("this.form is ", this_.form);
 
@@ -484,7 +505,7 @@ export default {
       getSheetBudgetpayRecord(this.queryRecordParams).then(response => {
         this.form.budgetpayRecordList = response.rows;
         this.queryRecordTotal = response.total;
-        console.log("getSheetBudgetpayRecord response is", response.data);
+        console.log("getSheetBudgetpayRecord response is", response.rows);
 
       });
     },
@@ -564,7 +585,11 @@ export default {
         sheetstatus: this.SheetStatus.XinJianZhong,
         sheetstatuslinktext: "新建中",
 
-        projectdocList: []
+        projectdocList: [],
+        budgetpayList:[],
+        budgetpayRecordList: [],
+        sheetuseridImage: undefined
+
 
       };
 

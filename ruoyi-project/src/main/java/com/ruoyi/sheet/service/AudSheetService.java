@@ -5,8 +5,10 @@ import com.ruoyi.audit.service.AudApplyService;
 import com.ruoyi.sheet.domain.AudBudgetpay;
 import com.ruoyi.sheet.domain.AudBudgetpayRecordQuery;
 import com.ruoyi.sheet.domain.AudSheet;
+import com.ruoyi.sheet.domain.AudSheetauditrecord;
 import com.ruoyi.sheet.mapper.AudBudgetpayMapper;
 import com.ruoyi.sheet.mapper.AudSheetMapper;
+import com.ruoyi.sheet.mapper.AudSheetauditrecordMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,11 @@ public class AudSheetService {
     @Resource
     AudSheetMapper audSheetMapper;
 
-
     @Resource
     AudBudgetpayMapper audBudgetpayMapper;
+
+    @Resource
+    AudSheetauditrecordMapper audSheetauditrecordMapper;
 
     public List<AudSheet> selectSheetTijiaorenByUserid(Long userId) {
         Integer uid = userId.intValue();
@@ -54,11 +58,22 @@ public class AudSheetService {
         return payList;
     }
 
-    public List<AudBudgetpay> selectBudgetPayRecord(AudBudgetpayRecordQuery query) {
+    public List<AudBudgetpay> selectBudgetPayRecord(AudBudgetpayRecordQuery record) {
 
-        log.debug("selectBudgetPayRecord  query is " + query.toString());
+        log.debug("selectBudgetPayRecord  record is " + record.toString());
 
-        List<AudBudgetpay> payList = audBudgetpayMapper.selectBudgetPayRecord(query);
+        List<AudBudgetpay> payList = audBudgetpayMapper.selectBudgetPayRecord(record);
+
+        log.debug("request selectBudgetPayRecord  list is " + payList.toString());
+
+        return payList;
+    }
+
+    public List<AudSheetauditrecord> selectSheetauditRecord(AudSheetauditrecord record) {
+
+        log.debug("selectBudgetPayRecord  record is " + record.toString());
+
+        List<AudSheetauditrecord> payList = audSheetauditrecordMapper.selectSheetauditRecord(record);
 
         log.debug("request selectBudgetPayRecord  list is " + payList.toString());
 

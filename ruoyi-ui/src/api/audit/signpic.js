@@ -28,3 +28,11 @@ export function delSignpic(userIds) {
     method: 'delete'
   })
 }
+
+// 获取签名图片
+export function getSignpic(userid) {
+  return request({
+    url: '/audit/signpic/' + praseStrEmpty(userid) ,
+    method: 'get'
+  })
+}
