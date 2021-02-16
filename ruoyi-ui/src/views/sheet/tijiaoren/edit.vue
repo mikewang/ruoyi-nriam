@@ -223,6 +223,15 @@
             </el-col>
           </el-row>
         </template>
+        <template>
+          <el-row v-for="audit in form.sheetAuditRecordList">
+            <el-col :span="8">
+              <el-form-item :label="audit.audittypeName" >
+                   <span>  {{audit.auditresultName}}</span>  <span>  {{audit.audittime}}</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </template>
 
       </el-form>
 
@@ -484,6 +493,7 @@ export default {
 
           getSheetAuditRecord({"sheettype":"拨付单", "sheetid": this_.form.sheetid}).then(response => {
             console.log("getSheetAuditRecord response is ", response);
+            this_.form.sheetAuditRecordList = response.data;
 
           });
 
@@ -588,8 +598,8 @@ export default {
         projectdocList: [],
         budgetpayList:[],
         budgetpayRecordList: [],
-        sheetuseridImage: undefined
-
+        sheetuseridImage: undefined,
+        sheetAuditRecordList: []
 
       };
 

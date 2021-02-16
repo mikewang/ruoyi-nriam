@@ -27,6 +27,9 @@ public class AudSheetauditrecord extends BaseEntity {
 
     private String signpicName;
 
+    private String audittypeName;
+    private String auditresultName;
+
     public Integer getAuditid() {
         return auditid;
     }
@@ -97,6 +100,44 @@ public class AudSheetauditrecord extends BaseEntity {
 
     public void setSignpicName(String signpicName) {
         this.signpicName = signpicName;
+    }
+
+    public String getAudittypeName() {
+        if (audittype.equals("3")) {
+            return "项目负责人审批";
+        }
+        else if (audittype.equals("4")) {
+            return "部门负责人审批";
+        }
+        else if (audittype.equals("5")) {
+            return "分管处审批";
+        }
+        else if (audittype.equals("6")) {
+            return "分管所长审批";
+        }
+        else if (audittype.equals("7")) {
+            return "所长审批";
+        }
+
+        return audittypeName;
+    }
+
+    public void setAudittypeName(String audittypeName) {
+        this.audittypeName = audittypeName;
+    }
+
+    public String getAuditresultName() {
+        if (auditresult) {
+            return "通过";
+        }
+        else {
+            return "不通过";
+        }
+
+    }
+
+    public void setAuditresultName(String auditresultName) {
+        this.auditresultName = auditresultName;
     }
 
     @Override
