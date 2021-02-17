@@ -4,27 +4,27 @@
     <el-row :gutter="20">
       <el-form v-loading="loading" ref="form" :model="form" :rules="rules" label-width="160px" :key="timer">
         <template>
-          <el-row>
+          <el-row v-bind:hidden="hidden.confirm">
             <el-col :span="8">
-              <el-form-item label="拨付单号" prop="sheetcode">
+              <el-form-item label="拨付单号" prop="sheetcode" >
                 <el-input readonly v-model="form.sheetcode"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="经办人" prop="sheetuseridlinktext">
-                <el-input readonly v-model="form.sheetuseridlinktext"/>
+              <el-form-item label="经办人" prop="sheetuseridlinktext" >
+                <el-input readonly  v-model="form.sheetuseridlinktext"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="经办时间" prop="sheettime">
-                <el-input readonly v-model="form.sheettime"/>
+                <el-input readonly  v-model="form.sheettime"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目名称" prop="projectname">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.projectname" placeholder="请选择"
+                <el-select v-bind:disabled="readonly.basic" v-model="form.projectname" placeholder="请选择"
                            style="display:block;" clearable @clear="clearProjectid" @change="changeProjectid"
                            filterable :filter-method="filterProjectOptions" :show-overflow-tooltip="true">
                   <el-option
@@ -118,18 +118,18 @@
                                type="primary"
                                icon="el-icon-plus"
                                size="mini"
-                               @click="handleBudgetPayAdd"
+                               @click="handleBudgetpayAdd"
                                v-hasPermi="['sheet:tijiaoren:list']"
                     >新增
                     </el-button>
                   </el-col>
                 </el-row>
                 <el-table :data="form.budgetpayList"
-                          @selection-change="handleBudgetPaySelectionChange"
+                          @selection-change="handleBudgetpaySelectionChange"
                           style="display:block;" show-summary>
-                  <el-table-column type="index" width="100" align="center"/>
-                  <el-table-column label="项目协作单位名称" align="center" prop="supplieridlinktext"
-                                   :show-overflow-tooltip="true">
+                  <el-table-column type="index" width="100px" align="center"/>
+                  <el-table-column label="项目协作单位名称" align="center" prop="suppliername"
+                                   :show-overflow-tooltip="true" width="300px">
                   </el-table-column>
                   <el-table-column label="拨付协作单位经费情况（元）" align="center">
                     <el-table-column label="预算总拨付经费" align="center" prop="zong"/>
@@ -149,7 +149,7 @@
                             size="mini"
                             type="text"
                             icon="el-icon-edit"
-                            @click="handleBudgetPayUpdate(scope.row)"
+                            @click="handleBudgetpayUpdate(scope.row)"
                             v-hasPermi="['sheet:tijiaoren:list']"
                           >编辑
                           </el-button>
@@ -157,7 +157,7 @@
                             size="mini"
                             type="text"
                             icon="el-icon-delete"
-                            @click="handleBudgetPayDelete(scope.row)"
+                            @click="handleBudgetpayDelete(scope.row)"
                             v-hasPermi="['sheet:tijiaoren:list']"
                           >删除
                           </el-button>
@@ -191,7 +191,7 @@
                   <el-table-column label="项目名称" align="center" prop="projectidlinktext"
                                    :show-overflow-tooltip="true">
                   </el-table-column>
-                  <el-table-column label="协作单位" align="center" prop="supplieridlinktext"
+                  <el-table-column label="协作单位" align="center" prop="suppliername"
                                    :show-overflow-tooltip="true">
                   </el-table-column>
                   <el-table-column label="拨付金额" align="center" prop="benci"
@@ -214,9 +214,9 @@
           </el-row>
         </template>
         <template>
-          <el-row>
+          <el-row v-bind:hidden="hidden.confirm">
             <el-col :span="24">
-              <el-form-item label="经办人签名" prop="sheetuseridlinktext">
+              <el-form-item label="经办人签名" prop="sheetuseridlinktext" >
                 <img :src="form.sheetuseridImage"  min-width="120" height="60" />
                 <span>  {{form.sheettime}}</span>
               </el-form-item>
@@ -224,7 +224,7 @@
           </el-row>
         </template>
         <template>
-          <el-row v-for="audit in form.sheetAuditRecordList">
+          <el-row v-for="audit in form.sheetAuditRecordList" v-bind:hidden="hidden.confirm" >
             <el-col :span="8">
               <el-form-item :label="audit.audittypeName" >
                    <span>  {{audit.auditresultName}}</span>  <span>  {{audit.audittime}}</span>
@@ -238,7 +238,7 @@
 
       <el-row>
         <el-col :span="24" align="center">
-          <el-button v-if="hidden.submitBtn === false" type="success" @click="submitForm">确 定</el-button>
+          <el-button v-if="hidden.submitBtn === false" type="success" @click="submitForm">提交审核</el-button>
           <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改信息</el-button>
           <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除</el-button>
 
@@ -251,53 +251,53 @@
 
 
     <!-- 添加或修改菜单对话框 -->
-    <el-dialog :title="budgetPayFormTitle" :visible.sync="budgetPayFormOpen" width="600px" append-to-body>
-      <el-form ref="budgetPayForm" :model="budgetPayForm" :rules="budgetPayRules" label-width="100px" :key="timer">
+    <el-dialog :title="budgetpayFormTitle" :visible.sync="budgetpayFormOpen" width="600px" append-to-body>
+      <el-form ref="budgetpayForm" :model="budgetpayForm" :rules="budgetpayRules" label-width="250px" :key="timer">
         <el-row>
           <el-col :span="24">
-            <el-form-item label="项目协作单位名称" prop="supplierid">
-              <el-select v-model="budgetPayForm.supplierid" placeholder="请选择"
+            <el-form-item label="项目协作单位名称" prop="supplierid" label-width="150px" >
+              <el-select v-model="budgetpayForm.supplierid" placeholder="请选择"
                          style="display:block;" clearable @clear="clearSupplierid" @change="changeSupplierid"
-                         filterable :filter-method="filterSupplieridOptions" :show-overflow-tooltip="true">
+                         filterable :filter-method="filterSupplierOptions" :show-overflow-tooltip="true">
                 <el-option
-                  v-for="item in supplieridOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
+                  v-for="item in supplierOptions"
+                  :key="item.supplierid"
+                  :label="item.suppliername"
+                  :value="item.supplierid"/>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="预算总拨付经费（元）" prop="zong">
-              <el-input v-model="budgetPayForm.zong" placeholder="请输入"/>
+              <el-input type="number" v-model="budgetpayForm.zong" placeholder="请输入" v-bind:readonly="budgetpayForm.getIfFirstPayed"/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="实际拨付经费.小计（元）" prop="xiaoji">
-              <el-input v-model="budgetPayForm.xiaoji" placeholder="请输入"/>
+              <el-input readonly v-model="budgetpayForm.xiaoji" placeholder="请输入"/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="实际拨付经费.以前年度已拨（元）" prop="yiqian">
-              <el-input v-model="budgetPayForm.yiqian" placeholder="请输入"/>
+              <el-input readonly v-model="budgetpayForm.yiqian" placeholder="请输入"/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="实际拨付经费.本年已拨（元）" prop="bennian">
-              <el-input v-model="budgetPayForm.bennian" placeholder="请输入"/>
+            <el-form-item  label="实际拨付经费.本年已拨（元）" prop="bennian">
+              <el-input readonly v-model="budgetpayForm.bennian" placeholder="请输入"/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="实际拨付经费.本次拨付（元）" prop="benci">
-              <el-input v-model="budgetPayForm.benci" placeholder="请输入"/>
+              <el-input type="number" v-model="budgetpayForm.benci" placeholder="请输入"/>
             </el-form-item>
           </el-col>
 
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitBudgetPayForm">确 定</el-button>
-        <el-button @click="cancelBudgetPayForm">取 消</el-button>
+        <el-button type="primary" @click="submitBudgetpayForm">确 定</el-button>
+        <el-button @click="cancelBudgetpayForm">取 消</el-button>
       </div>
     </el-dialog>
 
@@ -306,10 +306,11 @@
 
 <script>
 import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
-import {getSheet, getSheetBudgetpay, getSheetBudgetpayRecord, getSheetAuditRecord} from "@/api/sheet/sheet";
-import {addPatent, confirmPatent, deletePatent, updatePatent} from "@/api/achieve/patent";
+import {getSheet,listSheetSupplier, getSheetBudgetpay, getSheetBudgetpayRecord, getSheetAuditRecord,addSheet, updateSheet,confirmSheet, deleteSheet} from "@/api/sheet/sheet";
+// import {addPatent, confirmPatent, deletePatent, updatePatent} from "@/api/achieve/patent";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
+import {checkMin200} from "@/utils/validate";
 
 export default {
   name: "EditTijiaorenSheet",
@@ -338,8 +339,8 @@ export default {
       projectOptions: [],
       projectList: [],
 
-      supplieridOptions: [],
-      supplieridList: [],
+      supplierOptions: [],
+      supplierList: [],
 
 
       basicfileList1: [],
@@ -371,13 +372,16 @@ export default {
         projectname: [
           {required: true, message: "项目名称不能为空", trigger: "blur"}
         ]
-
       },
 
-      budgetPayFormTitle: "",
-      budgetPayFormOpen: false,
-      budgetPayForm: {},
-      budgetPayRules: {},
+      budgetpayFormTitle: "",
+      budgetpayFormOpen: false,
+      budgetpayForm: {},
+      budgetpayRules: {
+        benci: [
+          {required: true, message: "本次拨付不能为空", trigger: "blur"}
+        ]
+      },
       // 条数
       queryRecordTotal: 0,
       // 查询参数
@@ -428,7 +432,9 @@ export default {
       if (sheetid === undefined) {
         this.reset();
         this.configTemplateStatus();
+        this.loadProjectOptions("");
         this.loading = false;
+
       } else {
         const this_ = this;
 
@@ -596,7 +602,9 @@ export default {
         sheetstatuslinktext: "新建中",
 
         projectdocList: [],
+        // 拨付的当前记录
         budgetpayList:[],
+        // 拨付的历史记录
         budgetpayRecordList: [],
         sheetuseridImage: undefined,
         sheetAuditRecordList: []
@@ -647,6 +655,8 @@ export default {
             this.form.projectTypeLinkText = project.projectTypeLinkText;
             this.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
             this.form.organizationIDLinkText = project.organizationIDLinkText;
+            this.form.organizationid = project.organizationid;
+            this.form.projectmanagerid = project.projectmanagerid;
 
             listProjectdoc({projectid: this.form.projectid}).then(response => {
               const this_ = this;
@@ -671,6 +681,36 @@ export default {
       }
     },
 
+    loadProjectOptions(queryString) {
+      // 在线查询。
+      const queryParams = {
+        pageNum: 1,
+        pageSize: 30,
+        projectname: queryString
+      };
+      listAftersetup(queryParams).then(response => {
+          const projectOptions = [];
+          const projectList = response.data;
+          console.log("response is ", response)
+          for (let i = 0; i < projectList.length; i++) {
+            let project = projectList[i];
+
+            const keys = Object.keys(project);
+            for (let j = 0; j < keys.length; j++) {
+              let key = keys[j];
+              let vv = project[key];
+              //  console.log("project."+ key + " = " , vv);
+            }
+
+            // console.log("project is ", project);
+            //  const item = {"projectid": project.projectid, "projectname": project.projectname};
+            projectOptions.push(project);
+          }
+          this.projectOptions = projectOptions;
+        }
+      );
+    },
+
     filterProjectOptions(queryString) {
       console.log("filter value is " + queryString);
       console.log("projectList is ", this.projectList);
@@ -681,84 +721,118 @@ export default {
         this.projectOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
       } else {
         // 在线查询。
-        const queryParams = {
-          pageNum: 1,
-          pageSize: 30,
-          projectname: queryString
-        };
-
-        listAftersetup(queryParams).then(response => {
-            const projectOptions = [];
-            const projectList = response.data;
-            console.log("response is ", response)
-            for (let i = 0; i < projectList.length; i++) {
-              let project = projectList[i];
-
-              const keys = Object.keys(project);
-              for (let j = 0; j < keys.length; j++) {
-                let key = keys[j];
-                let vv = project[key];
-                //  console.log("project."+ key + " = " , vv);
-              }
-
-              console.log("project is ", project);
-              //  const item = {"projectid": project.projectid, "projectname": project.projectname};
-              projectOptions.push(project);
-            }
-            this.projectOptions = projectOptions;
-          }
-        );
+        this.loadProjectOptions(queryString);
       }
     },
 
+    loadSupplierOptions(queryString) {
+      // 在线查询。
+      const queryParams = {
+        pageNum: 1,
+        pageSize: 30,
+        suppliername: queryString
+      };
+
+      listSheetSupplier(queryParams).then(response => {
+          const supplierOptions = [];
+          const supplierList = response.data;
+          // console.log("response is ", response)
+          for (let i = 0; i < supplierList.length; i++) {
+            let supplier = supplierList[i];
+
+            const keys = Object.keys(supplier);
+            for (let j = 0; j < keys.length; j++) {
+              let key = keys[j];
+              let vv = supplier[key];
+            }
+
+            // console.log("supplier is ", supplier);
+            supplierOptions.push(supplier);
+          }
+          this.supplierOptions = supplierOptions;
+        }
+      );
+    },
 
     clearSupplierid() {
 
     },
+
     changeSupplierid(value) {
-      console.log("changeProjectid value is " + value);
       if (value) {
-        this.form.projectid = value;
-        for (let i = 0; i < this.projectOptions.length; i++) {
-          let project = this.projectOptions[i];
-          if (project.projectid === value) {
-            this.form.projectname = project.projectname;
+        this.resetBudgetpayForm();
+        this.budgetpayForm.supplierid = value;
+        for (let i = 0; i < this.supplierOptions.length; i++) {
+          let supplier = this.supplierOptions[i];
+          if (supplier.supplierid === value) {
+            this.budgetpayForm.suppliername = supplier.suppliername;
+            let queryParams = {
+              pageNum: 1,
+              pageSize: 10,
+              sheettype: "拨付单",
+              projectid: this.form.projectid,
+              supplieridList: [value]
+            };
+            getSheetBudgetpayRecord(queryParams).then(response => {
+              const budgetpay = {
+                payid: undefined,
+                supplierid: value,
+                suppliername: supplier.suppliername,
+                zong: 0.0,
+                xiaoji: 0.0,
+                yiqian: 0.0,
+                bennian: 0.0,
+                benci: 0.0,
+                getIfFirstPayed:false
+              };
+
+              console.log("getSheetBudgetpayRecord is " ,response.rows);
+              const budgetpayRecordList = response.rows;
+              if(budgetpayRecordList.length > 0) {
+                budgetpay.getIfFirstPayed = true;
+                let currDate = new Date();
+                let currYear = currDate.getFullYear();
+                for (let i=0; i < budgetpayRecordList.length; i++) {
+                  let item = budgetpayRecordList[i];
+                  let audityear = parseInt(item.audittime.substr(1,4));
+                  if (audityear < currYear) {
+                    budgetpay.yiqian = budgetpay.yiqian + item.benci;
+                  }
+                  else {
+                    budgetpay.bennian = budgetpay.bennian + item.benci;
+                  }
+                  budgetpay.xiaoji = budgetpay.xiaoji + item.benci;
+                  budgetpay.zong = item.zong;
+                }
+              }
+              else {
+                budgetpay.getIfFirstPayed = false;
+              }
+
+              this.budgetpayForm = budgetpay;
+              console.log("change supplier when this.budgetpayForm is ", this.budgetpayForm);
+            });
+
             break;
           }
         }
-
       } else {
-        this.form.projectid = undefined;
-        this.form.projectname = undefined;
+        this.resetBudgetpayForm();
       }
     },
 
-    filterSupplieridOptions(queryString) {
+    filterSupplierOptions(queryString) {
       console.log("filter value is " + queryString);
-      console.log("projectList is ", this.projectList);
+      console.log("projectList is ", this.supplierOptions);
 
       let options = [];
-      if (this.projectidList.length > 10000) {
-        options = this.projectidList;
-        this.projectOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
+      if (this.supplierList.length > 10000) {
+        options = this.supplierList;
+        this.supplierOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
       } else {
         // 在线查询。
-        const queryParams = {
-          pageNum: 1,
-          pageSize: 30,
-          projectname: queryString
-        };
+        this.loadSupplierOptions(queryString);
 
-        listAftersetup(queryParams).then(response => {
-            const projectOptions = [];
-            const projectidList = response.rows;
-            projectidList.forEach(function (project) {
-              const item = {"projectid": project.projectid, "projectname": project.projectname};
-              projectOptions.push(item);
-            });
-            this.projectOptions = teamMemberOptions;
-          }
-        );
       }
     },
 
@@ -831,14 +905,14 @@ export default {
     /** 删除按钮 */
     deleteForm() {
 
-      const patentid = this.form.patentid;
+      const sheetid = this.form.sheetid;
 
-      this.$confirm('是否确认删除"' + this.form.patentname + '"的成果?', "警告", {
+      this.$confirm('是否确认删除"' + this.form.projectname + '"的拨付单?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deletePatent(patentid);
+        deleteSheet(sheetid);
       }).then(() => {
         this.msgSuccess("删除成功");
         this.closeForm();
@@ -857,21 +931,21 @@ export default {
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
           if (this_.opcode === "add") {
-            // 处理掉添加 专利人，为了更新或修改。
-            this_.form.authorList.forEach(function (item) {
-              if (item.authorid < 0) {
-                item.authorid = undefined;
+            // 处理掉添加， 为了更新或修改。
+            this_.form.budgetpayList.forEach(function (item) {
+              if (item.payid < 0) {
+                item.payid = undefined;
               }
             });
 
-            if (this_.form.patentid === undefined) {
-              addPatent(this.form).then(response => {
+            if (this_.form.sheetid === undefined) {
+              addSheet(this.form).then(response => {
                 if (response.data === 0) {
                   this_.msgError("提交审核失败");
-                  this_.form.patentid = undefined;
+                  this_.form.sheetid = undefined;
                 } else {
                   this.msgSuccess("提交审核成功");
-                  this.form.patentid = response.data;
+                  this.form.sheetid = response.data;
 
                 }
               }).then(() => {
@@ -879,7 +953,7 @@ export default {
                 this.closeForm();
               });
             } else {
-              updatePatent(this.form).then(response => {
+              updateSheet(this.form).then(response => {
 
               }).then(() => {
                 this.msgSuccess("提交审核成功");
@@ -899,7 +973,7 @@ export default {
             const result = this_.form.confirmResult;
 
             if (result === 1) {
-              this_.$confirm('是否确认专利审核 通过?', "警告", {
+              this_.$confirm('是否确认审核 通过?', "警告", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning"
@@ -914,7 +988,7 @@ export default {
               var note = this_.form.confirmNote;
               console.log("confirmNote is ", note);
               if (note !== null && note !== undefined && note.trim() !== '') {
-                this_.$confirm('是否确认专利审核 不通过?', "警告", {
+                this_.$confirm('是否确认审核 不通过?', "警告", {
                   confirmButtonText: "确定",
                   cancelButtonText: "取消",
                   type: "warning"
@@ -922,7 +996,7 @@ export default {
                   return confirmPatent(this_.form);
                 }).then(() => {
                   this_.closeForm();
-                  this_.msgSuccess("新核不通过 完成");
+                  this_.msgSuccess("审核不通过 完成");
                 });
               } else {
                 this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
@@ -950,114 +1024,159 @@ export default {
     /* 主持的项目 子 form */
 
     // 多选框选中数据
-    handleBudgetPaySelectionChange(selection) {
+    handleBudgetpaySelectionChange(selection) {
       // this.ids = selection.map(item => item.teamid);
       // this.single = selection.length != 1;
       // this.multiple = !selection.length;
     },
 
-    handleBudgetPayAdd() {
-      this.resetBudgetPayForm();
-      this.budgetPayFormOpen = true;
-      this.authorFormTitle = "添加专利人";
-
-      if (this.form.teamid !== undefined) {
-        this.getTeamMember(this.form.teamid);
+    handleBudgetpayAdd() {
+      if (this.form.projectid === undefined) {
+        this.msgError("没有选择项目");
+        return;
       }
+      this.budgetpayFormOpen = true;
+      this.budgetpayFormTitle = "添加项目协作单位";
+      this.resetBudgetpayForm();
+      this.loadSupplierOptions("");
     },
 
-    handleBudgetPayUpdate(row) {
-      this.budgetPayFormOpen = true;
-      this.authorFormTitle = "编辑专利人";
-      const author = {
-        authorid: row.authorid,
-        ifourunit: row.ifourunit,
-        unitname: row.unitname,
-        userid: row.userid,
-        personname: row.personname
+    handleBudgetpayUpdate(row) {
+      this.budgetpayFormOpen = true;
+      this.budgetpayFormTitle = "编辑项目协作单位";
+      const budgetpay = {
+        payid: row.payid,
+        supplierid: row.supplierid,
+        zong: parseFloat(row.zong),
+        xiaoji: parseFloat(row.xiaoji),
+        yiqian: parseFloat(row.yiqian),
+        bennian: parseFloat(row.bennian),
+        benci: parseFloat(row.benci),
+        getIfFirstPayed:false
       };
 
-      this.authorForm = author;
+      this.budgetpayForm = budgetpay;
 
-      if (this.form.teamid !== undefined) {
-        this.getTeamMember(this.form.teamid);
-      }
+      this.loadSupplierOptions("");
+
     },
 
 
     /**  删除按钮操作 */
-    handleBudgetPayDelete(row) {
+    handleBudgetpayDelete(row) {
       const this_ = this;
-      const personname = row.personname
-      this.$confirm('是否确认删除"' + personname + '"的数据项?', "警告", {
+      const suppliername = row.suppliername
+      this.$confirm('是否确认删除"' + suppliername + '"的数据项?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        const index = this_.form.authorList.indexOf(row);
-        this_.form.authorList.splice(index, 1);
+        const index = this_.form.budgetpayList.indexOf(row);
+        this_.form.budgetpayList.splice(index, 1);
       }).then(() => {
         this.msgSuccess("删除成功");
       });
     },
 
-    cancelBudgetPayForm: function () {
-      this.budgetPayFormOpen = false;
-      this.resetBudgetPayForm();
+    cancelBudgetpayForm: function () {
+      this.budgetpayFormOpen = false;
+      this.resetBudgetpayForm();
     },
 
-    submitBudgetPayForm: function () {
+    submitBudgetpayForm: function () {
+
       const this_ = this;
-      this_.$refs["authorForm"].validate(valid => {
+      this_.$refs["budgetpayForm"].validate(valid => {
         if (valid) {
+          if (this.budgetpayForm.benci < 200) {
+            this.msgError("本次拨付金额小于200，请核对！请注意金额的单位为'元'");
+            return;
+          }
 
-          if (this_.authorForm.authorid !== undefined) {
+          let uniqueSupplier = true;
+          for (let i = 0; i < this.form.budgetpayList.length; i++){
+            let item = this.form.budgetpayList[i];
+            if (this.budgetpayForm.payid === undefined) {
+              if (this.budgetpayForm.supplierid === item.supplierid) {
+                uniqueSupplier = false;
+                break;
+              }
+            }
+            else {
+              if (this.budgetpayForm.payid !== item.payid && this.budgetpayForm.supplierid === item.supplierid) {
+                uniqueSupplier = false;
+                break;
+              }
+            }
+          }
 
-            this_.form.authorList.forEach(function (item) {
-              if (item.authorid == this_.authorForm.authorid) {
-                item.ifourunit = this_.authorForm.ifourunit;
-                item.unitname = this_.authorForm.unitname;
-                item.userid = this_.authorForm.userid;
-                item.personname = this_.authorForm.personname;
+          if (uniqueSupplier === false) {
+            this.msgError( this.budgetpayForm.suppliername + " 已存在相同的协作单位");
+            return;
+          }
+
+          this.budgetpayForm.xiaoji = parseFloat(this.budgetpayForm.xiaoji) + parseFloat(this.budgetpayForm.benci);
+
+          if (this.budgetpayForm.xiaoji > this.budgetpayForm.zong) {
+            this.msgError( this.budgetpayForm.suppliername + " 小计金额大于预算总经费，请核对！");
+            return;
+          }
+
+          if (this_.budgetpayForm.payid !== undefined) {
+            this_.form.budgetpayList.forEach(function (item) {
+              if (item.payid == this_.budgetpayForm.payid) {
+                item.supplierid = this_.budgetpayForm.supplierid;
+                item.suppliername = this_.budgetpayForm.suppliername;
+                item.zong = parseFloat(this_.budgetpayForm.zong);
+                item.xiaoji = parseFloat(this_.budgetpayForm.xiaoji);
+                item.yiqian = parseFloat(this_.budgetpayForm.yiqian);
+                item.bennian = parseFloat(this_.budgetpayForm.bennian);
+                item.benci = parseFloat(this_.budgetpayForm.benci);
               }
             });
             this.msgSuccess("修改成功");
           } else {
-            let authorid = 0;
-            this_.form.authorList.forEach(function (item) {
-              if (item.authorid !== undefined && item.authorid < authorid) {
-                authorid = item.authorid;
+            let payid = 0;
+            this_.form.budgetpayList.forEach(function (item) {
+              if (item.payid !== undefined && item.payid < payid) {
+                payid = item.payid;
               }
             });
-            authorid = authorid - 1;
-            const author2 = {
-              authorid: authorid,
-              ifourunit: this_.authorForm.ifourunit,
-              unitname: this_.authorForm.unitname,
-              userid: this_.authorForm.userid,
-              personname: this_.authorForm.personname
+            payid = payid - 1;
+            const pay2 = {
+              payid: payid,
+              supplierid: this_.budgetpayForm.supplierid,
+              suppliername: this_.budgetpayForm.suppliername,
+              zong: parseFloat(this_.budgetpayForm.zong),
+              xiaoji: parseFloat(this_.budgetpayForm.xiaoji),
+              yiqian: parseFloat(this_.budgetpayForm.yiqian),
+              bennian: parseFloat(this_.budgetpayForm.bennian),
+              benci: parseFloat(this_.budgetpayForm.benci)
             };
-            console.log("添加专利人", author2);
-            this_.form.authorList.push(author2);
+            console.log("添加协作单位", pay2);
+            this_.form.budgetpayList.push(pay2);
             this.msgSuccess("添加成功");
           }
-          console.log("submit authorForm is ", this.authorForm);
-          this_.budgetPayFormOpen = false;
-          this.resetBudgetPayForm();
+          console.log("submit budgetpayForm is ", this.budgetpayForm);
+          this_.budgetpayFormOpen = false;
+          this.resetBudgetpayForm();
         }
       });
     },
 
     // 表单重置
-    resetBudgetPayForm() {
-      this.authorForm = {
-        authorid: undefined,
-        ifourunit: 1,
-        unitname: "农业部南京农业机械化研究所",
-        userid: undefined,
-        personname: undefined
+    resetBudgetpayForm() {
+      this.budgetpayForm = {
+        payid: undefined,
+        supplierid: undefined,
+        zong: 0.0,
+        xiaoji: 0.0,
+        yiqian: 0.0,
+        bennian: 0.0,
+        benci:0.0,
+        getIfFirstPayed:false
       };
-      this.resetForm("authorForm");
+      this.resetForm("budgetpayForm");
     },
 
   }

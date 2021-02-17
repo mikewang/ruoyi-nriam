@@ -6,17 +6,13 @@ public class AudSheetauditrecord extends BaseEntity {
 
     private Integer auditid;
 
-
     private String sheettype;
-
 
     private Integer sheetid;
 
     private String audittype;
 
-
     private Boolean auditresult;
-
 
     private String auditopinion;
 

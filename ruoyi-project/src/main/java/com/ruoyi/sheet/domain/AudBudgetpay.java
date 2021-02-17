@@ -28,7 +28,7 @@ public class AudBudgetpay extends BaseEntity {
 
     private String sheettype;
     private String projectidlinktext;
-    private String supplieridlinktext;
+    private String suppliername;
     private String character;
 
     public Integer getPayid() {
@@ -127,12 +127,12 @@ public class AudBudgetpay extends BaseEntity {
         this.projectidlinktext = projectidlinktext;
     }
 
-    public String getSupplieridlinktext() {
-        return supplieridlinktext;
+    public String getSuppliername() {
+        return suppliername;
     }
 
-    public void setSupplieridlinktext(String supplieridlinktext) {
-        this.supplieridlinktext = supplieridlinktext;
+    public void setSuppliername(String suppliername) {
+        this.suppliername = suppliername;
     }
 
     public String getCharacter() {
@@ -158,7 +158,7 @@ public class AudBudgetpay extends BaseEntity {
                 ", audittime='" + audittime + '\'' +
                 ", sheettype='" + sheettype + '\'' +
                 ", projectidlinktext='" + projectidlinktext + '\'' +
-                ", supplieridlinktext='" + supplieridlinktext + '\'' +
+                ", suppliername='" + suppliername + '\'' +
                 ", character='" + character + '\'' +
                 '}';
     }

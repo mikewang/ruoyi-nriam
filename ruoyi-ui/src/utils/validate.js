@@ -200,6 +200,19 @@ export function isNumber(rule, value, callback) {
 }
 
 /*自动检验数值的范围*/
+export function checkMin200(rule, value, callback) {
+  if (value == '' || value == undefined || value == null) {
+    callback();
+  } else if (!Number(value)) {
+    callback(new Error('请输入数字'));
+  } else if (value < 200) {
+    callback(new Error('请输入200以上的数字'));
+  } else {
+    callback();
+  }
+}
+
+/*自动检验数值的范围*/
 export function checkMax20000(rule, value, callback) {
   if (value == '' || value == undefined || value == null) {
     callback();

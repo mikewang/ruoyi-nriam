@@ -3,13 +3,14 @@ package com.ruoyi.sheet.domain;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class AudSheet extends BaseEntity {
 
     private Integer sheetid;
 
-
     private String sheetcode;
+
 
     private String sheettype;
 
@@ -60,6 +61,20 @@ public class AudSheet extends BaseEntity {
     private String organizationidlinktext;
     private String sheetstatuslinktext;
     private String payconfirmuseridlinktext;
+
+    private Integer projectmanagerid;
+
+    private List<AudBudgetpay> budgetpayList;
+
+    private Integer operateCode = 1;
+    private Integer confirmResult;
+    private String confirmNote;
+    private Integer confirmUserid;
+    private String audittype;
+
+    private List<AudSheetauditrecord> sheetAuditRecordList;
+
+
 
     public Integer getSheetid() {
         return sheetid;
@@ -261,6 +276,71 @@ public class AudSheet extends BaseEntity {
         this.payconfirmuseridlinktext = payconfirmuseridlinktext;
     }
 
+    public Integer getProjectmanagerid() {
+        return projectmanagerid;
+    }
+
+    public void setProjectmanagerid(Integer projectmanagerid) {
+        this.projectmanagerid = projectmanagerid;
+    }
+
+    public List<AudBudgetpay> getBudgetpayList() {
+        return budgetpayList;
+    }
+
+    public void setBudgetpayList(List<AudBudgetpay> budgetpayList) {
+        this.budgetpayList = budgetpayList;
+    }
+
+    public Integer getOperateCode() {
+        return operateCode;
+    }
+
+    public void setOperateCode(Integer operateCode) {
+        this.operateCode = operateCode;
+    }
+
+    public Integer getConfirmResult() {
+        return confirmResult;
+    }
+
+    public void setConfirmResult(Integer confirmResult) {
+        this.confirmResult = confirmResult;
+    }
+
+    public String getConfirmNote() {
+        return confirmNote;
+    }
+
+    public void setConfirmNote(String confirmNote) {
+        this.confirmNote = confirmNote;
+    }
+
+    public Integer getConfirmUserid() {
+        return confirmUserid;
+    }
+
+    public void setConfirmUserid(Integer confirmUserid) {
+        this.confirmUserid = confirmUserid;
+    }
+
+    public String getAudittype() {
+        return audittype;
+    }
+
+    public void setAudittype(String audittype) {
+        this.audittype = audittype;
+    }
+
+    public List<AudSheetauditrecord> getSheetAuditRecordList() {
+        return sheetAuditRecordList;
+    }
+
+    public void setSheetAuditRecordList(List<AudSheetauditrecord> sheetAuditRecordList) {
+        this.sheetAuditRecordList = sheetAuditRecordList;
+    }
+
+
     @Override
     public String toString() {
         return "AudSheet{" +
@@ -289,7 +369,15 @@ public class AudSheet extends BaseEntity {
                 ", organizationidlinktext='" + organizationidlinktext + '\'' +
                 ", sheetstatuslinktext='" + sheetstatuslinktext + '\'' +
                 ", payconfirmuseridlinktext='" + payconfirmuseridlinktext + '\'' +
+                ", budgetpayList=" + budgetpayList +
+                ", operateCode=" + operateCode +
+                ", confirmResult=" + confirmResult +
+                ", confirmNote='" + confirmNote + '\'' +
+                ", confirmUserid=" + confirmUserid +
+                ", audittype='" + audittype + '\'' +
+                ", sheetAuditRecordList=" + sheetAuditRecordList +
                 '}';
     }
+
 }
 

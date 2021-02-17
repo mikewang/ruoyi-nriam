@@ -26,17 +26,17 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目总经费（元）" prop="projectfunds">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.projectfunds" placeholder="请输入项目总经费（元）"/>
+                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.projectfunds" placeholder="请输入项目总经费（元）"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="财政拨款（元）" prop="financefunds">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.financefunds" placeholder="请输入财政拨款（元）"/>
+                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.financefunds" placeholder="请输入财政拨款（元）"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="可支配经费（元）" prop="canusefunds">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.canusefunds" placeholder="请输入可支配经费（元）"/>
+                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.canusefunds" placeholder="请输入可支配经费（元）"/>
               </el-form-item>
             </el-col>
           </el-row>

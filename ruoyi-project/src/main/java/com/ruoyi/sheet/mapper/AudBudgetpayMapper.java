@@ -12,9 +12,10 @@ public interface AudBudgetpayMapper {
 
     List<AudBudgetpay> selectBudgetPayRecord(AudBudgetpayRecordQuery query);
 
-    int deleteByPrimaryKey(Integer payid);
+    int insertAudBudgetpay(AudBudgetpay record);
 
-    int insert(AudBudgetpay record);
+
+    int deleteByPrimaryKey(Integer payid);
 
     AudBudgetpay selectByPrimaryKey(Integer payid);
 
