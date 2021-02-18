@@ -88,6 +88,22 @@
     order by a.SheetTime desc
   </select>
 
+  <update id="updateAudSheetStatus" parameterType="com.ruoyi.sheet.domain.AudSheet">
+    update Aud_Sheet
+    set  SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    where SheetID = #{sheetid,jdbcType=INTEGER}
+  </update>
+
+
+  <!--    查询部门负责人审批的拨付单列表 -->
+  <select id="selectSheetBuMenByUserid" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <include refid="selectSheet"/>
+    WHERE a.SheetType = '拨付单'
+    and a.OrganizationID in (select dept_id from sys_dept  where manager_id = #{userid,jdbcType=INTEGER})
+    and a.SheetStatus = 4
+    order by a.SheetTime desc;
+  </select>
+
   <update id="updateByPrimaryKey" parameterType="com.ruoyi.sheet.domain.AudSheet">
     <!--
       WARNING - @mbg.generated

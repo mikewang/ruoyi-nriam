@@ -12,7 +12,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<delete id="deleteUserRoleByUserId" parameterType="Long">
 		delete from sys_user_role where user_id=#{userId}
 	</delete>
-	
+
+	<select id="selectUserRoleByRoleId" resultType="SysUserRoleResult" parameterType="Long">
+		select * from sys_user_role where role_id=#{roleId}
+	</select>
+
 	<select id="countUserRoleByRoleId" resultType="Integer">
 	    select count(1) from sys_user_role where role_id=#{roleId}  
 	</select>

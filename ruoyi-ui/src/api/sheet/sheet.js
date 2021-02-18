@@ -106,3 +106,20 @@ export function confirmAudit3Sheet(data) {
     data: data
   })
 }
+
+//  查询部门审批的拨付单列表
+export function listAudit4Sheet(query) {
+  return request({
+    url: '/sheet/audit4/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function confirmAudit4Sheet(data) {
+  return request({
+    url: '/sheet/audit4',
+    method: 'put',
+    data: data
+  })
+}

@@ -14,6 +14,8 @@ public interface AudBudgetpayMapper {
 
     int insertAudBudgetpay(AudBudgetpay record);
 
+    int updateAudBudgetpayAduitTime(AudBudgetpay record);
+
 
     int deleteByPrimaryKey(Integer payid);
 

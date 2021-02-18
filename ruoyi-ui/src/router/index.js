@@ -182,14 +182,20 @@ export const constantRoutes = [
       {
         path: 'tijiaoren/:sheetid(\\d+)',
         component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
-        name: 'EditSheet',
-        meta: { title: '拨付单编辑', icon: '', opcode: 'query',noCache: true }
+        name: 'querySheet',
+        meta: { title: '拨付单查看', icon: '', opcode: 'query',noCache: true }
       },
       {
         path: 'tijiaoren/audit3/:sheetid(\\d+)',
         component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
-        name: 'EditSheet',
+        name: 'Audit3Sheet',
         meta: { title: '拨付单审核', icon: '', opcode: 'audit3',noCache: true }
+      },
+      {
+        path: 'tijiaoren/audit4/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        name: 'Audit4Sheet',
+        meta: { title: '拨付单审核', icon: '', opcode: 'audit4',noCache: true }
       }
     ]
   },

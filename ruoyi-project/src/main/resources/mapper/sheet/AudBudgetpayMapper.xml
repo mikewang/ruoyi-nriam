@@ -113,6 +113,13 @@
         #{audittime,jdbcType=VARCHAR})
     </insert>
 
+
+    <update id="updateAudBudgetpayAduitTime" parameterType="com.ruoyi.sheet.domain.AudBudgetpay">
+        update Aud_BudgetPay
+        set  AuditTime = #{audittime,jdbcType=VARCHAR}
+        where SheetID = #{sheetid,jdbcType=INTEGER}
+    </update>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         <!--
           WARNING - @mbg.generated

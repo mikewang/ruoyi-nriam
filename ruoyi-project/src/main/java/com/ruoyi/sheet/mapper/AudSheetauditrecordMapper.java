@@ -7,17 +7,15 @@ public interface AudSheetauditrecordMapper {
 
     List<AudSheetauditrecord>  selectSheetauditRecord(AudSheetauditrecord sheet);
 
-    int deleteByPrimaryKey(Integer auditid);
+    int insertAudSheetauditrecord(AudSheetauditrecord record);
 
-
-    int insert(AudSheetauditrecord record);
-
-
-    AudSheetauditrecord selectByPrimaryKey(Integer auditid);
-
-
-    List<AudSheetauditrecord> selectAll();
-
-
-    int updateByPrimaryKey(AudSheetauditrecord record);
+//    AudSheetauditrecord selectByPrimaryKey(Integer auditid);
+//
+//
+//    List<AudSheetauditrecord> selectAll();
+//
+//
+//    int deleteByPrimaryKey(Integer auditid);
+//
+//    int updateByPrimaryKey(AudSheetauditrecord record);
 }

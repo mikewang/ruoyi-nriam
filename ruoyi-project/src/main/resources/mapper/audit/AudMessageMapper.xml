@@ -40,6 +40,9 @@
         IfProcessed   = 1
     where RelatedSheetType = #{relatedsheettype,jdbcType=VARCHAR}
     and  RelatedSheetID = #{relatedsheetid,jdbcType=INTEGER}
+      <if test="touserid != null and touserid != 0 ">
+        AND a.ToUserID = #{touserid,jdbcType=INTEGER}
+      </if>
   </update>
 
 

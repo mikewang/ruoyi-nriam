@@ -196,7 +196,7 @@ public class AudSheetController extends BaseController {
 
         sheet.setSheetstatus(SheetStatus.XiangMuShenPi.getCode());
         logger.debug("AudSheet add is " + sheet.toString());
-        sheet.setSheetuserid(175);
+        sheet.setSheetuserid(175); // 测试用户
         sheet.setSheettime(DateUtils.dateTimeNow());
         sheet.setSheettype("拨付单");
         sheet.setRelatedcontractid(-1);
@@ -205,30 +205,6 @@ public class AudSheetController extends BaseController {
         Integer result = sheetService.addSheetTijiaoren(sheet);
 
         if (result > 0) {
-
-//            api.MsgManager.SendToAUser(am.ToUserID.ToString(), am.MessageTitle,
-//                    "新的拨付单：" + code + "待审批。");
-//
-//            //发送短信
-//            CommonFunc.SendSMS_ToAudit(am.ToUserID.ToString(),
-//                    "#type#=拨付单&#name#=" + code);
-
-            // 发送推送
-            Integer userid = sheet.getProjectmanagerid();
-            List<AppClientinfo>  clientList =  clientinfoService.selectAppClientinfoByUserid(userid);
-            for (AppClientinfo client : clientList) {
-                String clientId = client.getClientid();
-                String msgTitle = "新的拨付单待审批";
-                String msgBody = "新的拨付单：" + sheet.getSheetcode() + "待审批。";
-                // 暂时 关闭，调试中。
-                //PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
-            }
-
-            //发送短信
-            String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
-            // 暂时 关闭，调试中。
-//            Juhe.mobileQuery("13776614820", msg);
-
 
             return AjaxResult.success(" 提交审核成功");
         }
@@ -267,13 +243,94 @@ public class AudSheetController extends BaseController {
             return AjaxResult.error("您的签名图片尚未上传，无法审批！");
         }
 
+        //记录审核结论
+//        record.SheetID = int.Parse(Request["kid"].ToString());
+//        record.SheetType = "拨付单";
+//        record.AuditType = Request["t"].ToString();    //把当前的审批环节作为类型记录进去
+//        record.AuditOpinion = AuditOpinion1.txt_Opinion.Text;
+//        record.AuditResult = Convert.ToBoolean(int.Parse(AuditOpinion1.rbtnl_Result.SelectedValue));
+//        record.AuditTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//        record.AuditUserID = int.Parse(Session["CurrentUserID"].ToString());
+
+        AudSheetauditrecord record = new AudSheetauditrecord();
+        record.setSheetid(sheet.getSheetid());
+        record.setSheettype(sheet.getSheettype());
+        record.setAudittype("3");
+        record.setAuditopinion(sheet.getConfirmNote());
+        record.setAudittime(DateUtils.dateTimeNow());
+        record.setAudituserid(userId.intValue());
+
         if (sheet.getConfirmResult() == 1) {
+            record.setAuditresult(true);
             sheet.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
-            sheetService.updateSheetAuditStatus(sheet);
+            sheetService.updateSheetAuditStatus(sheet, record);
         }
         else if (sheet.getConfirmResult() == 2) {
+            record.setAuditresult(false);
             sheet.setSheetstatus(SheetStatus.NoPass.getCode());
-            sheetService.updateSheetAuditStatus(sheet);
+            sheetService.updateSheetAuditStatus(sheet, record);
+        }
+        else {
+            return AjaxResult.error("审批'" + sheet.getSheetcode() + "'失败，没有选择审批结果");
+        }
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit4:list')")
+    @GetMapping("/audit4/list")
+    public TableDataInfo audit4List() {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+        startPage();
+        List<AudSheet> list = sheetService.selectSheetBuMenByUserid(87L);
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit4:list')")
+    @Log(title = "外拨款部门负责人审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit4")
+    public AjaxResult audit4Confirm(@Validated @RequestBody AudSheet sheet) {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+
+        sheet.setConfirmUserid(87); // 测试用户。
+
+        logger.debug("audit3 sheet is " + sheet.toString());
+        AjaxResult ajax = AjaxResult.success();
+
+        AudSignpic s = audSignpicService.selectSignpicByUserId(sheet.getConfirmUserid());
+
+        if (s == null || this.signpicFilename(s.getSignpicName()).equals("")) {
+            return AjaxResult.error("您的签名图片尚未上传，无法审批！");
+        }
+
+        //记录审核结论
+//        record.SheetID = int.Parse(Request["kid"].ToString());
+//        record.SheetType = "拨付单";
+//        record.AuditType = Request["t"].ToString();    //把当前的审批环节作为类型记录进去
+//        record.AuditOpinion = AuditOpinion1.txt_Opinion.Text;
+//        record.AuditResult = Convert.ToBoolean(int.Parse(AuditOpinion1.rbtnl_Result.SelectedValue));
+//        record.AuditTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//        record.AuditUserID = int.Parse(Session["CurrentUserID"].ToString());
+
+        AudSheetauditrecord record = new AudSheetauditrecord();
+        record.setSheetid(sheet.getSheetid());
+        record.setSheettype(sheet.getSheettype());
+        record.setAudittype("4");
+        record.setAuditopinion(sheet.getConfirmNote());
+        record.setAudittime(DateUtils.dateTimeNow());
+        record.setAudituserid(userId.intValue());
+
+        if (sheet.getConfirmResult() == 1) {
+            record.setAuditresult(true);
+            sheet.setSheetstatus(SheetStatus.ChuShenPi.getCode());
+            sheetService.updateSheetAuditStatus(sheet, record);
+        }
+        else if (sheet.getConfirmResult() == 2) {
+            record.setAuditresult(false);
+            sheet.setSheetstatus(SheetStatus.NoPass.getCode());
+            sheetService.updateSheetAuditStatus(sheet, record);
         }
         else {
             return AjaxResult.error("审批'" + sheet.getSheetcode() + "'失败，没有选择审批结果");

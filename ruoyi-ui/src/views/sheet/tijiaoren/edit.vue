@@ -228,9 +228,9 @@
         </template>
         <template>
           <el-row v-for="audit in form.sheetAuditRecordList" v-bind:hidden="hidden.acceptance">
-            <el-col :span="8">
+            <el-col :span="24">
               <el-form-item :label="audit.audittypeName">
-                <span>  {{ audit.auditresultName }}</span> <span>  {{ audit.audittime }}</span>
+                <span>  {{ audit.auditresultName }}</span>  <span> <img :src="audit.signpicName" min-width="120" height="60"/>  {{ audit.audittime }}</span>
               </el-form-item>
             </el-col>
           </el-row>
@@ -336,7 +336,7 @@
 </template>
 
 <script>
-import {confirmProject, getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
+import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
 import {
   addSheet,
   deleteSheet,
@@ -348,12 +348,11 @@ import {
   updateSheet,
   confirmAudit3Sheet
 } from "@/api/sheet/sheet";
-// import {addPatent, confirmPatent, deletePatent, updatePatent} from "@/api/achieve/patent";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
 
 export default {
-  name: "EditTijiaorenSheet",
+  name: "sheet_tijiaoren_edit",
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -613,8 +612,8 @@ export default {
       } else if (this.form.sheetstatus === this.SheetStatus.NoPass) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
-          this.readonly.confirm = true;
-          this.hidden.confirm = false;
+
+          this.hidden.acceptance = false;
 
           this.hidden.changeBtn = false;
           this.hidden.deleteBtn = false;
