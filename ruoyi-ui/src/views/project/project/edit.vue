@@ -1886,7 +1886,7 @@ export default {
               }
               else if (result === 2) {
 
-                var note = this_.form.confirmNote;
+                const note = this_.form.confirmNote;
                 console.log("confirmNote is ", note);
                 if (note !== null && note !== undefined && note.trim() !== '' ) {
                   this_.$confirm('是否确认项目新建审核 不通过?', "警告", {

@@ -51,7 +51,7 @@
 
   <select id="selectSheetById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <include refid="selectSheet"/>
-    where a.SheetID = #{sheetid,jdbcType=INTEGER}
+    where  a.SheetID = #{sheetid,jdbcType=INTEGER}
   </select>
 
   <!--   查询经办人经办过的拨付单列表 -->
@@ -78,6 +78,16 @@
       #{referenceid,jdbcType=VARCHAR}, #{reason,jdbcType=VARCHAR}, #{payconfirmtime,jdbcType=VARCHAR}, 
       #{payconfirmuserid,jdbcType=INTEGER}, #{sheetstatus,jdbcType=INTEGER})
   </insert>
+
+  <!--   查询项目负责人审批的拨付单列表 -->
+  <select id="selectSheetXiangmuByUserid" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <include refid="selectSheet"/>
+    WHERE a.SheetType = '拨付单'
+    and a.ProjectID in (select ProjectID from Aud_Project where ProjectManagerID = #{userid,jdbcType=INTEGER})
+    and a.SheetStatus = 3
+    order by a.SheetTime desc
+  </select>
+
   <update id="updateByPrimaryKey" parameterType="com.ruoyi.sheet.domain.AudSheet">
     <!--
       WARNING - @mbg.generated

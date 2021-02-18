@@ -84,9 +84,25 @@ export function confirmSheet(data) {
 // 修改
 export function updateSheet(data) {
   return request({
-    url: '/sheet/confirm',
+    url: '/sheet/change',
     method: 'put',
     data: data
   })
 }
 
+//  查询项目负责人审批的拨付单列表
+export function listAudit3Sheet(query) {
+  return request({
+    url: '/sheet/audit3/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function confirmAudit3Sheet(data) {
+  return request({
+    url: '/sheet/audit3',
+    method: 'put',
+    data: data
+  })
+}

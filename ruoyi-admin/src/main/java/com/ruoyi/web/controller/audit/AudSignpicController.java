@@ -32,7 +32,6 @@ public class AudSignpicController extends BaseController {
     @Resource
     private AudSignpicService audSignpicService;
 
-
     @Resource
     private TokenService tokenService;
 

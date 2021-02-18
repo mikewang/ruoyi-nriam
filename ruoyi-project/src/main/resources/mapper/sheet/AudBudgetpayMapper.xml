@@ -13,7 +13,6 @@
         <result column="benci" jdbcType="DECIMAL" property="benci"/>
         <result column="AuditTime" jdbcType="VARCHAR" property="audittime"/>
         <result column="ProjectIDLinkText" jdbcType="VARCHAR" property="projectidlinktext"/>
-        <result column="SupplierIDLinkText" jdbcType="VARCHAR" property="supplieridlinktext"/>
         <result column="Character" jdbcType="VARCHAR" property="character"/>
         <result column="SheetType" jdbcType="VARCHAR" property="sheettype"/>
         <result column="ProjectIDLinkText" jdbcType="VARCHAR" property="projectidlinktext"/>
@@ -32,7 +31,7 @@
              , a.benci
              , a.AuditTime
              , t1.ProjectName  as ProjectIDLinkText
-             , t2.SupplierName as SupplierIDLinkText
+             , t2.SupplierName as suppliername
              , t3.DictionaryName as Character
          ,b.sheettype
         from Aud_BudgetPay a join Aud_Project t1

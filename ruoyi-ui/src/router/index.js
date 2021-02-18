@@ -184,6 +184,12 @@ export const constantRoutes = [
         component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
         name: 'EditSheet',
         meta: { title: '拨付单编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'tijiaoren/audit3/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        name: 'EditSheet',
+        meta: { title: '拨付单审核', icon: '', opcode: 'audit3',noCache: true }
       }
     ]
   },

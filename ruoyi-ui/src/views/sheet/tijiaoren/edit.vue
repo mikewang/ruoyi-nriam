@@ -6,25 +6,25 @@
         <template>
           <el-row v-bind:hidden="hidden.confirm">
             <el-col :span="8">
-              <el-form-item label="拨付单号" prop="sheetcode" >
+              <el-form-item label="拨付单号" prop="sheetcode">
                 <el-input readonly v-model="form.sheetcode"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="经办人" prop="sheetuseridlinktext" >
-                <el-input readonly  v-model="form.sheetuseridlinktext"/>
+              <el-form-item label="经办人" prop="sheetuseridlinktext">
+                <el-input readonly v-model="form.sheetuseridlinktext"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="经办时间" prop="sheettime">
-                <el-input readonly  v-model="form.sheettime"/>
+                <el-input readonly v-model="form.sheettime"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="项目名称" prop="projectname">
-                <el-select v-bind:disabled="readonly.basic" v-model="form.projectname" placeholder="请选择"
+              <el-form-item v-if="readonly.basic == false" label="项目名称" prop="projectname">
+                <el-select v-model="form.projectname" placeholder="请选择"
                            style="display:block;" clearable @clear="clearProjectid" @change="changeProjectid"
                            filterable :filter-method="filterProjectOptions" :show-overflow-tooltip="true">
                   <el-option
@@ -33,6 +33,9 @@
                     :label="item.projectname"
                     :value="item.projectid"/>
                 </el-select>
+              </el-form-item>
+              <el-form-item v-else label="项目名称" prop="projectname">
+                <el-input readonly v-model="form.projectname"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -173,7 +176,7 @@
             <el-col :span="24">
               <el-form-item label="本次拨付经费" prop="sheetuseridlinktext">
 
-                <span>人民币{{form.daxie}}</span>
+                <span>人民币{{ form.daxie }}</span>
               </el-form-item>
 
             </el-col>
@@ -186,7 +189,7 @@
             <el-col :span="24">
               <el-form-item label="历史拨付记录" prop="budgetpayRecordList">
 
-                <el-table :data="form.budgetpayRecordList"     style="display:block;">
+                <el-table :data="form.budgetpayRecordList" style="display:block;">
                   <el-table-column type="index" width="100" align="center"/>
                   <el-table-column label="项目名称" align="center" prop="projectidlinktext"
                                    :show-overflow-tooltip="true">
@@ -214,22 +217,48 @@
           </el-row>
         </template>
         <template>
-          <el-row v-bind:hidden="hidden.confirm">
+          <el-row v-bind:hidden="hidden.acceptance">
             <el-col :span="24">
-              <el-form-item label="经办人签名" prop="sheetuseridlinktext" >
-                <img :src="form.sheetuseridImage"  min-width="120" height="60" />
-                <span>  {{form.sheettime}}</span>
+              <el-form-item label="经办人签名" prop="sheetuseridlinktext">
+                <img :src="form.sheetuseridImage" min-width="120" height="60"/>
+                <span>  {{ form.sheettime }}</span>
               </el-form-item>
             </el-col>
           </el-row>
         </template>
         <template>
-          <el-row v-for="audit in form.sheetAuditRecordList" v-bind:hidden="hidden.confirm" >
+          <el-row v-for="audit in form.sheetAuditRecordList" v-bind:hidden="hidden.acceptance">
             <el-col :span="8">
-              <el-form-item :label="audit.audittypeName" >
-                   <span>  {{audit.auditresultName}}</span>  <span>  {{audit.audittime}}</span>
+              <el-form-item :label="audit.audittypeName">
+                <span>  {{ audit.auditresultName }}</span> <span>  {{ audit.audittime }}</span>
               </el-form-item>
             </el-col>
+          </el-row>
+        </template>
+
+        <template>
+          <el-row v-if="this.hidden.confirm == false">
+            <el-form-item label="审批意见" prop="confirmResult">
+              <el-row>
+                <el-col :span="16">
+                  <template>
+                    <span>审核结果 </span>
+                    <el-radio-group v-model="form.confirmResult">
+                      <el-radio :label="1">通过</el-radio>
+                      <el-radio :label="2">不通过</el-radio>
+                    </el-radio-group>
+                  </template>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="16">
+                  <template>
+                    <span>审核意见</span>
+                    <el-input v-model="form.confirmNote" placeholder="请输入意见" type="textarea"/>
+                  </template>
+                </el-col>
+              </el-row>
+            </el-form-item>
           </el-row>
         </template>
 
@@ -238,6 +267,7 @@
 
       <el-row>
         <el-col :span="24" align="center">
+          <el-button v-if="hidden.confirmBtn === false" type="success" @click="confirmForm">确定审批</el-button>
           <el-button v-if="hidden.submitBtn === false" type="success" @click="submitForm">提交审核</el-button>
           <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改信息</el-button>
           <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除</el-button>
@@ -255,7 +285,7 @@
       <el-form ref="budgetpayForm" :model="budgetpayForm" :rules="budgetpayRules" label-width="250px" :key="timer">
         <el-row>
           <el-col :span="24">
-            <el-form-item label="项目协作单位名称" prop="supplierid" label-width="150px" >
+            <el-form-item label="项目协作单位名称" prop="supplierid" label-width="150px">
               <el-select v-model="budgetpayForm.supplierid" placeholder="请选择"
                          style="display:block;" clearable @clear="clearSupplierid" @change="changeSupplierid"
                          filterable :filter-method="filterSupplierOptions" :show-overflow-tooltip="true">
@@ -269,7 +299,8 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="预算总拨付经费（元）" prop="zong">
-              <el-input type="number" v-model="budgetpayForm.zong" placeholder="请输入" v-bind:readonly="budgetpayForm.getIfFirstPayed"/>
+              <el-input type="number" v-model="budgetpayForm.zong" placeholder="请输入"
+                        v-bind:readonly="budgetpayForm.getIfFirstPayed"/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -283,7 +314,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item  label="实际拨付经费.本年已拨（元）" prop="bennian">
+            <el-form-item label="实际拨付经费.本年已拨（元）" prop="bennian">
               <el-input readonly v-model="budgetpayForm.bennian" placeholder="请输入"/>
             </el-form-item>
           </el-col>
@@ -305,12 +336,21 @@
 </template>
 
 <script>
-import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
-import {getSheet,listSheetSupplier, getSheetBudgetpay, getSheetBudgetpayRecord, getSheetAuditRecord,addSheet, updateSheet,confirmSheet, deleteSheet} from "@/api/sheet/sheet";
+import {confirmProject, getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
+import {
+  addSheet,
+  deleteSheet,
+  getSheet,
+  getSheetAuditRecord,
+  getSheetBudgetpay,
+  getSheetBudgetpayRecord,
+  listSheetSupplier,
+  updateSheet,
+  confirmAudit3Sheet
+} from "@/api/sheet/sheet";
 // import {addPatent, confirmPatent, deletePatent, updatePatent} from "@/api/achieve/patent";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
-import {checkMin200} from "@/utils/validate";
 
 export default {
   name: "EditTijiaorenSheet",
@@ -481,7 +521,7 @@ export default {
             this_.queryRecordParams.projectid = projectid;
 
             let ids = new Array();
-            for(let k=0 ; k< this_.form.budgetpayList.length; k++) {
+            for (let k = 0; k < this_.form.budgetpayList.length; k++) {
               let item = this_.form.budgetpayList[k];
               ids.push(item.supplierid);
             }
@@ -497,7 +537,7 @@ export default {
             this_.form.sheetuseridImage = response.data.signpicName;
           });
 
-          getSheetAuditRecord({"sheettype":"拨付单", "sheetid": this_.form.sheetid}).then(response => {
+          getSheetAuditRecord({"sheettype": "拨付单", "sheetid": this_.form.sheetid}).then(response => {
             console.log("getSheetAuditRecord response is ", response);
             this_.form.sheetAuditRecordList = response.data;
 
@@ -560,6 +600,16 @@ export default {
           this.hidden.confirm = false;
           this.hidden.submitBtn = false;
         }
+      } else if (this.form.sheetstatus === this.SheetStatus.XiangMuShenPi) {
+        if (this.opcode.indexOf("query") !== -1) {
+          this.hidden.acceptance = false;
+
+        } else if (this.opcode.indexOf("audit") !== -1) {
+          this.hidden.acceptance = false;
+          this.hidden.confirm = false;
+          this.readonly.confirm = false;
+          this.hidden.confirmBtn = false;
+        }
       } else if (this.form.sheetstatus === this.SheetStatus.NoPass) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
@@ -603,7 +653,7 @@ export default {
 
         projectdocList: [],
         // 拨付的当前记录
-        budgetpayList:[],
+        budgetpayList: [],
         // 拨付的历史记录
         budgetpayRecordList: [],
         sheetuseridImage: undefined,
@@ -783,29 +833,27 @@ export default {
                 yiqian: 0.0,
                 bennian: 0.0,
                 benci: 0.0,
-                getIfFirstPayed:false
+                getIfFirstPayed: false
               };
 
-              console.log("getSheetBudgetpayRecord is " ,response.rows);
+              console.log("getSheetBudgetpayRecord is ", response.rows);
               const budgetpayRecordList = response.rows;
-              if(budgetpayRecordList.length > 0) {
+              if (budgetpayRecordList.length > 0) {
                 budgetpay.getIfFirstPayed = true;
                 let currDate = new Date();
                 let currYear = currDate.getFullYear();
-                for (let i=0; i < budgetpayRecordList.length; i++) {
+                for (let i = 0; i < budgetpayRecordList.length; i++) {
                   let item = budgetpayRecordList[i];
-                  let audityear = parseInt(item.audittime.substr(1,4));
+                  let audityear = parseInt(item.audittime.substr(1, 4));
                   if (audityear < currYear) {
                     budgetpay.yiqian = budgetpay.yiqian + item.benci;
-                  }
-                  else {
+                  } else {
                     budgetpay.bennian = budgetpay.bennian + item.benci;
                   }
                   budgetpay.xiaoji = budgetpay.xiaoji + item.benci;
                   budgetpay.zong = item.zong;
                 }
-              }
-              else {
+              } else {
                 budgetpay.getIfFirstPayed = false;
               }
 
@@ -1021,6 +1069,59 @@ export default {
       this.configTemplateStatus();
     },
 
+    confirmForm() {
+      if (this.form.confirmResult == undefined) {
+        this.msgError("请选择审核结果");
+        return;
+      }
+
+      const this_ = this;
+
+      this_.form.confirmUserid = this_.$store.getters.userId;
+      const result = this_.form.confirmResult;
+
+      if (result === 1) {
+        this_.$confirm('是否确认审核 通过?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function () {
+          return confirmAudit3Sheet(this_.form);
+        }).then(() => {
+          this_.closeForm();
+          this_.msgSuccess("审核成功");
+        });
+      }
+      else if (result === 2) {
+
+        const note = this_.form.confirmNote;
+        console.log("confirmNote is ", note);
+        if (note !== null && note !== undefined && note.trim() !== '' ) {
+          this_.$confirm('是否确认审核 不通过?', "警告", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }).then(function () {
+            return  confirmAudit3Sheet(this_.form);
+          }).then(() => {
+            this_.closeForm();
+            this_.msgSuccess("审核不通过 完成");
+          });
+        }
+        else {
+          this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
+            confirmButtonText: "确定",
+            type: "warning"
+          }).then(function () {
+
+          });
+        }
+      }
+
+
+
+    },
+
     /* 主持的项目 子 form */
 
     // 多选框选中数据
@@ -1052,7 +1153,7 @@ export default {
         yiqian: parseFloat(row.yiqian),
         bennian: parseFloat(row.bennian),
         benci: parseFloat(row.benci),
-        getIfFirstPayed:false
+        getIfFirstPayed: false
       };
 
       this.budgetpayForm = budgetpay;
@@ -1094,15 +1195,14 @@ export default {
           }
 
           let uniqueSupplier = true;
-          for (let i = 0; i < this.form.budgetpayList.length; i++){
+          for (let i = 0; i < this.form.budgetpayList.length; i++) {
             let item = this.form.budgetpayList[i];
             if (this.budgetpayForm.payid === undefined) {
               if (this.budgetpayForm.supplierid === item.supplierid) {
                 uniqueSupplier = false;
                 break;
               }
-            }
-            else {
+            } else {
               if (this.budgetpayForm.payid !== item.payid && this.budgetpayForm.supplierid === item.supplierid) {
                 uniqueSupplier = false;
                 break;
@@ -1111,14 +1211,14 @@ export default {
           }
 
           if (uniqueSupplier === false) {
-            this.msgError( this.budgetpayForm.suppliername + " 已存在相同的协作单位");
+            this.msgError(this.budgetpayForm.suppliername + " 已存在相同的协作单位");
             return;
           }
 
           this.budgetpayForm.xiaoji = parseFloat(this.budgetpayForm.xiaoji) + parseFloat(this.budgetpayForm.benci);
 
           if (this.budgetpayForm.xiaoji > this.budgetpayForm.zong) {
-            this.msgError( this.budgetpayForm.suppliername + " 小计金额大于预算总经费，请核对！");
+            this.msgError(this.budgetpayForm.suppliername + " 小计金额大于预算总经费，请核对！");
             return;
           }
 
@@ -1173,8 +1273,8 @@ export default {
         xiaoji: 0.0,
         yiqian: 0.0,
         bennian: 0.0,
-        benci:0.0,
-        getIfFirstPayed:false
+        benci: 0.0,
+        getIfFirstPayed: false
       };
       this.resetForm("budgetpayForm");
     },

@@ -35,9 +35,9 @@ public class AppClientinfoService {
     @Resource
     private AppClientinfoMapper clientinfoMapper;
 
-    public AppClientinfo selectAppClientinfoByUserid(Integer userid) {
+    public List<AppClientinfo> selectAppClientinfoByUserid(Integer userid) {
 
-        AppClientinfo p =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+        List<AppClientinfo>  p =  clientinfoMapper.selectAppClientinfoByUserid(userid);
 
         return  p;
     }

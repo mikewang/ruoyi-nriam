@@ -12,6 +12,8 @@ public interface AudSheetMapper {
 
     int insertAudSheet(AudSheet record);
 
+    List<AudSheet> selectSheetXiangmuByUserid(Integer userid);
+
     AudSheet selectByPrimaryKey(Integer sheetid);
 
     /**

@@ -4,6 +4,7 @@ package com.ruoyi.sheet.service;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.audit.service.AudApplyService;
+import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.sheet.domain.*;
@@ -12,6 +13,7 @@ import org.apache.poi.hpsf.Decimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -104,6 +106,7 @@ public class AudSheetService {
     }
 
 
+    @Transactional
     public Integer addSheetTijiaoren(AudSheet sheet) {
 
         if (sheet.getSheetcode() == null || sheet.getSheetcode().isEmpty()) {
@@ -187,7 +190,6 @@ public class AudSheetService {
         message.setRelatedsheetid(sheet.getSheetid());
         messageMapper.insertAudMessage(message);
 
-
 //        api.MsgManager.SendToAUser(am.ToUserID.ToString(), am.MessageTitle,
 //                "新的拨付单：" + code + "待审批。");
 //
@@ -198,5 +200,30 @@ public class AudSheetService {
         return result;
     }
 
+
+    public List<AudSheet> selectSheetXiangmuByUserid(Long userId) {
+        Integer uid = userId.intValue();
+
+        List<AudSheet> sheetList = audSheetMapper.selectSheetXiangmuByUserid(uid);
+
+        log.debug("request sheetList list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+    @Transactional
+    public Integer updateSheetAuditStatus(AudSheet sheet) {
+        Integer result = 0;
+
+        if (sheet.getSheetstatus() == SheetStatus.NoPass.getCode()) {
+
+        }
+        else if (sheet.getSheetstatus() == SheetStatus.BuMenShenPi.getCode()) {
+
+        }
+
+
+        return result;
+    }
 
 }

@@ -27,7 +27,7 @@
       </el-row>
 
       <el-table v-loading="loading" :data="sheetList" @selection-change="handleSelectionChange" stripe>
-        <el-table-column type="selection" width="50" align="center"/>
+        <el-table-column type="index" width="50" align="center"/>
         <el-table-column label="单据编号" align="center" prop="sheetcode" :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column label="提交时间" align="center" prop="sheettime" width="200"/>
@@ -75,7 +75,7 @@ import {listTijiaorenSheet} from "@/api/sheet/sheet";
 
 
 export default {
-  name: "tijiaorenSheet",
+  name: "sheet_tijiaoren_index",
   // components: {  },
   data() {
     return {
@@ -181,7 +181,7 @@ export default {
       const path = '/sheet/tijiaoren/' + row.sheetid;
       console.log("path is " + path);
       this.$router.push({path: path});
-    },
+    }
 
   }
 };

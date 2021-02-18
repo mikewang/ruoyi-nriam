@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface AppClientinfoMapper {
 
-    AppClientinfo  selectAppClientinfoByUserid(Integer userid);
+    List<AppClientinfo>  selectAppClientinfoByUserid(Integer userid);
 
 }

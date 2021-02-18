@@ -2,6 +2,8 @@ package com.ruoyi.web.controller.sheet;
 
 import com.ruoyi.api.domain.AppClientinfo;
 import com.ruoyi.api.service.AppClientinfoService;
+import com.ruoyi.audit.domain.AudSignpic;
+import com.ruoyi.audit.service.AudSignpicService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
@@ -12,12 +14,14 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SMSSender.Juhe;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.push.PushMessageToApp;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.common.config.IGtPushConfig;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.service.AudSheetService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +39,8 @@ public class AudSheetController extends BaseController {
     private AudSheetService sheetService;
     @Resource
     private AppClientinfoService clientinfoService;
-
+    @Resource
+    private AudSignpicService audSignpicService;
 
     @Resource
     private TokenService tokenService;
@@ -140,6 +145,22 @@ public class AudSheetController extends BaseController {
         return getDataTable(list);
     }
 
+    private String signpicFilename(String signpicName) {
+        // 本地资源路径
+        String result = "";
+        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" +  "/signpic/";
+        if (signpicName != null && signpicName.isEmpty() == false ) {
+            String checkFilePath = RuoYiConfig.getUploadPath() + "/signpic/" + signpicName;
+            File desc = new File(checkFilePath);
+            if (desc.exists() == true) {
+                String filePath = fileDirPath + signpicName;
+                result = filePath;
+                logger.debug("url is " + filePath);
+            }
+         }
+        return result;
+    }
+
     /**
      * 根据项目号，供应商号，获取 历史记录
      */
@@ -151,27 +172,9 @@ public class AudSheetController extends BaseController {
         logger.debug("getSheetBudgetpayRecord record = " + record.toString());
         List<AudSheetauditrecord> list = sheetService.selectSheetauditRecord(record);
 
-        // 本地资源路径
-
-        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" +  "/signpic/";
-
         for(AudSheetauditrecord s: list) {
-            if (s.getSignpicName() != null && s.getSignpicName().isEmpty() == false ) {
-                String checkFilePath = RuoYiConfig.getUploadPath() + "/signpic/" + s.getSignpicName();
-                logger.debug("checkFilePath is " + s.getSignpicName());
-                File desc = new File(checkFilePath);
-                if (desc.exists() == true) {
-                    String filePath = fileDirPath + s.getSignpicName();
-                    s.setSignpicName(filePath);
-                    logger.debug("url is " + filePath);
-                }
-                else {
-                    s.setSignpicName("");
-                }
-            }
-            else {
-                s.setSignpicName("");
-            }
+            String result = this.signpicFilename(s.getSignpicName());
+            s.setSignpicName(result);
         }
         logger.debug("getSheetBudgetpayRecord list = " + list.toString());
         ajax.put(AjaxResult.DATA_TAG, list);
@@ -212,13 +215,20 @@ public class AudSheetController extends BaseController {
 
             // 发送推送
             Integer userid = sheet.getProjectmanagerid();
-            AppClientinfo client =  clientinfoService.selectAppClientinfoByUserid(userid);
-            String clientId = client.getClientid();
+            List<AppClientinfo>  clientList =  clientinfoService.selectAppClientinfoByUserid(userid);
+            for (AppClientinfo client : clientList) {
+                String clientId = client.getClientid();
+                String msgTitle = "新的拨付单待审批";
+                String msgBody = "新的拨付单：" + sheet.getSheetcode() + "待审批。";
+                // 暂时 关闭，调试中。
+                //PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
+            }
 
-            String msgTitle = "新的拨付单待审批";
-            String msgBody = "新的拨付单：" + sheet.getSheetcode() + "待审批。";
+            //发送短信
+            String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
+            // 暂时 关闭，调试中。
+//            Juhe.mobileQuery("13776614820", msg);
 
-//            PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
 
             return AjaxResult.success(" 提交审核成功");
         }
@@ -227,5 +237,48 @@ public class AudSheetController extends BaseController {
             return AjaxResult.error(" 操作失败，请联系管理员");
         }
 
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit3:list')")
+    @GetMapping("/audit3/list")
+    public TableDataInfo audit3List() {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+        startPage();
+        List<AudSheet> list = sheetService.selectSheetXiangmuByUserid(87L);
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit3:list')")
+    @Log(title = "外拨款项目负责人审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit3")
+    public AjaxResult audit3Confirm(@Validated @RequestBody AudSheet sheet) {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+
+        sheet.setConfirmUserid(87); // 测试用户。
+
+        logger.debug("audit3 sheet is " + sheet.toString());
+        AjaxResult ajax = AjaxResult.success();
+
+        AudSignpic s = audSignpicService.selectSignpicByUserId(sheet.getConfirmUserid());
+
+        if (s == null || this.signpicFilename(s.getSignpicName()).equals("")) {
+            return AjaxResult.error("您的签名图片尚未上传，无法审批！");
+        }
+
+        if (sheet.getConfirmResult() == 1) {
+            sheet.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
+            sheetService.updateSheetAuditStatus(sheet);
+        }
+        else if (sheet.getConfirmResult() == 2) {
+            sheet.setSheetstatus(SheetStatus.NoPass.getCode());
+            sheetService.updateSheetAuditStatus(sheet);
+        }
+        else {
+            return AjaxResult.error("审批'" + sheet.getSheetcode() + "'失败，没有选择审批结果");
+        }
+
+        return ajax;
     }
 }
