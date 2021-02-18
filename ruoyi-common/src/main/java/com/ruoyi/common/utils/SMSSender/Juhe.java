@@ -22,12 +22,42 @@ public class Juhe {
     public static final int DEF_READ_TIMEOUT = 30000;
     public static String userAgent =  "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36";
 
-    public static void mobileQuery(String mobile, String message){
+
+    public static void sendSMS_ToAudit(String mobile, String message){
+        String templateId = "22685";
+        mobileQuery(mobile,message,templateId);
+    }
+
+
+    public static void sendSMS_AuditContractPay(String mobile, String message){
+        String templateId = "22722";
+        mobileQuery(mobile,message,templateId);
+    }
+
+
+    public static void sendSMS_Audited(String mobile, String message){
+        String templateId = "25694";
+        mobileQuery(mobile,message,templateId);
+    }
+
+
+    public static void sendSMS_Audited_ToSheetUser(String mobile, String message){
+        String templateId = "25695";
+        mobileQuery(mobile,message,templateId);
+    }
+
+
+    public static void sendSMS_CodeFourTech(String mobile, String message){
+        String templateId = "31606";
+        mobileQuery(mobile,message,templateId);
+    }
+
+    public static void mobileQuery(String mobile, String message,  String templateId){
         String result =null;
         String url ="http://v.juhe.cn/sms/send";//请求接口地址
         Map params = new HashMap();//请求参数
         params.put("mobile",mobile);//接受短信的用户手机号码
-        params.put("tpl_id","22685");//您申请的短信模板ID，根据实际情况修改
+        params.put("tpl_id", templateId);//您申请的短信模板ID，根据实际情况修改
         params.put("tpl_value",message);//您设置的模板变量，根据实际情况修改
         params.put("key","929be0fb0988a8d1f79ad8331f96fb9e");//应用APPKEY(应用详细页查询)
         try {

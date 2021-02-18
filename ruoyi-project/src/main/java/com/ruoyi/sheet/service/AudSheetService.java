@@ -228,7 +228,7 @@ public class AudSheetService {
         //发送短信
         String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
         // 暂时 关闭，调试中。
-        Juhe.mobileQuery("13776614820", msg);
+        Juhe.sendSMS_ToAudit("13776614820", msg);
 
         return result;
     }
@@ -303,7 +303,7 @@ public class AudSheetService {
             //发送短信
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=不通过";
             // 暂时 关闭，调试中。
-            Juhe.mobileQuery("13776614820", msg);
+            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg);
 
             String danwei = "";
             if (sheet.getBudgetpayList().size() > 1) {
@@ -313,7 +313,7 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=不通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.mobileQuery("13776614820", msg);
+            Juhe.sendSMS_Audited("13776614820", msg);
 
         }
         else if (sheet.getSheetstatus() == SheetStatus.BuMenShenPi.getCode()) {
@@ -352,7 +352,7 @@ public class AudSheetService {
             messageMapper.insertAudMessage(message);
 
             // 这个逻辑放到 controller 里实现，这是异步操作。
-//            SendAppMsg(am.ToUserID.ToString());
+//            SendAppMsg(am.ToUserID.ToString());  api.MsgManager.SendToAUser(userID, "拨付单待您审批", "拨付单：" + lab_SheetCode.Text + "待您审批。");
 //
 //            //发送短信
 //            CommonFunc.SendSMS_ToAudit(am.ToUserID.ToString(),
@@ -361,6 +361,35 @@ public class AudSheetService {
 //            CommonFunc.SendSMS_Audited(Session["CurrentUserID"].ToString(),        //发送给当前审核人
 //                    "#type#=拨付单&#name#=" + lab_SheetCode.Text + "&#result#=通过"
 //                            + "&#money#=" + lab_heji_benci.Text + "&#danwei#=" + lab_SupNames.Text);
+
+            // 发送推送
+
+            Integer userid = message.getTouserid();
+            List<AppClientinfo>  clientList =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+            for (AppClientinfo client : clientList) {
+                String clientId = client.getClientid();
+                String msgTitle = "拨付单待您审批";
+                String msgBody = "拨付单：" + sheet.getSheetcode() + "待您审批。";
+                // 暂时 关闭，调试中。
+                PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
+            }
+
+            //发送短信
+            String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
+            // 暂时 关闭，调试中。
+            Juhe.sendSMS_ToAudit("13776614820", msg);
+
+            //发送给当前审核人
+            String danwei = "";
+            if (sheet.getBudgetpayList().size() > 1) {
+                danwei = sheet.getBudgetpayList().get(0).getSuppliername() + "...等";
+            }
+            else {
+                danwei = sheet.getBudgetpayList().get(0).getSuppliername();
+            }
+            msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
+            Juhe.sendSMS_Audited("13776614820", msg);
+
 
         }
         else if (sheet.getSheetstatus() == SheetStatus.ChuShenPi.getCode()) {
@@ -398,19 +427,45 @@ public class AudSheetService {
                 message.setRelatedsheetid(sheet.getSheetid());
                 messageMapper.insertAudMessage(message);
 
-// 这个逻辑放到 controller 里实现，这是异步操作。
-//                SendAppMsg(am.ToUserID.ToString());
-//
-//                //发送短信
-//                CommonFunc.SendSMS_ToAudit(am.ToUserID.ToString(),
-//                        "#type#=拨付单&#name#=" + lab_SheetCode.Text);
+                // 这个逻辑放到 controller 里实现，这是异步操作。
+                //                SendAppMsg(am.ToUserID.ToString());
+                //
+                //                //发送短信
+                //                CommonFunc.SendSMS_ToAudit(am.ToUserID.ToString(),
+                //                        "#type#=拨付单&#name#=" + lab_SheetCode.Text);
+
+                List<AppClientinfo>  clientList =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+                for (AppClientinfo client : clientList) {
+                    String clientId = client.getClientid();
+                    String msgTitle = "拨付单待您审批";
+                    String msgBody = "拨付单：" + sheet.getSheetcode() + "待您审批。";
+                    // 暂时 关闭，调试中。
+                    PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
+                }
+                //发送短信
+                String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
+                // 暂时 关闭，调试中。
+                Juhe.sendSMS_ToAudit("13776614820", msg);
+
             }
 
-
+            //发送给当前审核人
+            String danwei = "";
+            if (sheet.getBudgetpayList().size() > 1) {
+                danwei = sheet.getBudgetpayList().get(0).getSuppliername() + "...等";
+            }
+            else {
+                danwei = sheet.getBudgetpayList().get(0).getSuppliername();
+            }
+            String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
+            Juhe.sendSMS_Audited("13776614820", msg);
 
         }
         else if (sheet.getSheetstatus() == SheetStatus.FenGuanSuoShenPi.getCode()) {
             audSheetMapper.updateAudSheetStatus(sheet);
+
+
+
 
 
         }
