@@ -7,6 +7,7 @@ import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.audit.service.AudApplyService;
 import com.ruoyi.common.core.domain.entity.SysDept;
+import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
@@ -16,6 +17,7 @@ import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.mapper.*;
 import com.ruoyi.system.domain.SysUserRole;
 import com.ruoyi.system.mapper.SysDeptMapper;
+import com.ruoyi.system.mapper.SysDictDataMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
 import org.apache.poi.hpsf.Decimal;
 import org.slf4j.Logger;
@@ -59,6 +61,10 @@ public class AudSheetService {
 
     @Resource
     private SysUserRoleMapper userRoleMapper;
+
+    @Resource
+    private SysDictDataMapper dictDataMapper;
+
 
 
 
@@ -124,6 +130,21 @@ public class AudSheetService {
 
     @Transactional
     public Integer addSheetTijiaoren(AudSheet sheet) {
+
+        // 获取 短信服务器的密钥信息
+        String url = "";
+        String key = "";
+
+        List<SysDictData> dictList =  dictDataMapper.selectDictDataByType("短信服务商");
+        for (SysDictData dict : dictList) {
+            if (dict.getDictLabel().equals("key")) {
+                key = dict.getDictValue();
+            }
+            if (dict.getDictLabel().equals("url")) {
+                url = dict.getDictValue();
+            }
+
+        }
 
         if (sheet.getSheetcode() == null || sheet.getSheetcode().isEmpty()) {
 //        if (ifCopy == false)   //说明是新单，单号要新生成。否则，就用旧单号
@@ -227,7 +248,7 @@ public class AudSheetService {
         //发送短信
         String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
         // 暂时 关闭，调试中。
-        Juhe.sendSMS_ToAudit("13776614820", msg);
+        Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
 
         return result;
     }
@@ -285,6 +306,23 @@ public class AudSheetService {
     public Integer updateSheetAuditStatus(AudSheet sheet, AudSheetauditrecord record ) {
         Integer result = 0;
 
+        // 获取 短信服务器的密钥信息
+        String url = "";
+        String key = "";
+
+        List<SysDictData> dictList =  dictDataMapper.selectDictDataByType("短信服务商");
+        for (SysDictData dict : dictList) {
+            if (dict.getDictLabel().equals("key")) {
+                key = dict.getDictValue();
+            }
+            if (dict.getDictLabel().equals("url")) {
+                url = dict.getDictValue();
+            }
+
+        }
+
+
+
         //消除经办人以前的待办事项“针对同一个类型的同一张单，因为要生成新的待办事项，所以讲旧的设为已读”
         // iamm.SetProcessed(lab_SheetUserID.Text, "拨付单", lab_SheetID.Text);
         AudMessage query = new AudMessage();
@@ -338,7 +376,7 @@ public class AudSheetService {
             //发送短信
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=不通过";
             // 暂时 关闭，调试中。
-            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg);
+            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
 
             String danwei = "";
             if (sheet.getBudgetpayList().size() > 1) {
@@ -348,7 +386,7 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=不通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.sendSMS_Audited("13776614820", msg);
+            Juhe.sendSMS_Audited("13776614820", msg, url, key);
 
         }
         else if (sheet.getSheetstatus() == SheetStatus.BuMenShenPi.getCode()) {
@@ -412,7 +450,7 @@ public class AudSheetService {
             //发送短信
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
             // 暂时 关闭，调试中。
-            Juhe.sendSMS_ToAudit("13776614820", msg);
+            Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
 
             //发送给当前审核人
             String danwei = "";
@@ -423,7 +461,7 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.sendSMS_Audited("13776614820", msg);
+            Juhe.sendSMS_Audited("13776614820", msg, url, key);
 
 
         }
@@ -480,7 +518,7 @@ public class AudSheetService {
                 //发送短信
                 String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
                 // 暂时 关闭，调试中。
-                Juhe.sendSMS_ToAudit("13776614820", msg);
+                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
 
             }
 
@@ -493,7 +531,7 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.sendSMS_Audited("13776614820", msg);
+            Juhe.sendSMS_Audited("13776614820", msg, url, key);
 
         }
         else if (sheet.getSheetstatus() == SheetStatus.FenGuanSuoShenPi.getCode()) {
@@ -543,7 +581,7 @@ public class AudSheetService {
                 //发送短信
                 String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
                 // 暂时 关闭，调试中。
-                Juhe.sendSMS_ToAudit("13776614820", msg);
+                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
 
             }
 
@@ -605,7 +643,7 @@ public class AudSheetService {
                 //发送短信
                 String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
                 // 暂时 关闭，调试中。
-                Juhe.sendSMS_ToAudit("13776614820", msg);
+                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
 
             }
 
@@ -667,12 +705,12 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.sendSMS_Audited("13776614820", msg);
+            Juhe.sendSMS_Audited("13776614820", msg, url, key);
 
             //发送短信，给经办人
             msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过";
             // 暂时 关闭，调试中。
-            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg);
+            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
 
 //            CommonFunc.SendSMS_Audited(Session["CurrentUserID"].ToString(), 、、发送短信，给当前审核人
 //                    "#type#=拨付单&#name#=" + lab_SheetCode.Text + "&#result#=通过"
