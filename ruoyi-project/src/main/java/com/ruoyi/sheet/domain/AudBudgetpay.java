@@ -27,7 +27,7 @@ public class AudBudgetpay extends BaseEntity {
     private String audittime;
 
     private String sheettype;
-    private String projectidlinktext;
+    private String projectname;
     private String suppliername;
     private String character;
 
@@ -119,12 +119,12 @@ public class AudBudgetpay extends BaseEntity {
         this.sheettype = sheettype;
     }
 
-    public String getProjectidlinktext() {
-        return projectidlinktext;
+    public String getProjectname() {
+        return projectname;
     }
 
-    public void setProjectidlinktext(String projectidlinktext) {
-        this.projectidlinktext = projectidlinktext;
+    public void setProjectname(String projectname) {
+        this.projectname = projectname;
     }
 
     public String getSuppliername() {
@@ -157,7 +157,7 @@ public class AudBudgetpay extends BaseEntity {
                 ", benci=" + benci +
                 ", audittime='" + audittime + '\'' +
                 ", sheettype='" + sheettype + '\'' +
-                ", projectidlinktext='" + projectidlinktext + '\'' +
+                ", projectname='" + projectname + '\'' +
                 ", suppliername='" + suppliername + '\'' +
                 ", character='" + character + '\'' +
                 '}';

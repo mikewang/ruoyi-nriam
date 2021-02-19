@@ -15,7 +15,7 @@
         <result column="ProjectIDLinkText" jdbcType="VARCHAR" property="projectidlinktext"/>
         <result column="Character" jdbcType="VARCHAR" property="character"/>
         <result column="SheetType" jdbcType="VARCHAR" property="sheettype"/>
-        <result column="ProjectIDLinkText" jdbcType="VARCHAR" property="projectidlinktext"/>
+        <result column="projectname" jdbcType="VARCHAR" property="projectname"/>
         <result column="suppliername" jdbcType="VARCHAR" property="suppliername"/>
     </resultMap>
 
@@ -30,7 +30,7 @@
              , a.bennian
              , a.benci
              , a.AuditTime
-             , t1.ProjectName  as ProjectIDLinkText
+             , t1.ProjectName  as projectname
              , t2.SupplierName as suppliername
              , t3.DictionaryName as Character
          ,b.sheettype
@@ -52,7 +52,7 @@
         ,a.bennian
         ,a.benci
         ,a.AuditTime
-        ,t1.ProjectName as ProjectIDLinkText
+        ,t1.ProjectName as projectname
         ,t2.SupplierName as suppliername
         ,b.sheettype
         from Aud_BudgetPay a join Aud_Project t1 on t1.ProjectID = a.ProjectID
@@ -83,7 +83,7 @@
         ,a.bennian
         ,a.benci
         ,a.AuditTime
-        ,t1.ProjectName as ProjectIDLinkText
+        ,t1.ProjectName as projectname
         ,t2.SupplierName as suppliername
         ,'' as sheettype
         from Aud_BudgetPay a join Aud_Project t1        on t1.ProjectID = a.ProjectID

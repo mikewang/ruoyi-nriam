@@ -57,7 +57,7 @@ public class AudSheet extends BaseEntity {
     private Integer sheetstatus;
 
     private String sheetuseridlinktext;
-    private String projectidlinktext;
+    private String projectname;
     private String organizationidlinktext;
     private String sheetstatuslinktext;
     private String payconfirmuseridlinktext;
@@ -244,12 +244,12 @@ public class AudSheet extends BaseEntity {
         this.sheetuseridlinktext = sheetuseridlinktext;
     }
 
-    public String getProjectidlinktext() {
-        return projectidlinktext;
+    public String getProjectname() {
+        return projectname;
     }
 
-    public void setProjectidlinktext(String projectidlinktext) {
-        this.projectidlinktext = projectidlinktext;
+    public void setProjectname(String projectname) {
+        this.projectname = projectname;
     }
 
     public String getOrganizationidlinktext() {
@@ -365,7 +365,7 @@ public class AudSheet extends BaseEntity {
                 ", payconfirmuserid=" + payconfirmuserid +
                 ", sheetstatus=" + sheetstatus +
                 ", sheetuseridlinktext='" + sheetuseridlinktext + '\'' +
-                ", projectidlinktext='" + projectidlinktext + '\'' +
+                ", projectname='" + projectname + '\'' +
                 ", organizationidlinktext='" + organizationidlinktext + '\'' +
                 ", sheetstatuslinktext='" + sheetstatuslinktext + '\'' +
                 ", payconfirmuseridlinktext='" + payconfirmuseridlinktext + '\'' +

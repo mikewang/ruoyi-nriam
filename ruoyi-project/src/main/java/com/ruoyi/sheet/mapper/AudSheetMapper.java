@@ -18,5 +18,8 @@ public interface AudSheetMapper {
     int updateAudSheetStatus(AudSheet record);
 
     List<AudSheet> selectSheetBuMenByUserid(Integer userid);
+    List<AudSheet> selectSheetChuByUserid(Integer userid);
+    List<AudSheet> selectSheetFenguansuoByUserid(Integer userid);
+    List<AudSheet> selectSheetSuozhangByUserid(Integer userid);
 
 }

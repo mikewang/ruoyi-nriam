@@ -123,3 +123,59 @@ export function confirmAudit4Sheet(data) {
     data: data
   })
 }
+
+
+
+
+//  查询分管处的审批的拨付单列表
+export function listAudit5Sheet(query) {
+  return request({
+    url: '/sheet/audit5/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function confirmAudit5Sheet(data) {
+  return request({
+    url: '/sheet/audit5',
+    method: 'put',
+    data: data
+  })
+}
+
+
+//  查询分管所长审批的拨付单列表
+export function listAudit6Sheet(query) {
+  return request({
+    url: '/sheet/audit6/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function confirmAudit6Sheet(data) {
+  return request({
+    url: '/sheet/audit6',
+    method: 'put',
+    data: data
+  })
+}
+
+
+//  查询所长审批的拨付单列表
+export function listAudit7Sheet(query) {
+  return request({
+    url: '/sheet/audit7/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function confirmAudit7Sheet(data) {
+  return request({
+    url: '/sheet/audit7',
+    method: 'put',
+    data: data
+  })
+}
