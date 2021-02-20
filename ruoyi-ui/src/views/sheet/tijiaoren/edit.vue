@@ -199,7 +199,7 @@
                   <el-table-column label="拨付金额" align="center" prop="benci"
                                    :show-overflow-tooltip="true">
                   </el-table-column>
-                  <el-table-column label="审核时间" align="center" prop="audittime"
+                  <el-table-column label="审批时间" align="center" prop="audittime"
                                    :show-overflow-tooltip="true">
                   </el-table-column>
 
@@ -244,7 +244,7 @@
               <el-row>
                 <el-col :span="16">
                   <template>
-                    <span>审核结果 </span>
+                    <span>审批结果 </span>
                     <el-radio-group v-model="form.confirmResult">
                       <el-radio :label="1">通过</el-radio>
                       <el-radio :label="2">不通过</el-radio>
@@ -255,7 +255,7 @@
               <el-row>
                 <el-col :span="16">
                   <template>
-                    <span>审核意见</span>
+                    <span>审批意见</span>
                     <el-input v-model="form.confirmNote" placeholder="请输入意见" type="textarea"/>
                   </template>
                 </el-col>
@@ -346,9 +346,9 @@ import {
   getSheetAuditRecord,
   getSheetBudgetpay,
   getSheetBudgetpayRecord,
-  listSheetSupplier,
+  getSheetSupplier,
   updateSheet,
-  confirmAudit3Sheet
+  confirmAuditSheet
 } from "@/api/sheet/sheet";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
@@ -654,7 +654,8 @@ export default {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
-        } else if (this.opcode.indexOf("audit") !== -1) {
+        }
+        else if (this.opcode.indexOf("audit") !== -1) {
           this.hidden.acceptance = false;
           this.hidden.confirm = false;
           this.readonly.confirm = false;
@@ -846,7 +847,7 @@ export default {
         suppliername: queryString
       };
 
-      listSheetSupplier(queryParams).then(response => {
+      getSheetSupplier(queryParams).then(response => {
           const supplierOptions = [];
           const supplierList = response.data;
           // console.log("response is ", response)
@@ -1057,66 +1058,15 @@ export default {
                 } else {
                   this.msgSuccess("提交审核成功");
                   this.form.sheetid = response.data;
-
                 }
-              }).then(() => {
-
                 this.closeForm();
               });
             } else {
-              updateSheet(this.form).then(response => {
-
-              }).then(() => {
+              updateSheet(this.form).then(result => {
                 this.msgSuccess("提交审核成功");
                 this.closeForm();
               });
 
-            }
-          } else if (this.opcode === "confirm") {
-            console.log("confirmResult is " + this.form.confirmResult);
-
-            if (this_.form.confirmResult == undefined) {
-              this.msgError("请选择审核结果");
-              return;
-            }
-
-            this_.form.confirmUserid = this_.$store.getters.userId;
-            const result = this_.form.confirmResult;
-
-            if (result === 1) {
-              this_.$confirm('是否确认审核 通过?', "警告", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-              }).then(function () {
-                return confirmPatent(this_.form);
-              }).then(() => {
-                this_.closeForm();
-                this_.msgSuccess("审核通过，完成");
-              });
-            } else if (result === 2) {
-
-              var note = this_.form.confirmNote;
-              console.log("confirmNote is ", note);
-              if (note !== null && note !== undefined && note.trim() !== '') {
-                this_.$confirm('是否确认审核 不通过?', "警告", {
-                  confirmButtonText: "确定",
-                  cancelButtonText: "取消",
-                  type: "warning"
-                }).then(function () {
-                  return confirmPatent(this_.form);
-                }).then(() => {
-                  this_.closeForm();
-                  this_.msgSuccess("审核不通过 完成");
-                });
-              } else {
-                this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
-                  confirmButtonText: "确定",
-                  type: "warning"
-                }).then(function () {
-
-                });
-              }
             }
           }
         }
@@ -1131,20 +1081,20 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deleteSheet(sheetid);
-      }).then((result ) => {
-        console.log("result is " , result);
-        this.form.sheetstatus = this.SheetStatus.XinJianZhong;
-        this.form.sheetstatuslinktext = "新建中";
-        this.form.sheetid = undefined;
-        this.opcode = "add";
-        this.configTemplateStatus();
+        deleteSheet(sheetid).then((result ) => {
+          console.log("result is " , result);
+          this.form.sheetstatus = this.SheetStatus.XinJianZhong;
+          this.form.sheetstatuslinktext = "新建中";
+          this.form.sheetid = undefined;
+          this.opcode = "add";
+          this.configTemplateStatus();
+        })
       });
     },
 
     confirmForm() {
       if (this.form.confirmResult == undefined) {
-        this.msgError("请选择审核结果");
+        this.msgError("请选择审批结果");
         return;
       }
 
@@ -1154,15 +1104,26 @@ export default {
       const result = this_.form.confirmResult;
 
       if (result === 1) {
-        this_.$confirm('是否确认审核 通过?', "警告", {
+        this_.$confirm('是否确认审批 通过?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function () {
-          return confirmAudit3Sheet(this_.form);
-        }).then(() => {
-          this_.closeForm();
-          this_.msgSuccess("审核成功");
+          console.log("audit opcode is " + this_.opcode);
+          this_.loading = true;
+          confirmAuditSheet(this_.form, this_.opcode).then(result => {
+            console.log("audit opcode is " + this_.opcode + " result is " , result);
+            if (result.code === 200) {
+              this_.closeForm();
+              this_.msgSuccess(result.msg);
+            }
+            else {
+              this_.msgSuccess(result.msg);
+            }
+            this_.loading = false;
+
+          });
+
         });
       }
       else if (result === 2) {
@@ -1170,15 +1131,16 @@ export default {
         const note = this_.form.confirmNote;
         console.log("confirmNote is ", note);
         if (note !== null && note !== undefined && note.trim() !== '' ) {
-          this_.$confirm('是否确认审核 不通过?', "警告", {
+          this_.$confirm('是否确认审批 不通过?', "警告", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning"
           }).then(function () {
-            return  confirmAudit3Sheet(this_.form);
-          }).then(() => {
-            this_.closeForm();
-            this_.msgSuccess("审核不通过 完成");
+
+             confirmAuditSheet(this_.form, this_.opcode).then(result => {
+               this_.closeForm();
+               this_.msgSuccess("审批不通过 完成");
+             });
           });
         }
         else {
@@ -1308,6 +1270,18 @@ export default {
               }
             });
             this.msgSuccess("修改成功");
+            // 更新 历史记录
+            this_.queryRecordParams.projectid = this_.form.projectid;
+
+            let ids = new Array();
+            for (let k = 0; k < this_.form.budgetpayList.length; k++) {
+              let item = this_.form.budgetpayList[k];
+              ids.push(item.supplierid);
+            }
+            this_.queryRecordParams.supplieridList = ids;
+
+            console.log("getSheetBudgetpay record is ", this_.queryRecordParams);
+            this_.getSheetBudgetpayRecordList();
           } else {
             let payid = 0;
             this_.form.budgetpayList.forEach(function (item) {
@@ -1329,6 +1303,18 @@ export default {
             console.log("添加协作单位", pay2);
             this_.form.budgetpayList.push(pay2);
             this.msgSuccess("添加成功");
+            // 更新 历史记录
+            this_.queryRecordParams.projectid = this_.form.projectid;
+
+            let ids = new Array();
+            for (let k = 0; k < this_.form.budgetpayList.length; k++) {
+              let item = this_.form.budgetpayList[k];
+              ids.push(item.supplierid);
+            }
+            this_.queryRecordParams.supplieridList = ids;
+
+            console.log("getSheetBudgetpay record is ", this_.queryRecordParams);
+            this_.getSheetBudgetpayRecordList();
           }
           console.log("submit budgetpayForm is ", this.budgetpayForm);
           this_.budgetpayFormOpen = false;

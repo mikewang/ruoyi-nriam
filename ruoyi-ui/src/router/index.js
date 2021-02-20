@@ -186,17 +186,36 @@ export const constantRoutes = [
         meta: { title: '拨付单查看', icon: '', opcode: 'query',noCache: true }
       },
       {
-        path: 'tijiaoren/audit3/:sheetid(\\d+)',
+        path: 'audit3/:sheetid(\\d+)',
         component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
         name: 'Audit3Sheet',
         meta: { title: '拨付单审核', icon: '', opcode: 'audit3',noCache: true }
       },
       {
-        path: 'tijiaoren/audit4/:sheetid(\\d+)',
+        path: 'audit4/:sheetid(\\d+)',
         component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
         name: 'Audit4Sheet',
         meta: { title: '拨付单审核', icon: '', opcode: 'audit4',noCache: true }
+      },
+      {
+        path: 'audit5/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        name: 'Audit5Sheet',
+        meta: { title: '拨付单审核', icon: '', opcode: 'audit5',noCache: true }
+      },
+      {
+        path: 'audit6/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        name: 'Audit6Sheet',
+        meta: { title: '拨付单审核', icon: '', opcode: 'audit6',noCache: true }
+      },
+      {
+        path: 'audit7/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        name: 'Audit7Sheet',
+        meta: { title: '拨付单审核', icon: '', opcode: 'audit7',noCache: true }
       }
+
     ]
   },
   {

@@ -61,6 +61,16 @@
     and a.SheetUserID = #{userid,jdbcType=INTEGER}
     order by a.SheetTime desc
   </select>
+
+  <!--   查询经办人经办过的拨付单列表 筛选结果 -->
+  <select id="selectSheetTijiaoren" parameterType="com.ruoyi.sheet.domain.AudSheet" resultMap="BaseResultMap">
+    <include refid="selectSheet"/>
+    WHERE a.SheetType = '拨付单'
+    and a.SheetUserID = #{sheetuserid,jdbcType=INTEGER}
+    and t5.ProjectName like concat('%', #{projectname,jdbcType=VARCHAR}, '%')
+    order by a.SheetTime desc
+  </select>
+
   <insert id="insertAudSheet" parameterType="com.ruoyi.sheet.domain.AudSheet"  useGeneratedKeys="true"
           keyProperty="sheetid" >
     insert into Aud_Sheet ( SheetCode, SheetType,

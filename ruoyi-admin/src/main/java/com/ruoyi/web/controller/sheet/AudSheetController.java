@@ -63,13 +63,13 @@ public class AudSheetController extends BaseController {
     @GetMapping("/tijiaoren/list")
     public TableDataInfo tijiaorenList(AudSheet query) {
 
-        logger.debug("query  is " + query.toString());
+        logger.debug("tijiaorenList query  is " + query.toString());
 
         Integer uid = getCurrentLoginUserid();
-        uid = 175; // 测试用户
+        query.setSheetuserid(uid);
 
         startPage();
-        List<AudSheet> list = sheetService.selectSheetTijiaorenByUserid(uid);
+        List<AudSheet> list = sheetService.selectSheetTijiaoren(query);
 
         return getDataTable(list);
     }
@@ -138,8 +138,7 @@ public class AudSheetController extends BaseController {
             if (sheet != null) {
                 logger.debug("sheet is " + sheet.toString());
                 Integer userid = getCurrentLoginUserid();
-                userid = 175; // 测试用户
-                if (sheet.getSheetuserid().equals(userid)) {
+                 if (sheet.getSheetuserid().equals(userid)) {
                     sheet.setSheetstatus(SheetStatus.YiZuoFei.getCode());
                     sheetService.updateSheetAuditStatus(sheet,null);
                 }
@@ -159,7 +158,7 @@ public class AudSheetController extends BaseController {
      * 根据 获取 协作单位，即供应商的列表
      */
     @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
-    @GetMapping(value = { "/supplier/list" })
+    @GetMapping(value = { "/supplier/filter" })
     public AjaxResult getSheetSupplier(SrmSupplierinfo query)
     {
         AjaxResult ajax = AjaxResult.success();
@@ -175,6 +174,17 @@ public class AudSheetController extends BaseController {
         return ajax;
     }
 
+
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @GetMapping("/supplier/list")
+    public TableDataInfo supplierList(SrmSupplierinfo query) {
+        logger.debug("query  is " + query.toString());
+
+        startPage();
+        List<SrmSupplierinfo> list = sheetService.selectSupplierInfoList(query);
+
+        return getDataTable(list);
+    }
 
     /**
      * 根据项目号，供应商号，获取 历史记录
@@ -240,7 +250,6 @@ public class AudSheetController extends BaseController {
 
         sheet.setSheetstatus(SheetStatus.XiangMuShenPi.getCode());
         logger.debug("AudSheet add is " + sheet.toString());
-        sheet.setSheetuserid(175); // 测试用户
         sheet.setSheettime(DateUtils.dateTimeNow());
         sheet.setSheettype("拨付单");
         sheet.setRelatedcontractid(-1);
@@ -290,15 +299,19 @@ public class AudSheetController extends BaseController {
         if (sheet.getConfirmResult() == 1) {
             record.setAuditresult(true);
             if (audittype == 3) {
+                sheet.setAudittype(audittype.toString());
                 sheet.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
             }
             else  if (audittype == 4) {
+                sheet.setAudittype(audittype.toString());
                 sheet.setSheetstatus(SheetStatus.ChuShenPi.getCode());
             }
             else  if (audittype == 5) {
+                sheet.setAudittype(audittype.toString());
                 sheet.setSheetstatus(SheetStatus.FenGuanSuoShenPi.getCode());
             }
             else  if (audittype == 6) {
+                sheet.setAudittype(audittype.toString());
                 int flag = sheet.getHejiZong().compareTo(BigDecimal.valueOf(50000L));
                 if (flag >= 0) {
                     // //拨付单总金额大于5万，到所长审批
@@ -309,6 +322,8 @@ public class AudSheetController extends BaseController {
                 }
             }
             else  if (audittype == 7) {
+                sheet.setAudittype(audittype.toString());
+
                 sheet.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
             }
 

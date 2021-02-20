@@ -27,6 +27,14 @@ export function getSheetBudgetpay(sheetid) {
 }
 
 // 查询协作单位列表
+export function getSheetSupplier(query) {
+  return request({
+    url: '/sheet/supplier/filter',
+    method: 'get',
+    params: query
+  })
+}
+
 export function listSheetSupplier(query) {
   return request({
     url: '/sheet/supplier/list',
@@ -90,20 +98,22 @@ export function updateSheet(data) {
   })
 }
 
+
+export function confirmAuditSheet(data, opcode) {
+  return request({
+    url: '/sheet/' + opcode,
+    method: 'put',
+    data: data
+  })
+}
+
+
 //  查询项目负责人审批的拨付单列表
 export function listAudit3Sheet(query) {
   return request({
     url: '/sheet/audit3/list',
     method: 'get',
     params: query
-  })
-}
-
-export function confirmAudit3Sheet(data) {
-  return request({
-    url: '/sheet/audit3',
-    method: 'put',
-    data: data
   })
 }
 
@@ -116,17 +126,6 @@ export function listAudit4Sheet(query) {
   })
 }
 
-export function confirmAudit4Sheet(data) {
-  return request({
-    url: '/sheet/audit4',
-    method: 'put',
-    data: data
-  })
-}
-
-
-
-
 //  查询分管处的审批的拨付单列表
 export function listAudit5Sheet(query) {
   return request({
@@ -136,29 +135,12 @@ export function listAudit5Sheet(query) {
   })
 }
 
-export function confirmAudit5Sheet(data) {
-  return request({
-    url: '/sheet/audit5',
-    method: 'put',
-    data: data
-  })
-}
-
-
 //  查询分管所长审批的拨付单列表
 export function listAudit6Sheet(query) {
   return request({
     url: '/sheet/audit6/list',
     method: 'get',
     params: query
-  })
-}
-
-export function confirmAudit6Sheet(data) {
-  return request({
-    url: '/sheet/audit6',
-    method: 'put',
-    data: data
   })
 }
 
@@ -172,10 +154,3 @@ export function listAudit7Sheet(query) {
   })
 }
 
-export function confirmAudit7Sheet(data) {
-  return request({
-    url: '/sheet/audit7',
-    method: 'put',
-    data: data
-  })
-}

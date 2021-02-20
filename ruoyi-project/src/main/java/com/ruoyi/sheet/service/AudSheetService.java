@@ -66,7 +66,14 @@ public class AudSheetService {
     private SysDictDataMapper dictDataMapper;
 
 
+    public List<AudSheet> selectSheetTijiaoren(AudSheet sheet) {
 
+        List<AudSheet> sheetList = audSheetMapper.selectSheetTijiaoren(sheet);
+
+        log.debug("request sheetList list is " + sheetList.toString());
+
+        return sheetList;
+    }
 
     public List<AudSheet> selectSheetTijiaorenByUserid(Integer uid) {
 
@@ -457,7 +464,7 @@ public class AudSheetService {
             if (sheet.getBudgetpayList().size() > 1) {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername() + "...等";
             }
-            else {
+            else  if (sheet.getBudgetpayList().size() == 1) {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
@@ -487,7 +494,9 @@ public class AudSheetService {
 
             //给相关处的负责人发信息
             List<SysUserRole> userRoleList = userRoleMapper.selectUserRoleByRoleId(10L);
+
             for (SysUserRole u : userRoleList) {
+                log.debug("userrole is " + u.toString());
                 Integer userid = u.getUserId().intValue();
                 title =  "拨付单待您审批";
                 content = "拨付单："
@@ -672,13 +681,14 @@ public class AudSheetService {
             //分管所长审批通过，给经办人发信息
             String title = "拨付单审批完成";
             String content = "";
-            if (sheet.getAudittype().equals("6")) {
+            log.debug("sheet audit is " + sheet.toString());
+            if (record.getAudittype().equals("6")) {
                 content = "您提交的拨付单："
                         +  sheet.getSheetcode()  + "由分管所长审批通过。"
                         + "<a href=\"/Audit/SheetList_tijiaoren.aspx?f=todo&kid=" + sheet.getSheetid().toString() + "\" target=\"_self\" >查看</a> ";
 
             }
-            else if (sheet.getAudittype().equals("7")) {
+            else if (record.getAudittype().equals("7")) {
                 content = "您提交的拨付单："
                         +  sheet.getSheetcode()  + "由所长审批通过。"
                         + "<a href=\"/Audit/SheetList_tijiaoren.aspx?f=todo&kid=" + sheet.getSheetid().toString() + "\" target=\"_self\" >查看</a> ";
@@ -697,7 +707,7 @@ public class AudSheetService {
             messageMapper.insertAudMessage(message);
 
             //发送短信，给当前审核人
-                        String danwei = "";
+            String danwei = "";
             if (sheet.getBudgetpayList().size() > 1) {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername() + "...等";
             }

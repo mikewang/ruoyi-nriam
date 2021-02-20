@@ -2,8 +2,7 @@
   <div class="app-container">
     <el-row :gutter="20">
       <el-table v-loading="loading" :data="sheetList" @selection-change="handleSelectionChange" stripe>
-        <el-table-header> 待审批的“参加单位拨付申请”列表</el-table-header>
-        <el-table-column type="index" width="50" align="center"/>
+         <el-table-column type="index" width="50" align="center"/>
         <el-table-column label="单据编号" align="center" prop="sheetcode" :show-overflow-tooltip="true" width="150">
         </el-table-column>
         <el-table-column label="提交时间" align="center" prop="sheettime" width="150"/>
@@ -107,7 +106,7 @@ export default {
     },
     handleUpdate(row) {
       console.log("update row is  ", row);
-      const path = '/sheet/tijiaoren/audit3/' + row.sheetid;
+      const path = '/sheet/audit3/' + row.sheetid;
       console.log("path is " + path);
       this.$router.push({path: path});
     }

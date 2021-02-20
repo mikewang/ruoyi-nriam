@@ -1,8 +1,7 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <el-table v-loading="loading" :data="sheetList" @selection-change="handleSelectionChange" stripe>
-        <el-table-header> 待审批的“参加单位拨付申请”列表</el-table-header>
+      <el-table v-loading="loading" :data="sheetList" stripe>
         <el-table-column type="index" width="50" align="center"/>
         <el-table-column label="单据编号" align="center" prop="sheetcode" :show-overflow-tooltip="true" width="150">
         </el-table-column>
@@ -52,6 +51,7 @@ import {listAudit6Sheet} from "@/api/sheet/sheet";
 
 export default {
   name: "sheet_audit6_index",
+
   data() {
     return {
       // 遮罩层
@@ -107,7 +107,7 @@ export default {
     },
     handleUpdate(row) {
       console.log("update row is  ", row);
-      const path = '/sheet/tijiaoren/audit6/' + row.sheetid;
+      const path = '/sheet/audit6/' + row.sheetid;
       console.log("path is " + path);
       this.$router.push({path: path});
     }

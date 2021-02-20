@@ -5,6 +5,8 @@ import java.util.List;
 
 public interface AudSheetMapper {
 
+    List<AudSheet> selectSheetTijiaoren(AudSheet record);
+
     List<AudSheet> selectSheetTijiaorenByUserid(Integer userid);
 
     AudSheet selectSheetById(Integer sheetid);
