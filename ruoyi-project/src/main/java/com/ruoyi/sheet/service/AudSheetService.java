@@ -8,11 +8,15 @@ import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.audit.service.AudApplyService;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysDictData;
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SMSSender.Juhe;
 import com.ruoyi.common.utils.push.PushMessageToApp;
+import com.ruoyi.project.domain.DocFile;
+import com.ruoyi.project.mapper.BasDocMapper;
+import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.mapper.*;
 import com.ruoyi.system.domain.SysUserRole;
@@ -27,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class AudSheetService {
@@ -64,6 +68,9 @@ public class AudSheetService {
 
     @Resource
     private SysDictDataMapper dictDataMapper;
+
+    @Resource
+    private BasDocMapper basDocMapper;
 
 
     public List<AudSheet> selectSheetTijiaoren(AudSheet sheet) {
@@ -121,17 +128,6 @@ public class AudSheetService {
         log.debug("request selectBudgetPayRecord  list is " + payList.toString());
 
         return payList;
-    }
-
-    public List<SrmSupplierinfo> selectSupplierInfoList(SrmSupplierinfo query) {
-
-        log.debug("selectSupplierInfoList  query is " + query.toString());
-
-        List<SrmSupplierinfo> list = supplierinfoMapper.selectSupplierInfoList(query);
-
-        //   log.debug("request selectSupplierInfoList  list is " + list.toString());
-
-        return list;
     }
 
 
@@ -743,5 +739,127 @@ public class AudSheetService {
 
         return result;
     }
+
+
+    @Transactional
+    public Integer addSupplierinfo(SrmSupplierinfo supplier) {
+
+        Integer result = supplierinfoMapper.insertSupplierInfo(supplier);
+
+        BasDoc doc = new BasDoc();
+        doc.setDocid(supplier.getOrgImgId());
+        doc.setRelatedid(supplier.getSupplierid());
+        doc.setDoctype("营业执照");
+        doc.setAttachtotype("协作单位");
+        basDocMapper.updateBasDocAttachTo(doc);
+        log.debug("supplier is " + supplier.toString());
+
+        if (supplier.getDocList() != null) {
+            for (DocFile map : supplier.getDocList()) {
+                log.debug("getDocList map is " + map.toString());
+                Integer docid = map.getUrl();
+                doc = new BasDoc();
+                doc.setDocid(docid);
+                doc.setRelatedid(supplier.getSupplierid());
+                doc.setDoctype("其它附件");
+                doc.setAttachtotype("协作单位");
+                basDocMapper.updateBasDocAttachTo(doc);
+            }
+        }
+
+        return result;
+    }
+
+    @Transactional
+    public Integer updateSupplierinfo(SrmSupplierinfo supplier) {
+        log.debug("supplier is " + supplier.toString());
+
+        Integer result = supplierinfoMapper.updateSupplierInfo(supplier);
+
+        BasDoc doc = new BasDoc();
+        doc.setRelatedid(supplier.getSupplierid());
+        doc.setAttachtotype("协作单位");
+
+        Set<Integer> sets = new HashSet<>();
+        for( DocFile file : supplier.getDocList()){
+            sets.add(file.getUrl());
+        }
+
+        sets.add(supplier.getOrgImgId());
+
+
+        Set<Integer> sets2 = new HashSet<>();
+        for (BasDoc record : basDocMapper.selectBasDocList(doc))
+        {
+            if (sets.contains(record.getDocid()) == false)
+            {
+                sets2.add(record.getDocid());
+            }
+        }
+
+        List<Integer> ids = new ArrayList<Integer>();
+        for(Integer id : sets2) {
+            ids.add(id);
+        }
+
+        log.debug("deleteBasDocByIds is " + ids.toString());
+        if (ids.size() > 0) {
+            result =  basDocMapper.deleteBasDocByIds(ids);
+        }
+
+        doc.setDoctype("营业执照");
+        doc.setDocid(supplier.getOrgImgId());
+
+        result =  basDocMapper.updateBasDocAttachTo(doc);
+
+        if (supplier.getDocList() != null && supplier.getDocList().size() > 0) {
+            for (DocFile map : supplier.getDocList()) {
+                Integer docid = (Integer) map.getUrl();
+                doc = new BasDoc();
+                doc.setDocid(docid);
+                doc.setRelatedid(supplier.getSupplierid());
+                doc.setDoctype("其它附件");
+                doc.setAttachtotype("协作单位");
+                result = basDocMapper.updateBasDocAttachTo(doc);
+            }
+        }
+
+        return result;
+    }
+
+    @Transactional
+    public Integer deleteSupplierinfo(List<Integer> ids) {
+        log.debug("supplier ids is " + ids.toString());
+
+        Integer result = supplierinfoMapper.deleteSupplierInfoByIds(ids);
+
+        return result;
+    }
+
+    public List<SrmSupplierinfo> selectSupplierInfoList(SrmSupplierinfo query) {
+
+        log.debug("selectSupplierInfoList  query is " + query.toString());
+
+        List<SrmSupplierinfo> list = supplierinfoMapper.selectSupplierInfoList(query);
+
+        //   log.debug("request selectSupplierInfoList  list is " + list.toString());
+
+        return list;
+    }
+
+    public SrmSupplierinfo selectSupplierInfoById(Integer supplierid) {
+
+        SrmSupplierinfo s = supplierinfoMapper.selectSupplierInfoById(supplierid);
+
+        return s;
+    }
+
+    public SrmSupplierinfo selectSupplierInfoByOrganizationcode(String organizationcode) {
+
+        SrmSupplierinfo s = supplierinfoMapper.selectSupplierInfoByOrganizationcode(organizationcode);
+
+        return s;
+    }
+
 
 }

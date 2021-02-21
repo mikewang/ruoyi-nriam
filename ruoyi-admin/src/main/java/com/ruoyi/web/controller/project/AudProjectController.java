@@ -336,6 +336,7 @@ public class AudProjectController extends BaseController {
             AjaxResult ajax = AjaxResult.success();
             ajax.put("name", originalFilename);
             ajax.put("url", docid);
+            ajax.put("fileUrl", fileName);
 
             return ajax;
         }

@@ -1,6 +1,5 @@
 package com.ruoyi.web.controller.sheet;
 
-import com.ruoyi.api.domain.AppClientinfo;
 import com.ruoyi.api.service.AppClientinfoService;
 import com.ruoyi.audit.domain.AudSignpic;
 import com.ruoyi.audit.service.AudSignpicService;
@@ -9,30 +8,35 @@ import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.common.utils.SMSSender.Juhe;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.common.utils.push.PushMessageToApp;
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.framework.config.ServerConfig;
-import com.ruoyi.common.config.IGtPushConfig;
 import com.ruoyi.framework.web.service.TokenService;
-import com.ruoyi.project.domain.AudProject;
+import com.ruoyi.project.domain.DocFile;
+import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.service.AudSheetService;
 import io.swagger.models.auth.In;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/sheet")
@@ -43,6 +47,9 @@ public class AudSheetController extends BaseController {
     private AppClientinfoService clientinfoService;
     @Resource
     private AudSignpicService audSignpicService;
+
+    @Resource
+    private BasDocService basDocService;
 
     @Resource
     private TokenService tokenService;
@@ -78,19 +85,16 @@ public class AudSheetController extends BaseController {
      * 根据编号获取详细信息
      */
     @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
-    @GetMapping(value = { "/{sheetid}" })
-    public AjaxResult getSheet(@PathVariable(value = "sheetid", required = false) Integer sheetid)
-    {
+    @GetMapping(value = {"/{sheetid}"})
+    public AjaxResult getSheet(@PathVariable(value = "sheetid", required = false) Integer sheetid) {
         AjaxResult ajax = AjaxResult.success();
 
-        if (StringUtils.isNotNull(sheetid))
-        {
+        if (StringUtils.isNotNull(sheetid)) {
             logger.debug("sheetid = " + sheetid.toString());
             AudSheet p = sheetService.selectSheetTijiaorenById(sheetid);
             if (p != null) {
                 ajax.put(AjaxResult.DATA_TAG, p);
-            }
-            else {
+            } else {
                 ajax = AjaxResult.error("sheetid：" + sheetid.toString() + " 不存在");
             }
 
@@ -102,19 +106,16 @@ public class AudSheetController extends BaseController {
      * 根据编号,获取 明细 详细信息
      */
     @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
-    @GetMapping(value = { "/budgetpay/{sheetid}" })
-    public AjaxResult getSheetDetail(@PathVariable(value = "sheetid", required = false) Integer sheetid)
-    {
+    @GetMapping(value = {"/budgetpay/{sheetid}"})
+    public AjaxResult getSheetDetail(@PathVariable(value = "sheetid", required = false) Integer sheetid) {
         AjaxResult ajax = AjaxResult.success();
 
-        if (StringUtils.isNotNull(sheetid))
-        {
+        if (StringUtils.isNotNull(sheetid)) {
             logger.debug("sheetid = " + sheetid.toString());
             List<AudBudgetpay> plist = sheetService.selectSheetBudgetPayById(sheetid);
             if (plist != null) {
                 ajax.put(AjaxResult.DATA_TAG, plist);
-            }
-            else {
+            } else {
                 ajax = AjaxResult.error("sheetid：" + sheetid.toString() + " 不存在");
             }
 
@@ -126,27 +127,23 @@ public class AudSheetController extends BaseController {
      * 根据编号 删除信息
      */
     @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
-    @DeleteMapping(value = { "/{sheetid}" })
-    public AjaxResult deleteSheet(@PathVariable(value = "sheetid", required = false) Integer sheetid)
-    {
+    @DeleteMapping(value = {"/{sheetid}"})
+    public AjaxResult deleteSheet(@PathVariable(value = "sheetid", required = false) Integer sheetid) {
         AjaxResult ajax = AjaxResult.success();
 
-        if (StringUtils.isNotNull(sheetid))
-        {
+        if (StringUtils.isNotNull(sheetid)) {
             logger.debug("sheetid = " + sheetid.toString());
             AudSheet sheet = sheetService.selectSheetTijiaorenById(sheetid);
             if (sheet != null) {
                 logger.debug("sheet is " + sheet.toString());
                 Integer userid = getCurrentLoginUserid();
-                 if (sheet.getSheetuserid().equals(userid)) {
+                if (sheet.getSheetuserid().equals(userid)) {
                     sheet.setSheetstatus(SheetStatus.YiZuoFei.getCode());
-                    sheetService.updateSheetAuditStatus(sheet,null);
-                }
-                else {
+                    sheetService.updateSheetAuditStatus(sheet, null);
+                } else {
                     ajax = AjaxResult.error("sheetid：" + sheetid.toString() + " 不存在");
                 }
-            }
-            else {
+            } else {
                 ajax = AjaxResult.error("sheetid：" + sheetid.toString() + " 不存在");
             }
 
@@ -154,57 +151,25 @@ public class AudSheetController extends BaseController {
         return ajax;
     }
 
-    /**
-     * 根据 获取 协作单位，即供应商的列表
-     */
-    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
-    @GetMapping(value = { "/supplier/filter" })
-    public AjaxResult getSheetSupplier(SrmSupplierinfo query)
-    {
-        AjaxResult ajax = AjaxResult.success();
-        logger.debug("SrmSupplierinfo = " + query.toString());
-        query.setIfdeleted(false);
-        List<SrmSupplierinfo> plist = sheetService.selectSupplierInfoList(query);
-        if (plist != null) {
-            ajax.put(AjaxResult.DATA_TAG, plist);
-        }
-        else {
-            ajax = AjaxResult.error("SrmSupplierinfo：" + query.getSuppliername() + " 不存在");
-        }
-        return ajax;
-    }
-
-
-    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
-    @GetMapping("/supplier/list")
-    public TableDataInfo supplierList(SrmSupplierinfo query) {
-        logger.debug("query  is " + query.toString());
-
-        startPage();
-        List<SrmSupplierinfo> list = sheetService.selectSupplierInfoList(query);
-
-        return getDataTable(list);
-    }
 
     /**
      * 根据项目号，供应商号，获取 历史记录
      */
     @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
-    @GetMapping(value = { "/budgetpay/record" })
-    public TableDataInfo getSheetBudgetpayRecord(AudBudgetpayRecordQuery query)
-    {
+    @GetMapping(value = {"/budgetpay/record"})
+    public TableDataInfo getSheetBudgetpayRecord(AudBudgetpayRecordQuery query) {
         startPage();
         logger.debug("getSheetBudgetpayRecord query = " + query.toString());
         List<AudBudgetpay> list = sheetService.selectBudgetPayRecord(query);
-      //  logger.debug("getSheetBudgetpayRecord list = " + list.toString());
+        //  logger.debug("getSheetBudgetpayRecord list = " + list.toString());
         return getDataTable(list);
     }
 
     private String signpicFilename(String signpicName) {
         // 本地资源路径
         String result = "";
-        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" +  "/signpic/";
-        if (signpicName != null && signpicName.isEmpty() == false ) {
+        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" + "/signpic/";
+        if (signpicName != null && signpicName.isEmpty() == false) {
             String checkFilePath = RuoYiConfig.getUploadPath() + "/signpic/" + signpicName;
             File desc = new File(checkFilePath);
             if (desc.exists() == true) {
@@ -212,7 +177,7 @@ public class AudSheetController extends BaseController {
                 result = filePath;
                 logger.debug("url is " + filePath);
             }
-         }
+        }
         return result;
     }
 
@@ -220,14 +185,13 @@ public class AudSheetController extends BaseController {
      * 根据项目号，供应商号，获取 历史记录
      */
     @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
-    @GetMapping(value = { "/audit/record" })
-    public AjaxResult getSheetAuditRecord(AudSheetauditrecord record)
-    {
+    @GetMapping(value = {"/audit/record"})
+    public AjaxResult getSheetAuditRecord(AudSheetauditrecord record) {
         AjaxResult ajax = AjaxResult.success();
         logger.debug("getSheetAuditRecord 审批记录 = " + record.toString());
         List<AudSheetauditrecord> list = sheetService.selectSheetauditRecord(record);
 
-        for(AudSheetauditrecord s: list) {
+        for (AudSheetauditrecord s : list) {
             String result = this.signpicFilename(s.getSignpicName());
             s.setSignpicName(result);
         }
@@ -260,15 +224,14 @@ public class AudSheetController extends BaseController {
         if (result > 0) {
 
             return AjaxResult.success(" 提交审核成功");
-        }
-        else {
+        } else {
 
             return AjaxResult.error(" 操作失败，请联系管理员");
         }
 
     }
 
-    private AjaxResult auditConfirm( AudSheet sheet, Integer audittype) {
+    private AjaxResult auditConfirm(AudSheet sheet, Integer audittype) {
         AjaxResult ajax = AjaxResult.success();
         Integer userid = getCurrentLoginUserid();
         sheet.setConfirmUserid(userid);
@@ -301,40 +264,33 @@ public class AudSheetController extends BaseController {
             if (audittype == 3) {
                 sheet.setAudittype(audittype.toString());
                 sheet.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
-            }
-            else  if (audittype == 4) {
+            } else if (audittype == 4) {
                 sheet.setAudittype(audittype.toString());
                 sheet.setSheetstatus(SheetStatus.ChuShenPi.getCode());
-            }
-            else  if (audittype == 5) {
+            } else if (audittype == 5) {
                 sheet.setAudittype(audittype.toString());
                 sheet.setSheetstatus(SheetStatus.FenGuanSuoShenPi.getCode());
-            }
-            else  if (audittype == 6) {
+            } else if (audittype == 6) {
                 sheet.setAudittype(audittype.toString());
                 int flag = sheet.getHejiZong().compareTo(BigDecimal.valueOf(50000L));
                 if (flag >= 0) {
                     // //拨付单总金额大于5万，到所长审批
                     sheet.setSheetstatus(SheetStatus.SuoZhangShenPi.getCode());
-                }
-                else {
+                } else {
                     sheet.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
                 }
-            }
-            else  if (audittype == 7) {
+            } else if (audittype == 7) {
                 sheet.setAudittype(audittype.toString());
 
                 sheet.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
             }
 
             sheetService.updateSheetAuditStatus(sheet, record);
-        }
-        else if (sheet.getConfirmResult() == 2) {
+        } else if (sheet.getConfirmResult() == 2) {
             record.setAuditresult(false);
             sheet.setSheetstatus(SheetStatus.NoPass.getCode());
             sheetService.updateSheetAuditStatus(sheet, record);
-        }
-        else {
+        } else {
             return AjaxResult.error("审批'" + sheet.getSheetcode() + "'失败，没有选择审批结果");
         }
 
@@ -358,7 +314,7 @@ public class AudSheetController extends BaseController {
 
         logger.debug("audit3 sheet is " + sheet.toString());
         AjaxResult ajax = AjaxResult.success();
-        ajax = auditConfirm(sheet,3);
+        ajax = auditConfirm(sheet, 3);
 
         return ajax;
     }
@@ -377,7 +333,7 @@ public class AudSheetController extends BaseController {
     @PutMapping("/audit4")
     public AjaxResult audit4Confirm(@Validated @RequestBody AudSheet sheet) {
         AjaxResult ajax = AjaxResult.success();
-        ajax = auditConfirm(sheet,4);
+        ajax = auditConfirm(sheet, 4);
         return ajax;
     }
 
@@ -397,7 +353,7 @@ public class AudSheetController extends BaseController {
     @PutMapping("/audit5")
     public AjaxResult audit5Confirm(@Validated @RequestBody AudSheet sheet) {
         AjaxResult ajax = AjaxResult.success();
-        ajax = auditConfirm(sheet,5);
+        ajax = auditConfirm(sheet, 5);
         return ajax;
     }
 
@@ -416,7 +372,7 @@ public class AudSheetController extends BaseController {
     @PutMapping("/audit6")
     public AjaxResult audit6Confirm(@Validated @RequestBody AudSheet sheet) {
         AjaxResult ajax = AjaxResult.success();
-        ajax = auditConfirm(sheet,6);
+        ajax = auditConfirm(sheet, 6);
         return ajax;
     }
 
@@ -434,7 +390,224 @@ public class AudSheetController extends BaseController {
     @PutMapping("/audit7")
     public AjaxResult audit7Confirm(@Validated @RequestBody AudSheet sheet) {
         AjaxResult ajax = AjaxResult.success();
-        ajax = auditConfirm(sheet,7);
+        ajax = auditConfirm(sheet, 7);
         return ajax;
     }
+
+
+    /**
+     * 文件上传
+     */
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @Log(title = "文件上传", businessType = BusinessType.UPDATE)
+    @PostMapping("/supplier/upload")
+    public AjaxResult upload(@RequestParam("file") MultipartFile file, @RequestParam("name") String name, @RequestParam("attachToType") String attachToType, @RequestParam("docType") String docType) throws IOException {
+        logger.debug("file getOriginalFilename is " + file.getOriginalFilename() + " name is " + name);
+        try {
+            String originalFilename = file.getOriginalFilename();
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath() + "/Doc";
+
+            String yyyymm = DateUtils.dateTimeNow("yyyyMM");
+            String ddHHmmss = DateUtils.dateTimeNow("ddHHmmss");
+
+            filePath = filePath + "/" + yyyymm + "/" + ddHHmmss;
+
+            // 上传并返回新文件名称
+            String fileName = FileUploadUtils.uploadOriginalFile(filePath, file);
+            String url = serverConfig.getUrl() + fileName;
+
+            BasDoc doc = new BasDoc();
+            doc.setDocname(originalFilename);
+            String relativepath = StringUtils.trimstart(filePath, RuoYiConfig.getProfile());
+            relativepath = StringUtils.trimend(relativepath, "/");
+
+            doc.setRelativepath(relativepath);
+            doc.setAttachtotype(attachToType);
+            doc.setDoctype(docType);
+
+            logger.debug("relativepath is " + filePath);
+            logger.debug("originalFilename is " + originalFilename);
+            logger.debug("attachToType is " + attachToType);
+            logger.debug("doctype is " + docType);
+
+            Integer docid = basDocService.insertBasDoc(doc);
+
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("name", originalFilename);
+            ajax.put("url", docid);
+            ajax.put("fileUrl", fileName);
+
+            return ajax;
+        } catch (Exception e) {
+            return AjaxResult.error(e.getMessage() + " 上传文件异常，请联系管理员");
+        }
+    }
+
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @Log(title = "协作单位管理", businessType = BusinessType.INSERT)
+    @PostMapping("/supplier")
+    public AjaxResult addSupplier(@Validated @RequestBody SrmSupplierinfo supplier) {
+
+        Integer userid = getCurrentLoginUserid();
+        supplier.setCreateuserid(userid);
+
+        supplier.setIfaudited(false);
+        supplier.setIfdeleted(false);
+
+        String organizationcode = supplier.getOrganizationcode();
+
+        SrmSupplierinfo ss = sheetService.selectSupplierInfoByOrganizationcode(organizationcode);
+
+        if (ss != null) {
+            return AjaxResult.error("组织代码重复，操作失败，请联系管理员");
+        }
+
+
+        Integer result = sheetService.addSupplierinfo(supplier);
+
+        if (result > 0) {
+
+            return AjaxResult.success(" 提交成功");
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @Log(title = "协作单位管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/supplier")
+    public AjaxResult updateSupplier(@Validated @RequestBody SrmSupplierinfo supplier) {
+
+        logger.debug("updateSupplier is " + supplier.toString());
+
+        String organizationcode = supplier.getOrganizationcode();
+
+        SrmSupplierinfo ss = sheetService.selectSupplierInfoByOrganizationcode(organizationcode);
+
+        if (ss != null && ss.getSupplierid().equals(supplier.getSupplierid()) == false) {
+            return AjaxResult.error("组织代码重复，操作失败，请联系管理员");
+        }
+
+        Integer result = sheetService.updateSupplierinfo(supplier);
+
+        if (result > 0) {
+
+            return AjaxResult.success(" 提交成功");
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @Log(title = "协作单位管理", businessType = BusinessType.DELETE)
+    @DeleteMapping("/supplier/{supplierids}")
+    public AjaxResult deleteSupplier(@PathVariable Integer[] supplierids) {
+
+        logger.debug("deleteSupplier is " + supplierids.toString());
+
+        List<Integer> ids = new ArrayList<>();
+        for (Integer id : supplierids) {
+            ids.add(id);
+        }
+
+        Integer result = sheetService.deleteSupplierinfo(ids);
+
+        if (result > 0) {
+
+            return AjaxResult.success(" 删除成功");
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+
+    /**
+     * 根据 获取 协作单位，即供应商的列表
+     */
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @GetMapping(value = {"/supplier/filter"})
+    public AjaxResult getSheetSupplier(SrmSupplierinfo query) {
+        AjaxResult ajax = AjaxResult.success();
+        logger.debug("SrmSupplierinfo = " + query.toString());
+        query.setIfdeleted(false);
+        List<SrmSupplierinfo> plist = sheetService.selectSupplierInfoList(query);
+        if (plist != null) {
+            ajax.put(AjaxResult.DATA_TAG, plist);
+        } else {
+            ajax = AjaxResult.error("SrmSupplierinfo：" + query.getSuppliername() + " 不存在");
+        }
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @GetMapping("/supplier/list")
+    public TableDataInfo supplierList(SrmSupplierinfo query) {
+        logger.debug("query  is " + query.toString());
+
+        startPage();
+        query.setIfdeleted(false);
+        List<SrmSupplierinfo> list = sheetService.selectSupplierInfoList(query);
+
+        return getDataTable(list);
+    }
+
+    /**
+     * 根据 获取 协作单位，即供应商的列表
+     */
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @GetMapping(value = {"/supplier/{supplierid}", "/supplier/"})
+    public AjaxResult getSheetSupplierById(@PathVariable(value = "supplierid", required = false) Integer supplierid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer userid = getCurrentLoginUserid();
+
+        SrmSupplierinfo supplierinfo;
+
+        if (StringUtils.isNotNull(supplierid)) {
+            supplierinfo = sheetService.selectSupplierInfoById(supplierid);
+
+            BasDoc record = new BasDoc();
+            record.setAttachtotype("协作单位");
+            record.setDoctype("营业执照");
+            record.setRelatedid(supplierinfo.getSupplierid());
+
+            for (BasDoc doc : basDocService.selectBasDocList(record)) {
+                String filename = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + doc.getRelativepath() + "/" +doc.getDocname();
+                supplierinfo.setOrgImgId(doc.getDocid());
+                supplierinfo.setOrgImgIdText(filename);
+            }
+            record.setDoctype("其它附件");
+
+            List<DocFile> list = new ArrayList<>();
+
+            for (BasDoc doc : basDocService.selectBasDocList(record)) {
+                String filename = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + doc.getRelativepath() + "/" +doc.getDocname();
+                DocFile map = new DocFile();
+                map.setName(doc.getDocname());
+                map.setUrl(doc.getDocid());
+                list.add(map);
+            }
+
+            supplierinfo.setDocList(list);
+
+            logger.debug("supplierinfo getDocList is " + supplierinfo.getDocList());
+
+        } else {
+            supplierinfo = new SrmSupplierinfo();
+            supplierinfo.setCreateuserid(userid);
+        }
+        ajax.put(AjaxResult.DATA_TAG, supplierinfo);
+
+        return ajax;
+    }
+
+
+
 }

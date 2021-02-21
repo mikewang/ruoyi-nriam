@@ -27,11 +27,38 @@ export function getSheetBudgetpay(sheetid) {
 }
 
 // 查询协作单位列表
+export function getSheetSupplierById(supplierid) {
+  return request({
+    url: '/sheet/supplier/'  + praseStrEmpty(supplierid),
+    method: 'get'
+  })
+}
+
+// 删除协作单位
+export function deleteSheetSupplier(supplierids) {
+  return request({
+    url: '/sheet/supplier/'  + praseStrEmpty(supplierids),
+    method: 'delete'
+  })
+}
+
+
 export function getSheetSupplier(query) {
   return request({
     url: '/sheet/supplier/filter',
     method: 'get',
     params: query
+  })
+}
+
+
+// 文件上传
+export function uploadFile(data) {
+  return request({
+    headers: {'Content-Type':'multipart/form-data'},
+    url: '/sheet/supplier/upload',
+    method: 'post',
+    data: data
   })
 }
 
@@ -154,3 +181,18 @@ export function listAudit7Sheet(query) {
   })
 }
 
+export function addSheetSupplier(data) {
+  return request({
+    url: '/sheet/supplier',
+    method: 'post',
+    data: data
+  })
+}
+
+export function editSheetSupplier(data) {
+  return request({
+    url: '/sheet/supplier',
+    method: 'put',
+    data: data
+  })
+}

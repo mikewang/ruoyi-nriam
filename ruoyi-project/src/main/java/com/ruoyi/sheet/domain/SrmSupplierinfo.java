@@ -1,6 +1,15 @@
 package com.ruoyi.sheet.domain;
 
-public class SrmSupplierinfo {
+import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.core.domain.model.BasDoc;
+import com.ruoyi.project.domain.DocFile;
+
+import java.util.HashMap;
+import java.util.List;
+
+
+
+public class SrmSupplierinfo extends BaseEntity {
 
     private Integer supplierid;
 
@@ -36,6 +45,14 @@ public class SrmSupplierinfo {
     private String charactername;
     private String typename;
     private String levelname;
+
+    private String createUserIDLinkText;
+    private String characterLinkText;
+    private String orgImgIdText;
+
+    private Integer orgImgId;
+    private List<DocFile> docList;
+
 
     public Integer getSupplierid() {
         return supplierid;
@@ -261,6 +278,47 @@ public class SrmSupplierinfo {
         this.levelname = levelname;
     }
 
+
+    public String getCreateUserIDLinkText() {
+        return createUserIDLinkText;
+    }
+
+    public void setCreateUserIDLinkText(String createUserIDLinkText) {
+        this.createUserIDLinkText = createUserIDLinkText;
+    }
+
+    public String getCharacterLinkText() {
+        return characterLinkText;
+    }
+
+    public void setCharacterLinkText(String characterLinkText) {
+        this.characterLinkText = characterLinkText;
+    }
+
+    public String getOrgImgIdText() {
+        return orgImgIdText;
+    }
+
+    public void setOrgImgIdText(String orgImgIdText) {
+        this.orgImgIdText = orgImgIdText;
+    }
+
+    public Integer getOrgImgId() {
+        return orgImgId;
+    }
+
+    public void setOrgImgId(Integer orgImgId) {
+        this.orgImgId = orgImgId;
+    }
+
+    public List<DocFile> getDocList() {
+        return docList;
+    }
+
+    public void setDocList(List<DocFile> docList) {
+        this.docList = docList;
+    }
+
     @Override
     public String toString() {
         return "SrmSupplierinfo{" +
@@ -292,6 +350,11 @@ public class SrmSupplierinfo {
                 ", charactername='" + charactername + '\'' +
                 ", typename='" + typename + '\'' +
                 ", levelname='" + levelname + '\'' +
+                ", createUserIDLinkText='" + createUserIDLinkText + '\'' +
+                ", characterLinkText='" + characterLinkText + '\'' +
+                ", orgImgIdText='" + orgImgIdText + '\'' +
+                ", orgImgId=" + orgImgId +
+                ", docList=" + docList +
                 '}';
     }
 }
