@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.contract.mapper.AudContractpayMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.contract.domain.AudContractpay">
+    <result column="ContractID" jdbcType="INTEGER" property="contractid" />
+    <result column="Times" jdbcType="INTEGER" property="times" />
+    <result column="PayPercent" jdbcType="INTEGER" property="paypercent" />
+    <result column="PercentMoney" jdbcType="DECIMAL" property="percentmoney" />
+  </resultMap>
+  <insert id="insertContractPay" parameterType="com.ruoyi.contract.domain.AudContractpay">
+    insert into Aud_ContractPay (ContractID, Times, PayPercent,
+      PercentMoney)
+    values (#{contractid,jdbcType=INTEGER}, #{times,jdbcType=INTEGER}, #{paypercent,jdbcType=INTEGER}, 
+      #{percentmoney,jdbcType=DECIMAL})
+  </insert>
+  <select id="selectContractPay" resultMap="BaseResultMap" parameterType="com.ruoyi.contract.domain.AudContractpay">
+    select ContractID, Times, PayPercent, PercentMoney
+    from Aud_ContractPay
+  </select>
+</mapper>

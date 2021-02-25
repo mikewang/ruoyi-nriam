@@ -26,7 +26,52 @@
     <result column="SignConfirmUserID" jdbcType="INTEGER" property="signconfirmuserid" />
     <result column="FirstPayTime" jdbcType="VARCHAR" property="firstpaytime" />
     <result column="SheetStatus" jdbcType="INTEGER" property="sheetstatus" />
+    <result column="ContractTypeLinkText" jdbcType="VARCHAR" property="contracttypelinktext" />
+    <result column="ContractUserIDLinkText" jdbcType="VARCHAR" property="contractuseridlinktext" />
+    <result column="ProjectIDLinkText" jdbcType="VARCHAR" property="projectidlinktext" />
+    <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationidlinktext" />
+    <result column="SupplierIDLinkText" jdbcType="VARCHAR" property="supplieridlinktext" />
+    <result column="SheetStatusLinkText" jdbcType="VARCHAR" property="sheetstatuslinktext" />
   </resultMap>
+  <sql id="selectContract">
+    SELECT a.ContractID, a.ContractCode, a.ContractName, a.ContractType, a.ContractUserID
+         , a.ContractTime, a.ProjectID, a.OrganizationID, a.ContractMoney, a.daxie
+         , a.SupplierID, a.PayTotalTimes, a.PayedTimes, a.Reason, a.PassTime
+         , a.SignConfirmTime, a.SignConfirmUserID, a.FirstPayTime, a.SheetStatus
+         , t2.dict_label AS ContractTypeLinkText	, t3.real_name AS ContractUserIDLinkText
+         , t5.ProjectName AS ProjectIDLinkText, t6.dept_name AS OrganizationIDLinkText
+         , t9.SupplierName AS SupplierIDLinkText, t13.dict_label AS SheetStatusLinkText
+    FROM Aud_Contract a
+           JOIN (
+      SELECT *
+      FROM sys_dict_data
+      WHERE dict_type = '合同类型'
+    ) t2
+                ON a.ContractType = t2.dict_value
+           JOIN sys_user t3 ON a.ContractUserID = t3.user_id
+           JOIN Aud_Project t5 ON a.ProjectID = t5.ProjectID
+           JOIN sys_dept t6 ON a.OrganizationID = t6.dept_id
+           JOIN SRM_SupplierInfo t9 ON a.SupplierID = t9.SupplierID
+           JOIN (
+      SELECT *
+      FROM sys_dict_data
+      WHERE dict_type = '单据状态'
+    ) t13
+                ON a.SheetStatus = t13.dict_value
+
+  </sql>
+
+  <select id="selectContractTijiaoren" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+    <include refid="selectContract"/>
+    WHERE a.contractuserid = #{contractuserid,jdbcType=INTEGER}
+    <if test="contractname != null and contractname != '' ">
+      and a.contractname like concat('%', #{contractname,jdbcType=VARCHAR}, '%')
+    </if>
+    order by a.ContractTime desc
+  </select>
+
+
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
       WARNING - @mbg.generated

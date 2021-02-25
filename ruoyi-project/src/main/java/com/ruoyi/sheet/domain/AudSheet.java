@@ -11,7 +11,6 @@ public class AudSheet extends BaseEntity {
 
     private String sheetcode;
 
-
     private String sheettype;
 
     private Integer relatedcontractid;
@@ -73,8 +72,6 @@ public class AudSheet extends BaseEntity {
     private String audittype;
 
     private List<AudSheetauditrecord> sheetAuditRecordList;
-
-
 
     public Integer getSheetid() {
         return sheetid;

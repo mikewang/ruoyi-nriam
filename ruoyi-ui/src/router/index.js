@@ -219,6 +219,25 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/contract',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'tijiaoren',
+        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        name: 'AddContract',
+        meta: {title: '合同信息新增', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'tijiaoren/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        name: 'queryContract',
+        meta: { title: '合同信息查看', icon: '', opcode: 'query',noCache: true }
+      }
+    ]
+  },
+  {
     path: '/job',
     component: Layout,
     hidden: true,
