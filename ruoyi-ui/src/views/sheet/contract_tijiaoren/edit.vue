@@ -19,15 +19,15 @@
           </el-row>
           <el-row>
             <el-col :span="8">
-              <el-form-item v-if="readonly.basic == false" label="合同类型" prop="contracttypelinktext">
+              <el-form-item v-if="readonly.basic == false" label="合同类型" prop="contracttype">
                 <el-select v-model="form.contracttypelinktext" placeholder="请选择"
-                           style="display:block;" clearable @clear="clearProjectid" @change="changeProjectid"
-                           filterable :filter-method="filterProjectOptions" :show-overflow-tooltip="true">
+                           style="display:block;" @change="changeContractType"
+                           :show-overflow-tooltip="true">
                   <el-option
-                    v-for="item in projectOptions"
-                    :key="item.projectid"
-                    :label="item.projectname"
-                    :value="item.projectid"/>
+                    v-for="item in contractTypeOptions"
+                    :key="item.id"
+                    :label="item.value"
+                    :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -60,8 +60,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="所属部门" prop="organizationidlinktext">
-                <el-input readonly v-model="form.organizationidlinktext"/>
+              <el-form-item label="所属部门" prop="organizationIDLinkText">
+                <el-input readonly v-model="form.organizationIDLinkText"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -111,9 +111,9 @@
           </el-row>
 
           <el-row>
-            <el-col :span="16">
+            <el-col :span="8">
               <el-form-item v-if="readonly.basic == false" label="乙方单位" prop="supplierid" label-width="150px">
-                <el-select v-model="form.supplierid" placeholder="请选择"
+                <el-select v-model="form.supplierinfo.suppliername" placeholder="请选择"
                            style="display:block;" clearable @clear="clearSupplierid" @change="changeSupplierid"
                            filterable :filter-method="filterSupplierOptions" :show-overflow-tooltip="true">
                   <el-option
@@ -123,20 +123,43 @@
                     :value="item.supplierid"/>
                 </el-select>
               </el-form-item>
-              <el-form-item v-else label="乙方单位" prop="projectidlinktext">
-                <el-input readonly v-model="form.projectidlinktext"/>
+              <el-form-item v-else label="乙方单位" prop="supplierid">
+                <el-input readonly v-model="form.supplierinfo.suppliername"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="合同总金额（元）" prop="contractmoney">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.contractmoney" placeholder="" type="text"/> <span>{{form.daxie}}</span>
+              <el-form-item label="联系人" prop="person1name">
+                <el-input readonly v-model="form.supplierinfo.person1name" placeholder=""/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="备注" prop="supplierinfo.memo">
+                <el-input readonly v-model="form.supplierinfo.memo" placeholder="" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
+              <el-form-item label="开户银行" prop="bankname">
+                <el-input readonly v-model="form.supplierinfo.bankname" placeholder=""/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="银行账号" prop="banknumber">
+                <el-input readonly v-model="form.supplierinfo.banknumber" placeholder=""/>
+              </el-form-item>
+            </el-col>
+
+          </el-row>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="合同总金额（元）" prop="contractmoney">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.contractmoney" placeholder="" type="number"/> <span>{{form.daxie}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
               <el-form-item label="付款期数" prop="payedtimes">
-                <el-input v-model="form.payedtimes" type="number"/>
+                <el-input v-model="form.payedtimes" type="number" @input="changePayedtimes"/>
               </el-form-item>
             </el-col>
             <el-col :span="4" v-for="contractpay in form.contractpayList">
@@ -193,7 +216,6 @@
 
       </el-form>
 
-
       <el-row>
         <el-col :span="24" align="center">
           <el-button v-if="hidden.confirmBtn === false" type="success" @click="confirmForm">确定审批</el-button>
@@ -204,68 +226,14 @@
           <el-button @click="closeForm">取 消</el-button>
         </el-col>
       </el-row>
-
-
     </el-row>
-
-
-    <!-- 添加或修改菜单对话框 -->
-    <el-dialog :title="budgetpayFormTitle" :visible.sync="budgetpayFormOpen" width="600px" append-to-body>
-      <el-form ref="budgetpayForm" :model="budgetpayForm" :rules="budgetpayRules" label-width="250px" :key="timer">
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="项目协作单位名称" prop="supplierid" label-width="150px">
-              <el-select v-model="budgetpayForm.supplierid" placeholder="请选择"
-                         style="display:block;" clearable @clear="clearSupplierid" @change="changeSupplierid"
-                         filterable :filter-method="filterSupplierOptions" :show-overflow-tooltip="true">
-                <el-option
-                  v-for="item in supplierOptions"
-                  :key="item.supplierid"
-                  :label="item.suppliername"
-                  :value="item.supplierid"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="预算总拨付经费（元）" prop="zong">
-              <el-input type="number" v-model="budgetpayForm.zong" placeholder="请输入"
-                        v-bind:readonly="budgetpayForm.getIfFirstPayed"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="实际拨付经费.小计（元）" prop="xiaoji">
-              <el-input readonly v-model="budgetpayForm.xiaoji" placeholder="请输入"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="实际拨付经费.以前年度已拨（元）" prop="yiqian">
-              <el-input readonly v-model="budgetpayForm.yiqian" placeholder="请输入"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="实际拨付经费.本年已拨（元）" prop="bennian">
-              <el-input readonly v-model="budgetpayForm.bennian" placeholder="请输入"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="实际拨付经费.本次拨付（元）" prop="benci">
-              <el-input type="number" v-model="budgetpayForm.benci" placeholder="请输入"/>
-            </el-form-item>
-          </el-col>
-
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitBudgetpayForm">确 定</el-button>
-        <el-button @click="cancelBudgetpayForm">取 消</el-button>
-      </div>
-    </el-dialog>
 
   </div>
 </template>
 
 <script>
 import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
+import {listData} from "@/api/system/dict/data";
 import {
   addSheet,
   deleteSheet,
@@ -279,6 +247,9 @@ import {
 } from "@/api/sheet/sheet";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
+import {listDept} from "@/api/system/dept";
+import {listTeam} from "@/api/project/team";
+import {listUser} from "@/api/system/user";
 
 export default {
   name: "contract_tijiaoren_edit",
@@ -310,6 +281,8 @@ export default {
       supplierOptions: [],
       supplierList: [],
 
+      contractTypeOptions: [],
+      contractTypeList: [],
 
       basicfileList1: [],
       basicfileList2: [],
@@ -337,29 +310,28 @@ export default {
       timer: '',
       // 表单校验
       rules: {
-        projectname: [
-          {required: true, message: "项目名称不能为空", trigger: "blur"}
+        contractname: [
+          {required: true, message: "合同名称不能为空", trigger: "blur"}
+        ],
+        contracttype: [
+          {required: true, message: "合同类型不能为空", trigger: "blur"}
+        ],
+        projectid: [
+          {required: true, message: "所属项目不能为空", trigger: "blur"}
+        ],
+        supplierid: [
+          {required: true, message: "乙方单位不能为空", trigger: "blur"}
+        ],
+        contractmoney: [
+          {required: true, message: "合同总金额不能为空", trigger: "blur"}
+        ],
+        payedtimes: [
+          {required: true, message: "付款期数不能为空", trigger: "blur"}
+        ],
+        reason: [
+          {required: true, message: "主要协作内容不能为空", trigger: "blur"}
         ]
-      },
-
-      budgetpayFormTitle: "",
-      budgetpayFormOpen: false,
-      budgetpayForm: {},
-      budgetpayRules: {
-        benci: [
-          {required: true, message: "本次拨付不能为空", trigger: "blur"}
-        ]
-      },
-      // 条数
-      queryRecordTotal: 0,
-      // 查询参数
-      queryRecordParams: {
-        pageNum: 1,
-        pageSize: 10,
-        sheettype: "拨付单",
-        projectid: undefined,
-        supplieridList: undefined
-      },
+      }
     };
 
   },
@@ -370,7 +342,7 @@ export default {
 
   beforeCreate() {
     console.log(" beforeCreate this.$route.meta is ", this.$route.meta);
-    const sheetid = this.$route.params && this.$route.params.sheetid;
+    const contractid = this.$route.params && this.$route.params.sheetid;
 
   },
   created() {
@@ -378,32 +350,34 @@ export default {
     this.resetTemplateStatus();
     console.log(" created this.$route.params is ", this.$route.params);
 
-    var sheetid = this.$route.params && this.$route.params.sheetid;
-    if (sheetid === undefined || Number(sheetid) === 0) {
-      sheetid = undefined;
+    var contractid = this.$route.params && this.$route.params.sheetid;
+    if (contractid === undefined || Number(contractid) === 0) {
+      contractid = undefined;
     } else {
 
     }
 
     this.opcode = this.$route.meta.opcode;
 
-    this.getData(sheetid);
+    this.getData(contractid);
 
   },
   methods: {
     /** 查询信息 */
-    getData(sheetid) {
+    getData(contractid) {
 
       this.loading = true;
-      console.log("loading is begin, sheetid is ", sheetid);
+      console.log("loading is begin, contractid is ", contractid);
 
-      if (sheetid === undefined) {
+      if (contractid === undefined) {
         this.reset();
         this.configTemplateStatus();
         this.loadProjectOptions("");
+        this.loadSupplierOptions("");
+        this.loadContractTypeOptions();
         this.loading = false;
-
-      } else {
+      }
+      else {
         const this_ = this;
 
         getSheet(sheetid).then(response => {
@@ -484,6 +458,20 @@ export default {
         });
       }
 
+    },
+
+    changePayedtimes(value) {
+      console.log("changePayedtimes is ",value);
+      let contractpayList = [];
+      if (value > 0) {
+        let i = 1
+        while (i <= value) {
+          let pay = {times:i, timesname:'第' + i + '期金额', percentmoney:undefined};
+          contractpayList.push(pay);
+          i++;
+        }
+      }
+      this.form.contractpayList = contractpayList;
     },
 
     getSheetBudgetpayRecordList() {
@@ -622,7 +610,8 @@ export default {
         contractid: undefined,
         contractcode: undefined,
         contractname: undefined,
-        contracttype: undefined,
+        contracttype: 12,
+        contracttypelinktext: '产品购销合同',
 
         projectid: undefined,
         projectname: undefined,
@@ -635,6 +624,7 @@ export default {
         projecttype: undefined,
         projectTypeLinkText: undefined,
 
+        supplierinfo: {suppliername:''},
         payedtimes: 2,
         contractpayList: [{times:1, timesname:'第1期金额', percentmoney:undefined}, {times:2,timesname:'第2期金额', percentmoney:undefined}],
         reason: undefined,
@@ -682,6 +672,34 @@ export default {
       };
     },
 
+    changeContractType(value) {
+      console.log("changeContractType value is " + value);
+      if (value) {
+        this.form.contracttype = value;
+
+      } else {
+        this.form.contracttype = undefined;
+      }
+    },
+
+
+    loadContractTypeOptions(){
+      listData({"dictType": "合同类型"}).then(response => {
+        console.log(response);
+
+        var listOptions = [];
+        response.rows.sort(function (a, b) {
+          return a.dictValue < b.dictValue
+        }).forEach(function (item) {
+          const contracttype = {value: item.dictLabel, id: item.dictValue};
+          listOptions.push(contracttype);
+        });
+
+        this.contractTypeList = listOptions;
+        this.contractTypeOptions = listOptions;
+
+      });
+    },
 
     clearProjectid() {
 
@@ -695,7 +713,7 @@ export default {
           if (project.projectid === value) {
             this.form.projectname = project.projectname;
             this.form.projectDateRange = project.projectDateRange;
-            this.form.subjectcode = project.subjectcode;
+            this.form.projectcode = project.projectcode;
             this.form.projectTypeLinkText = project.projectTypeLinkText;
             this.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
             this.form.organizationIDLinkText = project.organizationIDLinkText;
@@ -804,62 +822,16 @@ export default {
 
     changeSupplierid(value) {
       if (value) {
-        this.resetBudgetpayForm();
-        this.budgetpayForm.supplierid = value;
+
         for (let i = 0; i < this.supplierOptions.length; i++) {
           let supplier = this.supplierOptions[i];
           if (supplier.supplierid === value) {
-            this.budgetpayForm.suppliername = supplier.suppliername;
-            let queryParams = {
-              pageNum: 1,
-              pageSize: 10,
-              sheettype: "拨付单",
-              projectid: this.form.projectid,
-              supplieridList: [value]
-            };
-            getSheetBudgetpayRecord(queryParams).then(response => {
-              const budgetpay = {
-                payid: undefined,
-                supplierid: value,
-                suppliername: supplier.suppliername,
-                zong: 0.0,
-                xiaoji: 0.0,
-                yiqian: 0.0,
-                bennian: 0.0,
-                benci: 0.0,
-                getIfFirstPayed: false
-              };
-
-              console.log("getSheetBudgetpayRecord is ", response.rows);
-              const budgetpayRecordList = response.rows;
-              if (budgetpayRecordList.length > 0) {
-                budgetpay.getIfFirstPayed = true;
-                let currDate = new Date();
-                let currYear = currDate.getFullYear();
-                for (let i = 0; i < budgetpayRecordList.length; i++) {
-                  let item = budgetpayRecordList[i];
-                  let audityear = parseInt(item.audittime.substr(1, 4));
-                  if (audityear < currYear) {
-                    budgetpay.yiqian = budgetpay.yiqian + item.benci;
-                  } else {
-                    budgetpay.bennian = budgetpay.bennian + item.benci;
-                  }
-                  budgetpay.xiaoji = budgetpay.xiaoji + item.benci;
-                  budgetpay.zong = item.zong;
-                }
-              } else {
-                budgetpay.getIfFirstPayed = false;
-              }
-
-              this.budgetpayForm = budgetpay;
-              console.log("change supplier when this.budgetpayForm is ", this.budgetpayForm);
-            });
-
-            break;
+            console.log(supplier);
+            this.form.supplierinfo = supplier;
           }
         }
       } else {
-        this.resetBudgetpayForm();
+        this.form.supplierinfo = {suppliername:''};
       }
     },
 

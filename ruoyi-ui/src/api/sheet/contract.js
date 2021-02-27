@@ -7,3 +7,4 @@ export function listTijiaorenContract(query) {
     params: query
   })
 }
+
