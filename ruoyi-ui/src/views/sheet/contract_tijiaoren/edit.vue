@@ -218,6 +218,7 @@
 
       <el-row>
         <el-col :span="24" align="center">
+          <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">保存合同信息</el-button>
           <el-button v-if="hidden.confirmBtn === false" type="success" @click="confirmForm">确定审批</el-button>
           <el-button v-if="hidden.submitBtn === false" type="success" @click="submitForm">提交审核</el-button>
           <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改后提交</el-button>
@@ -251,6 +252,8 @@ import {getSignpic} from "@/api/audit/signpic"
 import {listDept} from "@/api/system/dept";
 import {listTeam} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
+
+import {addContract, updateContract} from "@/api/sheet/contract"
 
 export default {
   name: "contract_tijiaoren_edit",
@@ -507,7 +510,7 @@ export default {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("add") !== -1) {
           this.readonly.basic = false;
-          this.hidden.submitBtn = false;
+          this.hidden.saveBtn = false;
         }
         else if (this.opcode.indexOf("query") !== -1) {
           this.hidden.changeBtn = false;
@@ -608,14 +611,16 @@ export default {
         contractid: undefined,
         contractcode: undefined,
         contractname: undefined,
-        contracttype: 12,
-        contracttypelinktext: '产品购销合同',
+        contracttype: undefined,
+        contracttypelinktext: undefined,
 
+        projectid: undefined, // 为了rules校验。
         projectinfo: {projectname: undefined},
+        supplierid: undefined,
         supplierinfo: {suppliername:undefined},
 
         payedtimes: 2,
-        contractpayList: [{times:1, timesname:'第1期金额', percentmoney:undefined}, {times:2,timesname:'第2期金额', percentmoney:undefined}],
+        contractpayList: [],
         reason: undefined,
 
         sheetuserid: undefined,
@@ -634,6 +639,8 @@ export default {
 
       };
 
+      this.changePayedtimes(this.form.payedtimes);
+      this.form.contractuseridlinktext =  this.$store.getters.realName
       this.resetForm("form");
     },
 
@@ -693,16 +700,18 @@ export default {
     clearProjectid() {
 
     },
+
     changeProjectid(value) {
       console.log("changeProjectid value is " + value);
       if (value) {
+        this.form.projectid = value;
         for (let i = 0; i < this.projectOptions.length; i++) {
           let project = this.projectOptions[i];
           if (project.projectid === value) {
             this.form.projectinfo = project;
+            console.log("changeProject is " + this.form.projectinfo.projectname);
 
             listProjectdoc({projectid: this.form.projectinfo.projectid}).then(response => {
-              const this_ = this;
               let rows = response.data;
               console.log("listProjectdoc is ", rows);
               this.form.projectdocList = rows;
@@ -719,6 +728,7 @@ export default {
         }
 
       } else {
+        this.form.projectid = undefined;
         this.form.projectinfo = {projectname: undefined};
 
       }
@@ -802,6 +812,9 @@ export default {
     },
 
     changeSupplierid(value) {
+
+      this.form.supplierid = value;
+
       if (value) {
 
         for (let i = 0; i < this.supplierOptions.length; i++) {
@@ -914,6 +927,42 @@ export default {
       });
     },
 
+    saveForm() {
+      const this_ = this;
+
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          console.log("save form is ", this.form);
+          this_.form.operateCode = 2; // 提交审核代码 提交给后端。
+
+          if (this_.opcode === "add") {
+            // 处理掉添加， 为了更新或修改。
+
+
+            if (this_.form.contractid === undefined) {
+              addContract(this.form).then(response => {
+                if (response.data === 0) {
+                  this_.msgError("保存失败");
+                  this_.form.contractid = undefined;
+                } else {
+                  this.msgSuccess("保存成功");
+                  this.form.contractid = response.data;
+                }
+                //this.closeForm();
+              });
+            } else {
+              updateContract(this.form).then(result => {
+                this.msgSuccess("修改成功");
+             //   this.closeForm();
+              });
+
+            }
+          }
+        }
+      });
+
+
+    },
 
     /*提交 审核 按钮*/
     submitForm: function () {

@@ -81,6 +81,15 @@ public class AudContractService {
 
         return sheetList;
     }
+
+        @Transactional
+    public Integer addContractTijiaoren(AudContract contract) {
+        Integer result = 1;
+
+
+
+        return result;
+    }
 //
 //    public List<AudContract> selectSheetTijiaorenByUserid(Integer uid) {
 //
@@ -132,7 +141,7 @@ public class AudContractService {
 //
 //
 //    @Transactional
-//    public Integer addSheetTijiaoren(AudContract sheet) {
+//    public Integer addContractTijiaoren(AudContract contract) {
 //
 //        // 获取 短信服务器的密钥信息
 //        String url = "";
@@ -255,7 +264,7 @@ public class AudContractService {
 //
 //        return result;
 //    }
-//
+////
 //
 //    public List<AudContract> selectSheetXiangmuByUserid(Integer uid) {
 //

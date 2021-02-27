@@ -2,10 +2,14 @@ package com.ruoyi.web.controller.contract;
 
 import com.ruoyi.api.service.AppClientinfoService;
 import com.ruoyi.audit.service.AudSignpicService;
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.enums.SheetStatus;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.contract.domain.AudContract;
@@ -16,10 +20,8 @@ import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.service.BasDocService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -63,6 +65,38 @@ public class AudContractController extends BaseController {
         List<AudContract> list = contractService.selectContractTijiaoren(query);
 
         return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @Log(title = "拨付单管理", businessType = BusinessType.INSERT)
+    @PostMapping("/tijiaoren")
+    public AjaxResult add(@Validated @RequestBody AudContract contract) {
+
+        Integer userid = getCurrentLoginUserid();
+
+        contract.setContractuserid(userid);
+        contract.setContracttime(DateUtils.dateTimeNow());
+
+        Integer status = contract.getSheetstatus();
+        logger.debug("sheet.getSheetstatus is " + status.toString());
+
+        contract.setSheetstatus(SheetStatus.XinJianZhong.getCode());
+        logger.debug("AudContract add is " + contract.toString());
+
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer result = contractService.addContractTijiaoren(contract);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, contract.getContractid());
+
+            return AjaxResult.success(" 保存成功");
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
     }
 
     /**
@@ -184,36 +218,7 @@ public class AudContractController extends BaseController {
 //        return ajax;
 //    }
 //
-//    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
-//    @Log(title = "拨付单管理", businessType = BusinessType.INSERT)
-//    @PostMapping("/tijiaoren")
-//    public AjaxResult add(@Validated @RequestBody AudFourtech sheet) {
-//
-//        Integer userid = getCurrentLoginUserid();
-//
-//        sheet.setSheetuserid(userid);
-//
-//        Integer status = sheet.getSheetstatus();
-//        logger.debug("sheet.getSheetstatus is " + status.toString());
-//
-//        sheet.setSheetstatus(SheetStatus.XiangMuShenPi.getCode());
-//        logger.debug("AudFourtech add is " + sheet.toString());
-//        sheet.setSheettime(DateUtils.dateTimeNow());
-//        sheet.setSheettype("拨付单");
-//        sheet.setRelatedcontractid(-1);
-//        sheet.setThispaytimes("");
-//
-//        Integer result = contractService.addSheetTijiaoren(sheet);
-//
-//        if (result > 0) {
-//
-//            return AjaxResult.success(" 提交审核成功");
-//        } else {
-//
-//            return AjaxResult.error(" 操作失败，请联系管理员");
-//        }
-//
-//    }
+
 //
 //    private AjaxResult auditConfirm(AudFourtech sheet, Integer audittype) {
 //        AjaxResult ajax = AjaxResult.success();
