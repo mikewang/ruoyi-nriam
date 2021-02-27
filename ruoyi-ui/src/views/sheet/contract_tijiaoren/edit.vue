@@ -45,7 +45,7 @@
           <el-row>
             <el-col :span="8">
               <el-form-item v-if="readonly.basic == false" label="所属项目" prop="projectid">
-                <el-select v-model="form.projectid" placeholder="请选择"
+                <el-select v-model="form.projectinfo.projectname" placeholder="请选择"
                            style="display:block;" clearable @clear="clearProjectid" @change="changeProjectid"
                            filterable :filter-method="filterProjectOptions" :show-overflow-tooltip="true">
                   <el-option
@@ -56,34 +56,34 @@
                 </el-select>
               </el-form-item>
               <el-form-item v-else label="所属项目" prop="projectid">
-                <el-input readonly v-model="form.projectidlinktext"/>
+                <el-input readonly v-model="form.projectinfo.projectname"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="所属部门" prop="organizationIDLinkText">
-                <el-input readonly v-model="form.organizationIDLinkText"/>
+                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目周期" prop="projectDateRange">
-                <el-input readonly v-model="form.projectDateRange"/>
+                <el-input readonly v-model="form.projectinfo.projectDateRange"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目编号" prop="projectcode">
-                <el-input readonly v-model="form.projectcode"/>
+                <el-input readonly v-model="form.projectinfo.projectcode"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目负责人" prop="projectManagerIDLinkText">
-                <el-input readonly v-model="form.projectManagerIDLinkText"/>
+                <el-input readonly v-model="form.projectinfo.projectManagerIDLinkText"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目类型" prop="projectTypeLinkText">
-                <el-input readonly v-model="form.projectTypeLinkText"/>
+                <el-input readonly v-model="form.projectinfo.projectTypeLinkText"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -243,7 +243,8 @@ import {
   getSheetBudgetpayRecord,
   getSheetSupplier,
   updateSheet,
-  confirmAuditSheet
+  confirmAuditSheet,
+  getSheetSupplierById
 } from "@/api/sheet/sheet";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
@@ -387,23 +388,20 @@ export default {
           const sheet = response.data;
 
           this_.form = sheet;
+          let supplierid = this_.form.supplierid;
+          getSheetSupplierById(supplierid).then(repsonse => {
+            this_.form.supplierinfo = response.data;
+
+          });
 
           console.log("getSheet sheet.projectid is ", sheet.projectid);
 
           getProject(sheet.projectid).then(response2 => {
             const project = response2.data;
             console.log("getProject response2 data is ", response2.data);
+            this_.form.projectinfo = project;
 
-            this_.form.projectid = project.projectid;
-            this_.form.projectname = project.projectname;
-            this_.form.projectDateRange = project.projectDateRange;
-            this_.form.subjectcode = project.subjectcode;
-            this_.form.projectTypeLinkText = project.projectTypeLinkText;
-            this_.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
-            this_.form.organizationIDLinkText = project.organizationIDLinkText;
-            this_.form.projectmanagerid = project.projectmanagerid;
-
-            listProjectdoc({projectid: this_.form.projectid}).then(response => {
+            listProjectdoc({projectid: this_.form.projectinfo.projectid}).then(response => {
 
               let rows = response.data;
               console.log("listProjectdoc is ", rows);
@@ -613,18 +611,9 @@ export default {
         contracttype: 12,
         contracttypelinktext: '产品购销合同',
 
-        projectid: undefined,
-        projectname: undefined,
-        projectDateRange: undefined,
-        subjectcode: undefined,
-        projectmanagerid: undefined,
-        projectManagerIDLinkText: undefined,
-        organizationid: undefined,
-        organizationIDLinkText: undefined,
-        projecttype: undefined,
-        projectTypeLinkText: undefined,
+        projectinfo: {projectname: undefined},
+        supplierinfo: {suppliername:undefined},
 
-        supplierinfo: {suppliername:''},
         payedtimes: 2,
         contractpayList: [{times:1, timesname:'第1期金额', percentmoney:undefined}, {times:2,timesname:'第2期金额', percentmoney:undefined}],
         reason: undefined,
@@ -707,20 +696,12 @@ export default {
     changeProjectid(value) {
       console.log("changeProjectid value is " + value);
       if (value) {
-        this.form.projectid = value;
         for (let i = 0; i < this.projectOptions.length; i++) {
           let project = this.projectOptions[i];
           if (project.projectid === value) {
-            this.form.projectname = project.projectname;
-            this.form.projectDateRange = project.projectDateRange;
-            this.form.projectcode = project.projectcode;
-            this.form.projectTypeLinkText = project.projectTypeLinkText;
-            this.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
-            this.form.organizationIDLinkText = project.organizationIDLinkText;
-            this.form.organizationid = project.organizationid;
-            this.form.projectmanagerid = project.projectmanagerid;
+            this.form.projectinfo = project;
 
-            listProjectdoc({projectid: this.form.projectid}).then(response => {
+            listProjectdoc({projectid: this.form.projectinfo.projectid}).then(response => {
               const this_ = this;
               let rows = response.data;
               console.log("listProjectdoc is ", rows);
@@ -738,8 +719,8 @@ export default {
         }
 
       } else {
-        this.form.projectid = undefined;
-        this.form.projectname = undefined;
+        this.form.projectinfo = {projectname: undefined};
+
       }
     },
 
@@ -831,7 +812,7 @@ export default {
           }
         }
       } else {
-        this.form.supplierinfo = {suppliername:''};
+        this.form.supplierinfo = {suppliername: undefined};
       }
     },
 

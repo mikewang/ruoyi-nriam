@@ -1,7 +1,7 @@
 package com.ruoyi.contract.domain;
 
 import com.ruoyi.sheet.domain.SrmSupplierinfo;
-
+import com.ruoyi.project.domain.AudProject;
 import java.math.BigDecimal;
 
 public class AudContract {
@@ -51,6 +51,7 @@ public class AudContract {
     private String supplieridlinktext;
     private String sheetstatuslinktext;
 
+    private AudProject projectinfo;
     private SrmSupplierinfo supplierinfo;
 
     public Integer getContractid() {
@@ -251,6 +252,14 @@ public class AudContract {
 
     public void setSheetstatuslinktext(String sheetstatuslinktext) {
         this.sheetstatuslinktext = sheetstatuslinktext;
+    }
+
+    public AudProject getProjectinfo() {
+        return projectinfo;
+    }
+
+    public void setProjectinfo(AudProject projectinfo) {
+        this.projectinfo = projectinfo;
     }
 
     public SrmSupplierinfo getSupplierinfo() {
