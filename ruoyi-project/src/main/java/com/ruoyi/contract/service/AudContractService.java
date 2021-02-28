@@ -13,9 +13,12 @@ import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SMSSender.Juhe;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.push.PushMessageToApp;
 import com.ruoyi.contract.domain.AudContract;
+import com.ruoyi.contract.domain.AudContractpay;
 import com.ruoyi.contract.mapper.AudContractMapper;
+import com.ruoyi.contract.mapper.AudContractpayMapper;
 import com.ruoyi.project.domain.DocFile;
 import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.sheet.domain.*;
@@ -43,6 +46,10 @@ public class AudContractService {
 
     @Resource
     AudContractMapper audContractMapper;
+
+
+    @Resource
+    AudContractpayMapper audContractpayMapper;
 
     @Resource
     AudBudgetpayMapper audBudgetpayMapper;
@@ -77,16 +84,60 @@ public class AudContractService {
 
         List<AudContract> sheetList = audContractMapper.selectContractTijiaoren(sheet);
 
+        for (AudContract contract : sheetList) {
+            AudContractpay record = new AudContractpay();
+            record.setContractid(contract.getContractid());
+            contract.setContractpayList(audContractpayMapper.selectContractPay(record));
+        }
+
         log.debug("request sheetList list is " + sheetList.toString());
 
         return sheetList;
     }
 
-        @Transactional
+    @Transactional
     public Integer addContractTijiaoren(AudContract contract) {
         Integer result = 1;
 
+        ConvertUpMoney.toChinese(contract.getContractmoney().toString());
 
+        result = audContractMapper.insertAudContract(contract);
+
+        Integer contractid = contract.getContractid();
+
+        AudContractpay record = new AudContractpay();
+            record.setContractid(contractid);
+
+        audContractpayMapper.deleteContractPay(record);
+
+        for (AudContractpay contractpay : contract.getContractpayList()) {
+            contractpay.setContractid(contractid);
+            audContractpayMapper.insertContractPay(contractpay);
+        }
+
+        return contractid;
+    }
+
+
+    @Transactional
+    public Integer updateContractTijiaoren(AudContract contract) {
+        Integer result = 1;
+
+        ConvertUpMoney.toChinese(contract.getContractmoney().toString());
+
+        result = audContractMapper.updateAudContract(contract);
+
+        Integer contractid = contract.getContractid();
+
+        AudContractpay record = new AudContractpay();
+        record.setContractid(contractid);
+
+        audContractpayMapper.deleteContractPay(record);
+
+        for (AudContractpay contractpay : contract.getContractpayList()) {
+            contractpay.setContractid(contractid);
+            audContractpayMapper.insertContractPay(contractpay);
+        }
 
         return result;
     }

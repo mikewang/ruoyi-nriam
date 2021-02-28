@@ -3,15 +3,20 @@ package com.ruoyi.web.controller.contract;
 import com.ruoyi.api.service.AppClientinfoService;
 import com.ruoyi.audit.service.AudSignpicService;
 import com.ruoyi.common.annotation.Log;
+import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.enums.SheetStatus;
+import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileTypeUtils;
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.contract.domain.AudContract;
 import com.ruoyi.contract.service.AudContractService;
 import com.ruoyi.fourtech.domain.AudFourtech;
@@ -22,8 +27,10 @@ import com.ruoyi.project.service.BasDocService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -68,14 +75,18 @@ public class AudContractController extends BaseController {
     }
 
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
-    @Log(title = "拨付单管理", businessType = BusinessType.INSERT)
+    @Log(title = "合同管理", businessType = BusinessType.INSERT)
     @PostMapping("/tijiaoren")
     public AjaxResult add(@Validated @RequestBody AudContract contract) {
+
+        AjaxResult ajax = AjaxResult.success();
 
         Integer userid = getCurrentLoginUserid();
 
         contract.setContractuserid(userid);
         contract.setContracttime(DateUtils.dateTimeNow());
+
+        contract.setPayedtimes(0);
 
         Integer status = contract.getSheetstatus();
         logger.debug("sheet.getSheetstatus is " + status.toString());
@@ -83,7 +94,8 @@ public class AudContractController extends BaseController {
         contract.setSheetstatus(SheetStatus.XinJianZhong.getCode());
         logger.debug("AudContract add is " + contract.toString());
 
-        AjaxResult ajax = AjaxResult.success();
+        contract.setDaxie(ConvertUpMoney.toChinese(contract.getContractmoney().toString()));
+        contract.setOrganizationid(contract.getProjectinfo().getOrganizationid());
 
         Integer result = contractService.addContractTijiaoren(contract);
 
@@ -91,12 +103,101 @@ public class AudContractController extends BaseController {
 
             ajax.put(AjaxResult.DATA_TAG, contract.getContractid());
 
-            return AjaxResult.success(" 保存成功");
+            return ajax;
         } else {
 
             return AjaxResult.error(" 操作失败，请联系管理员");
         }
 
+    }
+
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @Log(title = "合同管理", businessType = BusinessType.INSERT)
+    @PutMapping("/tijiaoren")
+    public AjaxResult update(@Validated @RequestBody AudContract contract) {
+        AjaxResult ajax = AjaxResult.success();
+
+//        Integer userid = getCurrentLoginUserid();
+//
+//        contract.setContractuserid(userid);
+//        contract.setContracttime(DateUtils.dateTimeNow());
+//
+//        Integer status = contract.getSheetstatus();
+//        logger.debug("sheet.getSheetstatus is " + status.toString());
+//
+//        contract.setSheetstatus(SheetStatus.XinJianZhong.getCode());
+//        logger.debug("AudContract add is " + contract.toString());
+
+
+        contract.setOrganizationid(contract.getProjectinfo().getOrganizationid());
+        contract.setDaxie(ConvertUpMoney.toChinese(contract.getContractmoney().toString()));
+        Integer result = contractService.updateContractTijiaoren(contract);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, contract.getContractid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    /**
+     * 文件上传
+     */
+    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @Log(title = "文件上传", businessType = BusinessType.UPDATE)
+    @PostMapping("/contractdoc/upload")
+    public AjaxResult upload(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) throws IOException {
+        logger.debug("file getOriginalFilename is " + file.getOriginalFilename() + " name is " + name);
+        try {
+            String originalFilename = file.getOriginalFilename();
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath() + "/Doc";
+
+            String yyyymm = DateUtils.dateTimeNow("yyyyMM");
+            String ddHHmmss = DateUtils.dateTimeNow("ddHHmmss");
+
+            filePath = filePath + "/" + yyyymm + "/" + ddHHmmss;
+
+            // 上传并返回新文件名称
+            String fileName = FileUploadUtils.uploadOriginalFile(filePath, file);
+            String url = serverConfig.getUrl() + fileName;
+
+            String docType = FileTypeUtils.getFileType(fileName);
+
+            BasDoc doc = new BasDoc();
+            doc.setDocname(originalFilename);
+            String relativepath = StringUtils.trimstart(filePath, RuoYiConfig.getProfile());
+            relativepath = StringUtils.trimend(relativepath, "/");
+
+            doc.setRelativepath(relativepath);
+            doc.setAttachtotype("");
+            doc.setDoctype(docType);
+
+            logger.debug("relativepath is " + filePath);
+            logger.debug("originalFilename is " + originalFilename);
+            logger.debug("attachToType is " + "合同文本，这个字段 不用来关联，有单独的关联表");
+            logger.debug("docType is " + docType);
+
+            //
+
+            Integer docid = basDocService.insertBasDoc(doc);
+
+
+
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("name", originalFilename);
+            ajax.put("url", docid);
+            ajax.put("fileUrl", fileName);
+
+            return ajax;
+        } catch (Exception e) {
+            return AjaxResult.error(e.getMessage() + " 上传文件异常，请联系管理员");
+        }
     }
 
     /**

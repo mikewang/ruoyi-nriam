@@ -13,8 +13,13 @@
     values (#{contractid,jdbcType=INTEGER}, #{times,jdbcType=INTEGER}, #{paypercent,jdbcType=INTEGER}, 
       #{percentmoney,jdbcType=DECIMAL})
   </insert>
+  <delete id="deleteContractPay" parameterType="com.ruoyi.contract.domain.AudContractpay">
+    delete from  Aud_ContractPay where ContractID = #{contractid,jdbcType=INTEGER}
+  </delete>
   <select id="selectContractPay" resultMap="BaseResultMap" parameterType="com.ruoyi.contract.domain.AudContractpay">
     select ContractID, Times, PayPercent, PercentMoney
     from Aud_ContractPay
+    where ContractID = #{contractid,jdbcType=INTEGER}
+    order by times asc
   </select>
 </mapper>

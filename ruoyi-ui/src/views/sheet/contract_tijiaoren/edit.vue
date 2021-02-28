@@ -158,12 +158,12 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="付款期数" prop="payedtimes">
-                <el-input v-model="form.payedtimes" type="number" @input="changePayedtimes"/>
+              <el-form-item label="付款期数" prop="paytotaltimes">
+                <el-input v-model="form.paytotaltimes" type="number" @input="changePaytotaltimes"/>
               </el-form-item>
             </el-col>
             <el-col :span="4" v-for="contractpay in form.contractpayList">
-              <el-form-item  label-width="100px" :label="contractpay.timesname" prop="payedtimes">
+              <el-form-item  label-width="100px" :label="contractpay.timesname" prop="paytotaltimes">
                 <el-input v-model="contractpay.percentmoney" type="number"/>
               </el-form-item>
             </el-col>
@@ -180,9 +180,16 @@
         <template>
           <el-row v-bind:hidden="false">
             <el-col :span="16">
-              <el-form-item label="上传合同正文" prop="basicfileList3">
-                <el-upload action="#" :before-remove="beforeRemove3" :on-preview="handleReview"
-                           :file-list="basicfileList3"/> <a href="#">下载合同模板</a>
+              <el-form-item label="上传合同正文" prop="contractdocList">
+                <el-upload action="#" :http-request="requestUploadDoc" :before-remove="beforeRemoveDoc"
+                           :on-remove="handleUploadRemoveDoc" :on-preview="handleReviewDoc"
+                           :file-list="contractdocList" :before-upload="beforeUploadDoc"
+                >
+                  <el-button size="small" >上传文件<i class="el-icon-upload el-icon--right"></i>
+                  </el-button>
+                </el-upload>
+
+                <a @click="downContractdocTemplate">下载合同模板</a>
               </el-form-item>
             </el-col>
           </el-row>
@@ -245,7 +252,7 @@ import {
   getSheetSupplier,
   updateSheet,
   confirmAuditSheet,
-  getSheetSupplierById
+  getSheetSupplierById, uploadFile
 } from "@/api/sheet/sheet";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
@@ -292,6 +299,8 @@ export default {
       basicfileList2: [],
       basicfileList3: [],
 
+      contractdocList: [],
+
       SheetStatus: {
         NoPass: 2,
         XiangMuShenPi: 3,
@@ -329,7 +338,7 @@ export default {
         contractmoney: [
           {required: true, message: "合同总金额不能为空", trigger: "blur"}
         ],
-        payedtimes: [
+        paytotaltimes: [
           {required: true, message: "付款期数不能为空", trigger: "blur"}
         ],
         reason: [
@@ -384,7 +393,7 @@ export default {
       else {
         const this_ = this;
 
-        getSheet(sheetid).then(response => {
+        getSheet(contractid).then(response => {
 
           console.log("getSheet response data is ", response.data);
 
@@ -461,8 +470,8 @@ export default {
 
     },
 
-    changePayedtimes(value) {
-      console.log("changePayedtimes is ",value);
+    changePaytotaltimes(value) {
+      console.log("changePaytotaltimes is ",value);
       let contractpayList = [];
       if (value > 0) {
         let i = 1
@@ -619,7 +628,7 @@ export default {
         supplierid: undefined,
         supplierinfo: {suppliername:undefined},
 
-        payedtimes: 2,
+        paytotaltimes: 2,
         contractpayList: [],
         reason: undefined,
 
@@ -639,7 +648,7 @@ export default {
 
       };
 
-      this.changePayedtimes(this.form.payedtimes);
+      this.changePaytotaltimes(this.form.paytotaltimes);
       this.form.contractuseridlinktext =  this.$store.getters.realName
       this.resetForm("form");
     },
@@ -899,6 +908,60 @@ export default {
     },
 
 
+
+    // 上传 合同文本。
+
+    requestUploadDoc: function (params) {
+      let file = params.file;
+      console.log(file);
+      let formData = new FormData();
+      formData.append('file', file);
+      formData.append("name", "wenjianmingch");
+      formData.append("attachToType", "协作单位");
+      formData.append("docType", "其它附件");
+      uploadFile(formData).then(response => {
+        console.log("response.name is ", response.name);
+        console.log("response.url is ", response.url);
+        this.otherfileList.push({name: response.name, url: response.url});
+      });
+    },
+
+    beforeRemoveDoc(file) {
+      let index = this.contractdocList.indexOf(file);
+      console.log("beforeRemove2 index=" + index, file.name);
+      return true;
+      //  return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+
+    handleUploadRemoveDoc(file) {
+      // handleUploadRemove(file, this.acceptfileList10,"协作单位", this.form.projectdocList );
+    },
+
+    handleReviewDoc(file) {
+
+    },
+
+    beforeUploadDoc(file) {
+      let x = true;
+      console.log("fileList is ", this.contractdocList);
+      for (let i = 0; i < this.contractdocList.length; i++) {
+        let item = this.contractdocList[i];
+        if (item.name === file.name) {
+          console.log("file existed now ,", file.name);
+          x = false;
+          break;
+        }
+      }
+      return x;
+
+    },
+
+    downContractdocTemplate() {
+
+
+    },
+
+
     /** 关闭按钮 */
     closeForm() {
 
@@ -937,15 +1000,14 @@ export default {
 
           if (this_.opcode === "add") {
             // 处理掉添加， 为了更新或修改。
-
-
             if (this_.form.contractid === undefined) {
               addContract(this.form).then(response => {
+                console.log("response is ", response);
                 if (response.data === 0) {
                   this_.msgError("保存失败");
                   this_.form.contractid = undefined;
                 } else {
-                  this.msgSuccess("保存成功");
+                  this.msgSuccess("保存成功" + response.data);
                   this.form.contractid = response.data;
                 }
                 //this.closeForm();
@@ -1275,5 +1337,7 @@ export default {
 </script>
 
 <style scoped>
-
+a:hover{
+  cursor:pointer
+}
 </style>

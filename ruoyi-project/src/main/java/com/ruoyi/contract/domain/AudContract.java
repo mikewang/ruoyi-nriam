@@ -3,6 +3,7 @@ package com.ruoyi.contract.domain;
 import com.ruoyi.sheet.domain.SrmSupplierinfo;
 import com.ruoyi.project.domain.AudProject;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class AudContract {
 
@@ -31,6 +32,8 @@ public class AudContract {
     private Integer paytotaltimes;
 
     private Integer payedtimes;
+
+    private List<AudContractpay> contractpayList;
 
     private String reason;
 
@@ -156,6 +159,14 @@ public class AudContract {
 
     public void setPayedtimes(Integer payedtimes) {
         this.payedtimes = payedtimes;
+    }
+
+    public List<AudContractpay> getContractpayList() {
+        return contractpayList;
+    }
+
+    public void setContractpayList(List<AudContractpay> contractpayList) {
+        this.contractpayList = contractpayList;
     }
 
     public String getReason() {

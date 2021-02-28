@@ -274,7 +274,7 @@ import {
   uploadFile,
   addSheetSupplier,
   editSheetSupplier,
-  deleteSheet, deleteSheetSupplier
+  deleteSheetSupplier
 } from "@/api/sheet/sheet";
 import {VueCropper} from "vue-cropper";
 

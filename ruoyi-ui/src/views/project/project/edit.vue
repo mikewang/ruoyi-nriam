@@ -1708,6 +1708,8 @@ export default {
     handleUploadRemove20(file) {
       handleUploadRemove(file, this.acceptfileList10,"成果照片视频", this.form.projectdocList );
     },
+
+
     /** 关闭按钮 */
     closeForm() {
 

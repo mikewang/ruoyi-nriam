@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.contract.mapper.AudContractdocMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.contract.domain.AudContractdoc">
+    <result column="ContractID" jdbcType="INTEGER" property="contractid" />
+    <result column="DocID" jdbcType="INTEGER" property="docid" />
+    <result column="IfDeleted" jdbcType="INTEGER" property="ifdeleted" />
+  </resultMap>
+  <insert id="insertAudContractdoc" parameterType="com.ruoyi.contract.domain.AudContractdoc">
+    insert into Aud_ContractDoc (ContractID, DocID, IfDeleted
+      )
+    values (#{contractid,jdbcType=INTEGER}, #{docid,jdbcType=INTEGER}, #{ifdeleted,jdbcType=INTEGER}
+      )
+  </insert>
+  <select id="selectAudContractdoc" parameterType="com.ruoyi.contract.domain.AudContractdoc" resultMap="BaseResultMap">
+    select ContractID, DocID, IfDeleted
+    from Aud_ContractDoc
+    where  ContractID = #{contractid,jdbcType=INTEGER}
+  </select>
+</mapper>
