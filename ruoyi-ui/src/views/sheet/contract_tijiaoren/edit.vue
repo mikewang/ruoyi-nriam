@@ -189,7 +189,7 @@
                   </el-button>
                 </el-upload>
 
-                <a @click="downContractdocTemplate">下载合同模板</a>
+                <a @click="downloadContractdocTemplate">下载合同模板</a>
               </el-form-item>
             </el-col>
           </el-row>
@@ -260,7 +260,7 @@ import {listDept} from "@/api/system/dept";
 import {listTeam} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
 
-import {addContract, updateContract} from "@/api/sheet/contract"
+import {addContract, updateContract, downloadTemplateDoc} from "@/api/sheet/contract"
 
 export default {
   name: "contract_tijiaoren_edit",
@@ -681,9 +681,16 @@ export default {
       console.log("changeContractType value is " + value);
       if (value) {
         this.form.contracttype = value;
-
+        for (let i=0; i < this.contractTypeOptions.length; i++) {
+          let item = this.contractTypeOptions[i];
+          if (item.id == value) {
+            this.form.contracttypelinktext = item.value;
+            break;
+          }
+        }
       } else {
         this.form.contracttype = undefined;
+        this.form.contracttypelinktext = undefined;
       }
     },
 
@@ -956,9 +963,27 @@ export default {
 
     },
 
-    downContractdocTemplate() {
+    downloadContractdocTemplate() {
 
+      console.log("this.form.contracttype is ", this.form.contracttype);
+      let fileid = this.form.contracttype;
+      if (fileid.length > 0) {
+        downloadTemplateDoc({"file": fileid}).then(response => {
 
+          console.log("response is ", response);
+
+          var fileURL = window.URL.createObjectURL(new Blob([response]));
+          var fileLink = document.createElement('a');
+
+          fileLink.href = fileURL;
+          fileLink.setAttribute('download', this.form.contracttypelinktext+".doc");
+          document.body.appendChild(fileLink);
+
+          fileLink.click();
+          URL.revokeObjectURL(fileURL);
+
+        }).catch(console.error);
+      }
     },
 
 

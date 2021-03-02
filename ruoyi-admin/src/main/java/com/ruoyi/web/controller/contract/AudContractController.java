@@ -6,6 +6,7 @@ import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -17,20 +18,34 @@ import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.contract.domain.AudContract;
 import com.ruoyi.contract.service.AudContractService;
-import com.ruoyi.fourtech.domain.AudFourtech;
-import com.ruoyi.fourtech.service.AudFourtechService;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.service.BasDocService;
+import com.ruoyi.system.service.ISysDictDataService;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.usermodel.Bookmark;
+import org.apache.poi.hwpf.usermodel.Bookmarks;
+import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @RestController
@@ -38,6 +53,8 @@ import java.util.List;
 public class AudContractController extends BaseController {
     @Resource
     private AudContractService contractService;
+
+
     @Resource
     private AppClientinfoService clientinfoService;
     @Resource
@@ -45,6 +62,9 @@ public class AudContractController extends BaseController {
 
     @Resource
     private BasDocService basDocService;
+
+    @Resource
+    private ISysDictDataService dictDataService;
 
     @Resource
     private TokenService tokenService;
@@ -148,7 +168,7 @@ public class AudContractController extends BaseController {
     /**
      * 文件上传
      */
-    @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "文件上传", businessType = BusinessType.UPDATE)
     @PostMapping("/contractdoc/upload")
     public AjaxResult upload(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) throws IOException {
@@ -197,6 +217,115 @@ public class AudContractController extends BaseController {
             return ajax;
         } catch (Exception e) {
             return AjaxResult.error(e.getMessage() + " 上传文件异常，请联系管理员");
+        }
+    }
+
+    /**
+     * 文件下载
+     */
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @Log(title = "模板文件下载", businessType = BusinessType.EXPORT)
+    @GetMapping("/template/download")
+    public void download(@RequestParam("file") Integer fileid, HttpServletResponse response, HttpServletRequest request) throws IOException
+    {
+        try
+        {
+            SysDictData data = new SysDictData();
+            data.setDictValue(fileid.toString());
+            data.setDictType("合同类型");
+            List<SysDictData> list = dictDataService.selectDictDataList(data);
+
+            String resource = request.getSession().getServletContext().getRealPath("/doc/Contract/Template/");
+
+            logger.debug("resource is " + resource);
+
+            resource = "Contract/Template/";
+            String filename = "";
+            for (SysDictData contractData : list) {
+                filename = contractData.getDictLabel()+".doc";
+            }
+            resource = resource + filename;
+
+            // 本地资源路径
+            String localPath = RuoYiConfig.getDownloadPath();
+            logger.debug("localPath is " + localPath);
+
+            resource = localPath + resource;
+
+            if (!FileUtils.checkAllowDownload(resource) || !FileUtils.getFile(resource).exists())
+            {
+                throw new Exception(StringUtils.format("合同文件模板({})非法，不允许下载或不存在。 ", resource));
+            }
+
+            // 数据库资源地址
+            String downloadPath = resource;
+            logger.debug("downloadPath is " + downloadPath);
+
+            File f = FileUtils.getFile(downloadPath);
+
+            //File f = new File(downloadPath);
+            if(f.exists() && !f.isDirectory()) {
+                logger.debug("downloadPath file is existed. " + downloadPath);
+            }
+            else {
+                logger.debug("downloadPath file is not  existed. " + downloadPath);
+            }
+
+            String path = downloadPath;
+            // 下载名称
+            String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
+            logger.debug("downloadName is " + downloadName);
+
+
+            try {
+                String buffer = "";
+
+                if (path.endsWith(".doc")){
+                    InputStream is = new FileInputStream(new File(path));
+                    HWPFDocument document = new HWPFDocument(is);
+                    Bookmarks bookmarks =  document.getBookmarks();
+
+                    for (Integer i = 0; i < bookmarks.getBookmarksCount(); i++) {
+                       Bookmark bookmark =  bookmarks.getBookmark(i);
+                       if (bookmark.getName().equals("title")) {
+
+                        }
+
+                       logger.debug("bookmark name is " + bookmark.getName());
+                    }
+
+                    Range range = document.getRange();
+
+                    range.replaceText("${title}","标题测试");
+
+                    response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                    FileUtils.setAttachmentResponseHeader(response, downloadName);
+                    document.write(response.getOutputStream());
+
+                    logger.debug("此文件 bookmarks count = " + bookmarks.getBookmarksCount());
+
+                }else if (path.endsWith(".docx")){
+                    FileInputStream fs = new FileInputStream(new File(path));
+                    XWPFDocument xdoc = new XWPFDocument(fs);
+                    XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
+                    buffer = extractor.getText();
+                } else {
+                    logger.debug("此文件不是word文件！" + downloadPath);
+                }
+            }
+            catch (Exception e) {
+                logger.error("读取文件标签失败", e);
+            }
+
+
+
+            //response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            //FileUtils.setAttachmentResponseHeader(response, downloadName);
+            //FileUtils.writeBytes(downloadPath, response.getOutputStream());
+        }
+        catch (Exception e)
+        {
+            logger.error("下载文件失败", e);
         }
     }
 
