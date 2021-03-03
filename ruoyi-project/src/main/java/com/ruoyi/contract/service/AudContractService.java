@@ -16,10 +16,13 @@ import com.ruoyi.common.utils.SMSSender.Juhe;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.push.PushMessageToApp;
 import com.ruoyi.contract.domain.AudContract;
+import com.ruoyi.contract.domain.AudContractdoc;
 import com.ruoyi.contract.domain.AudContractpay;
 import com.ruoyi.contract.mapper.AudContractMapper;
+import com.ruoyi.contract.mapper.AudContractdocMapper;
 import com.ruoyi.contract.mapper.AudContractpayMapper;
 import com.ruoyi.project.domain.DocFile;
+import com.ruoyi.project.mapper.AudProjectMapper;
 import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.mapper.*;
@@ -52,6 +55,9 @@ public class AudContractService {
     AudContractpayMapper audContractpayMapper;
 
     @Resource
+    AudProjectMapper projectMapper;
+
+    @Resource
     AudBudgetpayMapper audBudgetpayMapper;
 
 
@@ -79,6 +85,9 @@ public class AudContractService {
     @Resource
     private BasDocMapper basDocMapper;
 
+    @Resource
+    private AudContractdocMapper contractdocMapper;
+
 
     public List<AudContract> selectContractTijiaoren(AudContract sheet) {
 
@@ -88,11 +97,22 @@ public class AudContractService {
             AudContractpay record = new AudContractpay();
             record.setContractid(contract.getContractid());
             contract.setContractpayList(audContractpayMapper.selectContractPay(record));
+            contract.setProjectinfo(projectMapper.selectProjectById(contract.getProjectid()));
+            contract.setSupplierinfo(supplierinfoMapper.selectSupplierInfoById(contract.getSupplierid()));
         }
 
         log.debug("request sheetList list is " + sheetList.toString());
 
         return sheetList;
+    }
+
+
+    public AudContract selectContractById(Integer contractid) {
+
+        AudContract contract = audContractMapper.selectContractById(contractid);
+        contract.setProjectinfo(projectMapper.selectProjectById(contract.getProjectid()));
+        contract.setSupplierinfo(supplierinfoMapper.selectSupplierInfoById(contract.getSupplierid()));
+        return contract;
     }
 
     @Transactional
@@ -141,6 +161,21 @@ public class AudContractService {
 
         return result;
     }
+
+    @Transactional
+    public Integer mergeContractDoc(Integer contractid, BasDoc doc) {
+
+        Integer docid = basDocMapper.insertBasDoc(doc);
+
+        AudContractdoc record = new AudContractdoc();
+        record.setContractid(contractid);
+        record.setDocid(docid);
+        record.setIfdeleted(0);
+
+        contractdocMapper.insertAudContractdoc(record);
+
+        return  docid;
+    }
 //
 //    public List<AudContract> selectSheetTijiaorenByUserid(Integer uid) {
 //
@@ -151,12 +186,7 @@ public class AudContractService {
 //        return sheetList;
 //    }
 //
-//    public AudContract selectSheetTijiaorenById(Integer sheetid) {
-//
-//        AudContract sheet = audContractMapper.selectSheetById(sheetid);
-//
-//        return sheet;
-//    }
+
 //
 //
 //    public List<AudBudgetpay> selectSheetBudgetPayById(Integer sheetid) {

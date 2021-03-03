@@ -23,8 +23,11 @@ import com.ruoyi.contract.domain.AudContract;
 import com.ruoyi.contract.service.AudContractService;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.project.domain.AudProject;
+import com.ruoyi.project.service.AudProjectService;
 import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.system.service.ISysDictDataService;
+import io.swagger.models.auth.In;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Bookmark;
@@ -46,14 +49,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/contract")
 public class AudContractController extends BaseController {
     @Resource
     private AudContractService contractService;
-
 
     @Resource
     private AppClientinfoService clientinfoService;
@@ -171,7 +175,7 @@ public class AudContractController extends BaseController {
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "文件上传", businessType = BusinessType.UPDATE)
     @PostMapping("/contractdoc/upload")
-    public AjaxResult upload(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) throws IOException {
+    public AjaxResult upload(@RequestParam("file") MultipartFile file, @RequestParam("contractid") Integer contractid, @RequestParam("name") String name) throws IOException {
         logger.debug("file getOriginalFilename is " + file.getOriginalFilename() + " name is " + name);
         try {
             String originalFilename = file.getOriginalFilename();
@@ -183,7 +187,7 @@ public class AudContractController extends BaseController {
 
             filePath = filePath + "/" + yyyymm + "/" + ddHHmmss;
 
-            // 上传并返回新文件名称
+            // 上传完成 并返回新文件名称
             String fileName = FileUploadUtils.uploadOriginalFile(filePath, file);
             String url = serverConfig.getUrl() + fileName;
 
@@ -203,11 +207,7 @@ public class AudContractController extends BaseController {
             logger.debug("attachToType is " + "合同文本，这个字段 不用来关联，有单独的关联表");
             logger.debug("docType is " + docType);
 
-            //
-
-            Integer docid = basDocService.insertBasDoc(doc);
-
-
+            Integer docid = contractService.mergeContractDoc(contractid, doc);
 
             AjaxResult ajax = AjaxResult.success();
             ajax.put("name", originalFilename);
@@ -226,24 +226,31 @@ public class AudContractController extends BaseController {
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "模板文件下载", businessType = BusinessType.EXPORT)
     @GetMapping("/template/download")
-    public void download(@RequestParam("file") Integer fileid, HttpServletResponse response, HttpServletRequest request) throws IOException
+    public void download(@RequestParam("contractid") Integer contractid, HttpServletResponse response, HttpServletRequest request) throws IOException
     {
         try
         {
-            SysDictData data = new SysDictData();
-            data.setDictValue(fileid.toString());
-            data.setDictType("合同类型");
-            List<SysDictData> list = dictDataService.selectDictDataList(data);
+            String filename = "";
+
+            AudContract contract = contractService.selectContractById(contractid);
+
+            filename = contract.getContracttypelinktext();
+
+//            SysDictData data = new SysDictData();
+//            data.setDictValue(fileid.toString());
+//            data.setDictType("合同类型");
+//            List<SysDictData> list = dictDataService.selectDictDataList(data);
+//            for (SysDictData contractData : list) {
+//                filename = contractData.getDictLabel()+".doc";
+//            }
 
             String resource = request.getSession().getServletContext().getRealPath("/doc/Contract/Template/");
 
             logger.debug("resource is " + resource);
 
             resource = "Contract/Template/";
-            String filename = "";
-            for (SysDictData contractData : list) {
-                filename = contractData.getDictLabel()+".doc";
-            }
+
+            filename = filename + ".doc";
             resource = resource + filename;
 
             // 本地资源路径
@@ -282,27 +289,57 @@ public class AudContractController extends BaseController {
 
                 if (path.endsWith(".doc")){
                     InputStream is = new FileInputStream(new File(path));
+
                     HWPFDocument document = new HWPFDocument(is);
-                    Bookmarks bookmarks =  document.getBookmarks();
 
-                    for (Integer i = 0; i < bookmarks.getBookmarksCount(); i++) {
-                       Bookmark bookmark =  bookmarks.getBookmark(i);
-                       if (bookmark.getName().equals("title")) {
+                    for (Integer i = 0; i < document.getBookmarks().getBookmarksCount(); i++) {
+                       Bookmark bookmark =  document.getBookmarks().getBookmark(i);
 
-                        }
+                        logger.debug("书签" + (i+1) + "的名称是：" + bookmark.getName());
+                        logger.debug("开始位置：" + bookmark.getStart());
+                        logger.debug("结束位置：" + bookmark.getEnd());
 
-                       logger.debug("bookmark name is " + bookmark.getName());
                     }
 
-                    Range range = document.getRange();
+                    Map<String,String> dataMap = new HashMap<String,String >();
+                    dataMap.put("title", contract.getContractname());
 
-                    range.replaceText("${title}","标题测试");
+                    if (contract.getContractcode() != null) {
+                        dataMap.put("contractcode", contract.getContractcode());
+                    }
+                    else {
+                        dataMap.put("contractcode", "");
+                    }
+
+                    dataMap.put("suppliername_cover", contract.getSupplieridlinktext());
+                    dataMap.put("projecttype", contract.getProjectinfo().getProjectTypeLinkText());
+                    dataMap.put("projectname", contract.getProjectinfo().getProjectname());
+                    dataMap.put("suppliername_mudi", contract.getSupplierinfo().getSuppliername());
+                    dataMap.put("suppliername_qianyan", contract.getSupplierinfo().getSuppliername());
+                    dataMap.put("suppliername_gaizhang", contract.getSupplierinfo().getSuppliername());
+                    dataMap.put("bankname", contract.getSupplierinfo().getBankname());
+                    dataMap.put("banknumber", contract.getSupplierinfo().getBanknumber());
+
+                    logger.debug("dataMap is " + dataMap.toString());
+
+                    for (String  key : dataMap.keySet()) {
+                        for(int i = 0; i < document.getBookmarks().getBookmarksCount(); i++){
+                            Bookmark bookmark = document.getBookmarks().getBookmark(i);
+                             if(bookmark.getName().equals(key)){
+                                logger.debug("替代书签" + (i+1) + "的名称 key 是：" + bookmark.getName());
+                                Range range = new Range(bookmark.getStart(),bookmark.getEnd(),document);
+                                range.insertBefore(dataMap.get(key));
+                                //range.insertAfter(dataMap.get(key));
+                                break;
+                            }
+                        }
+                    }
 
                     response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-                    FileUtils.setAttachmentResponseHeader(response, downloadName);
+                     FileUtils.setAttachmentResponseHeader(response, contract.getContractname());
                     document.write(response.getOutputStream());
 
-                    logger.debug("此文件 bookmarks count = " + bookmarks.getBookmarksCount());
+                    logger.debug("此文件 bookmarks count = " + document.getBookmarks().getBookmarksCount());
 
                 }else if (path.endsWith(".docx")){
                     FileInputStream fs = new FileInputStream(new File(path));

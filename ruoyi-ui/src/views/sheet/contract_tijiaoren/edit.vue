@@ -225,11 +225,13 @@
 
       <el-row>
         <el-col :span="24" align="center">
+          <el-button v-if="hidden.submitBtn === false" type="success" @click="submitForm">提交审批</el-button>
           <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">保存合同信息</el-button>
           <el-button v-if="hidden.confirmBtn === false" type="success" @click="confirmForm">确定审批</el-button>
-          <el-button v-if="hidden.submitBtn === false" type="success" @click="submitForm">提交审核</el-button>
-          <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改后提交</el-button>
           <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除</el-button>
+
+          <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改后提交</el-button>
+          <el-button v-if="hidden.printBtn === false" type="primary" @click="printContractdoc">打印合同正文</el-button>
 
           <el-button @click="closeForm">取 消</el-button>
         </el-col>
@@ -508,6 +510,7 @@ export default {
         changeAcceptanceBtn: true,
         returnBtn: true,
         confirmBtn: true,
+        printBtn: true,
         addAcceptanceBtn: true
       };
     },
@@ -919,17 +922,23 @@ export default {
     // 上传 合同文本。
 
     requestUploadDoc: function (params) {
+
+      if (this.form.contractid === undefined) {
+
+        return this.$confirm(`合同没有保存？`);
+      }
       let file = params.file;
-      console.log(file);
+      console.log(file, " contractid is ", this.form.contractid);
       let formData = new FormData();
       formData.append('file', file);
       formData.append("name", "wenjianmingch");
       formData.append("attachToType", "协作单位");
       formData.append("docType", "其它附件");
+      formData.append("contractid", this.form.contractid);
       uploadFile(formData).then(response => {
         console.log("response.name is ", response.name);
         console.log("response.url is ", response.url);
-        this.otherfileList.push({name: response.name, url: response.url});
+        this.contractdocList.push({name: response.name, url: response.url});
       });
     },
 
@@ -949,6 +958,11 @@ export default {
     },
 
     beforeUploadDoc(file) {
+      if (this.form.contractid === undefined) {
+        this.msgError("合同还没有保存");
+        return  false;
+      }
+
       let x = true;
       console.log("fileList is ", this.contractdocList);
       for (let i = 0; i < this.contractdocList.length; i++) {
@@ -965,10 +979,10 @@ export default {
 
     downloadContractdocTemplate() {
 
-      console.log("this.form.contracttype is ", this.form.contracttype);
-      let fileid = this.form.contracttype;
-      if (fileid.length > 0) {
-        downloadTemplateDoc({"file": fileid}).then(response => {
+      console.log("this.form.contractid is ", this.form.contractid);
+      let contractid = this.form.contractid;
+      if (contractid !== undefined) {
+        downloadTemplateDoc({"contractid": contractid}).then(response => {
 
           console.log("response is ", response);
 
@@ -976,7 +990,7 @@ export default {
           var fileLink = document.createElement('a');
 
           fileLink.href = fileURL;
-          fileLink.setAttribute('download', this.form.contracttypelinktext+".doc");
+          fileLink.setAttribute('download', this.form.contractname+".doc");
           document.body.appendChild(fileLink);
 
           fileLink.click();
@@ -1171,9 +1185,10 @@ export default {
           });
         }
       }
+    },
 
-
-
+    printContractdoc() {
+      this.msgError("开发中，打印合同正文。");
     },
 
     /* 主持的项目 子 form */
