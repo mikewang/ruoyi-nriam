@@ -4,17 +4,79 @@
   <resultMap id="BaseResultMap" type="com.ruoyi.contract.domain.AudContractdoc">
     <result column="ContractID" jdbcType="INTEGER" property="contractid" />
     <result column="DocID" jdbcType="INTEGER" property="docid" />
+    <result column="DocType" jdbcType="VARCHAR" property="doctype" />
     <result column="IfDeleted" jdbcType="INTEGER" property="ifdeleted" />
+    <result column="DocName" jdbcType="VARCHAR" property="docname" />
+    <result column="RelativePath" jdbcType="VARCHAR" property="relativepath" />
   </resultMap>
-  <insert id="insertAudContractdoc" parameterType="com.ruoyi.contract.domain.AudContractdoc">
-    insert into Aud_ContractDoc (ContractID, DocID, IfDeleted
-      )
-    values (#{contractid,jdbcType=INTEGER}, #{docid,jdbcType=INTEGER}, #{ifdeleted,jdbcType=INTEGER}
-      )
-  </insert>
-  <select id="selectAudContractdoc" parameterType="com.ruoyi.contract.domain.AudContractdoc" resultMap="BaseResultMap">
-    select ContractID, DocID, IfDeleted
-    from Aud_ContractDoc
-    where  ContractID = #{contractid,jdbcType=INTEGER}
+
+  <sql id="selectAudContractDoc">
+    SELECT a.ContractID      ,a.DocID      ,b.DocType      ,a.IfDeleted, b.DocName,b.RelativePath
+    FROM Aud_ContractDoc a join BAS_Doc b on a.DocID = b.DocID
+    where a.IfDeleted=0
+  </sql>
+
+
+  <select id="selectAudContractdocList" parameterType="com.ruoyi.contract.domain.AudContractdoc" resultMap="BaseResultMap">
+    <include refid="selectAudContractDoc"/>
+
+    <if test="doctype != null and doctype != '' ">
+      and  a.DocType = #{doctype,jdbcType=VARCHAR}
+    </if>
+    <if test="contractid != null and contractid != 0 ">
+      and a.contractid = #{contractid, jdbcType=INTEGER}
+    </if>
+
   </select>
+
+  <insert id="insertAudContractdoc" parameterType="com.ruoyi.contract.domain.AudContractdoc">
+    insert into Aud_ContractDoc (ContractID, DocID, IfDeleted)
+    values (#{contractid,jdbcType=INTEGER}, #{docid,jdbcType=INTEGER}, #{ifdeleted,jdbcType=INTEGER})
+  </insert>
+
+  <update id="deleteAudContractdoc" parameterType="com.ruoyi.contract.domain.AudContractdoc">
+    update  Aud_ContractDoc
+    set IfDeleted =1
+    where IfDeleted =0
+    <if test="docid != null and docid != 0 ">
+      and  DocID = #{docid,jdbcType=INTEGER}
+    </if>
+    <if test="contractid != null and contractid != 0 ">
+      and contractid = #{contractid, jdbcType=INTEGER}
+    </if>
+  </update>
+
+  <insert id="mergeAudContractdoc" parameterType="List">
+
+    merge into Aud_ContractDoc as t
+    using (
+    <foreach item="item" index="index" collection="list" open="(" separator=" union all " close=")">
+      select #{item.contractid, jdbcType=INTEGER} as contractid,#{item.docid,jdbcType=INTEGER} as DocID, 0 as IfDeleted
+    </foreach>
+    ) as s
+    on  t.contractid = s.contractid and t.DocID = s.DocID  and t.IfDeleted=0
+    when not matched
+    then insert values(s.contractid , s.DocID, 0);
+
+  </insert>
+
+  <insert id="sourceMergeAudContractdoc" parameterType="List">
+    update  Aud_ContractDoc set IfDeleted =1
+    where IfDeleted =0
+    and exists(select 1 from
+    (
+    <foreach item="item" index="index" collection="list" open="(" separator=" union all " close=")">
+      select #{item.contractid,jdbcType=INTEGER} as contractid,#{item.docid,jdbcType=INTEGER} as DocID, 0 as IfDeleted
+    </foreach>
+    ) as s where s.contractid = Aud_ContractDoc.contractid)
+    and not exists(select 1 from
+    (
+    <foreach item="item" index="index" collection="list" open="(" separator=" union all " close=")">
+      select #{item.contractid,jdbcType=INTEGER} as contractid,#{item.docid,jdbcType=INTEGER} as DocID, 0 as IfDeleted
+    </foreach>
+    ) as s where s.contractid = Aud_ContractDoc.contractid and s.DocID = Aud_ContractDoc.DocID);
+
+  </insert>
+
+
 </mapper>

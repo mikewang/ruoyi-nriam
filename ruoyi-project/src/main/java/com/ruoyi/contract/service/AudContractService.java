@@ -50,9 +50,12 @@ public class AudContractService {
     @Resource
     AudContractMapper audContractMapper;
 
-
     @Resource
     AudContractpayMapper audContractpayMapper;
+
+    @Resource
+    AudContractdocMapper audContractdocMapper;
+
 
     @Resource
     AudProjectMapper projectMapper;
@@ -94,11 +97,17 @@ public class AudContractService {
         List<AudContract> sheetList = audContractMapper.selectContractTijiaoren(sheet);
 
         for (AudContract contract : sheetList) {
-            AudContractpay record = new AudContractpay();
-            record.setContractid(contract.getContractid());
-            contract.setContractpayList(audContractpayMapper.selectContractPay(record));
-            contract.setProjectinfo(projectMapper.selectProjectById(contract.getProjectid()));
-            contract.setSupplierinfo(supplierinfoMapper.selectSupplierInfoById(contract.getSupplierid()));
+//            AudContractpay record = new AudContractpay();
+//            record.setContractid(contract.getContractid());
+//            contract.setContractpayList(audContractpayMapper.selectContractPay(record));
+//
+//            AudContractdoc doc = new AudContractdoc();
+//            record.setContractid(doc.getContractid());
+//            List<AudContractdoc> contractdocList = contractdocMapper.selectAudContractdocList(doc);
+//            contract.setContractdocList(contractdocList);
+//
+//            contract.setProjectinfo(projectMapper.selectProjectById(contract.getProjectid()));
+//            contract.setSupplierinfo(supplierinfoMapper.selectSupplierInfoById(contract.getSupplierid()));
         }
 
         log.debug("request sheetList list is " + sheetList.toString());
@@ -107,9 +116,32 @@ public class AudContractService {
     }
 
 
+    public List<AudContract> selectContractXiangmu(AudContract sheet) {
+
+        List<AudContract> sheetList = audContractMapper.selectContractXiangmu(sheet);
+
+
+        log.debug("request sheetList list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+
+
     public AudContract selectContractById(Integer contractid) {
 
         AudContract contract = audContractMapper.selectContractById(contractid);
+
+        AudContractpay record = new AudContractpay();
+        record.setContractid(contractid);
+        List<AudContractpay> contractpayList = audContractpayMapper.selectContractPay(record);
+        contract.setContractpayList(contractpayList);
+
+        AudContractdoc doc = new AudContractdoc();
+        record.setContractid(doc.getContractid());
+        List<AudContractdoc> contractdocList = contractdocMapper.selectAudContractdocList(doc);
+        contract.setContractdocList(contractdocList);
+
         contract.setProjectinfo(projectMapper.selectProjectById(contract.getProjectid()));
         contract.setSupplierinfo(supplierinfoMapper.selectSupplierInfoById(contract.getSupplierid()));
         return contract;
@@ -159,23 +191,157 @@ public class AudContractService {
             audContractpayMapper.insertContractPay(contractpay);
         }
 
+       // log.debug("contract is " + contract.toString());
+
+        if (contract.getContractdocList() != null && contract.getContractdocList().size() > 0) {
+
+            List<AudContractdoc> docList = contract.getContractdocList();
+
+            for (AudContractdoc doc : docList) {
+                doc.setContractid(contract.getContractid());
+            }
+            log.debug("getContractdocList is " +docList.toString());
+
+            audContractdocMapper.mergeAudContractdoc(docList);
+            audContractdocMapper.sourceMergeAudContractdoc(docList);
+        }
+        else {
+            AudContractdoc doc = new AudContractdoc();
+            doc.setContractid(contractid);
+            audContractdocMapper.deleteAudContractdoc(doc);
+        }
+
         return result;
     }
 
     @Transactional
     public Integer mergeContractDoc(Integer contractid, BasDoc doc) {
 
-        Integer docid = basDocMapper.insertBasDoc(doc);
+        Integer result = basDocMapper.insertBasDoc(doc);
+
+        log.debug("mergeContractDoc docid is " + doc.getDocid().toString());
 
         AudContractdoc record = new AudContractdoc();
         record.setContractid(contractid);
-        record.setDocid(docid);
+        record.setDocid(doc.getDocid());
         record.setIfdeleted(0);
 
         contractdocMapper.insertAudContractdoc(record);
 
-        return  docid;
+        return  doc.getDocid();
     }
+
+
+    public List<AudContractdoc> selectAudContractdocList(AudContractdoc sheet) {
+
+        List<AudContractdoc> sheetList = contractdocMapper.selectAudContractdocList(sheet);
+
+        log.debug("request sheetList list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+
+
+    @Transactional
+    public Integer updateAudContractStatus(AudContract contract) {
+        Integer result = 0;
+
+        if (contract.getSheetstatus().equals(SheetStatus.XiangMuShenPi.getCode())) {
+
+//            //记录系统日志
+//            SystemLog slog = new SystemLog();
+//            slog.LogType = (int)Entity.Enums.LogType.tijiaoshenpi;
+//            slog.LogUserID = int.Parse(Session["CurrentUserID"].ToString().ToString());
+//            slog.LogTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//            slog.LogContent = "提交了合同：" + txt_ContractName.Text + "。编号为：" + lab_ContractCode.Text;
+//            ISystemLogManager islm = SystemLogManager.GetInstance();
+//            islm.AddNew(slog);
+//
+//            //给相应人员发提醒消息
+//            AudMessage am = new AudMessage();
+//            am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//            am.MessageTitle = "新合同待审批";
+//            am.MessageContent = "合同：" + txt_ContractName.Text + "待审批。"
+//                    + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=3&f=todo&type=ht&kid=" + lab_ContractID.Text + "\" target=\"_self\" >查看</a> ";   //t=3表示项目负责人审批
+//            //查询消息要发送给哪个人员
+//            //发送给项目的负责人
+//            am.ToUserID = int.Parse(lab_PMUserID.Text);
+//            am.RelatedSheetType = "合同";
+//            am.RelatedSheetID = int.Parse(lab_ContractID.Text);
+//            IAudMessageManager iamm = AudMessageManager.GetInstance();
+//            iamm.AddNew(am);
+//
+//            api.MsgManager.SendToAUser(am.ToUserID.ToString(), am.MessageTitle,
+//                    "新合同：" + txt_ContractName.Text + "  待审批。");
+//
+//            //发送短信
+//            CommonFunc.SendSMS_ToAudit(am.ToUserID.ToString(),
+//                    "#type#=合同&#name#=" + txt_ContractName.Text);
+
+
+            String title = "新合同待审批";
+            String content = "合同：" + contract.getContractname() + "待审批。" + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=3&f=todo&type=ht&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";   //t=3表示项目负责人审批
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+            //查询消息要发送给哪个人员
+            //发送给合同的经办人
+            message.setTouserid(contract.getProjectinfo().getProjectmanagerid());
+            message.setRelatedsheettype("合同");
+            message.setRelatedsheetid(contract.getContractid());
+            messageMapper.insertAudMessage(message);
+
+            // 发送推送
+
+            Integer userid = message.getTouserid();
+            List<AppClientinfo>  clientList =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+            for (AppClientinfo client : clientList) {
+                String clientId = client.getClientid();
+                String msgTitle = "新合同待审批";
+                String msgBody = "新合同：" + contract.getContractname() + "待审批。";
+                // 暂时 关闭，调试中。
+                PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
+            }
+
+
+            //发送短信
+
+            // 获取 短信服务器的密钥信息
+            String url = "";
+            String key = "";
+
+            List<SysDictData> dictList =  dictDataMapper.selectDictDataByType("短信服务商");
+            for (SysDictData dict : dictList) {
+                if (dict.getDictLabel().equals("key")) {
+                    key = dict.getDictValue();
+                }
+                if (dict.getDictLabel().equals("url")) {
+                    url = dict.getDictValue();
+                }
+            }
+            if (url.length() > 0) {
+                log.debug("发送短息开始，" + url + " key: " + key);
+                String msg = "#type#=合同&#name#=" + contract.getContractname();
+                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+            }
+            else {
+                log.debug("发送短息失败， 密钥为空");
+            }
+
+            result = audContractMapper.updateAudContractStatus(contract);
+
+        }
+        else {
+            result = audContractMapper.updateAudContractStatus(contract);
+
+        }
+
+
+        return  result;
+    }
+
 //
 //    public List<AudContract> selectSheetTijiaorenByUserid(Integer uid) {
 //

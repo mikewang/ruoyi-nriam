@@ -27,7 +27,6 @@ public class AudProjectdoc extends BasDoc {
 
     @Override
     public void setDocid(Integer docid) {
-        super.setDocid(docid);
         this.docid = docid;
     }
 

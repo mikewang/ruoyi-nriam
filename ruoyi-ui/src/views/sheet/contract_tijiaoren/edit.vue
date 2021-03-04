@@ -178,12 +178,12 @@
         </template>
 
         <template>
-          <el-row v-bind:hidden="false">
+          <el-row v-bind:hidden="form.contractid === undefined">
             <el-col :span="16">
-              <el-form-item label="上传合同正文" prop="contractdocList">
+              <el-form-item label="上传合同正文" prop="contractuploadfileList">
                 <el-upload action="#" :http-request="requestUploadDoc" :before-remove="beforeRemoveDoc"
                            :on-remove="handleUploadRemoveDoc" :on-preview="handleReviewDoc"
-                           :file-list="contractdocList" :before-upload="beforeUploadDoc"
+                           :file-list="contractuploadfileList" :before-upload="beforeUploadDoc"
                 >
                   <el-button size="small" >上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
@@ -225,7 +225,7 @@
 
       <el-row>
         <el-col :span="24" align="center">
-          <el-button v-if="hidden.submitBtn === false" type="success" @click="submitForm">提交审批</el-button>
+          <el-button v-if="hidden.submitBtn === false" type="primary" @click="submitForm">提交审批</el-button>
           <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">保存合同信息</el-button>
           <el-button v-if="hidden.confirmBtn === false" type="success" @click="confirmForm">确定审批</el-button>
           <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除</el-button>
@@ -245,16 +245,11 @@
 import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
 import {listData} from "@/api/system/dict/data";
 import {
-  addSheet,
   deleteSheet,
-  getSheet,
-  getSheetAuditRecord,
-  getSheetBudgetpay,
   getSheetBudgetpayRecord,
   getSheetSupplier,
-  updateSheet,
   confirmAuditSheet,
-  getSheetSupplierById, uploadFile
+  getSheetSupplierById
 } from "@/api/sheet/sheet";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
@@ -262,7 +257,7 @@ import {listDept} from "@/api/system/dept";
 import {listTeam} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
 
-import {addContract, updateContract, downloadTemplateDoc} from "@/api/sheet/contract"
+import {addContract, updateContract, downloadTemplateDoc, uploadFile, listContractdoc,getContract, confirmContract, deleteContract} from "@/api/sheet/contract"
 
 export default {
   name: "contract_tijiaoren_edit",
@@ -301,7 +296,7 @@ export default {
       basicfileList2: [],
       basicfileList3: [],
 
-      contractdocList: [],
+      contractuploadfileList: [],
 
       SheetStatus: {
         NoPass: 2,
@@ -321,7 +316,7 @@ export default {
       // 日期范围
       // 查询参数
       // 表单参数
-      form: {},
+      form: {projectinfo: {projectname:undefined}, supplierinfo:{suppliername:undefined}},
       timer: '',
       // 表单校验
       rules: {
@@ -395,22 +390,17 @@ export default {
       else {
         const this_ = this;
 
-        getSheet(contractid).then(response => {
+        getContract(contractid).then(response => {
 
-          console.log("getSheet response data is ", response.data);
+          console.log("getContract response data is ", response.data);
 
-          const sheet = response.data;
+          const contract = response.data;
 
-          this_.form = sheet;
-          let supplierid = this_.form.supplierid;
-          getSheetSupplierById(supplierid).then(repsonse => {
-            this_.form.supplierinfo = response.data;
+          this_.form = contract;
 
-          });
+          console.log("getContract projectid is ", contract.projectid);
 
-          console.log("getSheet sheet.projectid is ", sheet.projectid);
-
-          getProject(sheet.projectid).then(response2 => {
+          getProject(contract.projectid).then(response2 => {
             const project = response2.data;
             console.log("getProject response2 data is ", response2.data);
             this_.form.projectinfo = project;
@@ -428,45 +418,41 @@ export default {
               console.log("实施方案 is ", this_.basicfileList3);
             });
 
-            getSheetBudgetpay(sheetid).then(response3 => {
-              console.log("getSheetBudgetpay response is ", response3.data);
-              this_.form.budgetpayList = response3.data;
+            let supplierid = this_.form.supplierid;
+            console.log("this_.form.supplierid is ", supplierid);
 
-              //显示历史付款记录(列表里选择的供应商付款记录都要列出来)
+            getSheetSupplierById(supplierid).then(response => {
 
-              this_.queryRecordParams.projectid = this_.form.projectid;
+              this_.form.supplierinfo = response.data;
 
-              let ids = new Array();
-              for (let k = 0; k < this_.form.budgetpayList.length; k++) {
-                let item = this_.form.budgetpayList[k];
-                ids.push(item.supplierid);
+            });
+
+            // getSignpic(this_.form.sheetuserid).then(response => {
+            //   console.log("response is ", response);
+            //   this_.form.sheetuseridImage = response.data.signpicName;
+            // });
+
+            listContractdoc({contractid: this_.form.contractid}).then(response => {
+
+              console.log("listContractdoc is ", response.data);
+              this_.form.contractdocList = response.data;
+
+              const doclist = [];
+
+              for (let i = 0; i < this_.form.contractdocList.length; i++) {
+                let item = this_.form.contractdocList[i];
+                doclist.push({"name": item.docname, "url": item.docid});
               }
-              this_.queryRecordParams.supplieridList = ids;
 
-              console.log("getSheetBudgetpay record is ", this_.queryRecordParams);
-              this_.getSheetBudgetpayRecordList();
+              this_.contractuploadfileList = doclist;
 
+              console.log("this.form is ", this_.form);
+
+              this_.configTemplateStatus();
+
+              this_.loading = false;
             });
-
-            getSignpic(this_.form.sheetuserid).then(response => {
-              console.log("response is ", response);
-              this_.form.sheetuseridImage = response.data.signpicName;
-            });
-
-            getSheetAuditRecord({"sheettype": "拨付单", "sheetid": this_.form.sheetid}).then(response => {
-              console.log("getSheetAuditRecord response is ", response.data);
-              this_.form.sheetAuditRecordList = response.data;
-
-            });
-
-            console.log("this.form is ", this_.form);
-
-            this_.configTemplateStatus();
-
-            this_.loading = false;
-
           });
-
         });
       }
 
@@ -525,9 +511,10 @@ export default {
           this.hidden.saveBtn = false;
         }
         else if (this.opcode.indexOf("query") !== -1) {
-          this.hidden.changeBtn = false;
+          this.readonly.basic = false;
+          this.hidden.saveBtn = false;
+          this.hidden.submitBtn = false;
           this.hidden.deleteBtn = false;
-          this.hidden.acceptance = false;
         } else if (this.opcode.indexOf("confirm") !== -1) {
           this.readonly.confirm = false;
           this.hidden.confirm = false;
@@ -627,7 +614,7 @@ export default {
         contracttypelinktext: undefined,
 
         projectid: undefined, // 为了rules校验。
-        projectinfo: {projectname: undefined},
+        projectinfo: {projectid:undefined, projectname: undefined},
         supplierid: undefined,
         supplierinfo: {suppliername:undefined},
 
@@ -642,10 +629,8 @@ export default {
         sheetstatuslinktext: "新建中",
 
         projectdocList: [],
-        // 拨付的当前记录
-        budgetpayList: [],
-        // 拨付的历史记录
-        budgetpayRecordList: [],
+        contractdocList: [],
+
         sheetuseridImage: undefined,
         sheetAuditRecordList: []
 
@@ -748,7 +733,7 @@ export default {
 
       } else {
         this.form.projectid = undefined;
-        this.form.projectinfo = {projectname: undefined};
+        this.form.projectinfo = {projectid:undefined, projectname: undefined};
 
       }
     },
@@ -773,9 +758,6 @@ export default {
               let vv = project[key];
               //  console.log("project."+ key + " = " , vv);
             }
-
-            // console.log("project is ", project);
-            //  const item = {"projectid": project.projectid, "projectname": project.projectname};
             projectOptions.push(project);
           }
           this.projectOptions = projectOptions;
@@ -931,26 +913,42 @@ export default {
       console.log(file, " contractid is ", this.form.contractid);
       let formData = new FormData();
       formData.append('file', file);
-      formData.append("name", "wenjianmingch");
-      formData.append("attachToType", "协作单位");
-      formData.append("docType", "其它附件");
+      formData.append("name", "");
+      formData.append("attachToType", "");
+      formData.append("docType", "");
       formData.append("contractid", this.form.contractid);
       uploadFile(formData).then(response => {
         console.log("response.name is ", response.name);
         console.log("response.url is ", response.url);
-        this.contractdocList.push({name: response.name, url: response.url});
+        this.contractuploadfileList.push({name: response.name, url: response.url});
+
+        this.form.contractdocList.push({docid: response.url, docname: response.name});
+
+        this.hidden.submitBtn = false;
       });
     },
 
     beforeRemoveDoc(file) {
-      let index = this.contractdocList.indexOf(file);
+      let index = this.contractuploadfileList.indexOf(file);
       console.log("beforeRemove2 index=" + index, file.name);
       return true;
       //  return this.$confirm(`确定移除 ${ file.name }？`);
     },
 
     handleUploadRemoveDoc(file) {
-      // handleUploadRemove(file, this.acceptfileList10,"协作单位", this.form.projectdocList );
+
+      let today = new Date();
+
+      let docid = file.url;
+
+      let index = this.contractuploadfileList.indexOf(file);
+      if (index !== -1) {
+        this.contractuploadfileList.splice(index, 1);
+        this.form.contractdocList.splice(index,1);
+      }
+
+      console.log("handleUploadRemove index=" + index, file.name, today.toDateString());
+
     },
 
     handleReviewDoc(file) {
@@ -964,9 +962,9 @@ export default {
       }
 
       let x = true;
-      console.log("fileList is ", this.contractdocList);
-      for (let i = 0; i < this.contractdocList.length; i++) {
-        let item = this.contractdocList[i];
+      console.log("fileList is ", this.contractuploadfileList);
+      for (let i = 0; i < this.contractuploadfileList.length; i++) {
+        let item = this.contractuploadfileList[i];
         if (item.name === file.name) {
           console.log("file existed now ,", file.name);
           x = false;
@@ -1015,17 +1013,17 @@ export default {
     /** 删除按钮 */
     deleteForm() {
 
-      const sheetid = this.form.sheetid;
+      const contractid = this.form.contractid;
 
-      this.$confirm('是否确认删除"' + this.form.projectname + '"的拨付单?', "警告", {
+      this.$confirm('是否确认删除"' + this.form.contractname + '"?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deleteSheet(sheetid);
-      }).then(() => {
-        this.msgSuccess("删除成功");
-        this.closeForm();
+        deleteContract(contractid).then(response => {
+          this.msgSuccess("删除成功");
+          this.closeForm();
+        });
       });
     },
 
@@ -1037,7 +1035,7 @@ export default {
           console.log("save form is ", this.form);
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          if (this_.opcode === "add") {
+          if (this_.opcode === "add" || this_.opcode === "query" ) {
             // 处理掉添加， 为了更新或修改。
             if (this_.form.contractid === undefined) {
               addContract(this.form).then(response => {
@@ -1052,8 +1050,8 @@ export default {
                 //this.closeForm();
               });
             } else {
-              updateContract(this.form).then(result => {
-                this.msgSuccess("修改成功");
+              updateContract(this_.form).then(result => {
+                this_.msgSuccess("修改成功");
              //   this.closeForm();
               });
 
@@ -1075,32 +1073,13 @@ export default {
           console.log("submit form is ", this.form);
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          if (this_.opcode === "add") {
+          if (this_.opcode === "query" ) {
             // 处理掉添加， 为了更新或修改。
-            this_.form.budgetpayList.forEach(function (item) {
-              if (item.payid < 0) {
-                item.payid = undefined;
-              }
+
+            confirmContract(this.form).then(result => {
+              this.msgSuccess("提交审核成功");
+              this.closeForm();
             });
-
-            if (this_.form.sheetid === undefined) {
-              addSheet(this.form).then(response => {
-                if (response.data === 0) {
-                  this_.msgError("提交审核失败");
-                  this_.form.sheetid = undefined;
-                } else {
-                  this.msgSuccess("提交审核成功");
-                  this.form.sheetid = response.data;
-                }
-                this.closeForm();
-              });
-            } else {
-              updateSheet(this.form).then(result => {
-                this.msgSuccess("提交审核成功");
-                this.closeForm();
-              });
-
-            }
           }
         }
       });
@@ -1109,7 +1088,7 @@ export default {
     /** 编辑模式按钮 */
     changeForm() {
       const sheetid = this.form.sheetid;
-      this.$confirm('是否确认删除"' + this.form.projectname + '"的拨付单,并 重新生成新的拨付单?', "警告", {
+      this.$confirm('是否确认删除"' + this.form.contractname + '"的拨付单,并 重新生成新的拨付单?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"

@@ -120,6 +120,22 @@
     <include refid="selectContract"/>
     where a.ContractID = #{contractid,jdbcType=INTEGER}
   </select>
+
+<!--   SheetStatus.XiangMuShenPi getcode = 3 -->
+<!--    SheetStatus.ShenPiWanCheng 8-->
+    <select id="selectContractXiangmu" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+        <include refid="selectContract"/>
+        WHERE  a.ProjectID in (select ProjectID from Aud_Project where ProjectManagerID  = #{projectid,jdbcType=INTEGER})
+        and a.SheetStatus = 3
+        union all
+        <include refid="selectContract"/>
+        WHERE  a.ContractID in
+        (select RelatedContractID from Aud_Sheet  where SheetStatus = 3 and SheetType = '合同拨付单'
+         and ProjectID in(select ProjectID from Aud_Project where ProjectManagerID = #{projectid,jdbcType=INTEGER})
+        and a.SheetStatus = 8
+        order by a.ContractTime desc
+    </select>
+
   <select id="selectAll" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated

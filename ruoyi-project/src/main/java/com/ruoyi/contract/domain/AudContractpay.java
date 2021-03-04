@@ -12,6 +12,8 @@ public class AudContractpay {
 
     private BigDecimal percentmoney;
 
+    private String timesname;
+
     public Integer getContractid() {
         return contractid;
     }
@@ -42,6 +44,17 @@ public class AudContractpay {
 
     public void setPercentmoney(BigDecimal percentmoney) {
         this.percentmoney = percentmoney;
+    }
+
+    public String getTimesname() {
+
+        String  name = "第" + this.times.toString() + "期金额";
+
+        return name;
+    }
+
+    public void setTimesname(String timesname) {
+        this.timesname = timesname;
     }
 
     @Override

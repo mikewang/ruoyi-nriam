@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <!--查询数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="项目名称" prop="contractname">
+        <el-form-item label="合同名称" prop="contractname">
           <el-input v-model="queryParams.contractname" clearable/>
         </el-form-item>
         <el-form-item>
@@ -19,7 +19,7 @@
             icon="el-icon-plus"
             size="mini"
             @click="handleAdd"
-            v-hasPermi="['fourtech:tijiaoren:list']"
+            v-hasPermi="['contract:tijiaoren:list']"
           >新增
           </el-button>
         </el-col>
@@ -51,7 +51,7 @@
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
-              v-hasPermi="['fourtech:tijiaoren:list']"
+              v-hasPermi="['contract:tijiaoren:list']"
             >查看
             </el-button>
           </template>
@@ -161,7 +161,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.sheetid);
+      this.ids = selection.map(item => item.contractid);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
@@ -173,8 +173,7 @@ export default {
 
     handleUpdate(row) {
       console.log("update row is  ", row);
-
-      const path = '/contract/tijiaoren/' + row.sheetid;
+      const path = '/contract/tijiaoren/' + row.contractid;
       console.log("path is " + path);
       this.$router.push({path: path});
     }

@@ -36,7 +36,7 @@
   </insert>
 
 
-  <insert id="deleteProjectdoc" parameterType="com.ruoyi.project.domain.AudProjectdoc">
+  <update id="deleteProjectdoc" parameterType="com.ruoyi.project.domain.AudProjectdoc">
     update  Aud_ProjectDoc
         set IfDeleted =1
         where IfDeleted =0
@@ -46,7 +46,7 @@
     <if test="projectid != null and projectid != 0 ">
       and ProjectID = #{projectid, jdbcType=INTEGER}
     </if>
-   </insert>
+   </update>
 
   <insert id="mergeProjectdoc" parameterType="List">
 

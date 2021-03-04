@@ -20,10 +20,12 @@ import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.contract.domain.AudContract;
+import com.ruoyi.contract.domain.AudContractdoc;
 import com.ruoyi.contract.service.AudContractService;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.domain.AudProject;
+import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.project.service.AudProjectService;
 import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.system.service.ISysDictDataService;
@@ -136,22 +138,11 @@ public class AudContractController extends BaseController {
     }
 
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
-    @Log(title = "合同管理", businessType = BusinessType.INSERT)
+    @Log(title = "合同管理", businessType = BusinessType.UPDATE)
     @PutMapping("/tijiaoren")
     public AjaxResult update(@Validated @RequestBody AudContract contract) {
         AjaxResult ajax = AjaxResult.success();
-
-//        Integer userid = getCurrentLoginUserid();
-//
-//        contract.setContractuserid(userid);
-//        contract.setContracttime(DateUtils.dateTimeNow());
-//
-//        Integer status = contract.getSheetstatus();
-//        logger.debug("sheet.getSheetstatus is " + status.toString());
-//
-//        contract.setSheetstatus(SheetStatus.XinJianZhong.getCode());
-//        logger.debug("AudContract add is " + contract.toString());
-
+        logger.debug("AudContract update is " + contract.toString());
 
         contract.setOrganizationid(contract.getProjectinfo().getOrganizationid());
         contract.setDaxie(ConvertUpMoney.toChinese(contract.getContractmoney().toString()));
@@ -174,7 +165,7 @@ public class AudContractController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "文件上传", businessType = BusinessType.UPDATE)
-    @PostMapping("/contractdoc/upload")
+    @PostMapping("/doc/upload")
     public AjaxResult upload(@RequestParam("file") MultipartFile file, @RequestParam("contractid") Integer contractid, @RequestParam("name") String name) throws IOException {
         logger.debug("file getOriginalFilename is " + file.getOriginalFilename() + " name is " + name);
         try {
@@ -188,10 +179,11 @@ public class AudContractController extends BaseController {
             filePath = filePath + "/" + yyyymm + "/" + ddHHmmss;
 
             // 上传完成 并返回新文件名称
-            String fileName = FileUploadUtils.uploadOriginalFile(filePath, file);
-            String url = serverConfig.getUrl() + fileName;
+            String pathFileName = FileUploadUtils.uploadOriginalFile(filePath, file);
 
-            String docType = FileTypeUtils.getFileType(fileName);
+            String url = serverConfig.getUrl() + pathFileName;
+
+            String docType = FileTypeUtils.getFileType(pathFileName);
 
             BasDoc doc = new BasDoc();
             doc.setDocname(originalFilename);
@@ -212,7 +204,7 @@ public class AudContractController extends BaseController {
             AjaxResult ajax = AjaxResult.success();
             ajax.put("name", originalFilename);
             ajax.put("url", docid);
-            ajax.put("fileUrl", fileName);
+            ajax.put("fileUrl", pathFileName);
 
             return ajax;
         } catch (Exception e) {
@@ -244,18 +236,18 @@ public class AudContractController extends BaseController {
 //                filename = contractData.getDictLabel()+".doc";
 //            }
 
-            String resource = request.getSession().getServletContext().getRealPath("/doc/Contract/Template/");
+            //String resource = request.getSession().getServletContext().getRealPath("/doc/Contract/Template/");
 
-            logger.debug("resource is " + resource);
-
-            resource = "Contract/Template/";
-
-            filename = filename + ".doc";
-            resource = resource + filename;
+            //logger.debug("resource is " + resource);
 
             // 本地资源路径
             String localPath = RuoYiConfig.getDownloadPath();
             logger.debug("localPath is " + localPath);
+
+            String resource = "Contract/Template/";
+
+            filename = filename + ".doc";
+            resource = resource + filename;
 
             resource = localPath + resource;
 
@@ -369,23 +361,70 @@ public class AudContractController extends BaseController {
     /**
      * 根据编号获取详细信息
      */
-//    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
-//    @GetMapping(value = {"/{contractid}"})
-//    public AjaxResult getSheet(@PathVariable(value = "contractid", required = false) Integer contractid) {
-//        AjaxResult ajax = AjaxResult.success();
-//
-//        if (StringUtils.isNotNull(contractid)) {
-//            logger.debug("contractid = " + contractid.toString());
-//            AudFourtech p = contractService.selectFourtechById(contractid);
-//            if (p != null) {
-//                ajax.put(AjaxResult.DATA_TAG, p);
-//            } else {
-//                ajax = AjaxResult.error("contractid：" + contractid.toString() + " 不存在");
-//            }
-//
-//        }
-//        return ajax;
-//    }
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @GetMapping(value = {"/{contractid}"})
+    public AjaxResult getContract(@PathVariable(value = "contractid", required = false) Integer contractid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(contractid)) {
+            logger.debug("getContract contractid = " + contractid.toString());
+            AudContract p = contractService.selectContractById(contractid);
+            if (p != null) {
+                ajax.put(AjaxResult.DATA_TAG, p);
+            } else {
+                ajax = AjaxResult.error("contractid：" + contractid.toString() + " 不存在");
+            }
+
+        }
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping("/doc/list")
+    public AjaxResult doclist(AudContractdoc query) {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer contractid = query.getContractid();
+
+        if (contractid != null) {
+            List<AudContractdoc> list = contractService.selectAudContractdocList(query);
+            logger.debug("selectAudContractdocList is ", list.toString());
+            ajax.put(AjaxResult.DATA_TAG, list);
+        }
+
+        return ajax;
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @Log(title = "合同管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/confirm")
+    public AjaxResult confirm(@Validated @RequestBody AudContract contract) {
+        AjaxResult ajax = AjaxResult.success();
+        logger.debug("AudContract 提交审批 is " + contract.toString());
+
+        if (contract.getContractdocList().size() == 0) {
+
+            return AjaxResult.error(" 还没有上传合同正文，无法提交审核");
+        }
+
+        contract.setSheetstatus(SheetStatus.XiangMuShenPi.getCode());
+
+        Integer result = contractService.updateAudContractStatus(contract);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, contract.getContractid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
 
 //    /**
 //     * 根据编号,获取 明细 详细信息

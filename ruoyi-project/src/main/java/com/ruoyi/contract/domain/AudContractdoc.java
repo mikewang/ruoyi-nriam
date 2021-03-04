@@ -1,6 +1,8 @@
 package com.ruoyi.contract.domain;
 
-public class AudContractdoc {
+import com.ruoyi.common.core.domain.model.BasDoc;
+
+public class AudContractdoc extends BasDoc {
 
     private Integer contractid;
 
@@ -16,10 +18,12 @@ public class AudContractdoc {
         this.contractid = contractid;
     }
 
+    @Override
     public Integer getDocid() {
         return docid;
     }
 
+    @Override
     public void setDocid(Integer docid) {
         this.docid = docid;
     }
@@ -30,5 +34,14 @@ public class AudContractdoc {
 
     public void setIfdeleted(Integer ifdeleted) {
         this.ifdeleted = ifdeleted;
+    }
+
+    @Override
+    public String toString() {
+        return "AudContractdoc{" +
+                "contractid=" + contractid +
+                ", docid=" + docid +
+                ", ifdeleted=" + ifdeleted +
+                '}';
     }
 }
