@@ -1,6 +1,7 @@
 package com.ruoyi.contract.domain;
 
 import com.ruoyi.project.domain.AudProjectdoc;
+import com.ruoyi.sheet.domain.AudSheet;
 import com.ruoyi.sheet.domain.SrmSupplierinfo;
 import com.ruoyi.project.domain.AudProject;
 import java.math.BigDecimal;
@@ -59,6 +60,8 @@ public class AudContract {
     private SrmSupplierinfo supplierinfo;
 
     private List<AudContractdoc> contractdocList;
+
+    private List<AudSheet> paySheetList;
 
     public Integer getContractid() {
         return contractid;
@@ -292,6 +295,14 @@ public class AudContract {
         this.contractdocList = contractdocList;
     }
 
+    public List<AudSheet> getPaySheetList() {
+        return paySheetList;
+    }
+
+    public void setPaySheetList(List<AudSheet> paySheetList) {
+        this.paySheetList = paySheetList;
+    }
+
     @Override
     public String toString() {
         return "AudContract{" +
@@ -324,6 +335,7 @@ public class AudContract {
                 ", projectinfo=" + projectinfo +
                 ", supplierinfo=" + supplierinfo +
                 ", contractdocList=" + contractdocList +
+                ", paySheetList=" + paySheetList +
                 '}';
     }
 }

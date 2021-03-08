@@ -300,6 +300,21 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
+            <el-form-item label="联系人" prop="person1name">
+              <el-input v-model="budgetpayForm.person1name"   readonly/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="开户行" prop="bankname">
+              <el-input v-model="budgetpayForm.bankname"  readonly/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="银行账号" prop="banknumber">
+              <el-input v-model="budgetpayForm.banknumber"  readonly/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
             <el-form-item label="预算总拨付经费（元）" prop="zong">
               <el-input type="number" v-model="budgetpayForm.zong" placeholder="请输入"
                         v-bind:readonly="budgetpayForm.getIfFirstPayed"/>
@@ -351,7 +366,7 @@ import {
   confirmAuditSheet
 } from "@/api/sheet/sheet";
 import {handleUploadReview} from "@/api/achieve/basdoc";
-import {getSignpic} from "@/api/audit/signpic"
+import {getSignpic} from "@/api/audit/signpic";
 
 export default {
   name: "sheet_tijiaoren_edit",
@@ -850,7 +865,7 @@ export default {
       getSheetSupplier(queryParams).then(response => {
           const supplierOptions = [];
           const supplierList = response.data;
-          // console.log("response is ", response)
+          // console.log("response.data is ", response.data)
           for (let i = 0; i < supplierList.length; i++) {
             let supplier = supplierList[i];
 
@@ -860,7 +875,7 @@ export default {
               let vv = supplier[key];
             }
 
-            // console.log("supplier is ", supplier);
+            console.log("supplier is ", supplier);
             supplierOptions.push(supplier);
           }
           this.supplierOptions = supplierOptions;
@@ -880,6 +895,9 @@ export default {
           let supplier = this.supplierOptions[i];
           if (supplier.supplierid === value) {
             this.budgetpayForm.suppliername = supplier.suppliername;
+            this.budgetpayForm.person1name = supplier.person1name;
+            this.budgetpayForm.bankname = supplier.bankname;
+            this.budgetpayForm.banknumber = supplier.banknumber;
             let queryParams = {
               pageNum: 1,
               pageSize: 10,
@@ -892,6 +910,9 @@ export default {
                 payid: undefined,
                 supplierid: value,
                 suppliername: supplier.suppliername,
+                person1name : supplier.person1name,
+                bankname : supplier.bankname,
+                banknumber : supplier.banknumber,
                 zong: 0.0,
                 xiaoji: 0.0,
                 yiqian: 0.0,

@@ -10,6 +10,14 @@ export function listTijiaorenContract(query) {
   })
 }
 
+export function listXiangmuContract(query) {
+  return request({
+    url: '/contract/xiangmu/list',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询合同，之 提交人。
 export function getContract(contractid) {
   return request({
@@ -81,5 +89,13 @@ export function deleteContract(contractid) {
   return request({
     url: '/contract/' + praseStrEmpty(contractid),
     method: 'delete'
+  })
+}
+
+// 查询合同，之 提交人。
+export function getContractPaysheet(contractid) {
+  return request({
+    url: '/contract/paysheet/' + praseStrEmpty(contractid),
+    method: 'get'
   })
 }

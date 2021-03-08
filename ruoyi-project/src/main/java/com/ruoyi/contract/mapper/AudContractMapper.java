@@ -15,6 +15,8 @@ public interface AudContractMapper {
 
     int updateAudContractStatus(AudContract record);
 
+    int updateAudContractFirstPayTime(AudContract record);
+
     AudContract selectContractById(Integer contractid);
 
     List<AudContract> selectContractXiangmu(AudContract record);

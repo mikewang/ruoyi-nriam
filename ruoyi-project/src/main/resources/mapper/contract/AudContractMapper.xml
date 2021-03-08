@@ -102,10 +102,14 @@
         ProjectID = #{projectid,jdbcType=INTEGER},
         OrganizationID = #{organizationid,jdbcType=INTEGER},
         ContractMoney = #{contractmoney,jdbcType=DECIMAL},
-        daxie = #{daxie,jdbcType=VARCHAR},
+      <if test="daxie != null ">
+          daxie = #{daxie,jdbcType=VARCHAR},
+      </if>
         SupplierID = #{supplierid,jdbcType=INTEGER},
         PayTotalTimes = #{paytotaltimes,jdbcType=INTEGER},
-        PayedTimes = #{payedtimes,jdbcType=INTEGER},
+      <if test="payedtimes != null ">
+          PayedTimes = #{payedtimes,jdbcType=INTEGER},
+      </if>
         Reason = #{reason,jdbcType=VARCHAR}
     where ContractID = #{contractid,jdbcType=INTEGER}
   </update>
@@ -116,6 +120,13 @@
     where ContractID = #{contractid,jdbcType=INTEGER}
   </update>
 
+<!--    合同的第一个拨付单付款-->
+    <update id="updateAudContractFirstPayTime" parameterType="com.ruoyi.contract.domain.AudContract">
+        update Aud_Contract
+        set  FirstPayTime = #{firstpaytime,jdbcType=VARCHAR}
+        where ContractID = #{contractid,jdbcType=INTEGER}
+    </update>
+
   <select id="selectContractById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <include refid="selectContract"/>
     where a.ContractID = #{contractid,jdbcType=INTEGER}
@@ -123,16 +134,17 @@
 
 <!--   SheetStatus.XiangMuShenPi getcode = 3 -->
 <!--    SheetStatus.ShenPiWanCheng 8-->
+
     <select id="selectContractXiangmu" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
         <include refid="selectContract"/>
-        WHERE  a.ProjectID in (select ProjectID from Aud_Project where ProjectManagerID  = #{projectid,jdbcType=INTEGER})
-        and a.SheetStatus = 3
-        union all
-        <include refid="selectContract"/>
-        WHERE  a.ContractID in
-        (select RelatedContractID from Aud_Sheet  where SheetStatus = 3 and SheetType = '合同拨付单'
-         and ProjectID in(select ProjectID from Aud_Project where ProjectManagerID = #{projectid,jdbcType=INTEGER})
+        WHERE  (a.ProjectID in (select ProjectID from Aud_Project where ProjectManagerID  = #{contractuserid,jdbcType=INTEGER})
+        and a.SheetStatus = 3 )
+        or (
+        a.ContractID in
+        (select RelatedContractID from Aud_Sheet where SheetStatus = 3 and SheetType = '合同拨付单'
+        and ProjectID in(select ProjectID from Aud_Project where ProjectManagerID = #{contractuserid,jdbcType=INTEGER})
         and a.SheetStatus = 8
+        ) )
         order by a.ContractTime desc
     </select>
 

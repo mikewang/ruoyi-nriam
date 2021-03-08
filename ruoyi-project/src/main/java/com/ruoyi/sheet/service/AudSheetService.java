@@ -91,6 +91,7 @@ public class AudSheetService {
         return sheetList;
     }
 
+
     public AudSheet selectSheetTijiaorenById(Integer sheetid) {
 
         AudSheet sheet = audSheetMapper.selectSheetById(sheetid);
@@ -161,6 +162,9 @@ public class AudSheetService {
 //            curCode = "BFD" + DateTime.Now.ToString("yyyyMMdd") + newSerialNumber.ToString("000");
 //            newEntity.SheetCode = curCode;
 //        }
+
+
+
 
             BasUsedmaxserialnumber query = new BasUsedmaxserialnumber();
             query.setModulename("拨付单号");
@@ -321,7 +325,6 @@ public class AudSheetService {
             if (dict.getDictLabel().equals("url")) {
                 url = dict.getDictValue();
             }
-
         }
 
 

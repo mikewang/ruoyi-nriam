@@ -54,9 +54,48 @@
               v-hasPermi="['contract:tijiaoren:list']"
             >查看
             </el-button>
+            <el-button  v-if="scope.row.a_ApplyDelete"
+              size="mini"
+              type="text"
+              icon="el-icon-remove"
+              @click="handleUpdate(scope.row)"
+              v-hasPermi="['contract:tijiaoren:list']"
+            >申请删除
+            </el-button>
           </template>
         </el-table-column>
-        <el-table-column label="拨付单" align="center" prop="sheetstatuslinktext" width="100">
+        <el-table-column label="拨付单" align="center" prop="sheetstatus" width="100">
+          <template slot-scope="scope">
+
+            <span v-for="item in scope.row.paySheetItems">
+              <span v-if="item.lab_yishen_visible">{{item.lab_yishen_text}}</span>
+            <el-button v-if="item.lbtn_daishen_visible"
+              size="mini"
+              type="text"
+              icon="el-icon-edit"
+              @click="handleUpdate(scope.row)"
+            >{{item.lbtn_daishen_text}}
+            </el-button>
+            </span>
+            <br/>
+            <span>
+              <el-button v-if="scope.row.btn_pay_visible"
+                                     size="mini"
+                                     type="text"
+                                     icon="el-icon-edit"
+                                     @click="handleUpdate(scope.row)"
+                          >继续付款
+            </el-button>
+              <span v-if="scope.row.lab_paycomplete_visible">付款完成</span>
+              <el-button v-if="scope.row.lbtn_firstpay_visible"
+                         size="mini"
+                         type="text"
+                         icon="el-icon-edit"
+                         @click="handleUpdate(scope.row)"
+              >第1单付款
+            </el-button>
+            </span>
+          </template>
         </el-table-column>
       </el-table>
 
@@ -107,6 +146,20 @@ export default {
         pageNum: 1,
         pageSize: 10
       },
+      SheetStatus: {
+        NoPass: 2,
+        XiangMuShenPi: 3,
+        BuMenShenPi: 4,
+        ChuShenPi: 5,
+        FenGuanSuoShenPi: 6,
+        SuoZhangShenPi: 7,
+        ShenPiWanCheng: 8,
+        YiZuoFei: 9,
+        XinJianZhong: 17,
+        YiQianDing: 30,
+        FuKuanWanCheng: 31,
+        ShenQingZuoFei: 34
+      },
       // 表单参数
       form: {},
       // 状态为在研的项目，申请审核 功能按钮是否显示？
@@ -132,7 +185,120 @@ export default {
       console.log("queryParams is ", this.queryParams);
       listTijiaorenContract(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
-          this.sheetList = response.rows;
+          let sheetList = [];
+          let rows = response.rows;
+          for (let i=0; i < rows.length; i++) {
+            let row = rows[i];
+
+            // 按钮功能可视性判断。
+            let a_ApplyDelete = false;
+            //对于刚审批完的合同，可以显示“申请作废”按钮
+            if (row.sheetstatus === this.SheetStatus.ShenPiWanCheng && row.payedtimes === 1) {
+              //表示只付过一次款，说明是刚审批完成的合同
+              a_ApplyDelete = true;
+            }
+            row.a_ApplyDelete = a_ApplyDelete;
+
+
+            // 拨付单下的功能按钮可见度
+            row.btn_pay_visible = false;
+            row.lab_paycomplete_visible = false;
+            row.lbtn_firstpay_visible = false;
+            row.paySheetItems = [];
+
+            let ifDisplayPayButton = true;  //是否显示付款按钮的标志
+            let ifDisplayPayCompleteLab = true;  //是否显示付款完成的标志
+
+            //“审批完成”和“已签订”“付款完成”的合同，才查询其下属的拨付单的情况
+            if (row.sheetstatus === this.SheetStatus.ShenPiWanCheng || row.sheetstatus === this.SheetStatus.YiQianDing || row.sheetstatus === this.SheetStatus.FuKuanWanCheng) {
+
+              for (let j=0; j <row.paySheetList.length; j++) {
+                let pay = row.paySheetList[j];
+                if (pay.sheetstatus !== this.SheetStatus.ShenPiWanCheng) {
+                   ifDisplayPayButton = false;  //是否显示付款按钮的标志
+                   ifDisplayPayCompleteLab = false;  //是否显示付款完成的标志
+                }
+              }
+
+              //只有一张拨付单，并且“首次付款时间”为空。说明是刚审批通过的合同
+              if (row.paySheetList.length == 1 && (row.firstpaytime === "" || row.firstpaytime === undefined)){
+
+                row.btn_pay_visible = false;
+                row.lab_paycomplete_visible = false;
+                row.lbtn_firstpay_visible = true;
+
+              }
+              else {
+
+                if (ifDisplayPayButton == true)   //说明都是已经审批完成的拨付单
+                {
+                  if (row.paytotaltimes === row.payedtimes)   //总次数和付款次数相同，不要显示“付款”按钮
+                  {
+                    ifDisplayPayButton = false;
+                    ifDisplayPayCompleteLab = true;      //付款完成
+                  }
+                  else
+                  {
+                    ifDisplayPayButton = true;
+                    ifDisplayPayCompleteLab = false;      //付款还未完成
+                  }
+                }
+                row.lbtn_pay_visible = ifDisplayPayButton;
+                row.lab_paycomplete_visible = ifDisplayPayCompleteLab;
+              }
+              // 必须在这三个状态下 ，才显示 合同拨付单
+              let paySheetItems = [];
+
+              for (let j=0; j < row.paySheetList.length; j++) {
+
+                let pay = row.paySheetList[j];
+
+                if (pay.sheetstatus === this.SheetStatus.ShenPiWanCheng) {
+
+                  let lab_yishen_visible = true;
+                  let lbtn_daishen_visible = false;
+                  let lab_yishen_text = "第" + (j+1).toString() + "单(已审)";
+                  let lbtn_daishen_text = "";
+
+                  if (j ===0 && (row.firstpaytime === "" || row.firstpaytime === undefined)) {
+                    let lab_yishen_text = "第1单";
+                  }
+
+                  let paysheetItem = {lab_yishen_visible:lab_yishen_visible, lbtn_daishen_visible:lbtn_daishen_visible,lab_yishen_text:lab_yishen_text,lbtn_daishen_text:lbtn_daishen_text};
+
+                  paySheetItems.push(paysheetItem);
+
+                }
+                else if (pay.sheetstatus === this.SheetStatus.NoPass) {
+
+                  let lab_yishen_visible = false;
+                  let lbtn_daishen_visible = true;
+                  let lab_yishen_text = "";
+                  let lbtn_daishen_text = "第" + (j+1).toString()+ "单(不通过)";
+                  let paysheetItem = {lab_yishen_visible:lab_yishen_visible, lbtn_daishen_visible:lbtn_daishen_visible,lab_yishen_text:lab_yishen_text,lbtn_daishen_text:lbtn_daishen_text};
+
+                  paySheetItems.push(paysheetItem);
+                }
+                else {
+                  let lab_yishen_visible = false;
+                  let lbtn_daishen_visible = true;
+                  let lab_yishen_text = "";
+                  let lbtn_daishen_text = "第" + (j+1).toString()+ "单(待审)";
+                  let paysheetItem = {lab_yishen_visible:lab_yishen_visible, lbtn_daishen_visible:lbtn_daishen_visible,lab_yishen_text:lab_yishen_text,lbtn_daishen_text:lbtn_daishen_text};
+
+                  paySheetItems.push(paysheetItem);
+                }
+              }
+
+              row.paySheetItems = paySheetItems; // 合同拨付单。
+
+              console.log("paySheetItems now ,", paySheetItems);
+            }
+
+
+            sheetList.push(row);
+          }
+          this.sheetList = sheetList;
           this.total = response.total;
           this.loading = false;
         }

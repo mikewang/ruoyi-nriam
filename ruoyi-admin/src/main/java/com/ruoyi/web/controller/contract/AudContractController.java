@@ -28,6 +28,8 @@ import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.project.service.AudProjectService;
 import com.ruoyi.project.service.BasDocService;
+import com.ruoyi.sheet.domain.AudSheet;
+import com.ruoyi.sheet.service.AudSheetService;
 import com.ruoyi.system.service.ISysDictDataService;
 import io.swagger.models.auth.In;
 import org.apache.poi.hwpf.extractor.WordExtractor;
@@ -96,6 +98,19 @@ public class AudContractController extends BaseController {
         logger.debug("tijiaorenList query  is " + query.toString());
         startPage();
         List<AudContract> list = contractService.selectContractTijiaoren(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit3:list')")
+    @GetMapping("/xiangmu/list")
+    public TableDataInfo xiangmuList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("xiangmu list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.selectContractXiangmu(query);
 
         return getDataTable(list);
     }
@@ -424,6 +439,27 @@ public class AudContractController extends BaseController {
             return AjaxResult.error(" 操作失败，请联系管理员");
         }
 
+    }
+
+    /**
+     * 根据编号获取 合同拨付单
+     */
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @GetMapping(value = {"/paysheet/{contractid}"})
+    public AjaxResult getPaysheet(@PathVariable(value = "contractid", required = false) Integer contractid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(contractid)) {
+            logger.debug("getContract contractid = " + contractid.toString());
+            List<AudSheet> p = contractService.selectContractPaySheetByContractid(contractid);
+            if (p != null) {
+                ajax.put(AjaxResult.DATA_TAG, p);
+            } else {
+                ajax = AjaxResult.error("contractid：" + contractid.toString() + " 不存在");
+            }
+
+        }
+        return ajax;
     }
 
 //    /**

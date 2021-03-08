@@ -2,12 +2,15 @@
   <div class="app-container">
 
     <el-row :gutter="20">
+      <header center>农业部南京农业机械化研究所外拨款审批运转单</header>
+    </el-row>
+    <el-row :gutter="20">
       <el-form v-loading="loading" ref="form" :model="form" :rules="rules" label-width="160px" :key="timer">
         <template>
           <el-row >
             <el-col :span="16">
-              <el-form-item label="合同名称" prop="contractname">
-                <el-input  v-model="form.contractname"/>
+              <el-form-item label="拨付单号" prop="contractname">
+                <el-input readonly v-model="form.contractname"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -18,17 +21,9 @@
 
           </el-row>
           <el-row>
-            <el-col :span="8">
-              <el-form-item v-if="readonly.basic == false" label="合同类型" prop="contracttype">
-                <el-select v-model="form.contracttypelinktext" placeholder="请选择"
-                           style="display:block;" @change="changeContractType"
-                           :show-overflow-tooltip="true">
-                  <el-option
-                    v-for="item in contractTypeOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+            <el-col :span="16">
+              <el-form-item readonly label="合同名称" prop="contracttype">
+
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -36,44 +31,11 @@
                 <el-input readonly v-model="form.contractcode"/>
               </el-form-item>
             </el-col>
-            <el-col :span="8">
-              <el-form-item label="提交时间" prop="contracttime">
-                <el-input readonly v-model="form.contracttime"/>
-              </el-form-item>
-            </el-col>
           </el-row>
           <el-row>
-            <el-col :span="8">
-              <el-form-item v-if="readonly.basic == false" label="所属项目" prop="projectid">
-                <el-select v-model="form.projectinfo.projectname" placeholder="请选择"
-                           style="display:block;" clearable @clear="clearProjectid" @change="changeProjectid"
-                           filterable :filter-method="filterProjectOptions" :show-overflow-tooltip="true">
-                  <el-option
-                    v-for="item in projectOptions"
-                    :key="item.projectid"
-                    :label="item.projectname"
-                    :value="item.projectid"/>
-                </el-select>
-              </el-form-item>
-              <el-form-item v-else label="所属项目" prop="projectid">
-                <el-input readonly v-model="form.projectinfo.projectname"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
+            <el-col :span="16">
               <el-form-item label="所属部门" prop="organizationIDLinkText">
                 <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="项目周期" prop="projectDateRange">
-                <el-input readonly v-model="form.projectinfo.projectDateRange"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="8">
-              <el-form-item label="项目编号" prop="projectcode">
-                <el-input readonly v-model="form.projectinfo.projectcode"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -81,33 +43,51 @@
                 <el-input readonly v-model="form.projectinfo.projectManagerIDLinkText"/>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="16">
+              <el-form-item label="项目名称" prop="organizationIDLinkText">
+                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
+              </el-form-item>
+            </el-col>
             <el-col :span="8">
-              <el-form-item label="项目类型" prop="projectTypeLinkText">
-                <el-input readonly v-model="form.projectinfo.projectTypeLinkText"/>
+              <el-form-item label="课题编号" prop="projectManagerIDLinkText">
+                <el-input readonly v-model="form.projectinfo.projectManagerIDLinkText"/>
               </el-form-item>
             </el-col>
           </el-row>
-
           <el-row>
-            <el-col :span="8">
-              <el-form-item label="项目申报书" prop="basicfileList1">
-                <el-upload action="#" :before-remove="beforeRemove1" :on-preview="handleReview"
-                           :file-list="basicfileList1"/>
+            <el-tag>外拨款情况</el-tag>
+          </el-row>
+          <el-row>
+            <el-col :span="16">
+              <el-form-item label="协作单位名称" prop="organizationIDLinkText">
+                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="项目合同" prop="basicfileList2">
-                <el-upload action="#" :before-remove="beforeRemove2" :on-preview="handleReview"
-                           :file-list="basicfileList2"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="实施方案" prop="basicfileList3">
-                <el-upload action="#" :before-remove="beforeRemove3" :on-preview="handleReview"
-                           :file-list="basicfileList3"/>
+              <el-form-item label="本次付款对应期数" prop="projectManagerIDLinkText">
+                <el-input readonly v-model="form.projectinfo.projectManagerIDLinkText"/>
               </el-form-item>
             </el-col>
 
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="主要协作内容" prop="organizationIDLinkText">
+                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="付款方式" prop="organizationIDLinkText">
+                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <span>外拨款总额（[lab_zong]）元  已付外拨款（[lab_yifu]）元  本次外拨款（[lab_benci]）元</span>
           </el-row>
 
           <el-row>
@@ -282,10 +262,10 @@ import {listTeam} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
 
 
-import {addContract, updateContract, downloadTemplateDoc, uploadFile, listContractdoc,getContract, confirmContract, deleteContract} from "@/api/sheet/contract"
+import {getContractPaysheet, addContract, updateContract, downloadTemplateDoc, uploadFile, listContractdoc,getContract, confirmContract, deleteContract} from "@/api/sheet/contract"
 
 export default {
-  name: "contract_tijiaoren_edit",
+  name: "paysheet",
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -394,7 +374,8 @@ export default {
 
     this.opcode = this.$route.meta.opcode;
 
-    this.getData(contractid);
+    console.log("contractid is " + contractid);
+ //   this.getData(contractid);
 
   },
   methods: {
@@ -415,9 +396,9 @@ export default {
       else {
         const this_ = this;
 
-        getContract(contractid).then(response => {
+        getContractPaysheet(contractid).then(response => {
 
-          console.log("getContract response data is ", response.data);
+          console.log("getContractPaysheet response data is ", response.data);
 
           const contract = response.data;
 
@@ -1081,7 +1062,7 @@ export default {
             } else {
               updateContract(this_.form).then(result => {
                 this_.msgSuccess("修改成功");
-             //   this.closeForm();
+                //   this.closeForm();
               });
 
             }
@@ -1178,10 +1159,10 @@ export default {
             type: "warning"
           }).then(function () {
 
-             confirmAuditSheet(this_.form, this_.opcode).then(result => {
-               this_.closeForm();
-               this_.msgSuccess("审批不通过 完成");
-             });
+            confirmAuditSheet(this_.form, this_.opcode).then(result => {
+              this_.closeForm();
+              this_.msgSuccess("审批不通过 完成");
+            });
           });
         }
         else {
@@ -1392,7 +1373,5 @@ export default {
 </script>
 
 <style scoped>
-a:hover{
-  cursor:pointer
-}
+
 </style>

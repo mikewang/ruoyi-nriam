@@ -6,14 +6,12 @@ import com.ruoyi.api.mapper.AppClientinfoMapper;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.audit.service.AudApplyService;
-import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SMSSender.Juhe;
-import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.push.PushMessageToApp;
 import com.ruoyi.contract.domain.AudContract;
 import com.ruoyi.contract.domain.AudContractdoc;
@@ -21,12 +19,15 @@ import com.ruoyi.contract.domain.AudContractpay;
 import com.ruoyi.contract.mapper.AudContractMapper;
 import com.ruoyi.contract.mapper.AudContractdocMapper;
 import com.ruoyi.contract.mapper.AudContractpayMapper;
-import com.ruoyi.project.domain.DocFile;
 import com.ruoyi.project.mapper.AudProjectMapper;
 import com.ruoyi.project.mapper.BasDocMapper;
-import com.ruoyi.sheet.domain.*;
-import com.ruoyi.sheet.mapper.*;
-import com.ruoyi.system.domain.SysUserRole;
+import com.ruoyi.sheet.domain.AudBudgetpay;
+import com.ruoyi.sheet.domain.AudSheet;
+import com.ruoyi.sheet.domain.BasUsedmaxserialnumber;
+import com.ruoyi.sheet.mapper.AudBudgetpayMapper;
+import com.ruoyi.sheet.mapper.AudSheetMapper;
+import com.ruoyi.sheet.mapper.BasUsedmaxserialnumberMapper;
+import com.ruoyi.sheet.mapper.SrmSupplierinfoMapper;
 import com.ruoyi.system.mapper.SysDeptMapper;
 import com.ruoyi.system.mapper.SysDictDataMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
@@ -38,9 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class AudContractService {
@@ -63,6 +62,8 @@ public class AudContractService {
     @Resource
     AudBudgetpayMapper audBudgetpayMapper;
 
+    @Resource
+    AudSheetMapper audSheetMapper;
 
     @Resource
     SrmSupplierinfoMapper supplierinfoMapper;
@@ -97,6 +98,9 @@ public class AudContractService {
         List<AudContract> sheetList = audContractMapper.selectContractTijiaoren(sheet);
 
         for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+
 //            AudContractpay record = new AudContractpay();
 //            record.setContractid(contract.getContractid());
 //            contract.setContractpayList(audContractpayMapper.selectContractPay(record));
@@ -119,13 +123,14 @@ public class AudContractService {
     public List<AudContract> selectContractXiangmu(AudContract sheet) {
 
         List<AudContract> sheetList = audContractMapper.selectContractXiangmu(sheet);
-
-
-        log.debug("request sheetList list is " + sheetList.toString());
+        for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+        }
+        log.debug("request selectContractXiangmu list is " + sheetList.toString());
 
         return sheetList;
     }
-
 
 
     public AudContract selectContractById(Integer contractid) {
@@ -153,12 +158,13 @@ public class AudContractService {
 
         ConvertUpMoney.toChinese(contract.getContractmoney().toString());
 
+
         result = audContractMapper.insertAudContract(contract);
 
         Integer contractid = contract.getContractid();
 
         AudContractpay record = new AudContractpay();
-            record.setContractid(contractid);
+        record.setContractid(contractid);
 
         audContractpayMapper.deleteContractPay(record);
 
@@ -191,7 +197,7 @@ public class AudContractService {
             audContractpayMapper.insertContractPay(contractpay);
         }
 
-       // log.debug("contract is " + contract.toString());
+        // log.debug("contract is " + contract.toString());
 
         if (contract.getContractdocList() != null && contract.getContractdocList().size() > 0) {
 
@@ -200,12 +206,11 @@ public class AudContractService {
             for (AudContractdoc doc : docList) {
                 doc.setContractid(contract.getContractid());
             }
-            log.debug("getContractdocList is " +docList.toString());
+            log.debug("getContractdocList is " + docList.toString());
 
             audContractdocMapper.mergeAudContractdoc(docList);
             audContractdocMapper.sourceMergeAudContractdoc(docList);
-        }
-        else {
+        } else {
             AudContractdoc doc = new AudContractdoc();
             doc.setContractid(contractid);
             audContractdocMapper.deleteAudContractdoc(doc);
@@ -228,7 +233,7 @@ public class AudContractService {
 
         contractdocMapper.insertAudContractdoc(record);
 
-        return  doc.getDocid();
+        return doc.getDocid();
     }
 
 
@@ -242,12 +247,109 @@ public class AudContractService {
     }
 
 
-
     @Transactional
     public Integer updateAudContractStatus(AudContract contract) {
         Integer result = 0;
 
         if (contract.getSheetstatus().equals(SheetStatus.XiangMuShenPi.getCode())) {
+            //合同提交审核了，这时候要自动生成第一期的拨付单
+
+            result = audContractMapper.updateAudContractStatus(contract);
+
+            AudContract thisContract = this.selectContractById(contract.getContractid());
+            AudContractpay thispay = thisContract.getContractpayList().get(0);
+
+            // 生成 合同拨付单 ，逻辑如下：
+            List<AudBudgetpay> paylist = new ArrayList<>();
+
+            AudBudgetpay pay = new AudBudgetpay();
+            pay.setProjectid(contract.getProjectid());
+            pay.setSupplierid(contract.getSupplierid());
+            pay.setZong(thisContract.getContractmoney());
+            pay.setXiaoji(thispay.getPercentmoney());
+            pay.setYiqian(BigDecimal.ZERO);
+            pay.setBennian(BigDecimal.ZERO);
+            pay.setBenci(thispay.getPercentmoney());
+
+            paylist.add(pay);
+            //生成 合同拨付单实体
+            AudSheet sheet = new AudSheet();
+            sheet.setSheettype("合同拨付单");
+            sheet.setRelatedcontractid(contract.getContractid());
+            sheet.setThispaytimes("1"); //付款期数为第一期
+            sheet.setSheetuserid(contract.getContractuserid());
+            sheet.setSheettime(DateUtils.dateTimeNow());
+            sheet.setProjectid(contract.getProjectid());
+            sheet.setOrganizationid(contract.getOrganizationid());
+            sheet.setHejiZong(contract.getContractmoney()); //总付款额就是合同总金额
+            sheet.setHejiXiaoji(pay.getXiaoji());    //小计就是第一次的金额
+            sheet.setHejiYiqian(BigDecimal.ZERO);  //以前付款为0
+            sheet.setHejiBennian(BigDecimal.ZERO);   //本年付款为0
+            sheet.setHejiBenci(pay.getBenci());            //本次付款就是第一期的金额
+            sheet.setDaxie(ConvertUpMoney.toChinese(pay.getBenci().toString()));             //大写还没转换，待修改
+            sheet.setReferenceid("");
+            sheet.setSheetstatus(SheetStatus.XiangMuShenPi.getCode());
+
+            sheet.setBudgetpayList(paylist);
+            //保存 合同拨付单
+
+            if (sheet.getSheetcode() == null || sheet.getSheetcode().isEmpty()) {
+                BasUsedmaxserialnumber query = new BasUsedmaxserialnumber();
+                query.setModulename("拨付单号");
+                query.setSomedate(DateUtils.getDate());
+                Integer serialnumber = 1;
+                BasUsedmaxserialnumber record = usedmaxserialnumberMapper.selectBasUsedmaxserialnumber(query);
+                if (record == null) {
+                    query.setUsedmaxserialnumber(serialnumber);
+                    usedmaxserialnumberMapper.insertBasUsedmaxserialnumber(query);
+                } else {
+                    serialnumber = record.getUsedmaxserialnumber() + 1;
+                    query.setUsedmaxserialnumber(serialnumber);
+                    usedmaxserialnumberMapper.updateBasUsedmaxserialnumber(query);
+                }
+
+                String sheetCode = "BFD" + DateUtils.dateTime() + String.format("%03d", serialnumber);
+
+                log.debug("sheetCode is " + sheetCode);
+
+                sheet.setSheetcode(sheetCode);
+            }
+
+            BigDecimal hejiZong = new BigDecimal(0);
+            BigDecimal hejiXiaoji = new BigDecimal(0);
+            BigDecimal hejiYiqian = new BigDecimal(0);
+            BigDecimal hejiBennian = new BigDecimal(0);
+            BigDecimal hejiBenci = new BigDecimal(0);
+
+            for (AudBudgetpay s : sheet.getBudgetpayList()) {
+                hejiZong = hejiZong.add(s.getZong());
+                hejiXiaoji = hejiXiaoji.add(s.getXiaoji());
+                hejiYiqian = hejiYiqian.add(s.getYiqian());
+                hejiBennian = hejiBennian.add(s.getBennian());
+                hejiBenci = hejiBenci.add(s.getBenci());
+            }
+            sheet.setHejiZong(hejiZong);
+            sheet.setHejiXiaoji(hejiXiaoji);
+            sheet.setHejiYiqian(hejiYiqian);
+            sheet.setHejiBennian(hejiBennian);
+            sheet.setHejiBenci(hejiBenci);
+            sheet.setDaxie(ConvertUpMoney.toChinese(hejiBenci.toString()));
+            sheet.setReferenceid("");
+
+            result = audSheetMapper.insertAudSheet(sheet);
+
+            log.debug("sheet id is " + sheet.getSheetid());
+
+            for (AudBudgetpay s : sheet.getBudgetpayList()) {
+                log.debug("AudBudgetpay is " + s.toString());
+                s.setSheetid(sheet.getSheetid());
+                s.setProjectid(sheet.getProjectid());
+                result = audBudgetpayMapper.insertAudBudgetpay(s);
+            }
+
+
+            //ism.AddNew(sheet, payList, false);
+
 
 //            //记录系统日志
 //            SystemLog slog = new SystemLog();
@@ -296,7 +398,7 @@ public class AudContractService {
             // 发送推送
 
             Integer userid = message.getTouserid();
-            List<AppClientinfo>  clientList =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+            List<AppClientinfo> clientList = clientinfoMapper.selectAppClientinfoByUserid(userid);
             for (AppClientinfo client : clientList) {
                 String clientId = client.getClientid();
                 String msgTitle = "新合同待审批";
@@ -312,7 +414,7 @@ public class AudContractService {
             String url = "";
             String key = "";
 
-            List<SysDictData> dictList =  dictDataMapper.selectDictDataByType("短信服务商");
+            List<SysDictData> dictList = dictDataMapper.selectDictDataByType("短信服务商");
             for (SysDictData dict : dictList) {
                 if (dict.getDictLabel().equals("key")) {
                     key = dict.getDictValue();
@@ -325,33 +427,37 @@ public class AudContractService {
                 log.debug("发送短息开始，" + url + " key: " + key);
                 String msg = "#type#=合同&#name#=" + contract.getContractname();
                 Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
-            }
-            else {
+            } else {
                 log.debug("发送短息失败， 密钥为空");
             }
 
+        } else if (contract.getSheetstatus().equals(SheetStatus.ShenPiWanCheng.getCode())) {
+            //如果是审批完成，则还要加上“审核通过”时间
+            result = audContractMapper.updateAudContractStatus(contract);
+
+            contract.setPayedtimes(1);
+            contract.setPasstime(DateUtils.dateTimeNow());
+            audContractMapper.updateAudContract(contract);
+
+        } else {
             result = audContractMapper.updateAudContractStatus(contract);
 
         }
-        else {
-            result = audContractMapper.updateAudContractStatus(contract);
-
-        }
 
 
-        return  result;
+        return result;
     }
 
-//
-//    public List<AudContract> selectSheetTijiaorenByUserid(Integer uid) {
-//
-//        List<AudContract> sheetList = audContractMapper.selectSheetTijiaorenByUserid(uid);
-//
-//        log.debug("request sheetList list is " + sheetList.toString());
-//
-//        return sheetList;
-//    }
-//
+
+    public List<AudSheet> selectContractPaySheetByContractid(Integer contractid) {
+
+        List<AudSheet> sheetList = audSheetMapper.selectContractPaySheetToAuditByContractid(contractid);
+
+        log.debug("request sheetList list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
 
 //
 //

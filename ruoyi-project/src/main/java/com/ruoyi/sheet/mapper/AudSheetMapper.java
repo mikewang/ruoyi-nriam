@@ -24,4 +24,7 @@ public interface AudSheetMapper {
     List<AudSheet> selectSheetFenguansuoByUserid(Integer userid);
     List<AudSheet> selectSheetSuozhangByUserid(Integer userid);
 
+    List<AudSheet> selectContractPaySheetByContractid(Integer contractid);
+    List<AudSheet> selectContractPaySheetToAuditByContractid(Integer contractid);
+
 }
