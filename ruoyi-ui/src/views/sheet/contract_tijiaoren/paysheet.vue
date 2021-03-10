@@ -2,33 +2,33 @@
   <div class="app-container">
 
     <el-row :gutter="20">
-      <header center>农业部南京农业机械化研究所外拨款审批运转单</header>
+      <h2 style="text-align:center">农业部南京农业机械化研究所外拨款审批运转单</h2>
     </el-row>
     <el-row :gutter="20">
       <el-form v-loading="loading" ref="form" :model="form" :rules="rules" label-width="160px" :key="timer">
         <template>
-          <el-row >
+          <el-row>
             <el-col :span="16">
-              <el-form-item label="拨付单号" prop="contractname">
-                <el-input readonly v-model="form.contractname"/>
+              <el-form-item label="拨付单号" prop="sheetcode">
+                <el-input readonly v-model="form.sheetcode"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="经办人" prop="contractuseridlinktext">
-                <el-input readonly v-model="form.contractuseridlinktext"/>
+              <el-form-item label="经办人" prop="sheetuserid">
+                <img :src="form.sheetuseridImage" min-width="120" height="60"/>
               </el-form-item>
             </el-col>
 
           </el-row>
           <el-row>
             <el-col :span="16">
-              <el-form-item readonly label="合同名称" prop="contracttype">
-
+              <el-form-item readonly label="合同名称" prop="contractname">
+                <el-input readonly v-model="form.contractinfo.contractname"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="合同编号" prop="contractcode">
-                <el-input readonly v-model="form.contractcode"/>
+                <el-input readonly v-model="form.contractinfo.contractcode"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -46,13 +46,13 @@
           </el-row>
           <el-row>
             <el-col :span="16">
-              <el-form-item label="项目名称" prop="organizationIDLinkText">
-                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
+              <el-form-item label="项目名称" prop="projectname">
+                <el-input readonly v-model="form.projectinfo.projectname"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="课题编号" prop="projectManagerIDLinkText">
-                <el-input readonly v-model="form.projectinfo.projectManagerIDLinkText"/>
+              <el-form-item label="课题编号" prop="subjectcode">
+                <el-input readonly v-model="form.projectinfo.subjectcode"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -61,168 +61,59 @@
           </el-row>
           <el-row>
             <el-col :span="16">
-              <el-form-item label="协作单位名称" prop="organizationIDLinkText">
-                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
+              <el-form-item label="协作单位名称" prop="supplieridlinktext">
+                <el-input readonly v-model="form.contractinfo.supplieridlinktext"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="本次付款对应期数" prop="projectManagerIDLinkText">
-                <el-input readonly v-model="form.projectinfo.projectManagerIDLinkText"/>
+              <el-form-item label="本次付款对应期数" prop="thispaytimes">
+                <el-input readonly v-model="form.contractinfo.thispaytimes"/>
               </el-form-item>
             </el-col>
 
           </el-row>
           <el-row>
             <el-col :span="24">
-              <el-form-item label="主要协作内容" prop="organizationIDLinkText">
-                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="24">
-              <el-form-item label="付款方式" prop="organizationIDLinkText">
-                <el-input readonly v-model="form.projectinfo.organizationIDLinkText"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <span>外拨款总额（[lab_zong]）元  已付外拨款（[lab_yifu]）元  本次外拨款（[lab_benci]）元</span>
-          </el-row>
-
-          <el-row>
-            <el-col :span="8">
-              <el-form-item v-if="readonly.basic == false" label="乙方单位" prop="supplierid" label-width="150px">
-                <el-select v-model="form.supplierinfo.suppliername" placeholder="请选择"
-                           style="display:block;" clearable @clear="clearSupplierid" @change="changeSupplierid"
-                           filterable :filter-method="filterSupplierOptions" :show-overflow-tooltip="true">
-                  <el-option
-                    v-for="item in supplierOptions"
-                    :key="item.supplierid"
-                    :label="item.suppliername"
-                    :value="item.supplierid"/>
-                </el-select>
-              </el-form-item>
-              <el-form-item v-else label="乙方单位" prop="supplierid">
-                <el-input readonly v-model="form.supplierinfo.suppliername"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="联系人" prop="person1name">
-                <el-input readonly v-model="form.supplierinfo.person1name" placeholder=""/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="备注" prop="supplierinfo.memo">
-                <el-input readonly v-model="form.supplierinfo.memo" placeholder="" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="8">
-              <el-form-item label="开户银行" prop="bankname">
-                <el-input readonly v-model="form.supplierinfo.bankname" placeholder=""/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="银行账号" prop="banknumber">
-                <el-input readonly v-model="form.supplierinfo.banknumber" placeholder=""/>
-              </el-form-item>
-            </el-col>
-
-          </el-row>
-          <el-row>
-            <el-col :span="8">
-              <el-form-item label="合同总金额（元）" prop="contractmoney">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.contractmoney" placeholder="" type="number"/> <span>{{form.daxie}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="付款期数" prop="paytotaltimes">
-                <el-input v-model="form.paytotaltimes" type="number" @input="changePaytotaltimes"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="4" v-for="contractpay in form.contractpayList">
-              <el-form-item  label-width="100px" :label="contractpay.timesname" prop="paytotaltimes">
-                <el-input v-model="contractpay.percentmoney" type="number"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="16">
               <el-form-item label="主要协作内容" prop="reason">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.reason" placeholder="" type="textarea"/>
+                <el-input readonly v-model="form.contractinfo.reason"/>
               </el-form-item>
             </el-col>
           </el-row>
-        </template>
-
-        <template>
-          <el-row v-bind:hidden="form.contractid === undefined">
-            <el-col :span="16">
-              <el-form-item label="上传合同正文" prop="contractuploadfileList">
-                <el-upload action="#" :http-request="requestUploadDoc" :before-remove="beforeRemoveDoc"
-                           :on-remove="handleUploadRemoveDoc" :on-preview="handleReviewDoc"
-                           :file-list="contractuploadfileList" :before-upload="beforeUploadDoc"
-                >
-                  <el-button size="small" >上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
-
-                <a @click="downloadContractdocTemplate">下载合同模板</a>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </template>
-
-        <template v-if="this.hidden.confirm == false">
           <el-row>
+            <el-col :span="24">
+              <el-form-item label="付款方式" prop="contractpayList">
+                <template v-for="item in form.contractinfo.contractpayList">
+                  <span>{{ item.timesname }}: {{ item.percentmoney }}</span> <br/>
+                </template>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="" prop="hejiZong">
+                <span>外拨款总额（{{ form.hejiZong }}）元 已付外拨款（{{ form.hejiYiqian + form.hejiBennian }}）元 本次外拨款（{{ form.hejiBenci }}）元</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row v-for="audit in form.sheetAuditRecordList" v-bind:hidden="hidden.acceptance">
+            <el-col :span="16">
+              <el-form-item :label="audit.audittypeName">
+                <span>  {{ audit.auditresultName }}</span> <br/><span>  {{ audit.auditopinion }}</span>
+              </el-form-item>
+            </el-col>
             <el-col :span="8">
-              <el-form-item label="合同状态" prop="sheetstatuslinktext">
-                <el-input v-model="form.sheetstatuslinktext" disabled/>
-              </el-form-item>
+              <span> <img :src="audit.signpicName" min-width="120" height="60"/>  {{ audit.audittime }}</span>
             </el-col>
-            <el-col :span="16">
-              <el-form-item label="经办人签名" prop="contractuseridlinktext">
-                <span>{{form.OPINION_JINGBAN}}</span>
-                <br/>
-                <img :src="form.sheetuseridImage" min-width="120" height="60"/>
-                <span>  {{form.contracttime}}</span>
+          </el-row>
+          <el-row v-bind:hidden="hidden.acceptance">
+            <el-col :span="24">
+              <el-form-item label="" prop="firsttime">
+                <span>  {{ form.firsttime }}</span>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row v-if="this.hidden.confirm == false">
-            <el-form-item label="审批意见" prop="confirmResult">
-              <el-row>
-                <el-col :span="16">
-                  <template>
-                    <span>审批结果 </span>
-                    <el-radio-group v-model="form.confirmResult">
-                      <el-radio :label="1">通过</el-radio>
-                      <el-radio :label="2">不通过</el-radio>
-                    </el-radio-group>
-                  </template>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="16">
-                  <template>
-                    <span>审批意见</span>
-                    <el-input v-model="form.confirmNote" placeholder="请输入意见" type="textarea"/>
-                  </template>
-                </el-col>
-              </el-row>
-            </el-form-item>
-          </el-row>
-        </template>
 
-        <template v-if="this.hidden.acceptance == false">
-          <el-row>
-            <el-col :span="16">
-              <el-button>合同正文</el-button>
-              <el-button @click="clickPaysheet">拨付单</el-button>
-            </el-col>
-          </el-row>
         </template>
 
       </el-form>
@@ -249,20 +140,28 @@
 import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
 import {listData} from "@/api/system/dict/data";
 import {
+  confirmAuditSheet,
   deleteSheet,
+  getSheetAuditRecord,
   getSheetBudgetpayRecord,
   getSheetSupplier,
-  confirmAuditSheet,
   getSheetSupplierById
 } from "@/api/sheet/sheet";
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
-import {listDept} from "@/api/system/dept";
-import {listTeam} from "@/api/project/team";
-import {listUser} from "@/api/system/user";
 
 
-import {getContractPaysheet, addContract, updateContract, downloadTemplateDoc, uploadFile, listContractdoc,getContract, confirmContract, deleteContract} from "@/api/sheet/contract"
+import {
+  addContract,
+  confirmContract,
+  deleteContract,
+  downloadTemplateDoc,
+  getContract,
+  getContractPaysheet,
+  listContractdoc,
+  updateContract,
+  uploadFile
+} from "@/api/sheet/contract"
 
 export default {
   name: "paysheet",
@@ -321,31 +220,11 @@ export default {
       // 日期范围
       // 查询参数
       // 表单参数
-      form: {projectinfo: {projectname:undefined}, supplierinfo:{suppliername:undefined}},
+      form: {contractinfo:{contractname:undefined}, projectinfo: {projectname: undefined}, supplierinfo: {suppliername: undefined}},
       timer: '',
       // 表单校验
       rules: {
-        contractname: [
-          {required: true, message: "合同名称不能为空", trigger: "blur"}
-        ],
-        contracttype: [
-          {required: true, message: "合同类型不能为空", trigger: "blur"}
-        ],
-        projectid: [
-          {required: true, message: "所属项目不能为空", trigger: "blur"}
-        ],
-        supplierid: [
-          {required: true, message: "乙方单位不能为空", trigger: "blur"}
-        ],
-        contractmoney: [
-          {required: true, message: "合同总金额不能为空", trigger: "blur"}
-        ],
-        paytotaltimes: [
-          {required: true, message: "付款期数不能为空", trigger: "blur"}
-        ],
-        reason: [
-          {required: true, message: "主要协作内容不能为空", trigger: "blur"}
-        ]
+
       }
     };
 
@@ -357,7 +236,7 @@ export default {
 
   beforeCreate() {
     console.log(" beforeCreate this.$route.meta is ", this.$route.meta);
-    const contractid = this.$route.params && this.$route.params.sheetid;
+    const sheetid = this.$route.params && this.$route.params.sheetid;
 
   },
   created() {
@@ -365,116 +244,162 @@ export default {
     this.resetTemplateStatus();
     console.log(" created this.$route.params is ", this.$route.params);
 
-    var contractid = this.$route.params && this.$route.params.sheetid;
-    if (contractid === undefined || Number(contractid) === 0) {
-      contractid = undefined;
+    var sheetid = this.$route.params && this.$route.params.sheetid;
+    if (sheetid === undefined || Number(sheetid) === 0) {
+      sheetid = undefined;
     } else {
 
     }
 
     this.opcode = this.$route.meta.opcode;
 
-    console.log("contractid is " + contractid);
- //   this.getData(contractid);
+    console.log("sheetid is " + sheetid);
+    this.getData(sheetid);
 
   },
   methods: {
     /** 查询信息 */
-    getData(contractid) {
+    getData(sheetid) {
 
       this.loading = true;
-      console.log("loading is begin, contractid is ", contractid);
+      console.log("loading is begin, sheetid is ", sheetid);
 
-      if (contractid === undefined) {
-        this.reset();
-        this.configTemplateStatus();
-        this.loadProjectOptions("");
-        this.loadSupplierOptions("");
-        this.loadContractTypeOptions();
-        this.loading = false;
-      }
-      else {
-        const this_ = this;
+      const this_ = this;
 
-        getContractPaysheet(contractid).then(response => {
+      getContractPaysheet(sheetid).then(response => {
 
-          console.log("getContractPaysheet response data is ", response.data);
+        console.log("getContractPaysheet response data is ", response.data);
 
-          const contract = response.data;
+        const paysheet = response.data;
 
-          this_.form = contract;
+        console.log("paysheet thispaytimes is ", paysheet.thispaytimes);
 
-          console.log("getContract projectid is ", contract.projectid);
+        getSignpic(paysheet.sheetuserid).then(response => {
+          console.log("getSignpic response is ", response);
+          // 附加属性，为了操作方便。
+          paysheet.sheetuseridImage = response.data.signpicName;
 
-          getProject(contract.projectid).then(response2 => {
-            const project = response2.data;
-            console.log("getProject response2 data is ", response2.data);
-            this_.form.projectinfo = project;
+          let contractid = paysheet.relatedcontractid;
 
-            listProjectdoc({projectid: this_.form.projectinfo.projectid}).then(response => {
+          getContract(contractid).then(response => {
 
-              let rows = response.data;
-              console.log("listProjectdoc is ", rows);
-              this_.form.projectdocList = rows;
-              this_.basicfileList1 = this_.filterProjectdoc("项目申报书");
-              console.log("项目申报书 is ", this_.basicfileList1);
-              this_.basicfileList2 = this_.filterProjectdoc("项目合同");
-              console.log("项目合同 is ", this_.basicfileList2);
-              this_.basicfileList3 = this_.filterProjectdoc("实施方案");
-              console.log("实施方案 is ", this_.basicfileList3);
-            });
+            console.log("getContract response data is ", response.data);
 
-            let supplierid = this_.form.supplierid;
-            console.log("this_.form.supplierid is ", supplierid);
+            const contract = response.data;
+            paysheet.contractinfo = contract;
 
-            getSheetSupplierById(supplierid).then(response => {
+            getProject(contract.projectid).then(response2 => {
+              const project = response2.data;
+              console.log("getProject response2 data is ", response2.data);
+              paysheet.projectinfo = project;
 
-              this_.form.supplierinfo = response.data;
+              let auditRecord = {sheettype: "合同", sheetid: ""};
 
-            });
-
-            listContractdoc({contractid: this_.form.contractid}).then(response => {
-
-              console.log("listContractdoc is ", response.data);
-              this_.form.contractdocList = response.data;
-
-              const doclist = [];
-
-              for (let i = 0; i < this_.form.contractdocList.length; i++) {
-                let item = this_.form.contractdocList[i];
-                doclist.push({"name": item.docname, "url": item.docid});
+              if (paysheet.thispaytimes === "1") {
+                auditRecord = {sheettype: "合同", sheetid: paysheet.contractinfo.contractid};
+              } else {
+                auditRecord = {sheettype: "合同拨付单", sheetid: paysheet.sheetid};
               }
+              getSheetAuditRecord(auditRecord).then(response => {
+                console.log("getSheetAuditRecord response data is ", response.data);
+                paysheet.sheetAuditRecordList = response.data;
 
-              this_.contractuploadfileList = doclist;
+                if (paysheet.thispaytimes === "1" && paysheet.contractinfo.firstpaytime !== "") {
+                  paysheet.firsttime = paysheet.contractinfo.firstpaytime;
 
+                }
+                else if (paysheet.thispaytimes === "1") {
+                  let last_auditrecord = paysheet.sheetAuditRecordList.last;
+                  paysheet.firsttime = last_auditrecord.audittime;
+                }
 
-              getSignpic(this_.form.contractuserid).then(response => {
-                console.log("getSignpic response is ", response);
-                this_.form.OPINION_JINGBAN = "经与项目负责人和乙方负责人沟通，双方同意签订本合同。合同内容真实。";
-                this_.form.sheetuseridImage = response.data.signpicName;
-
-                console.log("this.form is ", this_.form);
-
+                  // 最后赋值。
+                this_.form = paysheet;
 
                 this_.configTemplateStatus();
 
                 this_.loading = false;
               });
 
+
             });
+
           });
         });
-      }
+
+
+        return;
+
+        console.log("getContract projectid is ", contract.projectid);
+
+        getProject(contract.projectid).then(response2 => {
+          const project = response2.data;
+          console.log("getProject response2 data is ", response2.data);
+          this_.form.projectinfo = project;
+
+          listProjectdoc({projectid: this_.form.projectinfo.projectid}).then(response => {
+
+            let rows = response.data;
+            console.log("listProjectdoc is ", rows);
+            this_.form.projectdocList = rows;
+            this_.basicfileList1 = this_.filterProjectdoc("项目申报书");
+            console.log("项目申报书 is ", this_.basicfileList1);
+            this_.basicfileList2 = this_.filterProjectdoc("项目合同");
+            console.log("项目合同 is ", this_.basicfileList2);
+            this_.basicfileList3 = this_.filterProjectdoc("实施方案");
+            console.log("实施方案 is ", this_.basicfileList3);
+          });
+
+          let supplierid = this_.form.supplierid;
+          console.log("this_.form.supplierid is ", supplierid);
+
+          getSheetSupplierById(supplierid).then(response => {
+
+            this_.form.supplierinfo = response.data;
+
+          });
+
+          listContractdoc({contractid: this_.form.contractid}).then(response => {
+
+            console.log("listContractdoc is ", response.data);
+            this_.form.contractdocList = response.data;
+
+            const doclist = [];
+
+            for (let i = 0; i < this_.form.contractdocList.length; i++) {
+              let item = this_.form.contractdocList[i];
+              doclist.push({"name": item.docname, "url": item.docid});
+            }
+
+            this_.contractuploadfileList = doclist;
+
+
+            getSignpic(this_.form.contractuserid).then(response => {
+              console.log("getSignpic response is ", response);
+              this_.form.OPINION_JINGBAN = "经与项目负责人和乙方负责人沟通，双方同意签订本合同。合同内容真实。";
+              this_.form.sheetuseridImage = response.data.signpicName;
+
+              console.log("this.form is ", this_.form);
+
+
+              this_.configTemplateStatus();
+
+              this_.loading = false;
+            });
+
+          });
+        });
+      });
 
     },
 
     changePaytotaltimes(value) {
-      console.log("changePaytotaltimes is ",value);
+      console.log("changePaytotaltimes is ", value);
       let contractpayList = [];
       if (value > 0) {
         let i = 1
         while (i <= value) {
-          let pay = {times:i, timesname:'第' + i + '期金额', percentmoney:undefined};
+          let pay = {times: i, timesname: '第' + i + '期金额', percentmoney: undefined};
           contractpayList.push(pay);
           i++;
         }
@@ -519,8 +444,7 @@ export default {
         if (this.opcode.indexOf("add") !== -1) {
           this.readonly.basic = false;
           this.hidden.saveBtn = false;
-        }
-        else if (this.opcode.indexOf("query") !== -1) {
+        } else if (this.opcode.indexOf("query") !== -1) {
           this.readonly.basic = false;
           this.hidden.saveBtn = false;
           this.hidden.submitBtn = false;
@@ -530,8 +454,7 @@ export default {
           this.hidden.confirm = false;
           this.hidden.submitBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.XiangMuShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.XiangMuShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -541,8 +464,7 @@ export default {
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.BuMenShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.BuMenShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -552,8 +474,7 @@ export default {
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.ChuShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.ChuShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -563,8 +484,7 @@ export default {
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.FenGuanSuoShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.FenGuanSuoShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -574,32 +494,27 @@ export default {
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.SuoZhangShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.SuoZhangShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
-        }
-        else if (this.opcode.indexOf("audit") !== -1) {
+        } else if (this.opcode.indexOf("audit") !== -1) {
           this.hidden.acceptance = false;
           this.hidden.confirm = false;
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.ShenPiWanCheng) {
+      } else if (this.form.sheetstatus === this.SheetStatus.ShenPiWanCheng) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.YiZuoFei) {
+      } else if (this.form.sheetstatus === this.SheetStatus.YiZuoFei) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.NoPass) {
+      } else if (this.form.sheetstatus === this.SheetStatus.NoPass) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
 
@@ -624,9 +539,9 @@ export default {
         contracttypelinktext: undefined,
 
         projectid: undefined, // 为了rules校验。
-        projectinfo: {projectid:undefined, projectname: undefined},
+        projectinfo: {projectid: undefined, projectname: undefined},
         supplierid: undefined,
-        supplierinfo: {suppliername:undefined},
+        supplierinfo: {suppliername: undefined},
 
         paytotaltimes: 2,
         contractpayList: [],
@@ -647,7 +562,7 @@ export default {
       };
 
       this.changePaytotaltimes(this.form.paytotaltimes);
-      this.form.contractuseridlinktext =  this.$store.getters.realName
+      this.form.contractuseridlinktext = this.$store.getters.realName
       this.resetForm("form");
     },
 
@@ -679,7 +594,7 @@ export default {
       console.log("changeContractType value is " + value);
       if (value) {
         this.form.contracttype = value;
-        for (let i=0; i < this.contractTypeOptions.length; i++) {
+        for (let i = 0; i < this.contractTypeOptions.length; i++) {
           let item = this.contractTypeOptions[i];
           if (item.id == value) {
             this.form.contracttypelinktext = item.value;
@@ -693,7 +608,7 @@ export default {
     },
 
 
-    loadContractTypeOptions(){
+    loadContractTypeOptions() {
       listData({"dictType": "合同类型"}).then(response => {
         console.log(response);
 
@@ -743,7 +658,7 @@ export default {
 
       } else {
         this.form.projectid = undefined;
-        this.form.projectinfo = {projectid:undefined, projectname: undefined};
+        this.form.projectinfo = {projectid: undefined, projectname: undefined};
 
       }
     },
@@ -910,7 +825,6 @@ export default {
     },
 
 
-
     // 上传 合同文本。
 
     requestUploadDoc: function (params) {
@@ -954,7 +868,7 @@ export default {
       let index = this.contractuploadfileList.indexOf(file);
       if (index !== -1) {
         this.contractuploadfileList.splice(index, 1);
-        this.form.contractdocList.splice(index,1);
+        this.form.contractdocList.splice(index, 1);
       }
 
       console.log("handleUploadRemove index=" + index, file.name, today.toDateString());
@@ -968,7 +882,7 @@ export default {
     beforeUploadDoc(file) {
       if (this.form.contractid === undefined) {
         this.msgError("合同还没有保存");
-        return  false;
+        return false;
       }
 
       let x = true;
@@ -998,7 +912,7 @@ export default {
           var fileLink = document.createElement('a');
 
           fileLink.href = fileURL;
-          fileLink.setAttribute('download', this.form.contractname+".doc");
+          fileLink.setAttribute('download', this.form.contractname + ".doc");
           document.body.appendChild(fileLink);
 
           fileLink.click();
@@ -1045,7 +959,7 @@ export default {
           console.log("save form is ", this.form);
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          if (this_.opcode === "add" || this_.opcode === "query" ) {
+          if (this_.opcode === "add" || this_.opcode === "query") {
             // 处理掉添加， 为了更新或修改。
             if (this_.form.contractid === undefined) {
               addContract(this.form).then(response => {
@@ -1083,7 +997,7 @@ export default {
           console.log("submit form is ", this.form);
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          if (this_.opcode === "query" ) {
+          if (this_.opcode === "query") {
             // 处理掉添加， 为了更新或修改。
 
             confirmContract(this.form).then(result => {
@@ -1103,8 +1017,8 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deleteSheet(sheetid).then((result ) => {
-          console.log("result is " , result);
+        deleteSheet(sheetid).then((result) => {
+          console.log("result is ", result);
           this.form.sheetstatus = this.SheetStatus.XinJianZhong;
           this.form.sheetstatuslinktext = "新建中";
           this.form.sheetid = undefined;
@@ -1134,12 +1048,11 @@ export default {
           console.log("audit opcode is " + this_.opcode);
           this_.loading = true;
           confirmAuditSheet(this_.form, this_.opcode).then(result => {
-            console.log("audit opcode is " + this_.opcode + " result is " , result);
+            console.log("audit opcode is " + this_.opcode + " result is ", result);
             if (result.code === 200) {
               this_.closeForm();
               this_.msgSuccess(result.msg);
-            }
-            else {
+            } else {
               this_.msgSuccess(result.msg);
             }
             this_.loading = false;
@@ -1147,12 +1060,11 @@ export default {
           });
 
         });
-      }
-      else if (result === 2) {
+      } else if (result === 2) {
 
         const note = this_.form.confirmNote;
         console.log("confirmNote is ", note);
-        if (note !== null && note !== undefined && note.trim() !== '' ) {
+        if (note !== null && note !== undefined && note.trim() !== '') {
           this_.$confirm('是否确认审批 不通过?', "警告", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
@@ -1164,8 +1076,7 @@ export default {
               this_.msgSuccess("审批不通过 完成");
             });
           });
-        }
-        else {
+        } else {
           this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
             confirmButtonText: "确定",
             type: "warning"

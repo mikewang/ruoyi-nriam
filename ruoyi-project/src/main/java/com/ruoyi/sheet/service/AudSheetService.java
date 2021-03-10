@@ -328,7 +328,6 @@ public class AudSheetService {
         }
 
 
-
         //消除经办人以前的待办事项“针对同一个类型的同一张单，因为要生成新的待办事项，所以讲旧的设为已读”
         // iamm.SetProcessed(lab_SheetUserID.Text, "拨付单", lab_SheetID.Text);
         AudMessage query = new AudMessage();

@@ -2,6 +2,7 @@ package com.ruoyi.contract.domain;
 
 import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.sheet.domain.AudSheet;
+import com.ruoyi.sheet.domain.AudSheetauditrecord;
 import com.ruoyi.sheet.domain.SrmSupplierinfo;
 import com.ruoyi.project.domain.AudProject;
 import java.math.BigDecimal;
@@ -62,6 +63,15 @@ public class AudContract {
     private List<AudContractdoc> contractdocList;
 
     private List<AudSheet> paySheetList;
+
+// 附加功能，审批使用
+    private Integer operateCode = 1;
+    private Integer confirmResult;
+    private String confirmNote;
+    private Integer confirmUserid;
+    private String audittype;
+
+    private List<AudSheetauditrecord> sheetAuditRecordList;
 
     public Integer getContractid() {
         return contractid;
@@ -303,6 +313,54 @@ public class AudContract {
         this.paySheetList = paySheetList;
     }
 
+    public Integer getOperateCode() {
+        return operateCode;
+    }
+
+    public void setOperateCode(Integer operateCode) {
+        this.operateCode = operateCode;
+    }
+
+    public Integer getConfirmResult() {
+        return confirmResult;
+    }
+
+    public void setConfirmResult(Integer confirmResult) {
+        this.confirmResult = confirmResult;
+    }
+
+    public String getConfirmNote() {
+        return confirmNote;
+    }
+
+    public void setConfirmNote(String confirmNote) {
+        this.confirmNote = confirmNote;
+    }
+
+    public Integer getConfirmUserid() {
+        return confirmUserid;
+    }
+
+    public void setConfirmUserid(Integer confirmUserid) {
+        this.confirmUserid = confirmUserid;
+    }
+
+    public String getAudittype() {
+        return audittype;
+    }
+
+    public void setAudittype(String audittype) {
+        this.audittype = audittype;
+    }
+
+    public List<AudSheetauditrecord> getSheetAuditRecordList() {
+        return sheetAuditRecordList;
+    }
+
+    public void setSheetAuditRecordList(List<AudSheetauditrecord> sheetAuditRecordList) {
+        this.sheetAuditRecordList = sheetAuditRecordList;
+    }
+
     @Override
     public String toString() {
         return "AudContract{" +
@@ -336,6 +394,12 @@ public class AudContract {
                 ", supplierinfo=" + supplierinfo +
                 ", contractdocList=" + contractdocList +
                 ", paySheetList=" + paySheetList +
+                ", operateCode=" + operateCode +
+                ", confirmResult=" + confirmResult +
+                ", confirmNote='" + confirmNote + '\'' +
+                ", confirmUserid=" + confirmUserid +
+                ", audittype='" + audittype + '\'' +
+                ", sheetAuditRecordList=" + sheetAuditRecordList +
                 '}';
     }
 }

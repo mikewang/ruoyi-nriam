@@ -15,12 +15,14 @@
   <select id="selectSheetauditRecord" parameterType="com.ruoyi.sheet.domain.AudSheetauditrecord"  resultMap="BaseResultMap">
     select a.*,b.SignPicName from Aud_SheetAuditRecord a join Aud_SignPic b  on  b.UserID = a.AuditUserID
     where 1=1
-    <if test="sheettype != null and sheettype != '' ">
-      AND a.sheettype = #{sheettype,jdbcType=VARCHAR}
-    </if>
-    <if test="sheetid != null and sheetid != 0 ">
-      AND a.sheetid = #{sheetid,jdbcType=INTEGER}
-    </if>
+    AND a.sheettype = #{sheettype,jdbcType=VARCHAR}
+    AND a.sheetid = #{sheetid,jdbcType=INTEGER}
+<!--    <if test="sheettype != null and sheettype != '' ">-->
+
+<!--    </if>-->
+<!--    <if test="sheetid != null and sheetid != 0 ">-->
+<!--    -->
+<!--    </if>-->
     order by a.AuditType
   </select>
   <insert id="insertAudSheetauditrecord" parameterType="com.ruoyi.sheet.domain.AudSheetauditrecord"  useGeneratedKeys="true"

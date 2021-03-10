@@ -1,9 +1,11 @@
 package com.ruoyi.web.controller.contract;
 
 import com.ruoyi.api.service.AppClientinfoService;
+import com.ruoyi.audit.domain.AudSignpic;
 import com.ruoyi.audit.service.AudSignpicService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysDictData;
@@ -29,6 +31,7 @@ import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.project.service.AudProjectService;
 import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sheet.domain.AudSheet;
+import com.ruoyi.sheet.domain.AudSheetauditrecord;
 import com.ruoyi.sheet.service.AudSheetService;
 import com.ruoyi.system.service.ISysDictDataService;
 import io.swagger.models.auth.In;
@@ -53,6 +56,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +66,10 @@ import java.util.Map;
 public class AudContractController extends BaseController {
     @Resource
     private AudContractService contractService;
+
+    @Resource
+    private AudSheetService sheetService;
+
 
     @Resource
     private AppClientinfoService clientinfoService;
@@ -103,7 +111,7 @@ public class AudContractController extends BaseController {
     }
 
     @PreAuthorize("@ss.hasPermi('sheet:audit3:list')")
-    @GetMapping("/xiangmu/list")
+    @GetMapping("/audit3/list")
     public TableDataInfo xiangmuList(AudContract query) {
 
         Integer uid = getCurrentLoginUserid();
@@ -114,6 +122,103 @@ public class AudContractController extends BaseController {
 
         return getDataTable(list);
     }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit3:list')")
+    @Log(title = "合同项目负责人审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit3")
+    public AjaxResult xiangmuConfirm(@Validated @RequestBody AudContract contract) {
+
+        logger.debug("audit3 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 3);
+
+        return ajax;
+    }
+
+
+    private String signpicFilename(String signpicName) {
+        // 本地资源路径
+        String result = "";
+        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" + "/signpic/";
+        if (signpicName != null && signpicName.isEmpty() == false) {
+            String checkFilePath = RuoYiConfig.getUploadPath() + "/signpic/" + signpicName;
+            File desc = new File(checkFilePath);
+            if (desc.exists() == true) {
+                String filePath = fileDirPath + signpicName;
+                result = filePath;
+                logger.debug("url is " + filePath);
+            }
+        }
+        return result;
+    }
+
+    private AjaxResult auditConfirm(AudContract sheet, Integer audittype) {
+        AjaxResult ajax = AjaxResult.success();
+        Integer userid = getCurrentLoginUserid();
+        sheet.setConfirmUserid(userid);
+
+        AudSignpic s = audSignpicService.selectSignpicByUserId(sheet.getConfirmUserid());
+
+        if (s == null || this.signpicFilename(s.getSignpicName()).equals("")) {
+            return AjaxResult.error("您的签名图片尚未上传，无法审批！");
+        }
+
+        //记录审核结论   /////////////////////////记录审核结论，消除待办事项////////////////
+//        record.SheetID = int.Parse(Request["kid"].ToString());
+//        record.SheetType = "拨付单";
+//        record.AuditType = Request["t"].ToString();    //把当前的审批环节作为类型记录进去
+//        record.AuditOpinion = AuditOpinion1.txt_Opinion.Text;
+//        record.AuditResult = Convert.ToBoolean(int.Parse(AuditOpinion1.rbtnl_Result.SelectedValue));
+//        record.AuditTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//        record.AuditUserID = int.Parse(Session["CurrentUserID"].ToString());
+
+        AudSheetauditrecord record = new AudSheetauditrecord();
+        record.setSheetid(sheet.getContractid());
+        record.setSheettype(sheet.getContracttypelinktext()); // 名称为 合同。
+        record.setAudittype(audittype.toString());
+        record.setAuditopinion(sheet.getConfirmNote());
+        record.setAudittime(DateUtils.dateTimeNow());
+        record.setAudituserid(userid);
+
+        if (sheet.getConfirmResult() == 1) {
+            record.setAuditresult(true);
+            if (audittype == 3) {
+                sheet.setAudittype(audittype.toString());
+                sheet.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
+            } else if (audittype == 4) {
+                sheet.setAudittype(audittype.toString());
+                sheet.setSheetstatus(SheetStatus.ChuShenPi.getCode());
+            } else if (audittype == 5) {
+                sheet.setAudittype(audittype.toString());
+                sheet.setSheetstatus(SheetStatus.FenGuanSuoShenPi.getCode());
+            } else if (audittype == 6) {
+                sheet.setAudittype(audittype.toString());
+                int flag = sheet.getContractmoney().compareTo(BigDecimal.valueOf(50000L));
+                if (flag >= 0) {
+                    // //拨付单总金额大于5万，到所长审批
+                    sheet.setSheetstatus(SheetStatus.SuoZhangShenPi.getCode());
+                } else {
+                    sheet.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+                }
+            } else if (audittype == 7) {
+                sheet.setAudittype(audittype.toString());
+
+                sheet.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+            }
+
+            contractService.updateAudContractStatus(sheet, record);
+        } else if (sheet.getConfirmResult() == 2) {
+            record.setAuditresult(false);
+            sheet.setSheetstatus(SheetStatus.NoPass.getCode());
+            contractService.updateAudContractStatus(sheet, record);
+        } else {
+            return AjaxResult.error("审批'" + sheet.getContractname() + "'失败，没有选择审批结果");
+        }
+
+
+        return ajax;
+    }
+
 
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "合同管理", businessType = BusinessType.INSERT)
@@ -415,8 +520,8 @@ public class AudContractController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "合同管理", businessType = BusinessType.UPDATE)
-    @PutMapping("/confirm")
-    public AjaxResult confirm(@Validated @RequestBody AudContract contract) {
+    @PutMapping("/submit")
+    public AjaxResult submit(@Validated @RequestBody AudContract contract) {
         AjaxResult ajax = AjaxResult.success();
         logger.debug("AudContract 提交审批 is " + contract.toString());
 
@@ -441,12 +546,14 @@ public class AudContractController extends BaseController {
 
     }
 
+
+
     /**
-     * 根据编号获取 合同拨付单
+     * 根据合同编号获取 合同拨付单
      */
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
-    @GetMapping(value = {"/paysheet/{contractid}"})
-    public AjaxResult getPaysheet(@PathVariable(value = "contractid", required = false) Integer contractid) {
+    @GetMapping(value = {"/paysheetlist/{contractid}"})
+    public AjaxResult getPaysheetList(@PathVariable(value = "contractid", required = false) Integer contractid) {
         AjaxResult ajax = AjaxResult.success();
 
         if (StringUtils.isNotNull(contractid)) {
@@ -456,6 +563,27 @@ public class AudContractController extends BaseController {
                 ajax.put(AjaxResult.DATA_TAG, p);
             } else {
                 ajax = AjaxResult.error("contractid：" + contractid.toString() + " 不存在");
+            }
+
+        }
+        return ajax;
+    }
+
+    /**
+     * 根据拨付单编号获取 合同拨付单
+     */
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @GetMapping(value = {"/paysheet/{sheetid}"})
+    public AjaxResult getPaysheet(@PathVariable(value = "sheetid", required = false) Integer sheetid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(sheetid)) {
+            logger.debug("getContract paysheet sheetid = " + sheetid.toString());
+            AudSheet p = sheetService.selectSheetTijiaorenById(sheetid);
+            if (p != null) {
+                ajax.put(AjaxResult.DATA_TAG, p);
+            } else {
+                ajax = AjaxResult.error("sheetid：" + sheetid.toString() + " 不存在");
             }
 
         }

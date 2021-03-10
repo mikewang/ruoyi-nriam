@@ -244,9 +244,33 @@ export const constantRoutes = [
       {
         path: 'audit3/:sheetid(\\d+)',
         component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
-        name: 'Audit3Sheet',
+        name: 'Audit3Contract',
         meta: { title: '合同审批', icon: '', opcode: 'audit3',noCache: true }
       },
+      {
+        path: 'audit4/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        name: 'Audit4Contract',
+        meta: { title: '合同审批', icon: '', opcode: 'audit3',noCache: true }
+      },
+      {
+        path: 'audit5/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        name: 'Audit5Contract',
+        meta: { title: '合同审批', icon: '', opcode: 'audit3',noCache: true }
+      },
+      {
+        path: 'audit6/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        name: 'Audit6Contract',
+        meta: { title: '合同审批', icon: '', opcode: 'audit3',noCache: true }
+      },
+      {
+        path: 'audit7/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        name: 'Audit7Contract',
+        meta: { title: '合同审批', icon: '', opcode: 'audit3',noCache: true }
+      }
     ]
   },
   {

@@ -6,6 +6,7 @@ import com.ruoyi.api.mapper.AppClientinfoMapper;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.audit.service.AudApplyService;
+import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.SheetStatus;
@@ -23,11 +24,10 @@ import com.ruoyi.project.mapper.AudProjectMapper;
 import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.sheet.domain.AudBudgetpay;
 import com.ruoyi.sheet.domain.AudSheet;
+import com.ruoyi.sheet.domain.AudSheetauditrecord;
 import com.ruoyi.sheet.domain.BasUsedmaxserialnumber;
-import com.ruoyi.sheet.mapper.AudBudgetpayMapper;
-import com.ruoyi.sheet.mapper.AudSheetMapper;
-import com.ruoyi.sheet.mapper.BasUsedmaxserialnumberMapper;
-import com.ruoyi.sheet.mapper.SrmSupplierinfoMapper;
+import com.ruoyi.sheet.mapper.*;
+import com.ruoyi.system.domain.SysUserRole;
 import com.ruoyi.system.mapper.SysDeptMapper;
 import com.ruoyi.system.mapper.SysDictDataMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
@@ -48,6 +48,9 @@ public class AudContractService {
 
     @Resource
     AudContractMapper audContractMapper;
+
+    @Resource
+    AudSheetauditrecordMapper audSheetauditrecordMapper;
 
     @Resource
     AudContractpayMapper audContractpayMapper;
@@ -247,6 +250,7 @@ public class AudContractService {
     }
 
 
+    // 用于 提交审批。
     @Transactional
     public Integer updateAudContractStatus(AudContract contract) {
         Integer result = 0;
@@ -255,6 +259,9 @@ public class AudContractService {
             //合同提交审核了，这时候要自动生成第一期的拨付单
 
             result = audContractMapper.updateAudContractStatus(contract);
+
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
 
             AudContract thisContract = this.selectContractById(contract.getContractid());
             AudContractpay thispay = thisContract.getContractpayList().get(0);
@@ -439,25 +446,466 @@ public class AudContractService {
             contract.setPasstime(DateUtils.dateTimeNow());
             audContractMapper.updateAudContract(contract);
 
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
+
         } else {
             result = audContractMapper.updateAudContractStatus(contract);
-
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
         }
+
+        //将对应的第一个拨付单的状态设置成相同的状态
+        //获取该合同对应的第一个拨付单的ID
+//        string idSql = " select sheetID from Aud_Sheet "
+//                + " where RelatedContractID = " + contractID
+//                + " and ThisPayTimes = '1' ";    //第一次付款的拨付单
+//        string id = DBAccess.DB.ExecuteScalar(CommandType.Text , idSql).ToString();
+//        ISheetManager isheetm = SheetManager.GetInstance();
+//        isheetm.SetStatus(status, id);
 
 
         return result;
     }
 
+    // 用于 审批流程。
+    @Transactional
+    public Integer updateAudContractStatus(AudContract contract, AudSheetauditrecord record ) {
+        Integer result = 0;
+
+        // 获取 短信服务器的密钥信息
+        String url = "";
+        String key = "";
+
+        List<SysDictData> dictList =  dictDataMapper.selectDictDataByType("短信服务商");
+        for (SysDictData dict : dictList) {
+            if (dict.getDictLabel().equals("key")) {
+                key = dict.getDictValue();
+            }
+            if (dict.getDictLabel().equals("url")) {
+                url = dict.getDictValue();
+            }
+        }
+
+
+        //消除经办人以前的待办事项“针对同一个类型的同一张单，因为要生成新的待办事项，所以讲旧的设为已读”
+        // iamm.SetProcessed(lab_SheetUserID.Text, "合同", lab_ContractID.Text);
+        AudMessage query = new AudMessage();
+        query.setProcessedtime(DateUtils.dateTimeNow());
+        query.setTouserid(contract.getContractuserid());
+        query.setRelatedsheettype("合同");
+        query.setRelatedsheetid(contract.getContractid());
+        messageMapper.updateIfProcessedAudMessageBySheetAndId(query);
+
+        //消除本人的待办事项
+        //  iamm.SetProcessed(Session["CurrentUserID"].ToString(), "合同", lab_ContractID.Text);
+        query = new AudMessage();
+        query.setProcessedtime(DateUtils.dateTimeNow());
+        if (record != null) {
+            query.setTouserid(record.getAudituserid());
+        }
+        query.setRelatedsheettype("合同");
+        query.setRelatedsheetid(contract.getContractid());
+        messageMapper.updateIfProcessedAudMessageBySheetAndId(query);
+
+        if (contract.getSheetstatus() == SheetStatus.YiZuoFei.getCode()) {
+//            audSheetMapper.updateAudSheetStatus(contract);
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
+
+            return 1;
+        }
+        else if (contract.getSheetstatus() == SheetStatus.NoPass.getCode()) {
+            audContractMapper.updateAudContractStatus(contract);
+
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
+
+            //给相应人员发提醒消息
+            String title = "新合同审批不通过";
+            String content =   "您提交的合同：" + contract.getContractname() + "   审批不通过。"
+                    + "<a href=\"/Contract/ContractList_tijiaoren.aspx?f=todo&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+
+            //查询消息要发送给哪个人员
+            //发送给合同的经办人
+            message.setTouserid(contract.getContractuserid());
+            message.setRelatedsheettype("合同");
+            message.setRelatedsheetid(contract.getContractid());
+            messageMapper.insertAudMessage(message);
+
+            //发送短信 发送给经办人
+            String msg = "#type#=合同&#name#=" + contract.getContractname()  + "&#result#=不通过";
+            String jinbanren = contract.getContractuserid().toString();
+            // 暂时 关闭，调试中。
+            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
+
+            //发送短信 发送给当前审核人
+            String danwei = contract.getSupplierinfo().getSuppliername();
+
+            msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=不通过" + "&#money#=" + contract.getContractmoney().toString() + "&#danwei#=" + danwei;
+            String danqianshenheren = record.getAudituserid().toString();
+
+            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+
+        }
+        else if (contract.getSheetstatus() == SheetStatus.BuMenShenPi.getCode()) {
+            audContractMapper.updateAudContractStatus(contract);
+            log.debug("updateAudContract is " + contract.toString());
+
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
+
+
+            //给相应人员发提醒消息
+            //项目负责人审批通过，给经办人发信息
+            String title = "新合同审批中";
+            String content = "您提交的合同：" +  contract.getContractname() + "   项目负责人审批通过。等待部门负责人审批。"
+                    + "<a href=\"/Contract/ContractList_tijiaoren.aspx?f=todo&kid=" +  contract.getContractid() + "\" target=\"_self\" >查看</a> ";
+
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+            //查询消息要发送给哪个人员
+            //发送给合同的经办人
+            message.setTouserid(contract.getContractuserid());
+            message.setRelatedsheettype("合同");
+            message.setRelatedsheetid(contract.getContractid());
+            messageMapper.insertAudMessage(message);
+
+            //给部门负责人发信息
+            title =  "新合同待您审批";
+            content =  "合同：" + contract.getContractname() + "待您审批。"
+                    + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=4&f=todo&type=ht&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";   //t=4表示项目负责人审批
+            //查询消息要发送给哪个人员
+            //发送给项目所属的部门的负责人
+            Integer managerId = 0;
+            SysDept dept = deptMapper.selectDeptById(contract.getProjectinfo().getOrganizationid().longValue());
+            managerId = dept.getManagerId().intValue();
+            message.setTouserid(managerId);
+            message.setRelatedsheettype("合同");
+            message.setRelatedsheetid(contract.getContractid());
+            messageMapper.insertAudMessage(message);
+
+            // 发送推送
+
+            Integer userid = message.getTouserid();
+            List<AppClientinfo>  clientList =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+            for (AppClientinfo client : clientList) {
+                String clientId = client.getClientid();
+                String msgTitle = "新合同待您审批";
+                String msgBody = "合同：" + contract.getContractname() + "待您审批。";
+                // 暂时 关闭，调试中。
+                PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
+            }
+
+            //发送短信 经办人。
+            String msg = "#type#=合同&#name#=" + contract.getContractname();
+            // 暂时 关闭，调试中。
+            Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+
+            //发送短信 发送给当前审核人
+            String danwei = contract.getSupplierinfo().getSuppliername();
+
+            msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过" + "&#money#=" + contract.getContractmoney().toString() + "&#danwei#=" + danwei;
+            String danqianshenheren = record.getAudituserid().toString();
+
+            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+
+
+        }
+        else if (contract.getSheetstatus() == SheetStatus.ChuShenPi.getCode()) {
+            audContractMapper.updateAudContractStatus(contract);
+
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
+
+            //给相应人员发提醒消息
+            //部门负责人审批通过，给经办人发信息
+            String title = "新合同审批中";
+            String content =  "您提交的合同：" + contract.getContractname() + "   部门负责人审批通过。等待分管处审批。"
+                    + "<a href=\"/Contract/ContractList_tijiaoren.aspx?f=todo&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+
+            //查询消息要发送给哪个人员
+            //发送给合同的经办人
+            message.setTouserid(contract.getContractuserid());
+            message.setRelatedsheettype("合同");
+            message.setRelatedsheetid(contract.getContractid());
+            messageMapper.insertAudMessage(message);
+
+            //给相关处的负责人发信息
+            List<SysUserRole> userRoleList = userRoleMapper.selectUserRoleByRoleId(10L);
+
+            for (SysUserRole u : userRoleList) {
+                log.debug("userrole is " + u.toString());
+                Integer userid = u.getUserId().intValue();
+                title =  "新合同待您审批";
+                content =  "合同：" + contract.getContractname() + "待您审批。"
+                        + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=5&f=todo&type=ht&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";   //t=5表示分管处审批
+                //查询消息要发送给哪个人员
+                //发送给分管处的负责人
+                message.setTouserid(userid);
+                message.setRelatedsheettype("合同");
+                message.setRelatedsheetid(contract.getContractid());
+                messageMapper.insertAudMessage(message);
+
+
+                List<AppClientinfo>  clientList =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+                for (AppClientinfo client : clientList) {
+                    String clientId = client.getClientid();
+                    String msgTitle = "新合同待您审批";
+                    String msgBody = "合同：" + contract.getContractname() + "待您审批。";
+                    // 暂时 关闭，调试中。
+                    PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
+                }
+
+                //发送短信
+                String msg = "#type#=合同&#name#=" + contract.getContractname();
+                // 暂时 关闭，调试中。
+                // userid ..
+                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+
+            }
+
+            //发送短信 发送给当前审核人
+            String danwei = contract.getSupplierinfo().getSuppliername();
+
+            String  msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过" + "&#money#=" + contract.getContractmoney().toString() + "&#danwei#=" + danwei;
+            String danqianshenheren = record.getAudituserid().toString();
+
+            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+
+        }
+        else if (contract.getSheetstatus() == SheetStatus.FenGuanSuoShenPi.getCode()) {
+            audContractMapper.updateAudContractStatus(contract);
+
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
+
+            //给相应人员发提醒消息
+            //相关处的负责人审批通过，给经办人发信息
+            String title = "新合同审批中";
+            String content ="您提交的合同：" + contract.getContractname()+ "   分管处审批通过。等待分管所长审批。"
+                    + "<a href=\"/Contract/ContractList_tijiaoren.aspx?f=todo&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+            //查询消息要发送给哪个人员
+            //发送给合同的经办人
+            message.setTouserid(contract.getContractuserid());
+            message.setRelatedsheettype("合同");
+            message.setRelatedsheetid(contract.getContractid());
+            messageMapper.insertAudMessage(message);
+
+            //给分管所长发信息
+            List<SysUserRole> userRoleList = userRoleMapper.selectUserRoleByRoleId(11L);
+            for (SysUserRole u : userRoleList) {
+                Integer userid = u.getUserId().intValue();
+                title =  "新合同待您审批";
+                content =  "合同：" + contract.getContractname() + "待您审批。"
+                        + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=6&f=todo&type=ht&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";   //t=5表示分管处审批
+                //查询消息要发送给哪个人员
+                //发送给分管所长
+                message.setTouserid(userid);
+                message.setRelatedsheettype("合同");
+                message.setRelatedsheetid(contract.getContractid());
+                messageMapper.insertAudMessage(message);
+
+                //发送app推送
+                List<AppClientinfo>  clientList =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+                for (AppClientinfo client : clientList) {
+                    String clientId = client.getClientid();
+                    String msgTitle = "新合同待您审批";
+                    String msgBody = "合同：" + contract.getContractname() + "待您审批。";
+                    // 暂时 关闭，调试中。
+                    PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
+                }
+                //发送短信
+                String msg = "#type#=拨付单&#name#=" + contract.getContractname();
+                // 暂时 关闭，调试中。
+                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+
+            }
+
+            //发送给当前审核人，分管所长 审批之后 C#中 不发短信通知了。
+
+        }
+        else if (contract.getSheetstatus() == SheetStatus.SuoZhangShenPi.getCode()) {
+            audContractMapper.updateAudContractStatus(contract);
+
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
+
+
+            //给相应人员发提醒消息
+            //分管所长审批通过，给经办人发信息
+            String title = "新合同审批中";
+            String content =  "您提交的合同：" + contract.getContractname() + "   分管所长审批通过。等待所长审批。"
+                    + "<a href=\"/Contract/ContractList_tijiaoren.aspx?f=todo&kid=" + contract.getContractid()  + "\" target=\"_self\" >查看</a> ";
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+            //查询消息要发送给哪个人员
+            //发送给合同的经办人
+            message.setTouserid(contract.getContractuserid());
+            message.setRelatedsheettype("合同");
+            message.setRelatedsheetid(contract.getContractid());
+            messageMapper.insertAudMessage(message);
+
+            //给所长发信息
+            List<SysUserRole> userRoleList = userRoleMapper.selectUserRoleByRoleId(12L);
+            for (SysUserRole u : userRoleList) {
+                Integer userid = u.getUserId().intValue();
+                title =  "新合同待您审批";
+                content =  "合同：" + contract.getContractname()  + "待您审批。"
+                        + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=7&f=todo&type=ht&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";   //t=5表示分管处审批
+                //查询消息要发送给哪个人员
+                //发送给 所长
+                message.setTouserid(userid);
+                message.setRelatedsheettype("合同");
+                message.setRelatedsheetid(contract.getContractid());
+                messageMapper.insertAudMessage(message);
+
+                //发送app推送
+                List<AppClientinfo>  clientList =  clientinfoMapper.selectAppClientinfoByUserid(userid);
+                for (AppClientinfo client : clientList) {
+                    String clientId = client.getClientid();
+                    String msgTitle = "新合同待您审批";
+                    String msgBody = "合同：" + contract.getContractname() + "待您审批。";
+                    // 暂时 关闭，调试中。
+                    PushMessageToApp.pushMessageToSingle(clientId, msgTitle, msgBody);
+                }
+                //发送短信
+                String msg = "#type#=拨付单&#name#=" + contract.getContractname();
+                // 暂时 关闭，调试中。
+                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+
+            }
+
+            //发送给当前审核人，分管所长 审批之后 C#中 不发短信通知了。
+
+
+        }
+        else if (contract.getSheetstatus() == SheetStatus.ShenPiWanCheng.getCode()) {
+            audContractMapper.updateAudContractStatus(contract);
+
+            // 级联更新， 合同拨付单的状态等信息
+            updateContractPaysheet(contract.getContractid(), contract.getSheetstatus());
+
+            //  //合同审批通过后，要改写合同正文文档，加上签名，加上二维码
+            //                        ProcessDoc();
+
+            //给相应人员发提醒消息
+            //分管所长审批通过，给经办人发信息
+            String title = "新合同审批完成";
+            String content = "";
+            log.debug("新合同审批完成 audit is " + contract.getContractname());
+            if (record.getAudittype().equals("6")) {
+                content = "您提交的合同：" + contract.getContractname()  + "   由分管所长审批通过。"
+                        + "<a href=\"/Contract/ContractList_tijiaoren.aspx?f=todo&kid=" + contract.getContractid()  + "\" target=\"_self\" >查看</a> ";
+
+            }
+            else if (record.getAudittype().equals("7")) {
+                content ="您提交的合同：" + contract.getContractname()  + "   由所长审批通过。"
+                        + "<a href=\"/Contract/ContractList_tijiaoren.aspx?f=todo&kid=" + contract.getContractid()  + "\" target=\"_self\" >查看</a> ";
+
+            }
+
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+            //查询消息要发送给哪个人员
+            //发送给合同的经办人
+            message.setTouserid(contract.getContractuserid());
+            message.setRelatedsheettype("合同");
+            message.setRelatedsheetid(contract.getContractid());
+            messageMapper.insertAudMessage(message);
+
+
+            //发送短信 发送给当前审核人
+            String danwei = contract.getSupplierinfo().getSuppliername();
+
+            String  msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过" + "&#money#=" + contract.getContractmoney().toString() + "&#danwei#=" + danwei;
+            String danqianshenheren = record.getAudituserid().toString();
+
+            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+
+
+            //发送短信，给经办人
+            msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过";
+            // 暂时 关闭，调试中。
+            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
+
+
+
+            //对应的协作单位审批通过 ，在协作单位开发完成后补充。
+//            for (int s = 0; s < dpl_SupplierIDList.Items.Count; s++)
+//            {
+//                isupm.AuditPass(dpl_SupplierIDList.Items[s].Text);
+//            }
+
+        }
+
+        //记录审核结论
+        audSheetauditrecordMapper.insertAudSheetauditrecord(record);
+
+        return result;
+    }
 
     public List<AudSheet> selectContractPaySheetByContractid(Integer contractid) {
 
-        List<AudSheet> sheetList = audSheetMapper.selectContractPaySheetToAuditByContractid(contractid);
+        List<AudSheet> sheetList = audSheetMapper.selectContractPaySheetByContractid(contractid);
 
         log.debug("request sheetList list is " + sheetList.toString());
 
         return sheetList;
     }
 
+
+    public Integer updateContractPaysheet(Integer contractid, Integer status)
+    {
+
+        List<AudSheet> sheetList =  audSheetMapper.selectContractPaySheetByContractid(contractid);
+
+        for (AudSheet sheet : sheetList) {
+
+            if (sheet.getThispaytimes() == "1") {
+                sheet.setSheetstatus(status);
+                audSheetMapper.updateAudSheetStatus(sheet);
+
+                //如果是完成状态，还要在明细记录里写入审核时间。表示这个付款明细已经执行了
+                if (status ==  SheetStatus.ShenPiWanCheng.getCode()) {
+                    AudBudgetpay record = new AudBudgetpay();
+                    record.setSheetid(contractid);
+                    record.setAudittime(DateUtils.dateTimeNow());
+                    audBudgetpayMapper.updateAudBudgetpayAduitTime(record);
+                }
+            }
+        }
+
+        //
+//            //将对应的第一个拨付单的状态设置成相同的状态
+//            //获取该合同对应的第一个拨付单的ID
+//            string idSql = " select sheetID from Aud_Sheet "
+//                    + " where RelatedContractID = " + contractID
+//                    + " and ThisPayTimes = '1' ";    //第一次付款的拨付单
+//            string id = DBAccess.DB.ExecuteScalar(CommandType.Text , idSql).ToString();
+//            ISheetManager isheetm = SheetManager.GetInstance();
+//            isheetm.SetStatus(status, id);
+
+        return 1;
+    }
 
 //
 //

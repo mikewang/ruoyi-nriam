@@ -118,7 +118,7 @@
 
 <script>
 import {listAudit3Sheet} from "@/api/sheet/sheet";
-import {listXiangmuContract} from "@/api/sheet/contract";
+import {listAudit3Contract} from "@/api/sheet/contract";
 
 export default {
   name: "sheet_audit3_index",
@@ -194,7 +194,7 @@ export default {
       console.log("queryParams is ", this.queryParams);
       listAudit3Sheet(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
-
+          let sheetList = response.rows;
           this.sheetList = sheetList;
           this.total = response.total;
           this.loading = false;
@@ -205,7 +205,7 @@ export default {
     getContractList() {
       this.loading = true;
       console.log("queryParams2 is ", this.queryParams2);
-      listXiangmuContract(this.addDateRange(this.queryParams2, this.dateRange)).then(response => {
+      listAudit3Contract(this.addDateRange(this.queryParams2, this.dateRange)).then(response => {
           console.log("response2 is ", response);
         //处理合同的列表。对于状态是已经完成的合同，要查询其所有下属拨付单的列表
         //对于待审的合同，"待审拨付单"单元格为空
