@@ -13,10 +13,13 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.enums.SheetStatus;
+import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.contract.domain.AudContract;
+import com.ruoyi.contract.domain.AudContractdoc;
 import com.ruoyi.fourtech.domain.AudFourtech;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
@@ -84,7 +87,7 @@ public class AudFourtechController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('fourtech:tijiaoren:list')")
     @GetMapping(value = {"/{fourtechid}"})
-    public AjaxResult getSheet(@PathVariable(value = "fourtechid", required = false) Integer fourtechid) {
+    public AjaxResult getFourtech (@PathVariable(value = "fourtechid", required = false) Integer fourtechid) {
         AjaxResult ajax = AjaxResult.success();
 
         if (StringUtils.isNotNull(fourtechid)) {
@@ -99,6 +102,79 @@ public class AudFourtechController extends BaseController {
         }
         return ajax;
     }
+
+
+    @PreAuthorize("@ss.hasPermi('fourtech:tijiaoren:list')")
+    @Log(title = "四技合同管理", businessType = BusinessType.INSERT)
+    @PostMapping("/tijiaoren")
+    public AjaxResult add(@Validated @RequestBody AudFourtech contract) {
+
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer userid = getCurrentLoginUserid();
+
+        contract.setSheetuserid(userid);
+        contract.setSheettime(DateUtils.dateTimeNow());
+
+        Integer status = contract.getSheetstatus();
+        logger.debug("AudFourtech .getSheetstatus is " + status.toString());
+
+        contract.setSheetstatus(SheetStatus.XinJianZhong.getCode());
+        logger.debug("AudFourtech add is " + contract.toString());
+
+        contract.setDaxie(ConvertUpMoney.toChinese(contract.getFourtechmoney().toString()));
+
+        Integer result = fourtechService.addFourtechTijiaoren(contract);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, contract.getFourtechid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:tijiaoren:list')")
+    @Log(title = "四技合同管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/tijiaoren")
+    public AjaxResult update(@Validated @RequestBody AudFourtech contract) {
+        AjaxResult ajax = AjaxResult.success();
+        logger.debug("AudFourtech update is " + contract.toString());
+
+        contract.setDaxie(ConvertUpMoney.toChinese(contract.getFourtechmoney().toString()));
+        Integer result = fourtechService.updateFourtechTijiaoren(contract);
+
+        if (result > 0) {
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:tijiaoren:list')")
+    @GetMapping("/doc/list")
+    public AjaxResult doclist(AudContractdoc query) {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer contractid = query.getContractid();
+
+        if (contractid != null) {
+            List<AudContractdoc> list = fourtechService.selectFourtechContractdocList(query);
+            logger.debug("selectAudContractdocList is ", list.toString());
+            ajax.put(AjaxResult.DATA_TAG, list);
+        }
+
+        return ajax;
+    }
+
 
 //    /**
 //     * 根据编号,获取 明细 详细信息

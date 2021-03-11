@@ -14,6 +14,10 @@ import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SMSSender.Juhe;
 import com.ruoyi.common.utils.push.PushMessageToApp;
+import com.ruoyi.contract.domain.AudContract;
+import com.ruoyi.contract.domain.AudContractdoc;
+import com.ruoyi.contract.domain.AudContractpay;
+import com.ruoyi.contract.mapper.AudContractdocMapper;
 import com.ruoyi.fourtech.domain.AudFourtech;
 import com.ruoyi.fourtech.mapper.AudFourtechMapper;
 import com.ruoyi.project.domain.DocFile;
@@ -44,7 +48,10 @@ public class AudFourtechService {
 
     @Resource
     AudFourtechMapper audFourtechMapper;
-    
+
+    @Resource
+    private AudContractdocMapper contractdocMapper;
+
 
     @Resource
     AudBudgetpayMapper audBudgetpayMapper;
@@ -101,6 +108,37 @@ public class AudFourtechService {
         AudFourtech sheet = audFourtechMapper.selectFourtechById(sheetid);
 
         return sheet;
+    }
+
+
+    @Transactional
+    public Integer addFourtechTijiaoren(AudFourtech contract) {
+        Integer result = 1;
+
+        result = audFourtechMapper.insertFourtech(contract);
+
+        return result;
+    }
+
+
+    @Transactional
+    public Integer updateFourtechTijiaoren(AudFourtech contract) {
+        Integer result = 1;
+
+        result = audFourtechMapper.updateFourtech(contract);
+
+        return result;
+    }
+
+
+
+    public List<AudContractdoc> selectFourtechContractdocList(AudContractdoc sheet) {
+
+        List<AudContractdoc> sheetList = contractdocMapper.selectAudContractdocList(sheet);
+
+        log.debug("request sheetList list is " + sheetList.toString());
+
+        return sheetList;
     }
 //
 //

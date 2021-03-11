@@ -115,7 +115,7 @@ export function uploadFile(data) {
 }
 
 
-// 查询项目列表
+// 查询合同文件列表
 export function listContractdoc(query) {
   return request({
     url: '/contract/doc/list',

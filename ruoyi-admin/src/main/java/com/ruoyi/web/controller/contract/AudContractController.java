@@ -110,6 +110,11 @@ public class AudContractController extends BaseController {
         return getDataTable(list);
     }
 
+
+
+
+
+
     @PreAuthorize("@ss.hasPermi('sheet:audit3:list')")
     @GetMapping("/audit3/list")
     public TableDataInfo xiangmuList(AudContract query) {
@@ -135,6 +140,106 @@ public class AudContractController extends BaseController {
         return ajax;
     }
 
+    @PreAuthorize("@ss.hasPermi('sheet:audit4:list')")
+    @GetMapping("/audit4/list")
+    public TableDataInfo bumenList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("audit4 list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.selectContractBumen(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit4:list')")
+    @Log(title = "合同部门审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit4")
+    public AjaxResult bumenConfirm(@Validated @RequestBody AudContract contract) {
+
+        logger.debug("audit4 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 4);
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit5:list')")
+    @GetMapping("/audit5/list")
+    public TableDataInfo chuList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("audit5 list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.selectContractChu(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit5:list')")
+    @Log(title = "合同分管处审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit5")
+    public AjaxResult chuConfirm(@Validated @RequestBody AudContract contract) {
+
+        logger.debug("audit5 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 5);
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit6:list')")
+    @GetMapping("/audit6/list")
+    public TableDataInfo fenguansuoList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("audit6 list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.selectContractFenguansuo(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit6:list')")
+    @Log(title = "合同分管所审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit6")
+    public AjaxResult fengguansuoConfirm(@Validated @RequestBody AudContract contract) {
+
+        logger.debug("audit6 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 6);
+
+        return ajax;
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit7:list')")
+    @GetMapping("/audit7/list")
+    public TableDataInfo suoList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("audit7 list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.selectContractSuo(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('sheet:audit7:list')")
+    @Log(title = "合同所审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit7")
+    public AjaxResult suoConfirm(@Validated @RequestBody AudContract contract) {
+
+        logger.debug("audit7 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 7);
+
+        return ajax;
+    }
 
     private String signpicFilename(String signpicName) {
         // 本地资源路径
@@ -499,7 +604,7 @@ public class AudContractController extends BaseController {
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @GetMapping("/doc/list")
     public AjaxResult doclist(AudContractdoc query) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());

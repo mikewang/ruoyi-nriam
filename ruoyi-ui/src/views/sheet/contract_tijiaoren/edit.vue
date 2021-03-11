@@ -271,7 +271,7 @@
 
           <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改后提交</el-button>
           <el-button v-if="hidden.printBtn === false" type="primary" @click="printContractdoc">打印合同正文</el-button>
-
+          <el-button v-if="hidden.downloadprintBtn === false" type="primary" @click="printContractdoc">下载合同打印</el-button>
           <el-button @click="closeForm">取 消</el-button>
         </el-col>
       </el-row>
@@ -583,6 +583,7 @@ export default {
         returnBtn: true,
         confirmBtn: true,
         printBtn: true,
+        downloadprintBtn: true,
         addAcceptanceBtn: true
       };
     },
@@ -1121,6 +1122,8 @@ export default {
                 } else {
                   this.msgSuccess("保存成功" + response.data);
                   this.form.contractid = response.data;
+                  this.opcode = "query";
+                  this.configTemplateStatus();
                 }
                 //this.closeForm();
               });

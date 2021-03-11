@@ -159,7 +159,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.sheetid);
+      this.ids = selection.map(item => item.fourtechid);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
@@ -172,7 +172,7 @@ export default {
     handleUpdate(row) {
       console.log("update row is  ", row);
 
-      const path = '/fourtech/tijiaoren/' + row.sheetid;
+      const path = '/fourtech/tijiaoren/' + row.fourtechid;
       console.log("path is " + path);
       this.$router.push({path: path});
     }

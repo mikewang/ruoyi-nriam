@@ -135,6 +135,55 @@ public class AudContractService {
         return sheetList;
     }
 
+    public List<AudContract> selectContractBumen(AudContract sheet) {
+
+        List<AudContract> sheetList = audContractMapper.selectContractBumen(sheet);
+        for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+        }
+        log.debug("request selectContractBumen list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+    public List<AudContract> selectContractChu(AudContract sheet) {
+
+        List<AudContract> sheetList = audContractMapper.selectContractChu(sheet);
+        for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+        }
+        log.debug("request selectContractChu list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+    public List<AudContract> selectContractFenguansuo(AudContract sheet) {
+
+        List<AudContract> sheetList = audContractMapper.selectContractFenguansuo(sheet);
+        for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+        }
+        log.debug("request selectContractFenguansuo list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+    public List<AudContract> selectContractSuo(AudContract sheet) {
+
+        List<AudContract> sheetList = audContractMapper.selectContractSuo(sheet);
+        for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+        }
+        log.debug("request selectContractSuo list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+
 
     public AudContract selectContractById(Integer contractid) {
 
@@ -159,8 +208,7 @@ public class AudContractService {
     public Integer addContractTijiaoren(AudContract contract) {
         Integer result = 1;
 
-        ConvertUpMoney.toChinese(contract.getContractmoney().toString());
-
+       // ConvertUpMoney.toChinese(contract.getContractmoney().toString());
 
         result = audContractMapper.insertAudContract(contract);
 
@@ -430,6 +478,7 @@ public class AudContractService {
                     url = dict.getDictValue();
                 }
             }
+
             if (url.length() > 0) {
                 log.debug("发送短息开始，" + url + " key: " + key);
                 String msg = "#type#=合同&#name#=" + contract.getContractname();
@@ -846,8 +895,6 @@ public class AudContractService {
             msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过";
             // 暂时 关闭，调试中。
             Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
-
-
 
             //对应的协作单位审批通过 ，在协作单位开发完成后补充。
 //            for (int s = 0; s < dpl_SupplierIDList.Items.Count; s++)

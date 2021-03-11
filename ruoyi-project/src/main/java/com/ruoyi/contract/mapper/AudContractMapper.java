@@ -20,6 +20,10 @@ public interface AudContractMapper {
     AudContract selectContractById(Integer contractid);
 
     List<AudContract> selectContractXiangmu(AudContract record);
+    List<AudContract> selectContractBumen(AudContract record);
+    List<AudContract> selectContractChu(AudContract record);
+    List<AudContract> selectContractFenguansuo(AudContract record);
+    List<AudContract> selectContractSuo(AudContract record);
 
     List<AudContract> selectAll();
 

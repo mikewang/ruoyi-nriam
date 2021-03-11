@@ -140,11 +140,52 @@
         WHERE  (a.ProjectID in (select ProjectID from Aud_Project where ProjectManagerID  = #{contractuserid,jdbcType=INTEGER})
         and a.SheetStatus = 3 )
         or (
+        a.SheetStatus = 8 and
         a.ContractID in
         (select RelatedContractID from Aud_Sheet where SheetStatus = 3 and SheetType = '合同拨付单'
         and ProjectID in(select ProjectID from Aud_Project where ProjectManagerID = #{contractuserid,jdbcType=INTEGER})
-        and a.SheetStatus = 8
         ) )
+        order by a.ContractTime desc
+    </select>
+
+    <select id="selectContractBumen" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+        <include refid="selectContract"/>
+        WHERE  (a.OrganizationID in (select dept_id from sys_dept where manager_id  = #{contractuserid,jdbcType=INTEGER})
+        and a.SheetStatus = 4 )
+        or (
+        a.SheetStatus = 8 and
+        a.ContractID in
+        (select RelatedContractID from Aud_Sheet where SheetStatus = 4 and SheetType = '合同拨付单'
+        and OrganizationID in(select dept_id from sys_dept where manager_id = #{contractuserid,jdbcType=INTEGER})
+        )  )
+        order by a.ContractTime desc
+    </select>
+
+    <select id="selectContractChu" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+        <include refid="selectContract"/>
+        WHERE  ( a.SheetStatus = 5 )
+        or (
+        a.SheetStatus = 8 and
+        a.ContractID in
+        (select RelatedContractID from Aud_Sheet where SheetStatus = 5 and SheetType = '合同拨付单') )
+        order by a.ContractTime desc
+    </select>
+    <select id="selectContractFenguansuo" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+        <include refid="selectContract"/>
+        WHERE  ( a.SheetStatus = 6 )
+        or (
+        a.SheetStatus = 8 and
+        a.ContractID in
+        (select RelatedContractID from Aud_Sheet where SheetStatus = 6 and SheetType = '合同拨付单') )
+        order by a.ContractTime desc
+    </select>
+    <select id="selectContractSuo" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+        <include refid="selectContract"/>
+        WHERE  ( a.SheetStatus = 7 )
+        or (
+        a.SheetStatus = 8 and
+        a.ContractID in
+        (select RelatedContractID from Aud_Sheet where SheetStatus = 7 and SheetType = '合同拨付单') )
         order by a.ContractTime desc
     </select>
 
