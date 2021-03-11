@@ -604,6 +604,9 @@ public class AudContractController extends BaseController {
         return ajax;
     }
 
+    /**
+     * 文件列表
+     */
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @GetMapping("/doc/list")
     public AjaxResult doclist(AudContractdoc query) {

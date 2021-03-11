@@ -400,7 +400,7 @@ export default {
             this_.contractuploadfileList = doclist;
 
 
-            getSignpic(contract.contractuserid).then(response => {
+            getSignpic(contract.sheetuserid).then(response => {
               console.log("getSignpic response is ", response);
               contract.sheetuseridImage = response.data.signpicName;
 
@@ -746,19 +746,17 @@ export default {
     // 上传 合同文本。
 
     requestUploadDoc: function (params) {
-
-      if (this.form.contractid === undefined) {
-
+      console.log(file, " this.form.fourtechid is ", this.form.fourtechid);
+      if (this.form.fourtechid === undefined) {
         return this.$confirm(`合同没有保存？`);
       }
       let file = params.file;
-      console.log(file, " contractid is ", this.form.contractid);
       let formData = new FormData();
       formData.append('file', file);
       formData.append("name", "");
       formData.append("attachToType", "");
       formData.append("docType", "");
-      formData.append("contractid", this.form.contractid);
+      formData.append("contractid", this.form.fourtechid);
       uploadFile(formData).then(response => {
         console.log("response.name is ", response.name);
         console.log("response.url is ", response.url);
@@ -798,7 +796,7 @@ export default {
     },
 
     beforeUploadDoc(file) {
-      if (this.form.contractid === undefined) {
+      if (this.form.fourtechid === undefined) {
         this.msgError("合同还没有保存");
         return false;
       }
@@ -819,18 +817,18 @@ export default {
 
     downloadContractdocTemplate() {
 
-      console.log("this.form.contractid is ", this.form.contractid);
-      let contractid = this.form.contractid;
+      console.log("this.form.fourtechid is ", this.form.fourtechid);
+      let contractid = this.form.fourtechid;
       if (contractid !== undefined) {
         downloadTemplateDoc({"contractid": contractid}).then(response => {
 
-          console.log("response is ", response);
+          console.log(" downloadContractdocTemplate response is ", response);
 
           var fileURL = window.URL.createObjectURL(new Blob([response]));
           var fileLink = document.createElement('a');
 
           fileLink.href = fileURL;
-          fileLink.setAttribute('download', this.form.contractname + ".doc");
+          fileLink.setAttribute('download', this.form.fourtechname + ".doc");
           document.body.appendChild(fileLink);
 
           fileLink.click();

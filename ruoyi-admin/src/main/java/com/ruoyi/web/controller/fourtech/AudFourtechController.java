@@ -17,7 +17,9 @@ import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.contract.domain.AudContract;
 import com.ruoyi.contract.domain.AudContractdoc;
 import com.ruoyi.fourtech.domain.AudFourtech;
@@ -27,17 +29,29 @@ import com.ruoyi.project.domain.DocFile;
 import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.fourtech.service.AudFourtechService;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.usermodel.Bookmark;
+import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/fourtech")
@@ -175,6 +189,190 @@ public class AudFourtechController extends BaseController {
         return ajax;
     }
 
+    /**
+     * 文件上传
+     */
+    @PreAuthorize("@ss.hasPermi('fourtech:tijiaoren:list')")
+    @Log(title = "文件上传", businessType = BusinessType.UPDATE)
+    @PostMapping("/doc/upload")
+    public AjaxResult upload(@RequestParam("file") MultipartFile file, @RequestParam("contractid") Integer contractid, @RequestParam("name") String name) throws IOException {
+        logger.debug("file getOriginalFilename is " + file.getOriginalFilename() + " name is " + name);
+        try {
+            String originalFilename = file.getOriginalFilename();
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath() + "/Doc";
+
+            String yyyymm = DateUtils.dateTimeNow("yyyyMM");
+            String ddHHmmss = DateUtils.dateTimeNow("ddHHmmss");
+
+            filePath = filePath + "/" + yyyymm + "/" + ddHHmmss;
+
+            // 上传完成 并返回新文件名称
+            String pathFileName = FileUploadUtils.uploadOriginalFile(filePath, file);
+
+            String url = serverConfig.getUrl() + pathFileName;
+
+            String docType = FileTypeUtils.getFileType(pathFileName);
+
+            BasDoc doc = new BasDoc();
+            doc.setDocname(originalFilename);
+            String relativepath = StringUtils.trimstart(filePath, RuoYiConfig.getProfile());
+            relativepath = StringUtils.trimend(relativepath, "/");
+
+            doc.setRelativepath(relativepath);
+            doc.setAttachtotype("");
+            doc.setDoctype(docType);
+
+            logger.debug("relativepath is " + filePath);
+            logger.debug("originalFilename is " + originalFilename);
+            logger.debug("attachToType is " + "合同文本，这个字段 不用来关联，有单独的关联表");
+            logger.debug("docType is " + docType);
+
+            Integer docid = fourtechService.mergeContractDoc(contractid, doc);
+
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("name", originalFilename);
+            ajax.put("url", docid);
+            ajax.put("fileUrl", pathFileName);
+
+            return ajax;
+        } catch (Exception e) {
+            return AjaxResult.error(e.getMessage() + " 上传文件异常，请联系管理员");
+        }
+    }
+
+    /**
+     * 文件下载
+     */
+    @PreAuthorize("@ss.hasPermi('fourtech:tijiaoren:list')")
+    @Log(title = "模板文件下载", businessType = BusinessType.EXPORT)
+    @GetMapping("/template/download")
+    public void download(@RequestParam("contractid") Integer contractid, HttpServletResponse response, HttpServletRequest request) throws IOException
+    {
+        try
+        {
+            String filename = "";
+
+            AudFourtech contract = fourtechService.selectFourtechById(contractid);
+
+            filename = contract.getFourtechtype();
+
+            // 本地资源路径
+            String localPath = RuoYiConfig.getDownloadPath();
+            logger.debug("localPath is " + localPath);
+
+            String resource = "Contract/Template/";
+
+            filename = filename + ".doc";
+            resource = resource + filename;
+
+            resource = localPath + resource;
+
+            if (!FileUtils.checkAllowDownload(resource) || !FileUtils.getFile(resource).exists())
+            {
+                throw new Exception(StringUtils.format("合同文件模板({})非法，不允许下载或不存在。 ", resource));
+            }
+
+            // 数据库资源地址
+            String downloadPath = resource;
+            logger.debug("downloadPath is " + downloadPath);
+
+            File f = FileUtils.getFile(downloadPath);
+
+            //File f = new File(downloadPath);
+            if(f.exists() && !f.isDirectory()) {
+                logger.debug("downloadPath file is existed. " + downloadPath);
+            }
+            else {
+                logger.debug("downloadPath file is not  existed. " + downloadPath);
+            }
+
+            String path = downloadPath;
+            // 下载名称
+            String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
+            logger.debug("downloadName is " + downloadName);
+
+
+            try {
+                String buffer = "";
+
+                if (path.endsWith(".doc")){
+                    InputStream is = new FileInputStream(new File(path));
+
+                    HWPFDocument document = new HWPFDocument(is);
+
+                    for (Integer i = 0; i < document.getBookmarks().getBookmarksCount(); i++) {
+                        Bookmark bookmark =  document.getBookmarks().getBookmark(i);
+
+                        logger.debug("书签" + (i+1) + "的名称是：" + bookmark.getName());
+                        logger.debug("开始位置：" + bookmark.getStart());
+                        logger.debug("结束位置：" + bookmark.getEnd());
+
+                    }
+
+                    Map<String,String> dataMap = new HashMap<String,String >();
+                    dataMap.put("title", contract.getFourtechname());
+
+                    if (contract.getFourtechcode() != null) {
+                        dataMap.put("contractcode", contract.getFourtechcode());
+                    }
+                    else {
+                        dataMap.put("contractcode", "");
+                    }
+
+                    dataMap.put("fengmian_projectName", contract.getFourtechname());
+                    dataMap.put("fengmian_coperationUnit", contract.getCoperationunit());
+                    dataMap.put("projectname", contract.getFourtechname());
+                    // 代替图片，方法不确认，待确认。
+//                    dataMap.put("sign_faren", contract.getSupplierinfo().getSuppliername());
+//                    dataMap.put("sign_pm", contract.getSupplierinfo().getSuppliername());
+
+
+                    logger.debug("dataMap is " + dataMap.toString());
+
+                    for (String  key : dataMap.keySet()) {
+                        for(int i = 0; i < document.getBookmarks().getBookmarksCount(); i++){
+                            Bookmark bookmark = document.getBookmarks().getBookmark(i);
+                            if(bookmark.getName().equals(key)){
+                                logger.debug("替代书签" + (i+1) + "的名称 key 是：" + bookmark.getName());
+                                Range range = new Range(bookmark.getStart(),bookmark.getEnd(),document);
+                                range.insertBefore(dataMap.get(key));
+                                //range.insertAfter(dataMap.get(key));
+                                break;
+                            }
+                        }
+                    }
+
+                    response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                    FileUtils.setAttachmentResponseHeader(response, contract.getFourtechname());
+                    document.write(response.getOutputStream());
+
+                    logger.debug("此文件 bookmarks count = " + document.getBookmarks().getBookmarksCount());
+
+                }else if (path.endsWith(".docx")){
+                    FileInputStream fs = new FileInputStream(new File(path));
+                    XWPFDocument xdoc = new XWPFDocument(fs);
+                    XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
+                    buffer = extractor.getText();
+                } else {
+                    logger.debug("此文件不是word文件！" + downloadPath);
+                }
+            }
+            catch (Exception e) {
+                logger.error("读取文件标签失败", e);
+            }
+
+
+
+            //response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            //FileUtils.setAttachmentResponseHeader(response, downloadName);
+            //FileUtils.writeBytes(downloadPath, response.getOutputStream());
+        }
+        catch (Exception e)
+        {
+            logger.error("下载文件失败", e);
+        }
+    }
 
 //    /**
 //     * 根据编号,获取 明细 详细信息

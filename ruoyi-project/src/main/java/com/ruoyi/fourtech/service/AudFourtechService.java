@@ -131,6 +131,22 @@ public class AudFourtechService {
     }
 
 
+    @Transactional
+    public Integer mergeContractDoc(Integer contractid, BasDoc doc) {
+
+        Integer result = basDocMapper.insertBasDoc(doc);
+
+        log.debug("mergeContractDoc docid is " + doc.getDocid().toString());
+
+        AudContractdoc record = new AudContractdoc();
+        record.setContractid(contractid);
+        record.setDocid(doc.getDocid());
+        record.setIfdeleted(0);
+
+        contractdocMapper.insertAudContractdoc(record);
+
+        return doc.getDocid();
+    }
 
     public List<AudContractdoc> selectFourtechContractdocList(AudContractdoc sheet) {
 
