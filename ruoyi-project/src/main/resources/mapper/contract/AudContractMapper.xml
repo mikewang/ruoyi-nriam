@@ -116,7 +116,11 @@
 
   <update id="updateAudContractStatus" parameterType="com.ruoyi.contract.domain.AudContract">
     update Aud_Contract
-    set  SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    set
+      <if test="passtime != null ">
+          passtime = #{passtime,jdbcType=VARCHAR},
+      </if>
+      SheetStatus = #{sheetstatus,jdbcType=INTEGER}
     where ContractID = #{contractid,jdbcType=INTEGER}
   </update>
 

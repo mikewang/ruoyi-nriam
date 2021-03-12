@@ -15,6 +15,7 @@ package com.ruoyi.common.enums;
  YiQianDing = 30,               //已签订
  FuKuanWanCheng = 31,               //付款完成
  ShenQingZuoFei = 34            //申请作废中
+ ChuShen = 47                  //产业处初审
 
  */
 public enum SheetStatus
@@ -31,6 +32,7 @@ public enum SheetStatus
     ,YiQianDing(30, "已签订")
     ,FuKuanWanCheng(31, "付款完成")
     ,ShenQingZuoFei(34, "申请作废中")
+    ,ChuShen(47, "产业处初审")
     ;
 
     private final Integer code;

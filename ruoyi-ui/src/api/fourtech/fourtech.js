@@ -61,9 +61,68 @@ export function uploadFile(data) {
 
 
 // 查询合同文件列表
-export function listContractdoc(query) {
+export function listContractdoc(fourtechid) {
   return request({
-    url: '/fourtech/doc/list',
+    url: '/fourtech/doc/list/' + praseStrEmpty(fourtechid),
+    method: 'get'
+  })
+}
+
+export function submitFourtech(data) {
+  return request({
+    url: '/fourtech/submit',
+    method: 'put',
+    data: data
+  })
+}
+
+export function confirmAuditFourtech(data, opcode) {
+  return request({
+    url: '/fourtech/' + opcode,
+    method: 'put',
+    data: data
+  })
+}
+
+export function listAudit2Fourtech(query) {
+  return request({
+    url: '/fourtech/audit2/list',
+    method: 'get',
+    params: query
+  })
+}
+
+
+export function listAudit3Fourtech(query) {
+  return request({
+    url: '/fourtech/audit3/list',
+    method: 'get',
+    params: query
+  })
+}
+
+
+export function listAudit4Fourtech(query) {
+  return request({
+    url: '/fourtech/audit4/list',
+    method: 'get',
+    params: query
+  })
+}
+
+
+export function listAudit5Fourtech(query) {
+  return request({
+    url: '/fourtech/audit5/list',
+    method: 'get',
+    params: query
+  })
+}
+
+
+export function listAudit7Fourtech(query) {
+  return request({
+    url: '/fourtech/audit7/list',
     method: 'get',
     params: query
   })

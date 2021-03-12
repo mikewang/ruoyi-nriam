@@ -104,9 +104,57 @@
     where FourTechID = #{fourtechid,jdbcType=INTEGER}
   </update>
 
+  <update id="updateFourtechStatus" parameterType="com.ruoyi.fourtech.domain.AudFourtech">
+    update Aud_FourTech
+    set
+    <if test="passtime != null ">
+      passtime = #{passtime,jdbcType=VARCHAR},
+    </if>
+    SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    where FourTechID = #{fourtechid,jdbcType=INTEGER}
+  </update>
+
   <select id="selectFourtechById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <include refid="selectFourtech"/>
     where FourTechID = #{fourtechid,jdbcType=INTEGER}
   </select>
 
+
+  <select id="selectFourtechChushen" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
+    <include refid="selectFourtech"/>
+    WHERE
+     a.SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    order by a.SheetTime desc
+  </select>
+
+
+  <select id="selectFourtechXiangmu" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
+    <include refid="selectFourtech"/>
+    WHERE
+    a.SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    and a.managerid =  #{sheetuserid,jdbcType=INTEGER}
+    order by a.SheetTime desc
+  </select>
+
+  <select id="selectFourtechBumen" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
+    <include refid="selectFourtech"/>
+    WHERE
+    a.SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    order by a.SheetTime desc
+  </select>
+
+  <select id="selectFourtechChu" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
+    <include refid="selectFourtech"/>
+    WHERE
+    a.SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    order by a.SheetTime desc
+  </select>
+
+
+  <select id="selectFourtechSuozhang" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
+    <include refid="selectFourtech"/>
+    WHERE
+    a.SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    order by a.SheetTime desc
+  </select>
 </mapper>

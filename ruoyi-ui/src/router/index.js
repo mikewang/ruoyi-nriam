@@ -291,40 +291,40 @@ export const constantRoutes = [
         meta: { title: '四技合同查看', icon: '', opcode: 'query',noCache: true }
       },
       {
-        path: 'paysheet/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/paysheet'], resolve),
-        name: 'queryPaysheet',
-        meta: { title: '合同拨付单', icon: '', opcode: 'query',noCache: true }
+        path: 'audit2/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/fourtech/tijiaoren/edit'], resolve),
+        name: 'Audit2Fourtech',
+        meta: { title: '四技合同审批', icon: '', opcode: 'audit2',noCache: true }
       },
       {
         path: 'audit3/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
-        name: 'Audit3Contract',
-        meta: { title: '合同审批', icon: '', opcode: 'audit3',noCache: true }
+        component: (resolve) => require(['@/views/fourtech/tijiaoren/edit'], resolve),
+        name: 'Audit3Fourtech',
+        meta: { title: '四技合同审批', icon: '', opcode: 'audit3',noCache: true }
       },
       {
         path: 'audit4/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
-        name: 'Audit4Contract',
-        meta: { title: '合同审批', icon: '', opcode: 'audit4',noCache: true }
+        component: (resolve) => require(['@/views/fourtech/tijiaoren/edit'], resolve),
+        name: 'Audit4Fourtech',
+        meta: { title: '四技合同审批', icon: '', opcode: 'audit4',noCache: true }
       },
       {
         path: 'audit5/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
-        name: 'Audit5Contract',
-        meta: { title: '合同审批', icon: '', opcode: 'audit5',noCache: true }
+        component: (resolve) => require(['@/views/fourtech/tijiaoren/edit'], resolve),
+        name: 'Audit5Fourtech',
+        meta: { title: '四技合同审批', icon: '', opcode: 'audit5',noCache: true }
       },
       {
         path: 'audit6/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
-        name: 'Audit6Contract',
-        meta: { title: '合同审批', icon: '', opcode: 'audit6',noCache: true }
+        component: (resolve) => require(['@/views/fourtech/tijiaoren/edit'], resolve),
+        name: 'Audit6Fourtech',
+        meta: { title: '四技合同审批', icon: '', opcode: 'audit6',noCache: true }
       },
       {
         path: 'audit7/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
-        name: 'Audit7Contract',
-        meta: { title: '合同审批', icon: '', opcode: 'audit7',noCache: true }
+        component: (resolve) => require(['@/views/fourtech/tijiaoren/edit'], resolve),
+        name: 'Audit7Fourtech',
+        meta: { title: '四技合同审批', icon: '', opcode: 'audit7',noCache: true }
       }
     ]
   },

@@ -154,7 +154,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-checkbox v-model="form.iftemplate" @change="changeIftemplate">上传非模板的合同（word和pdf）</el-checkbox>
+              <el-checkbox v-model="form.iftemplate" @change="changeIftemplate"><span v-if="form.iftemplate">上传的是模板合同</span> <span v-else>上传非模板的合同（word和pdf）</span></el-checkbox>
             </el-col>
           </el-row>
         </template>
@@ -232,14 +232,13 @@ import {
   updateSheet,
   confirmAuditSheet
 } from "@/api/sheet/sheet";
-import {addFourtech, updateFourtech, getFourtech,downloadTemplateDoc, uploadFile,listContractdoc} from "@/api/fourtech/fourtech";
+import {addFourtech, updateFourtech, getFourtech,downloadTemplateDoc, uploadFile,listContractdoc,submitFourtech, confirmAuditFourtech} from "@/api/fourtech/fourtech";
 
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
 import {listUser} from "@/api/system/user";
 import {listDept} from "@/api/system/dept";
 import {listTeam} from "@/api/project/team";
-import {listContractPaysheet} from "@/api/sheet/contract";
 
 
 export default {
@@ -303,7 +302,8 @@ export default {
         XinJianZhong: 17,
         YiQianDing: 30,
         FuKuanWanCheng: 31,
-        ShenQingZuoFei: 34
+        ShenQingZuoFei: 34,
+        ChuShen: 47
       },
 
       // 日期范围
@@ -381,7 +381,7 @@ export default {
 
           const contract = response.data;
 
-          listContractdoc({contractid: contract.fourtechid}).then(response => {
+          listContractdoc(contract.fourtechid).then(response => {
 
             console.log("listContractdoc is ", response.data);
             if (response.data !== null) {
@@ -416,10 +416,6 @@ export default {
               });
             });
           });
-
-
-
-
 
 
 
@@ -470,6 +466,17 @@ export default {
           this.hidden.changeBtn = false;
           this.hidden.deleteBtn = false;
           this.hidden.submitBtn = false;
+        }
+      }
+      else if (this.form.sheetstatus === this.SheetStatus.ChuShen) {
+        if (this.opcode.indexOf("query") !== -1) {
+          this.hidden.acceptance = false;
+
+        } else if (this.opcode.indexOf("audit") !== -1) {
+          this.hidden.acceptance = false;
+          this.hidden.confirm = false;
+          this.readonly.confirm = false;
+          this.hidden.confirmBtn = false;
         }
       }
       else if (this.form.sheetstatus === this.SheetStatus.XiangMuShenPi) {
@@ -1203,32 +1210,11 @@ export default {
           console.log("submit form is ", this.form);
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          if (this_.opcode === "add") {
-            // 处理掉添加， 为了更新或修改。
-            this_.form.budgetpayList.forEach(function (item) {
-              if (item.payid < 0) {
-                item.payid = undefined;
-              }
+          if (this_.form.sheetstatus === 17  && this_.form.fourtechid !== undefined) {
+            submitFourtech(this_.form).then(result => {
+              this.msgSuccess("提交审批成功");
+              this.closeForm();
             });
-
-            if (this_.form.sheetid === undefined) {
-              addSheet(this.form).then(response => {
-                if (response.data === 0) {
-                  this_.msgError("提交审核失败");
-                  this_.form.sheetid = undefined;
-                } else {
-                  this.msgSuccess("提交审核成功");
-                  this.form.sheetid = response.data;
-                }
-                this.closeForm();
-              });
-            } else {
-              updateSheet(this.form).then(result => {
-                this.msgSuccess("提交审核成功");
-                this.closeForm();
-              });
-
-            }
           }
         }
       });
@@ -1272,7 +1258,7 @@ export default {
         }).then(function () {
           console.log("audit opcode is " + this_.opcode);
           this_.loading = true;
-          confirmAuditSheet(this_.form, this_.opcode).then(result => {
+          confirmAuditFourtech(this_.form, this_.opcode).then(result => {
             console.log("audit opcode is " + this_.opcode + " result is " , result);
             if (result.code === 200) {
               this_.closeForm();
@@ -1298,7 +1284,7 @@ export default {
             type: "warning"
           }).then(function () {
 
-             confirmAuditSheet(this_.form, this_.opcode).then(result => {
+            confirmAuditFourtech(this_.form, this_.opcode).then(result => {
                this_.closeForm();
                this_.msgSuccess("审批不通过 完成");
              });

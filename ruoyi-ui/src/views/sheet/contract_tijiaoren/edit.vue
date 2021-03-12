@@ -1151,7 +1151,7 @@ export default {
           console.log("submit form is ", this.form);
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          if (this_.opcode === "query") {
+          if (this_.form.sheetstatus === 17 && this_.form.contractid !== undefined) {
             // 处理掉添加， 为了更新或修改。
 
             submitContract(this.form).then(result => {

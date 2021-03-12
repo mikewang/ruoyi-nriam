@@ -1,6 +1,10 @@
 package com.ruoyi.fourtech.domain;
 
+import com.ruoyi.contract.domain.AudContractdoc;
+import com.ruoyi.sheet.domain.AudSheet;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 public class AudFourtech {
 
@@ -58,6 +62,19 @@ public class AudFourtech {
     private String sheetstatuslinktext;
 
     private String fourtechDateRange;
+
+    private List<AudContractdoc> contractdocList;
+
+    // 附加功能，审批使用
+    private Integer operateCode = 1;
+    private Integer confirmResult;
+    private String confirmNote;
+    private Integer confirmUserid;
+    private String audittype;
+
+
+
+
 
     public Integer getFourtechid() {
         return fourtechid;
@@ -248,6 +265,54 @@ public class AudFourtech {
 
     public void setFourtechDateRange(String fourtechDateRange) {
         this.fourtechDateRange = fourtechDateRange;
+    }
+
+    public List<AudContractdoc> getContractdocList() {
+        return contractdocList;
+    }
+
+    public void setContractdocList(List<AudContractdoc> contractdocList) {
+        this.contractdocList = contractdocList;
+    }
+
+    public Integer getOperateCode() {
+        return operateCode;
+    }
+
+    public void setOperateCode(Integer operateCode) {
+        this.operateCode = operateCode;
+    }
+
+    public Integer getConfirmResult() {
+        return confirmResult;
+    }
+
+    public void setConfirmResult(Integer confirmResult) {
+        this.confirmResult = confirmResult;
+    }
+
+    public String getConfirmNote() {
+        return confirmNote;
+    }
+
+    public void setConfirmNote(String confirmNote) {
+        this.confirmNote = confirmNote;
+    }
+
+    public Integer getConfirmUserid() {
+        return confirmUserid;
+    }
+
+    public void setConfirmUserid(Integer confirmUserid) {
+        this.confirmUserid = confirmUserid;
+    }
+
+    public String getAudittype() {
+        return audittype;
+    }
+
+    public void setAudittype(String audittype) {
+        this.audittype = audittype;
     }
 
     @Override

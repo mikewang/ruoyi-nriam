@@ -320,7 +320,6 @@ public class AudContractController extends BaseController {
             return AjaxResult.error("审批'" + sheet.getContractname() + "'失败，没有选择审批结果");
         }
 
-
         return ajax;
     }
 
@@ -584,27 +583,6 @@ public class AudContractController extends BaseController {
     }
 
     /**
-     * 根据编号获取详细信息
-     */
-    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
-    @GetMapping(value = {"/{contractid}"})
-    public AjaxResult getContract(@PathVariable(value = "contractid", required = false) Integer contractid) {
-        AjaxResult ajax = AjaxResult.success();
-
-        if (StringUtils.isNotNull(contractid)) {
-            logger.debug("getContract contractid = " + contractid.toString());
-            AudContract p = contractService.selectContractById(contractid);
-            if (p != null) {
-                ajax.put(AjaxResult.DATA_TAG, p);
-            } else {
-                ajax = AjaxResult.error("contractid：" + contractid.toString() + " 不存在");
-            }
-
-        }
-        return ajax;
-    }
-
-    /**
      * 文件列表
      */
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
@@ -622,6 +600,27 @@ public class AudContractController extends BaseController {
             ajax.put(AjaxResult.DATA_TAG, list);
         }
 
+        return ajax;
+    }
+
+    /**
+     * 根据编号获取详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @GetMapping(value = {"/{contractid}"})
+    public AjaxResult getContract(@PathVariable(value = "contractid", required = false) Integer contractid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(contractid)) {
+            logger.debug("getContract contractid = " + contractid.toString());
+            AudContract p = contractService.selectContractById(contractid);
+            if (p != null) {
+                ajax.put(AjaxResult.DATA_TAG, p);
+            } else {
+                ajax = AjaxResult.error("contractid：" + contractid.toString() + " 不存在");
+            }
+
+        }
         return ajax;
     }
 

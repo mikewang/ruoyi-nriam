@@ -34,6 +34,7 @@ import org.apache.poi.hwpf.usermodel.Bookmark;
 import org.apache.poi.hwpf.usermodel.Range;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.omg.PortableInterceptor.INACTIVE;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -172,19 +173,20 @@ public class AudFourtechController extends BaseController {
     }
 
     @PreAuthorize("@ss.hasPermi('fourtech:tijiaoren:list')")
-    @GetMapping("/doc/list")
-    public AjaxResult doclist(AudContractdoc query) {
+    @GetMapping(value = {"/doc/list/{fourtechid}"})
+    public AjaxResult getFourtechDocList (@PathVariable(value = "fourtechid", required = false) Integer fourtechid) {
+        logger.debug("doclist is " + fourtechid.toString());
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long userId = loginUser.getUser().getUserId();
         AjaxResult ajax = AjaxResult.success();
 
-        Integer contractid = query.getContractid();
+        BasDoc query = new BasDoc();
+        query.setRelatedid(fourtechid);
+        query.setAttachtotype("四技合同");
 
-        if (contractid != null) {
-            List<AudContractdoc> list = fourtechService.selectFourtechContractdocList(query);
-            logger.debug("selectAudContractdocList is ", list.toString());
-            ajax.put(AjaxResult.DATA_TAG, list);
-        }
+        List<BasDoc> list = fourtechService.selectFourtechDocList(query);
+        logger.debug("selectFourtechDocList is ", list.toString());
+        ajax.put(AjaxResult.DATA_TAG, list);
 
         return ajax;
     }
@@ -220,15 +222,16 @@ public class AudFourtechController extends BaseController {
             relativepath = StringUtils.trimend(relativepath, "/");
 
             doc.setRelativepath(relativepath);
-            doc.setAttachtotype("");
-            doc.setDoctype(docType);
+            doc.setAttachtotype("四技合同");
+            doc.setRelatedid(contractid);
+            doc.setDoctype("四技合同");
 
             logger.debug("relativepath is " + filePath);
             logger.debug("originalFilename is " + originalFilename);
             logger.debug("attachToType is " + "合同文本，这个字段 不用来关联，有单独的关联表");
             logger.debug("docType is " + docType);
 
-            Integer docid = fourtechService.mergeContractDoc(contractid, doc);
+            Integer docid = fourtechService.mergeFourtechDoc(contractid, doc);
 
             AjaxResult ajax = AjaxResult.success();
             ajax.put("name", originalFilename);
@@ -324,8 +327,6 @@ public class AudFourtechController extends BaseController {
                     dataMap.put("fengmian_coperationUnit", contract.getCoperationunit());
                     dataMap.put("projectname", contract.getFourtechname());
                     // 代替图片，方法不确认，待确认。
-//                    dataMap.put("sign_faren", contract.getSupplierinfo().getSuppliername());
-//                    dataMap.put("sign_pm", contract.getSupplierinfo().getSuppliername());
 
 
                     logger.debug("dataMap is " + dataMap.toString());
@@ -350,6 +351,7 @@ public class AudFourtechController extends BaseController {
                     logger.debug("此文件 bookmarks count = " + document.getBookmarks().getBookmarksCount());
 
                 }else if (path.endsWith(".docx")){
+                    // 没有处理 docx格式的文件，。
                     FileInputStream fs = new FileInputStream(new File(path));
                     XWPFDocument xdoc = new XWPFDocument(fs);
                     XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
@@ -372,6 +374,234 @@ public class AudFourtechController extends BaseController {
         {
             logger.error("下载文件失败", e);
         }
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('fourtech:tijiaoren:list')")
+    @Log(title = "四技合同管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/submit")
+    public AjaxResult submit(@Validated @RequestBody AudFourtech contract) {
+        AjaxResult ajax = AjaxResult.success();
+        logger.debug("AudContract 提交审批 is " + contract.toString());
+
+        if (contract.getContractdocList().size() == 0) {
+
+            return AjaxResult.error(" 还没有上传合同正文，无法提交审核");
+        }
+
+        contract.setSheetstatus(SheetStatus.ChuShen.getCode());
+
+        Integer result = fourtechService.updateFourtechStatus(contract, null);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, contract.getFourtechid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+
+    private String signpicFilename(String signpicName) {
+        // 本地资源路径
+        String result = "";
+        String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" + "/signpic/";
+        if (signpicName != null && signpicName.isEmpty() == false) {
+            String checkFilePath = RuoYiConfig.getUploadPath() + "/signpic/" + signpicName;
+            File desc = new File(checkFilePath);
+            if (desc.exists() == true) {
+                String filePath = fileDirPath + signpicName;
+                result = filePath;
+                logger.debug("url is " + filePath);
+            }
+        }
+        return result;
+    }
+
+    private AjaxResult auditConfirm(AudFourtech sheet, Integer audittype) {
+        AjaxResult ajax = AjaxResult.success();
+        Integer userid = getCurrentLoginUserid();
+        sheet.setConfirmUserid(userid);
+
+        AudSignpic s = audSignpicService.selectSignpicByUserId(sheet.getConfirmUserid());
+
+        if (s == null || this.signpicFilename(s.getSignpicName()).equals("")) {
+            return AjaxResult.error("您的签名图片尚未上传，无法审批！");
+        }
+
+        //记录审核结论   /////////////////////////记录审核结论，消除待办事项////////////////
+
+        AudSheetauditrecord record = new AudSheetauditrecord();
+        record.setSheetid(sheet.getFourtechid());
+        record.setSheettype("四技合同"); // 名称为 合同。
+        record.setAudittype(audittype.toString());
+        record.setAuditopinion(sheet.getConfirmNote());
+        record.setAudittime(DateUtils.dateTimeNow());
+        record.setAudituserid(userid);
+
+        if (sheet.getConfirmResult() == 1) {
+            record.setAuditresult(true);
+            if (audittype == 2) {
+                sheet.setAudittype(audittype.toString());
+                sheet.setSheetstatus(SheetStatus.XiangMuShenPi.getCode());
+            }
+            else if (audittype == 3) {
+                sheet.setAudittype(audittype.toString());
+                sheet.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
+            } else if (audittype == 4) {
+                sheet.setAudittype(audittype.toString());
+                sheet.setSheetstatus(SheetStatus.ChuShenPi.getCode());
+            } else if (audittype == 5) {
+                sheet.setAudittype(audittype.toString());
+                sheet.setSheetstatus(SheetStatus.SuoZhangShenPi.getCode());
+            } else if (audittype == 7) {
+                sheet.setAudittype(audittype.toString());
+
+                sheet.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+            }
+
+            fourtechService.updateFourtechStatus(sheet, record);
+        } else if (sheet.getConfirmResult() == 2) {
+            record.setAuditresult(false);
+            sheet.setSheetstatus(SheetStatus.NoPass.getCode());
+            fourtechService.updateFourtechStatus(sheet, record);
+        } else {
+            return AjaxResult.error("审批'" + sheet.getFourtechname() + "'失败，没有选择审批结果");
+        }
+
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit2:list')")
+    @GetMapping("/audit2/list")
+    public TableDataInfo chushenList(AudFourtech query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setSheetuserid(uid);
+        logger.debug("chushenList list  is " + query.toString());
+        startPage();
+        List<AudFourtech> list = fourtechService.selectFourtechChushen(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit2:list')")
+    @Log(title = "四技合同成果转换处审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit2")
+    public AjaxResult chushenConfirm(@Validated @RequestBody AudFourtech contract) {
+
+        logger.debug("audit2 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+         ajax = auditConfirm(contract, 2);
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit3:list')")
+    @GetMapping("/audit3/list")
+    public TableDataInfo xiangmuList(AudFourtech query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setSheetuserid(uid);
+
+        logger.debug("chushenList list  is " + query.toString());
+        startPage();
+
+        List<AudFourtech> list = fourtechService.selectFourtechXiangmu(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit3:list')")
+    @Log(title = "四技合同项目审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit3")
+    public AjaxResult xiangmuConfirm(@Validated @RequestBody AudFourtech contract) {
+
+        logger.debug("audit3 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 3);
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit4:list')")
+    @GetMapping("/audit4/list")
+    public TableDataInfo bumenList(AudFourtech query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setSheetuserid(uid);
+        logger.debug("bumenList list  is " + query.toString());
+        startPage();
+        List<AudFourtech> list = fourtechService.selectFourtechBumen(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit4:list')")
+    @Log(title = "四技合同部门审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit4")
+    public AjaxResult bumenConfirm(@Validated @RequestBody AudFourtech contract) {
+
+        logger.debug("audit4 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 4);
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit5:list')")
+    @GetMapping("/audit5/list")
+    public TableDataInfo chuList(AudFourtech query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setSheetuserid(uid);
+        logger.debug("chuList list  is " + query.toString());
+        startPage();
+        List<AudFourtech> list = fourtechService.selectFourtechChu(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit5:list')")
+    @Log(title = "四技合同分管处审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit5")
+    public AjaxResult chuConfirm(@Validated @RequestBody AudFourtech contract) {
+
+        logger.debug("audit5 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 5);
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit7:list')")
+    @GetMapping("/audit7/list")
+    public TableDataInfo suozhangList(AudFourtech query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setSheetuserid(uid);
+        logger.debug("suozhangList list  is " + query.toString());
+        startPage();
+        List<AudFourtech> list = fourtechService.selectFourtechSuozhang(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:audit7:list')")
+    @Log(title = "四技合同所长审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit7")
+    public AjaxResult suozhangConfirm(@Validated @RequestBody AudFourtech contract) {
+
+        logger.debug("audit7 contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 7);
+
+        return ajax;
     }
 
 //    /**
