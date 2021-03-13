@@ -88,6 +88,7 @@
         <el-row>
           <el-col :span="24">
             <el-form-item label="项目类型" prop="projecttype">
+              <!--项目类型 组件  但是不能清空-->
               <project-type :selectedProjectType="form.projecttype" @changeProjectType="selectProjectType"></project-type>
             </el-form-item>
           </el-col>
