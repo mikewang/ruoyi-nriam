@@ -1,8 +1,10 @@
 package com.ruoyi.project.domain;
 
+import com.ruoyi.common.core.domain.BaseEntity;
+
 import java.math.BigDecimal;
 
-public class PmUplevelproject {
+public class PmUplevelproject extends BaseEntity {
 
     private Integer infoid;
 

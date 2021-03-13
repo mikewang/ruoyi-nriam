@@ -1,8 +1,10 @@
 package com.ruoyi.contract.domain;
 
+import com.ruoyi.common.core.domain.BaseEntity;
+
 import java.math.BigDecimal;
 
-public class AudContractpay {
+public class AudContractpay extends BaseEntity {
 
     private Integer contractid;
 

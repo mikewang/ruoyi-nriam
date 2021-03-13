@@ -1,5 +1,6 @@
 package com.ruoyi.contract.domain;
 
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.sheet.domain.AudSheet;
 import com.ruoyi.sheet.domain.AudSheetauditrecord;
@@ -8,7 +9,7 @@ import com.ruoyi.project.domain.AudProject;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class AudContract {
+public class AudContract extends BaseEntity {
 
     private Integer contractid;
 

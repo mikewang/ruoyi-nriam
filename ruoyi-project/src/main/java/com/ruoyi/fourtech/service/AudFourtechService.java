@@ -44,7 +44,7 @@ import java.util.Set;
 @Service
 public class AudFourtechService {
 
-    private static final Logger log = LoggerFactory.getLogger(AudApplyService.class);
+    private static final Logger log = LoggerFactory.getLogger(AudFourtechService.class);
 
     @Resource
     AudFourtechMapper audFourtechMapper;

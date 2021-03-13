@@ -1,8 +1,10 @@
 package com.ruoyi.project.domain;
 
+import com.ruoyi.common.core.domain.BaseEntity;
+
 import java.util.List;
 
-public class PmProjectacceptance {
+public class PmProjectacceptance extends BaseEntity {
 
     private Integer projectid;
 

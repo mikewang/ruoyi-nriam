@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.performance.mapper.PerRelationMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.performance.domain.PerRelation">
+        <result column="IndicatorType" jdbcType="VARCHAR" property="indicatortype"/>
+        <result column="Level1ID" jdbcType="INTEGER" property="level1id"/>
+        <result column="Level1Name" jdbcType="VARCHAR" property="level1name"/>
+        <result column="Level2ID" jdbcType="INTEGER" property="level2id"/>
+        <result column="Level2Name" jdbcType="VARCHAR" property="level2name"/>
+    </resultMap>
+
+    <select id="selectPerRelation" parameterType="com.ruoyi.performance.domain.PerRelation" resultMap="BaseResultMap">
+        select IndicatorType, Level1ID, Level1Name, Level2ID, Level2Name
+        from PER_Relation
+        where 1=1
+        <if test="indicatortype != null ">
+            and indicatortype = #{indicatortype,jdbcType=VARCHAR}
+        </if>
+        <if test="level1id != null ">
+            and level1id = #{level1id,jdbcType=INTEGER}
+        </if>
+        <if test="level2id != null ">
+            and level2id = #{level2id,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <insert id="insertPerRelation" parameterType="com.ruoyi.performance.domain.PerRelation">
+        insert into PER_Relation (IndicatorType, Level1ID, Level1Name,
+                                  Level2ID, Level2Name)
+        values (#{indicatortype,jdbcType=VARCHAR}, #{level1id,jdbcType=INTEGER}, #{level1name,jdbcType=VARCHAR},
+                #{level2id,jdbcType=INTEGER}, #{level2name,jdbcType=VARCHAR})
+    </insert>
+
+
+    <update id="updatePerRelation" parameterType="com.ruoyi.performance.domain.PerRelation">
+        update PER_Relation
+        set Level1ID = #{level1id,jdbcType=INTEGER},
+            Level2ID = #{level2id,jdbcType=INTEGER},
+            Level1Name = #{level1name,jdbcType=VARCHAR},
+            Level2Name = #{level2name,jdbcType=VARCHAR,jdbcType=INTEGER}
+        where IndicatorType = #{indicatortype,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+
+        select IndicatorType, Level1ID, Level1Name, Level2ID, Level2Name
+        from PER_Relation
+    </select>
+</mapper>

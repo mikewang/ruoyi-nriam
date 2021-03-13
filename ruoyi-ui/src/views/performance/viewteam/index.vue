@@ -1,15 +1,60 @@
-<template>
-
-
-
+<template class="app-container" id="temp">
+  <!-- 创建模板 -->
+  <div> <!-- 定义模板只能有一个顶层标签 -->
+    <h3>这是我的第一个模板</h3>
+    <p>{{msg}}</p> <!-- 组件的数据放在模板里  -->
+    <son @switch = "dd"></son> <!-- 接受事件 -->
+  </div>
 </template>
-
-<script>
-export default {
-  name: "index"
-}
+<script type="text/template" id="temp1">
+<!-- 子组件的模板 -->
+<div>
+<h2>good moring</h2>
+<p>{{msg}}</p>
+<button @click = "ff">点击提交</button>
+</div>
 </script>
+<script type="text/javascript">
+//  定义子组件
+let Son = {
+  template : "#temp1",
+  data : function (){
+    return {
+      msg : "这是我的子组件",
+    }
+  },
+  methods : {
+    ff : function(){
+      // 定义一个事件 $emit("事件名",数据)
+      this.$emit("switch",this.msg);
+    }
+  },
+}
+//  定义组件
+let Heads = {  // 组件名必须大写,不能使用h5标签
+  template : "#temp", // 模板和组件通过id相关联
+  data : function (){ // 组件的data是一个函数
+    return{
+      msg : "hello Miss wang!",
+    }
+  },
+  methods : {
+    dd : function(res){
+      this.msg = res;
+    }
+  },
+  components : {
+    son : Son, // 注册子组件
+  }
+}
+//  app是最大的根组件
+let app = new Vue({
+  el : "#app",
+  data : {
 
-<style scoped>
-
-</style>
+  },
+  components : {
+    heads : Heads, // 注册组件
+  }
+});
+</script>

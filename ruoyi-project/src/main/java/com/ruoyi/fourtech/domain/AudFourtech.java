@@ -1,12 +1,13 @@
 package com.ruoyi.fourtech.domain;
 
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.contract.domain.AudContractdoc;
 import com.ruoyi.sheet.domain.AudSheet;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public class AudFourtech {
+public class AudFourtech extends BaseEntity {
 
     private Integer fourtechid;
 

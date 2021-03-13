@@ -44,7 +44,7 @@ import java.util.List;
 @Service
 public class AudContractService {
 
-    private static final Logger log = LoggerFactory.getLogger(AudApplyService.class);
+    private static final Logger log = LoggerFactory.getLogger(AudContractService.class);
 
     @Resource
     AudContractMapper audContractMapper;
