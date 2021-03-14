@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row>
       <el-row>
-        <h3 style="alignment:center" >论文</h3>
+        <h3 style="alignment:center" >农机新产品</h3>
       </el-row>
       <el-table v-loading="loading" :data="patentList">
         <el-table-column type="index" width="50" align="center"/>
@@ -59,7 +59,7 @@ import {deleteIndicatorPrize, listIndicatorPatent, updateIndicatorPatent} from "
 import IndicatorRelation from "./indicator-relation";
 
 export default {
-  name: "indicator-article",
+  name: "indicator-product",
   components :{"indicator-relation": IndicatorRelation},
   data() {
     return {

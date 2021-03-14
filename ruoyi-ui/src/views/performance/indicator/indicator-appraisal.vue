@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row>
-    <h3 style="alignment:center" >科研经费</h3>
+    <h3 style="alignment:center" >鉴定（评价）成果</h3>
     </el-row>
     <el-row>
       <el-form :model="indicatorfund1" ref="indicatorfund1Form" :inline="true" label-width="100px">
@@ -58,7 +58,7 @@ import {getIndicatorFund, updateIndicatorFund} from "@/api/performance/indicator
 import IndicatorRelation from "./indicator-relation";
 
 export default {
-  name: "indicator-fund",
+  name: "indicator-appraisal",
   components :{"indicator-relation": IndicatorRelation},
   data() {
     return {
