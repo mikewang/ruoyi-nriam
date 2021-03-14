@@ -12,8 +12,9 @@
 
   <select id="selectIndicatorproject" parameterType="com.ruoyi.performance.domain.PerIndicatorproject" resultMap="BaseResultMap">
     select a.*  ,t1.dict_label as ProjectTypeLinkText
-    from PER_IndicatorProject a  ,(select * from sys_dict_data where dict_type='项目类型') t1
-    where t1.dict_value = a.ProjectType   and a.IfDeleted = 0
+    from PER_IndicatorProject a  left join (select * from sys_dict_data where dict_type='项目类型') t1
+    on a.ProjectType = t1.dict_value
+    where a.IfDeleted = 0
     <if test="projecttypelinktext != null ">
       and t1.dict_label like concat('%', #{projecttypelinktext}, '%')
     </if>
@@ -23,23 +24,25 @@
 
   <select id="selectIndicatorprojectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select a.*  ,t1.dict_label as ProjectTypeLinkText
-    from PER_IndicatorProject a  ,(select * from sys_dict_data where dict_type='项目类型') t1
-    where t1.dict_value = a.ProjectType   and a.IfDeleted = 0
+    from PER_IndicatorProject a  left join (select * from sys_dict_data where dict_type='项目类型') t1
+    on  a.ProjectType = t1.dict_value
+    where a.IfDeleted = 0
     and a.IndicatorProjectID = #{indicatorprojectid,jdbcType=INTEGER}
   </select>
+  <insert id="insertIndicatorproject" parameterType="com.ruoyi.performance.domain.PerIndicatorproject" useGeneratedKeys="true"
+          keyProperty="indicatorprojectid" >
+    insert into PER_IndicatorProject ( ProjectType, JoinType, Points, IfDeleted )
+    values (#{projecttype,jdbcType=INTEGER},
+            #{jointype,jdbcType=VARCHAR}, #{points,jdbcType=DECIMAL}, #{ifdeleted,jdbcType=BIT}
+           )
+  </insert>
 
   <update id="updateIndicatorprojectIfDeletedById" parameterType="java.lang.Integer">
     update  PER_IndicatorProject set IfDeleted = 1
     where IndicatorProjectID = #{indicatorprojectid,jdbcType=INTEGER}
   </update>
 
-  <insert id="insertIndicatorproject" parameterType="com.ruoyi.performance.domain.PerIndicatorproject" useGeneratedKeys="true"
-          keyProperty="indicatorprojectid" >
-    insert into PER_IndicatorProject ( ProjectType, JoinType, Points, IfDeleted )
-    values (#{projecttype,jdbcType=INTEGER},
-      #{jointype,jdbcType=VARCHAR}, #{points,jdbcType=DECIMAL}, #{ifdeleted,jdbcType=BIT}
-      )
-  </insert>
+
 
   <update id="updateIndicatorproject" parameterType="com.ruoyi.performance.domain.PerIndicatorproject">
     update PER_IndicatorProject

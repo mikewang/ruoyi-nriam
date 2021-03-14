@@ -46,13 +46,13 @@ export default {
       console.log("加载 项目类型 组件 " + this.selectedProjectType);
 
       listData({"dictType": "项目类型"}).then(response => {
-        console.log(response);
+        console.log(response.rows);
         const listOptions = [];
         response.rows.sort(function (a, b) {
           return a.dictValue < b.dictValue
         }).forEach(function (item) {
-          const projecttype = {value: item.dictLabel, id: item.dictValue};
-          listOptions.push(projecttype);
+          const adict = {value: item.dictLabel, id: item.dictValue};
+          listOptions.push(adict);
         });
         this.projectTypeList = listOptions;
         this.projectTypeOptions = listOptions;

@@ -31,6 +31,8 @@
 
 import IndicatorProject from "./indicator-project";
 import IndicatorFund from "./indicator-fund";
+import IndicatorPrize from "./indicator-prize";
+import IndicatorPatent from "./indicator-patent";
 
 export default {
   name: "index",
@@ -61,7 +63,9 @@ export default {
   },
   components: {
     "indicator-project": IndicatorProject,
-    "indicator-fund": IndicatorFund
+    "indicator-fund": IndicatorFund,
+    "indicator-prize": IndicatorPrize,
+    "indicator-patent": IndicatorPatent
   },
   created() {
 
@@ -77,6 +81,12 @@ export default {
       }
       else if (data.label === "科研经费") {
         this.showComponent = "indicator-fund";
+      }
+      else if (data.label === "获奖") {
+        this.showComponent = "indicator-prize";
+      }
+      else if (data.label === "专利") {
+        this.showComponent = "indicator-patent";
       }
       else {
         this.showComponent = "";

@@ -3,7 +3,7 @@ import {praseStrEmpty} from "@/utils/ruoyi";
 
 export function listIndicatorProject(query) {
   return request({
-    url: '/performance/indicatorproject/list',
+    url: '/performance/indicatorProject/list',
     method: 'get',
     params: query
   })
@@ -38,7 +38,7 @@ export function updateIndicatorRelation(data) {
 
 export function addIndicatorProject(data) {
   return request({
-    url: '/performance/indicatorproject',
+    url: '/performance/indicatorProject',
     method: 'post',
     data: data
   })
@@ -48,7 +48,7 @@ export function addIndicatorProject(data) {
 // 修改
 export function updateIndicatorProject(data) {
   return request({
-    url: '/performance/indicatorproject',
+    url: '/performance/indicatorProject',
     method: 'put',
     data: data
   })
@@ -56,7 +56,7 @@ export function updateIndicatorProject(data) {
 
 export function deleteIndicatorProject(projectIds) {
   return request({
-    url: '/performance/indicatorproject/' + projectIds,
+    url: '/performance/indicatorProject/' + projectIds,
     method: 'delete'
   })
 }
@@ -65,7 +65,7 @@ export function deleteIndicatorProject(projectIds) {
 // 查询经费详细
 export function getIndicatorFund(fundId) {
   return request({
-    url: '/performance/indicatorfund/' + praseStrEmpty(fundId),
+    url: '/performance/indicatorFund/' + praseStrEmpty(fundId),
     method: 'get'
   })
 }
@@ -73,7 +73,64 @@ export function getIndicatorFund(fundId) {
 // 修改
 export function updateIndicatorFund(data) {
   return request({
-    url: '/performance/indicatorfund',
+    url: '/performance/indicatorFund',
+    method: 'put',
+    data: data
+  })
+}
+
+
+// 获奖组件
+
+export function listIndicatorPrize(query) {
+  return request({
+    url: '/performance/indicatorPrize/list',
+    method: 'get',
+    params: query
+  })
+}
+
+
+export function addIndicatorPrize(data) {
+  return request({
+    url: '/performance/indicatorPrize',
+    method: 'post',
+    data: data
+  })
+}
+
+
+// 修改
+export function updateIndicatorPrize(data) {
+  return request({
+    url: '/performance/indicatorPrize',
+    method: 'put',
+    data: data
+  })
+}
+
+export function deleteIndicatorPrize(prizeIds) {
+  return request({
+    url: '/performance/indicatorPrize/' + prizeIds,
+    method: 'delete'
+  })
+}
+
+
+// 专利
+
+export function listIndicatorPatent(query) {
+  return request({
+    url: '/performance/indicatorPatent/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 修改
+export function updateIndicatorPatent(data) {
+  return request({
+    url: '/performance/indicatorPatent',
     method: 'put',
     data: data
   })

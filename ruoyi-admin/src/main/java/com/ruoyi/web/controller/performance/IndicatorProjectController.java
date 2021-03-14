@@ -41,8 +41,8 @@ public class IndicatorProjectController extends BaseController {
 
     //IndicatorProjectList.aspx
     @PreAuthorize("@ss.hasPermi('performance:indicator:list')")
-    @GetMapping("/indicatorproject/list")
-    public TableDataInfo indicatorprojectList(PerIndicatorproject project) {
+    @GetMapping("/indicatorProject/list")
+    public TableDataInfo indicatorProjectList(PerIndicatorproject project) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long userId = loginUser.getUser().getUserId();
 
@@ -111,7 +111,7 @@ public class IndicatorProjectController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('performance:indicator:list')")
     @Log(title = "绩效评价项目管理", businessType = BusinessType.INSERT)
-    @PostMapping("/indicatorproject")
+    @PostMapping("/indicatorProject")
     public AjaxResult add(@Validated @RequestBody PerIndicatorproject project) {
 
         AjaxResult ajax = AjaxResult.success();
@@ -134,7 +134,7 @@ public class IndicatorProjectController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('performance:indicator:list')")
     @Log(title = "绩效评价项目管理", businessType = BusinessType.UPDATE)
-    @PutMapping("/indicatorproject")
+    @PutMapping("/indicatorProject")
     public AjaxResult update(@Validated @RequestBody  PerIndicatorproject project) {
         AjaxResult ajax = AjaxResult.success();
         logger.debug("PerIndicatorproject update is " + project.toString());
@@ -152,7 +152,7 @@ public class IndicatorProjectController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('performance:indicator:list')")
     @Log(title = "绩效评价项目管理", businessType = BusinessType.DELETE)
-    @DeleteMapping("/indicatorproject/{projectids}")
+    @DeleteMapping("/indicatorProject/{projectids}")
     public AjaxResult delete(@PathVariable Integer[] projectids) {
         AjaxResult ajax = AjaxResult.success();
 
@@ -160,7 +160,6 @@ public class IndicatorProjectController extends BaseController {
         for (Integer projectid : projectids ) {
              result = projectService.updateIndicatorprojectIfDeletedById(projectid);
         }
-
 
         if (result > 0) {
             return ajax;

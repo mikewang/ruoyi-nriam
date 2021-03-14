@@ -38,7 +38,7 @@ public class IndicatorFundController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('performance:indicator:list')")
     @Log(title = "绩效评价经费管理", businessType = BusinessType.UPDATE)
-    @PutMapping("/indicatorfund")
+    @PutMapping("/indicatorFund")
     public AjaxResult update(@Validated @RequestBody  PerIndicatorfund fund) {
         AjaxResult ajax = AjaxResult.success();
         logger.debug("PerIndicatorfund update is " + fund.toString());
@@ -55,7 +55,7 @@ public class IndicatorFundController extends BaseController {
 
 
     @PreAuthorize("@ss.hasPermi('performance:indicator:list')")
-    @GetMapping("/indicatorfund/{fundid}")
+    @GetMapping("/indicatorFund/{fundid}")
     public AjaxResult getIndicatorfund(@PathVariable Integer fundid) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long userId = loginUser.getUser().getUserId();

@@ -2,10 +2,30 @@
   <div class="app-container">
     <el-row>
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="项目类型" prop="projecttypelinktext">
+        <el-form-item label="获奖类型" prop="prizetypelinktext">
           <el-input
-            v-model="queryParams.projecttypelinktext"
-            placeholder="请输入项目类型"
+            v-model="queryParams.prizetypelinktext"
+            placeholder="请输入获奖类型"
+            clearable
+            size="small"
+            style="width: 240px"
+            @keyup.enter.native="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item label="获奖级别" prop="prizelevellinktext">
+          <el-input
+            v-model="queryParams.prizelevellinktext"
+            placeholder="请输入获奖级别"
+            clearable
+            size="small"
+            style="width: 240px"
+            @keyup.enter.native="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item label="获奖等级" prop="prizeranklinktext">
+          <el-input
+            v-model="queryParams.prizeranklinktext"
+            placeholder="请输入获奖等级"
             clearable
             size="small"
             style="width: 240px"
@@ -30,10 +50,11 @@
         </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
-      <el-table v-loading="loading" :data="projectList">
+      <el-table v-loading="loading" :data="prizeList">
         <el-table-column type="index" width="50" align="center"/>
-        <el-table-column label="项目类型" align="left" prop="projecttypelinktext"/>
-        <el-table-column label="主持/参与" align="center" prop="jointype" width="120"/>
+        <el-table-column label="获奖类型" align="left" prop="prizetypelinktext"/>
+        <el-table-column label="获奖级别" align="left" prop="prizelevellinktext"/>
+        <el-table-column label="获奖等级" align="left" prop="prizeranklinktext"/>
         <el-table-column label="分数" align="center" prop="points" width="120"/>
         <el-table-column
           label="操作"
@@ -82,30 +103,29 @@
 
     </el-row>
 
-    <!-- 添加或修改参数配置对话框 -->
+    <!-- 添加或修改参数配置对话框 加 v-if 是为了重新生成新的 组件，客观上启动销毁新生成的作用。-->
     <div v-if="open">
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col :span="24">
-            <el-form-item label="项目类型" prop="projecttype">
-              <!--项目类型 组件  但是不能清空-->
-              <dict-data :dictTypeName="projecttypeName" :selectedDictValue="form.projecttype" @changeDictValue="selectProjectType"></dict-data>
+          <el-col :span="12">
+            <el-form-item label="获奖类型" prop="prizetype">
+              <!--获奖类型 组件  但是不能清空-->
+              <dict-data :dictTypeName="prizetypeName" :selectedDictValue="form.prizetype" @changeDictValue="selectPrizeType"></dict-data>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="获奖级别" prop="prizelevel">
+              <!--获奖级别 组件  但是不能清空-->
+              <dict-data :dictTypeName="prizelevelName" :selectedDictValue="form.prizelevel" @changeDictValue="selectPrizeLevel"></dict-data>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="主持/参与" prop="jointype">
-
-              <el-select v-model="form.jointype" placeholder="请选择" style="display:block;" clearable
-                         @clear="clearJointypeValue" @change="changeJointypeValue">
-                <el-option
-                  v-for="item in jointypeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
+            <el-form-item label="获奖等级" prop="prizerank">
+              <!--获奖等级 组件  但是不能清空-->
+              <dict-data :dictTypeName="prizerankName" :selectedDictValue="form.prizerank" @changeDictValue="selectPrizeRank"></dict-data>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -129,13 +149,13 @@
 </template>
 
 <script>
-import {listIndicatorProject, addIndicatorProject, updateIndicatorProject, deleteIndicatorProject} from "@/api/performance/indicator";
+import {listIndicatorPrize, addIndicatorPrize, updateIndicatorPrize, deleteIndicatorPrize} from "@/api/performance/indicator";
 import IndicatorRelation from "./indicator-relation";
 import DictData from "../../public/dict-data";
 
 export default {
-  name: "indicator-project",
-  components :{"indicator-relation": IndicatorRelation,"dict-data": DictData},
+  name: "indicator-prize",
+  components :{"indicator-relation": IndicatorRelation,"dict-data":DictData},
   data() {
     return {
       // 遮罩层
@@ -151,7 +171,7 @@ export default {
       // 总条数
       total: 0,
       // 项目表格数据
-      projectList: [],
+      prizeList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -164,26 +184,23 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        projecttypelinktext: undefined
+        prizetypelinktext: undefined,
+        prizelevellinktext: undefined,
+        prizeranklinktext: undefined
       },
       // 表单校验
       rules: {
-        projecttype: [
-          {required: true, message: "项目类型不能为空", trigger: "blur"}
-        ],
-        jointype: [
-          {required: true, message: "主持/参与不能为空", trigger: "blur"}
-        ],
         points: [
           {required: true, message: "分数不能为空", trigger: "blur"}
         ]
       },
 
-      // 数据字典
-      jointypeOptions: [{value: 1, label: "主持"}, {value: 2, label: "参与"}],
       // 初始化 关联指标。
-      relationType: "科研项目",
-      projecttypeName : "项目类型"
+      relationType: "获奖成果",
+
+      prizetypeName: "获奖类型",
+      prizelevelName: "获奖级别",
+      prizerankName: "获奖等级"
 
     };
   },
@@ -194,8 +211,8 @@ export default {
     /** 查询列表 */
     getList() {
       this.loading = true;
-      listIndicatorProject(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          this.projectList = response.rows;
+      listIndicatorPrize(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+          this.prizeList = response.rows;
           this.total = response.total;
 
         // 最后结束刷新。
@@ -207,10 +224,13 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        indicatorprojectid: undefined,
-        projecttype: undefined,
-        projecttypelinktext: undefined,
-        jointype: undefined,
+        indicatorprizeid: undefined,
+        prizetype: undefined,
+        prizetypelinktext: undefined,
+        prizelevel: undefined,
+        prizelevellinktext: undefined,
+        prizerank: undefined,
+        prizeranklinktext: undefined,
         points: undefined
       };
       this.resetForm("form");
@@ -236,32 +256,32 @@ export default {
     handleAdd() {
       this.reset();
 
-      this.title = "新增投入项目信息";
+      this.title = "新增获奖指标信息";
       this.open = true;
-      this.form.projectType = undefined;
 
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      console.log(row);
+      console.log("编辑获奖指标信息", row);
       this.reset();
 
-      this.title = "编辑投入项目信息";
-      this.form.indicatorprojectid = row.indicatorprojectid;
-      this.form.projecttype = row.projecttype.toString();
-      this.form.jointype = row.jointype;
+      this.title = "编辑获奖指标信息";
+      this.form.indicatorprizeid = row.indicatorprizeid;
+      this.form.prizetype = row.prizetype;
+      this.form.prizelevel = row.prizelevel;
+      this.form.prizerank = row.prizerank;
       this.form.points = row.points;
       this.open = true;
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const itemstr = row.projecttypelinktext + " " + row.jointype;
+      const itemstr = row.prizetypelinktext + " " + row.prizelevellinktext;
       this.$confirm('是否确认删除 ' + itemstr + ' ?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        return deleteIndicatorProject([row.indicatorprojectid]);
+        return deleteIndicatorPrize([row.indicatorprizeid]);
       }).then(() => {
         this.getList();
         this.msgSuccess("删除成功");
@@ -272,14 +292,14 @@ export default {
     submitForm: function () {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.indicatorprojectid != undefined) {
-            updateIndicatorProject(this.form).then(response => {
+          if (this.form.indicatorprizeid != undefined) {
+            updateIndicatorPrize(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addIndicatorProject(this.form).then(response => {
+            addIndicatorPrize(this.form).then(response => {
               this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -290,34 +310,32 @@ export default {
     },
 
     // 组件传入的方法。
-    selectProjectType(projectType) {
+    selectPrizeType(prizetype) {
 
-      console.log("子组件传入的 selectProjectType is ", projectType);
+      console.log("子组件传入的 selectPrizeType is ", prizetype);
 
-      this.form.projecttype = projectType.id;
-      this.form.projectTypeLinkText = projectType.value;
-
-    },
-
-
-
-    clearJointypeValue() {
-      console.log("clear jointype");
-    },
-
-    changeJointypeValue(value) {
-
-      if (value) {
-        this.form.jointype = value;
-      } else {
-        this.form.jointype = undefined;
-      }
+      this.form.prizetype = prizetype.id;
+      this.form.prizetypelinktext = prizetype.value;
 
     },
 
-    filterJointypeValue() {
-      console.log("filter jointype");
+    selectPrizeLevel(prizelevel) {
+
+      console.log("子组件传入的 selectPrizeLevel is ", prizelevel);
+
+      this.form.prizelevel = prizelevel.id;
+      this.form.prizelevellinktext = prizelevel.value;
+
     },
+
+    selectPrizeRank(prizerank) {
+
+      console.log("子组件传入的 selectPrizeRank is ", prizerank);
+
+      this.form.prizerank = prizerank.id;
+      this.form.prizeranklinktext = prizerank.value;
+
+    }
 
 
   }

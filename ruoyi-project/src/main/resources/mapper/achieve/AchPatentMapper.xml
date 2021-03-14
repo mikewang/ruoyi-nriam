@@ -81,6 +81,9 @@
         <if test="teamid != null and teamid != 0 ">
             and teamid = #{teamid, jdbcType=INTEGER}
         </if>
+        <if test="patenttype != null and patenttype != '' ">
+            and patenttype = #{patentYear,jdbcType=VARCHAR}
+        </if>
 
         order by PatentID desc
     </select>
