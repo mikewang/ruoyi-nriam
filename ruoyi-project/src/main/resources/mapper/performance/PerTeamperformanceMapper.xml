@@ -41,6 +41,16 @@
   </update>
 
 
+    <update id="updatePerTeamperformanceByStatusAndType" parameterType="com.ruoyi.performance.domain.PerTeamperformance">
+        update PER_TeamPerformance
+        set
+            Description = #{description,jdbcType=VARCHAR},
+            BasePoints = #{basepoints,jdbcType=DECIMAL},
+            Points = #{points,jdbcType=DECIMAL}
+        where IndicatorType = #{indicatortype,jdbcType=VARCHAR} and Status = #{status,jdbcType=VARCHAR}
+    </update>
+
+
     <update id="updatePerTeamperformanceDeleted" parameterType="com.ruoyi.performance.domain.PerTeamperformance">
         update PER_TeamPerformance
         set Status = '已删除'
