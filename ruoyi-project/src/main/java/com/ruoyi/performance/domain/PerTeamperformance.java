@@ -52,6 +52,10 @@ public class PerTeamperformance extends BaseEntity {
 
     private String status;
 
+    private String teamidlinktext;
+
+    private Integer logcount;
+
     public Integer getPerformanceid() {
         return performanceid;
     }
@@ -178,6 +182,22 @@ public class PerTeamperformance extends BaseEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getTeamidlinktext() {
+        return teamidlinktext;
+    }
+
+    public void setTeamidlinktext(String teamidlinktext) {
+        this.teamidlinktext = teamidlinktext;
+    }
+
+    public Integer getLogcount() {
+        return logcount;
+    }
+
+    public void setLogcount(Integer logcount) {
+        this.logcount = logcount;
     }
 
     @Override
