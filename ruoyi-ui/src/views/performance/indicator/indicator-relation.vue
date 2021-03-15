@@ -14,7 +14,7 @@
           </el-select>
         </el-form-item>
         </el-col>
-        <el-col :span="10">
+        <el-col :span="8">
         <el-form-item label="二级指标" prop="level2id">
           <el-select v-model="indicatorRelation.level2id" placeholder="请选择二级指标" style="display:block;"
                      clearable @clear="clearRelationLevel2Value" @change="changeRelationLevel2Value"
@@ -27,7 +27,7 @@
           </el-select>
         </el-form-item>
         </el-col>
-        <el-col :span="2">
+        <el-col :span="4">
         <el-form-item>
           <el-button type="success" icon="el-icon-check" size="mini" @click="savePerRelation">设置</el-button>
         </el-form-item>

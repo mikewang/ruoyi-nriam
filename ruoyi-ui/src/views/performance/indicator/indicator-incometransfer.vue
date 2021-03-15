@@ -1,53 +1,32 @@
 <template>
   <div class="app-container">
     <el-row>
-    <h3 style="alignment:center" >科技转让收入</h3>
+      <h3 style="alignment:center" >科技转让收入</h3>
     </el-row>
     <el-row>
       <el-form :model="indicatorfund1" ref="indicatorfund1Form" :inline="true" label-width="100px">
         <el-col :span="12">
-          <el-form-item label="国家科技计划经费：每 " label-width="200px">
+          <el-form-item label="每 " label-width="200px">
             <el-input type="number" v-model="indicatorfund1.permoney" style="alignment: right"><i slot="suffix">万元</i></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-        <el-form-item  label="分值" label-width="100px">
-          <el-input  type="number"  v-model="indicatorfund1.points"></el-input>
-        </el-form-item>
-        </el-col>
-        <el-col :span="4">
-        <el-form-item>
-          <el-button type="success" icon="el-icon-check" size="mini" @click="saveIndicatorfund1">设置</el-button>
-        </el-form-item>
-        </el-col>
-      </el-form>
-    </el-row>
-
-    <el-row>
-    <!--国家科技计划经费 关联的考核指标：一级指标  二级指标  [lab_Type]-->
-      <indicator-relation :indicatortype="relationType"></indicator-relation>
-    </el-row>
-
-    <el-row>
-      <el-form :model="indicatorfund4" ref="indicatorfund4Form" :inline="true" label-width="100px">
-        <el-col :span="12">
-          <el-form-item label="其他科研项目经费：每 " label-width="200px">
-            <el-input type="number" v-model="indicatorfund4.permoney" style="alignment: right"><i slot="suffix">万元</i></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
           <el-form-item  label="分值" label-width="100px">
-            <el-input  type="number"  v-model="indicatorfund4.points"></el-input>
+            <el-input  type="number"  v-model="indicatorfund1.points"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="4">
           <el-form-item>
-            <el-button type="success" icon="el-icon-check" size="mini" @click="saveIndicatorfund4">设置</el-button>
+            <el-button type="success" icon="el-icon-check" size="mini" @click="saveIndicatorfund1">设置</el-button>
           </el-form-item>
         </el-col>
       </el-form>
     </el-row>
 
+    <el-row>
+      <!--国家科技计划经费 关联的考核指标：一级指标  二级指标  [lab_Type]-->
+      <indicator-relation :indicatortype="relationType"></indicator-relation>
+    </el-row>
 
   </div>
 </template>
@@ -58,7 +37,7 @@ import {getIndicatorFund, updateIndicatorFund} from "@/api/performance/indicator
 import IndicatorRelation from "./indicator-relation";
 
 export default {
-  name: "indicator-incometransfer",
+  name: "indicator-incomedevelop",
   components :{"indicator-relation": IndicatorRelation},
   data() {
     return {
@@ -76,7 +55,6 @@ export default {
       total: 0,
       // 项目表格数据
       indicatorfund1: {indicatorfundid:1,permoney:undefined,points: undefined},
-      indicatorfund4: {indicatorfundid:4,permoney:undefined,points: undefined},
 
       // 弹出层标题
       title: "",
@@ -98,7 +76,7 @@ export default {
         ]
       },
       // 初始化 关联指标。
-      relationType: "国家科技计划经费"
+      relationType: "科技转让收入"
     };
   },
   created() {
@@ -109,23 +87,19 @@ export default {
     getList() {
       this.loading = true;
 
-      getIndicatorFund(1).then(response => {
+      getIndicatorFund(3).then(response => {
 
         this.indicatorfund1 = response.data;
 
-        getIndicatorFund(4).then(response => {
-          this.indicatorfund4 = response.data;
-          // 最后结束刷新。
-          this.loading = false;
-        });
-
+        // 最后结束刷新。
+        this.loading = false;
       });
 
     },
 
     saveIndicatorfund1: function () {
       let this_ = this;
-      this.$confirm('是否确认更新"' + "国家科技计划经费" + '"?', "警告", {
+      this.$confirm('是否确认更新"' + "科技转让收入" + '"?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -136,20 +110,6 @@ export default {
           this_.msgSuccess("修改成功");
         });
       });
-    },
-
-    saveIndicatorfund4: function () {
-      let this_ = this;
-      this.$confirm('是否确认更新"' + "其他科研项目经费" + '"?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return updateIndicatorFund(this_.indicatorfund4);
-      }).then(() => {
-        this_.getList();
-        this_.msgSuccess("修改成功");
-      })
     }
 
   }

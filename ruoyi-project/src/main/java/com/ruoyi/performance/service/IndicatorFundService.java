@@ -44,6 +44,8 @@ public class IndicatorFundService {
 
         result = indicatorfundMapper.updatePerIndicatorfund(fund);
 
+        //   //计算今年到账经费  待修改 （原代码 注释掉其中的关系。）
+
         return result;
     }
 

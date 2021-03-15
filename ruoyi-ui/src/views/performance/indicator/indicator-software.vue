@@ -1,61 +1,35 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-row>
-        <h3 style="alignment:center" >软件著作权</h3>
-      </el-row>
-      <el-table v-loading="loading" :data="patentList">
-        <el-table-column type="index" width="50" align="center"/>
-        <el-table-column label="专利类型" align="left" prop="patenttype"/>
-        <el-table-column label="分数" align="center" prop="points" width="120">
-          <template slot-scope="scope">
-            <el-input v-model="scope.row.points"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="操作"
-          align="center"
-          width="160"
-          class-name="small-padding fixed-width"
-        >
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-check"
-              @click="handleUpdate(scope.row)"
-              v-hasPermi="['performance:indicator:list']"
-            >设置
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <pagination
-        v-show="total>0"
-        :total="total"
-        :page.sync="queryParams.pageNum"
-        :limit.sync="queryParams.pageSize"
-        @pagination="getList"
-      />
+      <h3 style="alignment:center" >软件著作权</h3>
     </el-row>
     <el-row>
-       <br/>
-      <br/>
-      <br/>
-
+      <el-form :model="indicatorsoftware" ref="indicatorsoftwareForm" :inline="true" label-width="100px">
+        <el-col :span="20">
+          <el-form-item label="每1项“软件著作权”分值 " label-width="200px">
+            <el-input type="number" v-model="indicatorsoftware.points" style="alignment: right"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4">
+          <el-form-item>
+            <el-button type="success" icon="el-icon-check" size="mini" @click="saveIndicator1">设置</el-button>
+          </el-form-item>
+        </el-col>
+      </el-form>
     </el-row>
+
     <el-row>
       <!--关联的考核指标：一级指标  二级指标  [lab_Type]-->
       <indicator-relation :indicatortype="relationType"></indicator-relation>
-
     </el-row>
 
-  </div>
 
+  </div>
 </template>
 
 <script>
-import {deleteIndicatorPrize, listIndicatorPatent, updateIndicatorPatent} from "@/api/performance/indicator";
+import {getIndicatorSoftware, updateIndicatorSoftware} from "@/api/performance/indicator";
+
 import IndicatorRelation from "./indicator-relation";
 
 export default {
@@ -76,7 +50,8 @@ export default {
       // 总条数
       total: 0,
       // 项目表格数据
-      patentList: [],
+      indicatorsoftware: {indicatorsoftwareid:1, points: undefined},
+
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -92,14 +67,12 @@ export default {
       },
       // 表单校验
       rules: {
-        points: [
-          {required: true, message: "分数不能为空", trigger: "blur"}
+        userName: [
+          {required: true, message: "用户名称不能为空", trigger: "blur"}
         ]
       },
-
       // 初始化 关联指标。
-      relationType: "专利"
-
+      relationType: "软件著作权"
     };
   },
   created() {
@@ -109,63 +82,32 @@ export default {
     /** 查询列表 */
     getList() {
       this.loading = true;
-      listIndicatorPatent(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          this.patentList = response.rows;
-          this.total = response.total;
+
+      getIndicatorSoftware(1).then(response => {
+
+        this.indicatorsoftware = response.data;
 
         // 最后结束刷新。
         this.loading = false;
-        }
-      );
+
+      });
+
     },
 
-
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.page = 1;
-      this.getList();
-    },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.dateRange = [];
-      this.resetForm("queryForm");
-      this.handleQuery();
-    },
-
-    // 表单重置
-    reset() {
-      this.form = {
-        indicatorpatentid: undefined,
-        patenttype: undefined,
-        points: undefined
-      };
-      this.resetForm("form");
-    },
-
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      console.log("编辑专利信息", row);
-
-      this.$confirm('是否确认修改 ' + row.patenttype + ' 分数为 ' +  row.points +' ?', "警告", {
+    saveIndicator1: function () {
+      let this_ = this;
+      this.$confirm('是否确认更新"' + "软件著作权" + '"?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        return updateIndicatorPatent(row);
-      }).then(() => {
-        this.getList();
-        this.msgSuccess("修改成功");
+        console.log("this.indicatorsoftware is ", this_.indicatorsoftware);
+        updateIndicatorSoftware(this_.indicatorsoftware).then(response => {
+          this_.getList();
+          this_.msgSuccess("修改成功");
+        });
       });
-
     }
-
-
-
 
   }
 }

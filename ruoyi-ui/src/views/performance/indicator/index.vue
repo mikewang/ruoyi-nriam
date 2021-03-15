@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row :gutter="20">
       <!--考核指标分数设置-->
-      <el-col :span="6" :xs="24">
+      <el-col :span="4" :xs="24">
         <div class="head-container">
           <el-tree
             :data="indicatorOptions"
@@ -15,7 +15,7 @@
         </div>
       </el-col>
       <!--指标数据-->
-      <el-col :span="18" :xs="24">
+      <el-col :span="20" :xs="24">
 
         <!--动态切换显隐，组件-->
         <component :is="showComponent"></component>

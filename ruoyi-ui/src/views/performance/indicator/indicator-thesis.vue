@@ -4,9 +4,9 @@
       <el-row>
         <h3 style="alignment:center" >论文</h3>
       </el-row>
-      <el-table v-loading="loading" :data="patentList">
+      <el-table v-loading="loading" :data="thesisList">
         <el-table-column type="index" width="50" align="center"/>
-        <el-table-column label="专利类型" align="left" prop="patenttype"/>
+        <el-table-column label="论文级别" align="left" prop="thesislevel"/>
         <el-table-column label="分数" align="center" prop="points" width="120">
           <template slot-scope="scope">
             <el-input v-model="scope.row.points"></el-input>
@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import {deleteIndicatorPrize, listIndicatorPatent, updateIndicatorPatent} from "@/api/performance/indicator";
+import {listIndicatorThesis, updateIndicatorThesis} from "@/api/performance/indicator";
 import IndicatorRelation from "./indicator-relation";
 
 export default {
@@ -76,7 +76,7 @@ export default {
       // 总条数
       total: 0,
       // 项目表格数据
-      patentList: [],
+      thesisList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -98,7 +98,7 @@ export default {
       },
 
       // 初始化 关联指标。
-      relationType: "专利"
+      relationType: "学术论文"
 
     };
   },
@@ -109,8 +109,8 @@ export default {
     /** 查询列表 */
     getList() {
       this.loading = true;
-      listIndicatorPatent(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          this.patentList = response.rows;
+      listIndicatorThesis(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+          this.thesisList = response.rows;
           this.total = response.total;
 
         // 最后结束刷新。
@@ -140,8 +140,8 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        indicatorpatentid: undefined,
-        patenttype: undefined,
+        indicatorthesisid: undefined,
+        thesislevel: undefined,
         points: undefined
       };
       this.resetForm("form");
@@ -149,14 +149,14 @@ export default {
 
     /** 修改按钮操作 */
     handleUpdate(row) {
-      console.log("编辑专利信息", row);
+      console.log("编辑学术论文", row);
 
-      this.$confirm('是否确认修改 ' + row.patenttype + ' 分数为 ' +  row.points +' ?', "警告", {
+      this.$confirm('是否确认修改 ' + row.thesislevel + ' 分数为 ' +  row.points +' ?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        return updateIndicatorPatent(row);
+        return updateIndicatorThesis(row);
       }).then(() => {
         this.getList();
         this.msgSuccess("修改成功");
