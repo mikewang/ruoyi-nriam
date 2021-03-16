@@ -8,6 +8,9 @@ public interface PmTeamMapper {
     List<PmTeam> selectTeamList(PmTeam team);
     List<PmTeam> selectAll();
 
+    List<PmTeam>  selectTeamListOfAUserJoin(Integer userid);
+
+
     PmTeam selectTeamById(Integer teamid);
     int insertTeam(PmTeam record);
     int updateTeam(PmTeam record);

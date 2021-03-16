@@ -21,12 +21,9 @@
 
   <select id="selectTeamList" parameterType="com.ruoyi.project.domain.PmTeam" resultMap="BaseResultMap">
     SELECT a.TeamID, a.TeamName, a.TeamLeaderID, a.Memo, a.CreateUserID, a.CreateTime, a.IfDeleted
-         , (
-      SELECT Real_Name
-      FROM sys_user
-      WHERE user_id = a.TeamLeaderID
-    ) AS TeamLeaderIDLinkText, t4.Real_Name AS CreateUserIDLinkText
+         , t2.Real_Name AS TeamLeaderIDLinkText, t4.Real_Name AS CreateUserIDLinkText
     FROM PM_Team a left join sys_user t4  on a.CreateUserID = t4.user_id
+    left join sys_user t2 on a.TeamLeaderID= t2.user_id
     where a.IfDeleted = 0
     <if test="teamid != null and teamid != 0 ">
       AND  a.TeamID = #{teamid, jdbcType=INTEGER}
@@ -34,6 +31,21 @@
     <if test="teamname != null and teamname != '' ">
       AND  a.TeamName like concat('%', #{teamname}, '%')
     </if>
+  </select>
+
+  <select id="selectTeamListOfAUserJoin" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT a.TeamID, a.TeamName, a.TeamLeaderID, a.Memo, a.CreateUserID, a.CreateTime, a.IfDeleted
+    , t2.Real_Name AS TeamLeaderIDLinkText, t4.Real_Name AS CreateUserIDLinkText
+    FROM PM_Team a left join sys_user t4  on a.CreateUserID = t4.user_id
+    left join sys_user t2 on a.TeamLeaderID= t2.user_id
+    where a.IfDeleted = 0
+      and ( a.TeamLeaderID = #{userid, jdbcType=INTEGER}  or a.teamid in (select teamid from PM_TeamMember where UserID =  #{userid, jdbcType=INTEGER}))
+--       sql = "  select * from PM_Team where TeamID in "
+--                     + " ( select teamid from PM_Team where TeamLeaderID = " + userID
+--                     + " union select teamid from PM_TeamMember where UserID = " + userID + " ) "
+--                     + " and IfDeleted = 0 "
+--                     + " order by OrderNumber, TeamName ";
+
   </select>
 
   <select id="selectAll" resultMap="BaseResultMap">
