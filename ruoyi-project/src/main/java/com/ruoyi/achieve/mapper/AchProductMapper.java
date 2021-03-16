@@ -7,6 +7,7 @@ public interface AchProductMapper {
 
     List<AchProduct> selectAchProduct(AchProduct record);
 
+    AchProduct selectAchProductById(Integer productid);
 
     int deleteByPrimaryKey(Integer productid);
 

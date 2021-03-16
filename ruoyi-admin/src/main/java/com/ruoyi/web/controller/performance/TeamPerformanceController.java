@@ -3,14 +3,21 @@ package com.ruoyi.web.controller.performance;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.performance.domain.PerConfirmqequest;
+import com.ruoyi.performance.domain.PerIndicatorproject;
+import com.ruoyi.performance.domain.PerScoreschangelog;
 import com.ruoyi.performance.domain.PerTeamperformance;
 import com.ruoyi.performance.service.TeamPerformanceService;
+import io.swagger.models.auth.In;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -31,25 +38,134 @@ public class TeamPerformanceController extends BaseController {
     @Resource
     private TeamPerformanceService teamPerformanceService;
 
-
-    //IndicatorProjectList.aspx
     @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
     @GetMapping("/verifyteam/list")
-    public AjaxResult verifyTeamList(PerTeamperformance prize) {
+    public TableDataInfo verifyTeamList(PerTeamperformance teamperformance) {
         AjaxResult ajax = AjaxResult.success();
 
-        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-        Long userId = loginUser.getUser().getUserId();
+        logger.debug("query parameters is " + teamperformance.getTeamidlinktext() + "  "+ teamperformance.getPerformanceyear());
 
-        logger.debug("query parameters is " + prize.getTeamidlinktext() + "  "+ prize.getPerformanceyear());
+        startPage();
+
+        List<PerTeamperformance> list = teamPerformanceService.selectPerTeamperformance(teamperformance);
+
+        return getDataTable(list);
+    }
+
+    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.EXPORT)
+    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @GetMapping("/verifyteam/export")
+    public AjaxResult exportVerifyTeam(PerTeamperformance teamperformance)
+    {
+        List<PerTeamperformance> list = teamPerformanceService.selectPerTeamperformance(teamperformance);
+        ExcelUtil<PerTeamperformance> util = new ExcelUtil<PerTeamperformance>(PerTeamperformance.class);
+        return util.exportExcel(list, "团队绩效考核表");
+    }
 
 
-        List<PerTeamperformance> list = teamPerformanceService.selectPerTeamperformance(prize);
+    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @GetMapping("/verifyteam/pointssum")
+    public AjaxResult verifyTeamPointSum(PerTeamperformance teamperformance) {
+        AjaxResult ajax = AjaxResult.success();
+
+        logger.debug("query parameters is " + teamperformance.getTeamidlinktext() + "  "+ teamperformance.getPerformanceyear());
+
+        Integer points = teamPerformanceService.selectPerTeamperformancePointsSum(teamperformance);
+
+        ajax.put(AjaxResult.DATA_TAG,points);
+
+        return ajax;
+    }
+
+    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @GetMapping("/verifyteam/confirmrequest")
+    public AjaxResult getConfirmrequest(PerTeamperformance teamperformance) {
+        AjaxResult ajax = AjaxResult.success();
+
+        logger.debug("query parameters is " + teamperformance.getTeamidlinktext() + "  "+ teamperformance.getPerformanceyear());
+
+        PerConfirmqequest quest = new PerConfirmqequest();
+        quest.setTeamid(teamperformance.getTeamid());
+        quest.setYear(teamperformance.getPerformanceyear());
+        PerConfirmqequest record = teamPerformanceService.selectPerConfirmRequestByTeamYear(quest);
+
+        ajax.put(AjaxResult.DATA_TAG,record);
+
+        return ajax;
+    }
+
+    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.INSERT)
+    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @PostMapping("/verifyteam/confirmrequest")
+    public AjaxResult addConfirmrequest(@Validated @RequestBody PerTeamperformance teamperformance) {
+        AjaxResult ajax = AjaxResult.success();
+
+        logger.debug("query parameters is " + teamperformance.getTeamidlinktext() + "  "+ teamperformance.getPerformanceyear());
+
+        PerConfirmqequest quest = new PerConfirmqequest();
+        quest.setTeamid(teamperformance.getTeamid());
+        quest.setYear(teamperformance.getPerformanceyear());
+        quest.setStatus("待确认");
+
+        Integer result = teamPerformanceService.insertPerConfirmRequest(quest);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, quest.getRequestid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @PutMapping("/verifyteam/verifypoints")
+    public AjaxResult updateVerifyPoints(@Validated @RequestBody PerScoreschangelog scoreschangelog) {
+        AjaxResult ajax = AjaxResult.success();
+
+        logger.debug("scoreschangelog update is " + scoreschangelog.toString());
+
+        Integer userId = getCurrentLoginUserid();
+
+        PerTeamperformance teamperformance = new  PerTeamperformance();
+        teamperformance.setPerformanceid(scoreschangelog.getPerformanceid());
+        teamperformance.setPoints(scoreschangelog.getNewscores());
+        //修改分数
+        ////记录日志
+        scoreschangelog.setUserid(userId);
+        scoreschangelog.setTime(DateUtils.dateTimeNow());
+        //"分数由" + lab_OldScores.Text + "调整为" + txt_NewScores.Text;
+        String  description = "分数由" + scoreschangelog.getOldscores() + "调整为" + scoreschangelog.getNewscores();
+        scoreschangelog.setDescription(description);
+
+        Integer result = teamPerformanceService.updatePerTeamperformancePoint(teamperformance,scoreschangelog);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, result);
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @GetMapping("/verifyteam/verifypoints")
+    public AjaxResult getVerifypoint( PerScoreschangelog scoreschangelog) {
+        AjaxResult ajax = AjaxResult.success();
+
+        List<PerScoreschangelog> list = teamPerformanceService.selectPerScoreschangelog(scoreschangelog);
 
         ajax.put(AjaxResult.DATA_TAG,list);
 
         return ajax;
-
     }
 
     private Integer getCurrentLoginUserid() {
@@ -59,6 +175,29 @@ public class TeamPerformanceController extends BaseController {
         userId = 87L; // 测试用户 changchun 。
         return userId.intValue();
     }
+
+    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.DELETE)
+    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @DeleteMapping("/verifyteam/{performanceid}")
+    public AjaxResult deleteTeamperformance(@PathVariable Integer performanceid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        PerTeamperformance teamperformance = new  PerTeamperformance();
+        teamperformance.setPerformanceid(performanceid);
+
+        Integer result = teamPerformanceService.updatePerTeamperformanceDeletedById(teamperformance);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, result);
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+    }
+
 //
 //    @PreAuthorize("@ss.hasPermi('performance:teamPerformance:list')")
 //    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.INSERT)

@@ -42,6 +42,12 @@
     where PerformanceID = #{performanceid,jdbcType=INTEGER}
   </update>
 
+    <update id="updatePerTeamperformancePoint" parameterType="com.ruoyi.performance.domain.PerTeamperformance">
+        update PER_TeamPerformance
+        set
+            Points = #{points,jdbcType=DECIMAL}
+        where PerformanceID = #{performanceid,jdbcType=INTEGER}
+    </update>
 
     <update id="updatePerTeamperformanceByStatusAndType" parameterType="com.ruoyi.performance.domain.PerTeamperformance">
         update PER_TeamPerformance
@@ -62,6 +68,13 @@
           and  Status = #{status,jdbcType=VARCHAR}
     </update>
 
+    <update id="updatePerTeamperformanceDeletedById" parameterType="com.ruoyi.performance.domain.PerTeamperformance">
+        update PER_TeamPerformance
+        set Status = '已删除'
+        where  PerformanceID = #{performanceid,jdbcType=INTEGER}
+    </update>
+
+
   <insert id="insertPerTeamperformance" parameterType="com.ruoyi.performance.domain.PerTeamperformance" useGeneratedKeys="true"
           keyProperty="performanceid">
     insert into PER_TeamPerformance ( TeamID, PerformanceYear,
@@ -80,7 +93,7 @@
 
 
     <select id="selectPerTeamperformance" parameterType="com.ruoyi.performance.domain.PerTeamperformance"  resultMap="BaseResultMap">
-        select a.*  ,t1.TeamName as TeamIDLinkText, t2.logCount
+        select a.*  ,t1.TeamName as TeamIDLinkText, COALESCE(t2.logCount,0, t2.logCount) as logCount
         from PER_TeamPerformance a   left join PM_Team t1   on a.TeamID = t1.TeamID
                                      left join (select count(logID) as  logCount, PerformanceID from PER_ScoresChangeLog group by PerformanceID) t2 on a.PerformanceID = t2.PerformanceID
         where  a.Status != '已删除'
@@ -91,6 +104,18 @@
             and a.performanceyear = #{performanceyear,jdbcType=INTEGER}
         </if>
         order by a.Level1Name,a.Level2Name,a.IndicatorType
+
+    </select>
+
+    <select id="selectPerTeamperformancePointsSum" parameterType="com.ruoyi.performance.domain.PerTeamperformance"  resultType="Integer">
+        select sum(a.points) as points from PER_TeamPerformance a
+        where  a.Status != '已删除'
+        <if test="teamid != null ">
+            and a.teamid = #{teamid,jdbcType=INTEGER}
+        </if>
+        <if test="performanceyear != null ">
+            and a.performanceyear = #{performanceyear,jdbcType=INTEGER}
+        </if>
 
     </select>
 

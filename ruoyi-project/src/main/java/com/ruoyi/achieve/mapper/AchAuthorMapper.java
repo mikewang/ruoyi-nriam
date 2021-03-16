@@ -8,9 +8,9 @@ public interface AchAuthorMapper {
 
     List<AchAuthor> selectAchAuthorList(AchAuthor query);
 
+    AchAuthor selectAchAuthorById(Integer authorid);
     int insertAchAuthor(AchAuthor record);
 
-    AchAuthor selectAchAuthorById(Integer authorid);
 
     int updateAchAuthor(AchAuthor record);
 

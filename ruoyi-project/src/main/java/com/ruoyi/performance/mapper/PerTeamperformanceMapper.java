@@ -11,10 +11,15 @@ public interface PerTeamperformanceMapper {
 
     int updatePerTeamperformanceDeleted(PerTeamperformance record);
 
+    int updatePerTeamperformanceDeletedById(PerTeamperformance record);
+
     int updatePerTeamperformanceByStatusAndType(PerTeamperformance record);
+
+    int updatePerTeamperformancePoint(PerTeamperformance record);
 
     List<PerTeamperformance> selectPerTeamperformance(PerTeamperformance record);
 
+    Integer selectPerTeamperformancePointsSum(PerTeamperformance record);
 
     int deleteByPrimaryKey(Integer performanceid);
 

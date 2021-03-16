@@ -1,29 +1,37 @@
 package com.ruoyi.performance.domain;
 
+import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 import java.math.BigDecimal;
 
 public class PerTeamperformance extends BaseEntity {
+    private static final long serialVersionUID = 1L;
 
     private Integer performanceid;
 
 
     private Integer teamid;
+//            excel.AddContentRow(new string[] {"团队名称","年度","一级指标","二级指标",
+//            "类型","详情","评分依据","分数","状态"});    //标题行
 
-
+    /** 年度 */
+    @Excel(name = "年度")
     private Integer performanceyear;
 
-
+    @Excel(name = "类型")
     private String indicatortype;
 
+
+    @Excel(name = "详情")
+    private String indicatortypeDetail;
 
     private Integer indicatorid;
 
 
     private Integer achieveid;
 
-
+    @Excel(name = "评分依据")
     private String description;
 
 
@@ -35,23 +43,26 @@ public class PerTeamperformance extends BaseEntity {
     private Integer authororder;
 
 
+    @Excel(name = "分数")
     private BigDecimal points;
 
 
     private Integer level1id;
 
-
+    @Excel(name = "一级指标")
     private String level1name;
 
 
     private Integer level2id;
 
-
+    @Excel(name = "二级指标")
     private String level2name;
 
-
+    @Excel(name = "状态")
     private String status;
 
+    /** 团队名称 */
+    @Excel(name = "团队名称")
     private String teamidlinktext;
 
     private Integer logcount;
@@ -198,6 +209,14 @@ public class PerTeamperformance extends BaseEntity {
 
     public void setLogcount(Integer logcount) {
         this.logcount = logcount;
+    }
+
+    public String getIndicatortypeDetail() {
+        return indicatortypeDetail;
+    }
+
+    public void setIndicatortypeDetail(String indicatortypeDetail) {
+        this.indicatortypeDetail = indicatortypeDetail;
     }
 
     @Override

@@ -57,6 +57,22 @@
     </if>
 
   </select>
+  <select id="selectAchPrizeById"  parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select a.* , t1.dict_label as PrizeTypeLinkText,t2.dict_label as PrizeLevelLinkText,t3.dict_label as PrizeRankLinkText,
+           t4.ProjectName as ProjectIDLinkText,
+           t5.TeamName as TeamIDLinkText,
+           t6.real_name as CreateUserIDLinkText,
+           t7.dict_label as StatusLinkText
+    from ACH_Prize a  left join (select * from sys_dict_data where dict_type='获奖类型') t1   on a.PrizeType = t1.dict_value
+                      left join (select * from sys_dict_data where dict_type='获奖级别') t2   on a.PrizeLevel = t2.dict_value
+                      left join (select * from sys_dict_data where dict_type='获奖等级') t3   on a.PrizeRank = t3.dict_value
+                      left join Aud_Project t4   on a.ProjectID = t4.ProjectID
+                      left join PM_Team t5   on a.TeamID = t5.TeamID
+                      join sys_user t6 on a.CreateUserID = t6.user_id
+                      join (select * from sys_dict_data where dict_type='科技成果状态') t7 on a.Status = t7.dict_value
+    where a.PrizeID = #{prizeid,jdbcType=INTEGER}
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
       WARNING - @mbg.generated

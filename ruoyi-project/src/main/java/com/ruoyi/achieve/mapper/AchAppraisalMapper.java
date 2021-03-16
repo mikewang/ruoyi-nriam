@@ -7,6 +7,9 @@ public interface AchAppraisalMapper {
 
     List<AchAppraisal> selectAchAppraisal(AchAppraisal record);
 
+
+    AchAppraisal selectAchAppraisalById(Integer appraisalid);
+
     int deleteByPrimaryKey(Integer appraisalid);
 
     /**

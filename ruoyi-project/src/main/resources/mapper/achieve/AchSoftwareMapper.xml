@@ -39,7 +39,20 @@
 
   </select>
 
-
+  <select id="selectAchSoftwareById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select a.* ,
+           t2.ProjectName as ProjectIDLinkText,
+           t5.TeamName as TeamIDLinkText,
+           t6.real_name as CreateUserIDLinkText,
+           t7.dict_label as StatusLinkText
+    from ach_software a
+           left join Aud_Project t2   on a.ProjectID = t2.ProjectID
+           left join PM_Team t5   on a.TeamID = t5.TeamID
+           join sys_user t6 on a.CreateUserID = t6.user_id
+           left join (select * from sys_dict_data where dict_type='科技成果状态') t7 on a.Status = t7.dict_value
+    where  0=0
+    where a.SoftwareID = #{softwareid,jdbcType=INTEGER}
+  </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from ACH_Software
