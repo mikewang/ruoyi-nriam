@@ -14,12 +14,13 @@
 </template>
 
 <script>
-import {listTeam} from "@/api/project/team";
+import {listTeam, getJoinTeamlist} from "@/api/project/team";
+
 
 export default {
   name: "TeamData",
   components: {},
-  props:['selectedTeamId'],
+  props:['selectedTeamId', 'joinTeamUserId'],
   data() {
     return {
       // 遮罩层
@@ -42,20 +43,40 @@ export default {
       const dictType = "所属团队";
       console.log("加载 " + dictType + " 组件 " + this.selectedTeamId);
 
-      listTeam().then(response => {
-        console.log("获取字典数据:" + dictType, response.rows);
-        const listOptions = [];
-        response.rows.sort(function (a, b) {
-          return a.teamname < b.teamname
-        }).forEach(function (item) {
-          const team = {value: item.teamname, id: item.teamid};
-          listOptions.push(team);
-        });
-        this.list = listOptions;
-        this.options = listOptions;
+      if (this.joinTeamUserId == undefined) {
+        listTeam().then(response => {
+          console.log("获取字典数据:" + dictType, response.rows);
+          const listOptions = [];
+          response.rows.sort(function (a, b) {
+            return a.teamname < b.teamname
+          }).forEach(function (item) {
+            const team = {value: item.teamname, id: item.teamid};
+            listOptions.push(team);
+          });
+          this.list = listOptions;
+          this.options = listOptions;
 
-        this.loading = false;
-      });
+          this.loading = false;
+        });
+      }
+      else {
+        getJoinTeamlist(this.joinTeamUserId).then(response => {
+          console.log("获取字典数据:" + dictType, response.rows);
+          const listOptions = [];
+          response.data.sort(function (a, b) {
+            return a.teamname < b.teamname
+          }).forEach(function (item) {
+            const team = {value: item.teamname, id: item.teamid};
+            listOptions.push(team);
+          });
+          this.list = listOptions;
+          this.options = listOptions;
+
+          this.loading = false;
+        });
+
+      }
+
 
     },
 

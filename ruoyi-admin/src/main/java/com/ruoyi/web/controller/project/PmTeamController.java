@@ -9,6 +9,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.performance.domain.PerTeamperformance;
 import com.ruoyi.project.domain.PmTeam;
 import com.ruoyi.project.domain.PmTeamMember;
 import com.ruoyi.project.service.PmTeamMemberService;
@@ -57,7 +58,7 @@ public class PmTeamController extends BaseController {
         return getDataTable(list);
     }
 
-    @PreAuthorize("@ss.hasPermi('project:team:add')")
+    @PreAuthorize("@ss.hasPermi('project:team:list')")
     @Log(title = "团队管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody PmTeam team) {
@@ -68,7 +69,7 @@ public class PmTeamController extends BaseController {
         return toAjax(pmTeamService.addTeam(team));
     }
 
-    @PreAuthorize("@ss.hasPermi('project:team:edit')")
+    @PreAuthorize("@ss.hasPermi('project:team:list')")
     @Log(title = "团队管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody PmTeam team) {
@@ -85,7 +86,7 @@ public class PmTeamController extends BaseController {
     /**
      * 删除
      */
-    @PreAuthorize("@ss.hasPermi('project:team:remove')")
+    @PreAuthorize("@ss.hasPermi('project:team:list')")
     @Log(title = "团队管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{teamids}")
     public AjaxResult remove(@PathVariable Integer[] teamids) {
@@ -98,6 +99,24 @@ public class PmTeamController extends BaseController {
         logger.debug("teamids length is " + String.valueOf(teamids.length));
 
         return toAjax(pmTeamService.deleteTeamByIds(teamids));
+    }
+
+    @PreAuthorize("@ss.hasPermi('project:team:list')")
+    @GetMapping("/joinTeamlist/{userid}")
+    public AjaxResult joinUserTeamList(@PathVariable Integer userid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        List<PmTeam> list = pmTeamService.selectTeamListOfAUserJoin(userid);
+
+        if (list.size() > 0) {
+            ajax.put(AjaxResult.DATA_TAG, list);
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error("失败，您不属于任何团队，请联系管理员");
+        }
+
     }
 
 }

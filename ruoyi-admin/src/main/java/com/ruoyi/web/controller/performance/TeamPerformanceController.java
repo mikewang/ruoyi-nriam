@@ -17,12 +17,15 @@ import com.ruoyi.performance.domain.PerIndicatorproject;
 import com.ruoyi.performance.domain.PerScoreschangelog;
 import com.ruoyi.performance.domain.PerTeamperformance;
 import com.ruoyi.performance.service.TeamPerformanceService;
+import com.ruoyi.project.domain.PmTeam;
+import com.ruoyi.project.service.PmTeamService;
 import io.swagger.models.auth.In;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -37,6 +40,10 @@ public class TeamPerformanceController extends BaseController {
 
     @Resource
     private TeamPerformanceService teamPerformanceService;
+
+    @Resource
+    private PmTeamService pmTeamService;
+
 
     @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
     @GetMapping("/verifyteam/list")
@@ -196,6 +203,71 @@ public class TeamPerformanceController extends BaseController {
 
             return AjaxResult.error(" 操作失败，请联系管理员");
         }
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @GetMapping("/viewteam/list")
+    public TableDataInfo viewTeamList(PerTeamperformance teamperformance) {
+
+        Integer userid = this.getCurrentLoginUserid();
+
+        Boolean validTeamid = false;
+
+        List<PmTeam> teamList = pmTeamService.selectTeamListOfAUserJoin(userid);
+
+        if (teamList.size() > 0) {
+
+            for (PmTeam team : teamList) {
+
+                if (team.getTeamid() == teamperformance.getTeamid()) {
+
+                    validTeamid = true;
+                    break;
+                }
+            }
+
+        }
+
+        logger.debug("query parameters is " + teamperformance.getTeamidlinktext() + "  "+ teamperformance.getPerformanceyear());
+
+        if (validTeamid) {
+
+            startPage();
+
+            List<PerTeamperformance> list = teamPerformanceService.selectPerTeamperformance(teamperformance);
+
+            return getDataTable(list);
+
+        }
+        else {
+            return getDataTable(new ArrayList<>());
+        }
+
+    }
+
+    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.INSERT)
+    @PreAuthorize("@ss.hasPermi('performance:viewteam:list')")
+    @PutMapping("/viewteam/confirmrequest")
+    public AjaxResult updateConfirmrequest(@Validated @RequestBody PerTeamperformance teamperformance) {
+        AjaxResult ajax = AjaxResult.success();
+
+        logger.debug("query parameters is " + teamperformance.getTeamidlinktext() + "  "+ teamperformance.getPerformanceyear());
+
+        teamperformance.setStatus("已确认");
+
+        Integer result = teamPerformanceService.updatePerTeamperformanceStatus(teamperformance);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, result);
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
     }
 
 //

@@ -10,6 +10,7 @@ public interface PerTeamperformanceMapper {
     int insertPerTeamperformance(PerTeamperformance record);
 
     int updatePerTeamperformanceDeleted(PerTeamperformance record);
+    int updatePerTeamperformanceStatus(PerTeamperformance record);
 
     int updatePerTeamperformanceDeletedById(PerTeamperformance record);
 

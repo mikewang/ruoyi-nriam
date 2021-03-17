@@ -40,12 +40,6 @@
     left join sys_user t2 on a.TeamLeaderID= t2.user_id
     where a.IfDeleted = 0
       and ( a.TeamLeaderID = #{userid, jdbcType=INTEGER}  or a.teamid in (select teamid from PM_TeamMember where UserID =  #{userid, jdbcType=INTEGER}))
---       sql = "  select * from PM_Team where TeamID in "
---                     + " ( select teamid from PM_Team where TeamLeaderID = " + userID
---                     + " union select teamid from PM_TeamMember where UserID = " + userID + " ) "
---                     + " and IfDeleted = 0 "
---                     + " order by OrderNumber, TeamName ";
-
   </select>
 
   <select id="selectAll" resultMap="BaseResultMap">

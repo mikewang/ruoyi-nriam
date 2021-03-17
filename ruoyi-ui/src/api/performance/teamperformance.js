@@ -68,3 +68,21 @@ export function deleteVerifyTeam(performanceid) {
     method: 'delete'
   })
 }
+
+
+export function listViewTeam(query) {
+  return request({
+    url: '/performance/viewteam/list',
+    method: 'get',
+    params: query
+  })
+}
+
+
+export function confirmVerifyTeamRequest(data) {
+  return request({
+    url:  '/performance/viewteam/confirmrequest',
+    method: 'put',
+    data: data
+  })
+}

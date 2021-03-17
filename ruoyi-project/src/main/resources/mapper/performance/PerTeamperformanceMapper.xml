@@ -42,6 +42,12 @@
     where PerformanceID = #{performanceid,jdbcType=INTEGER}
   </update>
 
+    <update id="updatePerTeamperformanceStatus" parameterType="com.ruoyi.performance.domain.PerTeamperformance">
+        update PER_TeamPerformance
+        set Status = "已确认"
+        where PTeamID = #{teamid,jdbcType=INTEGER} and   PerformanceYear = #{performanceyear,jdbcType=INTEGER},
+    </update>
+
     <update id="updatePerTeamperformancePoint" parameterType="com.ruoyi.performance.domain.PerTeamperformance">
         update PER_TeamPerformance
         set

@@ -215,6 +215,14 @@ public class TeamPerformanceService {
         return result;
     }
 
+    public Integer updatePerTeamperformanceStatus(PerTeamperformance record){
+        Integer result = 1;
+
+        result = teamperformanceMapper.updatePerTeamperformanceStatus(record);
+
+        return result;
+    }
+
 
     public List<PerScoreschangelog>  selectPerScoreschangelog(PerScoreschangelog scoreschangelog) {
 

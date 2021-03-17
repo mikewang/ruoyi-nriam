@@ -82,6 +82,13 @@ public class PmTeamService {
     }
 
 
+    public List<PmTeam> selectTeamListOfAUserJoin(Integer userid) {
+        List<PmTeam> teamList = pmTeamMapper.selectTeamListOfAUserJoin(userid);
+
+        return teamList;
+    }
+
+
     public List<PmTeam> selectAll() {
         List<PmTeam> teamList = pmTeamMapper.selectAll();
 

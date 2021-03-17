@@ -47,3 +47,11 @@ export function listTeamMember(query) {
     params: query
   })
 }
+
+export function getJoinTeamlist(userid) {
+  return request({
+    url: '/project/team/joinTeamlist/' + userid,
+    method: 'get'
+  })
+}
+
