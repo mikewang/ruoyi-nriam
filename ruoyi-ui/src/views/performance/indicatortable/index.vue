@@ -51,24 +51,39 @@
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
 
-        <el-table v-loading="loading" :data="indicatorList" :span-method="onSpanMethod">
-          <el-table-column label="指标类型" align="center" prop="teamidlinktext" :show-overflow-tooltip="true">
+        <el-table v-loading="loading" :data="indicatorOptions" >
+          <el-table-column label="指标类型" align="center" prop="indicatortype"  width="120">
           </el-table-column>
 
           <el-table-column label="一级指标" align="center" prop="level1name">
             <template slot-scope="scope">
               <a href="#" @click="clickIndicatortypeDetail(scope.row)"
-                 style="color:blue; text-decoration-line:underline">{{ scope.row.indicatortypeDetail }}</a>
+                 style="color:blue; text-decoration-line:underline">{{ scope.row.level1name }}</a>
             </template>
           </el-table-column>
-          <el-table-column label="二级指标" align="center" prop="level2name" width="180"/>
-          <el-table-column label="统计指标" align="center" prop="teamidlinktext" :show-overflow-tooltip="true">
+          <el-table-column label="二级指标" align="center" prop="level2name">
+          <template slot-scope="scope">
+            <a href="#" @click="clickIndicatortypeDetail(scope.row)"
+               style="color:blue; text-decoration-line:underline">{{ scope.row.level2name }}</a>
+          </template>
           </el-table-column>
-          <el-table-column label="同级指标内排序" align="center" prop="indicatortype" width="180"/>
-          <el-table-column label="单项分值" align="center" prop="indicatortypeDetail" width="100">
+          <el-table-column label="统计指标" align="center" prop="indicatorname" >
+            <template slot-scope="scope">
+              <a href="#" @click="clickIndicatortypeDetail(scope.row)"
+                 style="color:blue; text-decoration-line:underline">{{ scope.row.indicatorname }}</a>
+            </template>
+          </el-table-column>
+          <el-table-column label="同级指标内排序" align="center" prop="ordernumber" width="140"/>
+          <el-table-column label="单项分值" align="center" prop="score" width="80">
 
           </el-table-column>
-          <el-table-column label="是否自主申请" align="center" prop="description" width="400"/>
+          <el-table-column label="是否自主申请" align="center" prop="ifselfapply" width="140">
+            <template slot-scope="scope">
+              <span v-if="scope.row.ifselfapply === true">是</span>
+              <span v-else>否</span>
+            </template>
+          </el-table-column>
+
         </el-table>
         <pagination
           v-show="total>0"
@@ -130,7 +145,7 @@
 </template>
 
 <script>
-import {getVerifyTeamConfirmrequest, getVerifyTeamPointsSum, listVerifyTeam, exportVerifyTeam, addVerifyTeamConfirmrequest, updateVerifypoints, getVerifypoints,deleteVerifyTeam} from "@/api/performance/teamperformance";
+import {exportVerifyTeam, addVerifyTeamConfirmrequest, updateVerifypoints, getVerifypoints,deleteVerifyTeam} from "@/api/performance/teamperformance";
 import TeamData from "../../public/team-data";
 import {spanRow} from "@/api/performance/spanRow";
 import {listIndicatorTree} from "@/api/performance/indicator";
@@ -163,8 +178,7 @@ export default {
       total: 0,
       // 表格数据
       indicatorList: [],
-      indicatorListOption: [],
-      performancePointsSum: 0,
+      indicatorOptions: [],
 
       // 弹出层标题
       title: "",
@@ -176,22 +190,12 @@ export default {
       // 查询参数
       queryParams: {
         pageNum: 1,
-        pageSize: 10,
-        teamid : undefined,
-        teamidlinktext : undefined,
-        performanceyear:undefined
-
+        pageSize: 10
       },
       queryRules: {
-        performanceyear: [
-          {required: true, message: "年度不能为空", trigger: "blur"}
-        ],
-        teamid: [
-          {required: true, message: "所属团队不能为空", trigger: "blur"}
-        ]
+
       },
-      //
-      sendConfirmText:"",
+
       // 表单参数
       form: {},
       scorelogList:[],
@@ -216,45 +220,37 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询用户列表 */
-
-    getIndicatorParentOptions() {
-    this.indicatorParentOptions = [
-      {id:1,label:"定量积分评价"},
-
-      {id:2,label:"定性系数评价"}
-    ];
-
-    },
+    /** 查询列表 */
 
     getList() {
       this.loading = true;
       console.log("queryParams is ", this.queryParams);
       listIndicatorTree().then(response =>{
         console.log("response is ", response);
+        this.indicatorList = response.data;
+
         this.indicatorParentOptions = [];
         const rows = response.data;
         for (let i=0; i<rows.length; i++){
           let item = rows[i];
-          console.log("type is " + item.type);
+          // console.log("type is " + item.type);
 
-          let sublist = [];
+          let leve1list = [];
           for (let j=0; j < item.childList.length; j++) {
-            let subitem = item.childList[j];
-            console.log("level1 is " + subitem.indicatorname);
-            let childlist = [];
-            for (let k=0; k < subitem.childList.length; k++) {
-              let childitem = subitem.childList[k];
-              console.log("level2 is " + childitem.indicatorname);
-              childlist.push({id: childitem.indicatorid, label:childitem.indicatorname, level:2});
+            let leve1item = item.childList[j];
+            // console.log("level1 is " + leve1item.indicatorname);
+            let level2list = [];
+            for (let k=0; k < leve1item.childList.length; k++) {
+              let level2item = leve1item.childList[k];
+              // console.log("level2 is " + level2item.indicatorname);
+              level2list.push({id: level2item.indicatorid, label:level2item.indicatorname, level:2});
             }
 
-            let suboption = {id: subitem.indicatorid, label: subitem.indicatorname, children: childlist, level:1};
-            sublist.push(suboption);
+            let leve1dict = {id: leve1item.indicatorid, label: leve1item.indicatorname, children: level2list, level:1};
+            leve1list.push(leve1dict);
           }
 
-
-          let tree = {id:i+1, label:item.type, children: sublist, level:0};
+          let tree = {id:i+1, label:item.type, children: leve1list, level:0};
           this.indicatorParentOptions.push(tree);
         }
         this.loading = false;
@@ -271,13 +267,7 @@ export default {
       this.resetForm("form");
     },
 
-    onSpanMethod({row, column, rowIndex, columnIndex}) {
-      return spanRow(
-        {row, column, rowIndex, columnIndex},
-        this.indicatorList,
-        this.indicatorListOption
-      )
-    },
+
     // 筛选节点
     filterNode(value, data) {
 
@@ -285,7 +275,38 @@ export default {
     // 节点单击事件
     handleNodeClick(data) {
 
-      console.log("data.children.level is ", data.level, data.id, data.label);
+      console.log("data.level is ", data.level, data.id, data.label, "indicatorList count is ",this.indicatorList.length);
+
+      this.indicatorOptions = [];
+      const this_ = this;
+
+      if (data.level === 2) {
+
+        this.indicatorList.forEach(function (item) {
+          item.childList.forEach(function (level1item) {
+            level1item.childList.forEach(function (level2item) {
+              if (level2item.indicatorid === data.id) {
+                level2item.childList.forEach(function (k){
+                  // console.log(k);
+                  k.indicatortype = item.type;
+                  k.level1name = level1item.indicatorname;
+                  k.level2name = level2item.indicatorname;
+                  this_.indicatorOptions.push(k);
+                });
+
+                this_.indicatorOptions.sort(function (a, b) {
+                  return a.ordernumber - b.ordernumber
+                });
+              }
+            })
+
+          });
+
+        });
+
+      }
+
+
 
     },
 

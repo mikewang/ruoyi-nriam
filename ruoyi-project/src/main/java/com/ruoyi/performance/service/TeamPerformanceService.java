@@ -330,8 +330,6 @@ public class TeamPerformanceService {
             }
         }
 
-//        trees.sort((o1, o2) -> o1.getType().compareTo(o2.getType()));
-
         list2.forEach(indicator2 -> {
 
             for (IndicatorTree tree : trees) {
@@ -376,6 +374,7 @@ public class TeamPerformanceService {
                                 List<PerIndicator> ll = new ArrayList<>();
                                 ll.add(indicator3);
                                 indicator2.setChildList(ll);
+                                log.debug("indicator3 is " + indicator3.toString());
                             }
                             else {
                                 indicator2.getChildList().add(indicator3);
