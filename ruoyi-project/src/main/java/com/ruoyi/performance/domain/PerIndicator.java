@@ -2,6 +2,9 @@ package com.ruoyi.performance.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PerIndicator extends BaseEntity {
 
     private Integer indicatorid;
@@ -33,6 +36,12 @@ public class PerIndicator extends BaseEntity {
     private Boolean ifdeleted;
     private String level1name;
     private String level2name;
+
+    private Integer childcount;
+
+    private Integer parentid;
+
+    private List<PerIndicator> childList;
 
 
     public Integer getIndicatorid() {
@@ -139,6 +148,26 @@ public class PerIndicator extends BaseEntity {
         this.level2name = level2name;
     }
 
+    public Integer getChildcount() {
+        return childcount;
+    }
+
+    public void setChildcount(Integer childcount) {
+        this.childcount = childcount;
+    }
+
+    public Integer getParentid() {
+        return parentid;
+    }
+
+    public void setParentid(Integer parentid) {
+        this.parentid = parentid;
+    }
+
+    public List<PerIndicator> getChildList() {
+        return childList;
+    }
+
     @Override
     public String toString() {
         return "PerIndicator{" +
@@ -155,6 +184,14 @@ public class PerIndicator extends BaseEntity {
                 ", ifdeleted=" + ifdeleted +
                 ", level1name='" + level1name + '\'' +
                 ", level2name='" + level2name + '\'' +
+                ", childcount=" + childcount +
+                ", parentid=" + parentid +
+                ", childList=" + childList +
                 '}';
     }
+
+    public void setChildList(List<PerIndicator> childList) {
+        this.childList = childList;
+    }
+
 }

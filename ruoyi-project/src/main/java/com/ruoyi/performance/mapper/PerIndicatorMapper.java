@@ -8,7 +8,7 @@ public interface PerIndicatorMapper {
     List<PerIndicator> selectPerIndicator(PerIndicator record);
     int insertPerIndicator(PerIndicator record);
 
-
+    List<PerIndicator> selectPerIndicatorTree();
 
     int deleteByPrimaryKey(Integer indicatorid);
 

@@ -15,6 +15,9 @@
     <result column="IfDeleted" jdbcType="BIT" property="ifdeleted" />
     <result column="Level1Name" jdbcType="VARCHAR" property="level1name" />
     <result column="Level2Name" jdbcType="VARCHAR" property="level2name" />
+    <result column="childcount" jdbcType="INTEGER" property="childcount" />
+    <result column="parentid" jdbcType="INTEGER" property="parentid" />
+
   </resultMap>
 
   <select id="selectPerIndicator" resultMap="BaseResultMap">
@@ -45,6 +48,18 @@
       order by IndicatorName
     </if>
 
+  </select>
+
+  <select id="selectPerIndicatorTree"  resultMap="BaseResultMap">
+    with cte as
+           (
+             select IndicatorID,IndicatorLevel, IndicatorType,  IndicatorName, OrderNumber,Score,IfSelfApply,IfDisplay, parentid
+             from (select a.* ,(case a.IndicatorLevel when 2 then a.Level1ID when 3 then a.Level2ID else null end ) as  parentid from PER_Indicator a where  a.IfDeleted = 0 ) v  where parentid is null
+             union all
+             select  a.IndicatorID,a.IndicatorLevel, a.IndicatorType, a.IndicatorName,a.OrderNumber, a.Score, a.IfSelfApply, a.IfDisplay, a.parentid
+             from  (select a.* ,(case a.IndicatorLevel when 2 then a.Level1ID when 3 then a.Level2ID else null end ) as  parentid from PER_Indicator a  where  a.IfDeleted = 0 ) a join cte b on a.parentid = b.IndicatorID
+           )
+    select *  from cte order by IndicatorType, parentid asc
   </select>
 
   <insert id="insertPerIndicator" parameterType="com.ruoyi.performance.domain.PerIndicator">

@@ -3,10 +3,14 @@ package com.ruoyi.performance.service;
 import com.ruoyi.achieve.domain.*;
 import com.ruoyi.achieve.mapper.*;
 import com.ruoyi.common.constant.CHString;
-import com.ruoyi.common.enums.AchieveStatus;
-import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.performance.domain.*;
-import com.ruoyi.performance.mapper.*;
+import com.ruoyi.performance.domain.PerConfirmqequest;
+import com.ruoyi.performance.domain.PerIndicator;
+import com.ruoyi.performance.domain.PerScoreschangelog;
+import com.ruoyi.performance.domain.PerTeamperformance;
+import com.ruoyi.performance.mapper.PerConfirmqequestMapper;
+import com.ruoyi.performance.mapper.PerIndicatorMapper;
+import com.ruoyi.performance.mapper.PerScoreschangelogMapper;
+import com.ruoyi.performance.mapper.PerTeamperformanceMapper;
 import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.project.mapper.AudProjectMapper;
 import org.slf4j.Logger;
@@ -16,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -25,6 +30,9 @@ public class TeamPerformanceService {
 
     @Resource
     PerTeamperformanceMapper teamperformanceMapper;
+
+    @Resource
+    PerIndicatorMapper indicatorMapper;
 
     @Resource
     PerConfirmqequestMapper confirmqequestMapper;
@@ -66,9 +74,9 @@ public class TeamPerformanceService {
         for (PerTeamperformance row : list) {
 
             if (row.getIndicatortype().equals(CHString.IndicatorProject)) {
-               AudProject project = projectMapper.selectProjectById(row.getAchieveid());
+                AudProject project = projectMapper.selectProjectById(row.getAchieveid());
 
-               row.setIndicatortypeDetail(project.getProjectname());
+                row.setIndicatortypeDetail(project.getProjectname());
             }
             if (row.getIndicatortype().equals(CHString.Software)) {
 
@@ -143,7 +151,7 @@ public class TeamPerformanceService {
                 row.setIndicatortypeDetail(patent.getTechname());
             }
 
-            List <String> sets = new ArrayList<>();
+            List<String> sets = new ArrayList<>();
             sets.add(CHString.IndicatorFundNational);
             sets.add(CHString.IndicatorFundOther);
             sets.add(CHString.IncomeDevelop);
@@ -194,7 +202,7 @@ public class TeamPerformanceService {
 
 
     @Transactional
-    public Integer updatePerTeamperformancePoint(PerTeamperformance record, PerScoreschangelog scoreschangelog){
+    public Integer updatePerTeamperformancePoint(PerTeamperformance record, PerScoreschangelog scoreschangelog) {
         Integer result = 1;
         //修改分数
 
@@ -207,7 +215,7 @@ public class TeamPerformanceService {
     }
 
     @Transactional
-    public Integer updatePerTeamperformance(PerTeamperformance record){
+    public Integer updatePerTeamperformance(PerTeamperformance record) {
         Integer result = 1;
 
         result = teamperformanceMapper.updatePerTeamperformance(record);
@@ -215,7 +223,7 @@ public class TeamPerformanceService {
         return result;
     }
 
-    public Integer updatePerTeamperformanceStatus(PerTeamperformance record){
+    public Integer updatePerTeamperformanceStatus(PerTeamperformance record) {
         Integer result = 1;
 
         result = teamperformanceMapper.updatePerTeamperformanceStatus(record);
@@ -224,7 +232,7 @@ public class TeamPerformanceService {
     }
 
 
-    public List<PerScoreschangelog>  selectPerScoreschangelog(PerScoreschangelog scoreschangelog) {
+    public List<PerScoreschangelog> selectPerScoreschangelog(PerScoreschangelog scoreschangelog) {
 
         List<PerScoreschangelog> list = scoreschangelogMapper.selectPerScoreschangelog(scoreschangelog);
 
@@ -233,7 +241,7 @@ public class TeamPerformanceService {
 
 
     @Transactional
-    public Integer updatePerTeamperformanceDeletedById(PerTeamperformance record){
+    public Integer updatePerTeamperformanceDeletedById(PerTeamperformance record) {
         Integer result = 1;
         //修改分数
 
@@ -241,6 +249,147 @@ public class TeamPerformanceService {
 
 
         return result;
+    }
+
+
+    public class IndicatorTree {
+        private String type;
+        private List<PerIndicator> childList;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public List<PerIndicator> getChildList() {
+            return childList;
+        }
+
+        public void setChildList(List<PerIndicator> childList) {
+            this.childList = childList;
+        }
+
+        @Override
+        public String toString() {
+            return "IndicatorTree{" +
+                    "type='" + type + '\'' +
+                    ", childList=" + childList +
+                    '}';
+        }
+    }
+
+
+    // 考核指标 树
+    public List<IndicatorTree> selectPerIndictorTree() {
+
+        List<PerIndicator> list = indicatorMapper.selectPerIndicatorTree();
+
+        List<IndicatorTree> trees = new ArrayList<>();
+
+        List<PerIndicator> list1 = new ArrayList<>();
+        for (PerIndicator perIndicator : list) {
+            if (perIndicator.getParentid() == null) {
+                list1.add(perIndicator);
+            }
+        }
+
+        log.debug("list1 is " + list1.toString());
+
+        list1.forEach(indicator -> {
+
+            IndicatorTree tempTree = new IndicatorTree();
+//            log.debug("tempTree is " + tempTree.toString());
+
+            for (IndicatorTree tree : trees) {
+                if (tree.getType().equals(indicator.getIndicatortype())) {
+                    tempTree = tree;
+                }
+            }
+
+            if (tempTree.getType() == null) {
+                IndicatorTree kk = new IndicatorTree();
+                List<PerIndicator> childList = new ArrayList<>();
+                childList.add(indicator);
+                kk.setChildList(childList);
+                kk.setType(indicator.getIndicatortype());
+                trees.add(kk);
+            }
+            else {
+                tempTree.getChildList().add(indicator);
+            }
+        });
+
+
+        List<PerIndicator> list2 = new ArrayList<>();
+        for (PerIndicator perIndicator : list) {
+            if (perIndicator.getIndicatorlevel() == 2) {
+                list2.add(perIndicator);
+            }
+        }
+
+//        trees.sort((o1, o2) -> o1.getType().compareTo(o2.getType()));
+
+        list2.forEach(indicator2 -> {
+
+            for (IndicatorTree tree : trees) {
+                tree.getChildList().forEach(indicator1 -> {
+                    if (indicator1.getIndicatorid().equals(indicator2.getParentid())) {
+
+                        if (indicator1.getChildList() == null) {
+                            List<PerIndicator> ll = new ArrayList<>();
+                            ll.add(indicator2);
+                            indicator1.setChildList(ll);
+                        }
+                        else {
+                            indicator1.getChildList().add(indicator2);
+                        }
+
+                    }
+
+                });
+            }
+        });
+
+        for (IndicatorTree tree : trees) {
+
+            tree.getChildList().sort((o1, o2) -> o1.getIndicatorname().compareTo(o2.getIndicatorname()));
+
+        }
+
+        List<PerIndicator> list3 = new ArrayList<>();
+        for (PerIndicator perIndicator : list) {
+            if (perIndicator.getIndicatorlevel() == 3) {
+                list3.add(perIndicator);
+            }
+        }
+
+        list3.forEach(indicator3 -> {
+            for (IndicatorTree tree : trees) {
+                tree.getChildList().forEach(indicator1 -> {
+                    indicator1.getChildList().forEach(indicator2 -> {
+                        if (indicator2.getIndicatorid().equals(indicator3.getParentid())) {
+
+                            if (indicator2.getChildList() == null) {
+                                List<PerIndicator> ll = new ArrayList<>();
+                                ll.add(indicator3);
+                                indicator2.setChildList(ll);
+                            }
+                            else {
+                                indicator2.getChildList().add(indicator3);
+                            }
+
+                        }
+                    });
+                });
+            }
+        });
+
+
+
+        return trees;
     }
 
 }

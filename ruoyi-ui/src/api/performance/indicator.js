@@ -294,3 +294,12 @@ export function updateIndicatorTech(data) {
     data: data
   })
 }
+
+// 获取考核指标
+export function listIndicatorTree() {
+  return request({
+    url: '/performance/indicatortable',
+    method: 'get'
+  })
+}
+

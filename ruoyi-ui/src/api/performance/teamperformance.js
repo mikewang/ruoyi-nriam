@@ -86,3 +86,10 @@ export function confirmVerifyTeamRequest(data) {
     data: data
   })
 }
+
+export function listIndicatorTree() {
+  return request({
+    url: '/performance/indicatortable',
+    method: 'get'
+  })
+}

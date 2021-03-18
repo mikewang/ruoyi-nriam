@@ -12,10 +12,7 @@ import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
-import com.ruoyi.performance.domain.PerConfirmqequest;
-import com.ruoyi.performance.domain.PerIndicatorproject;
-import com.ruoyi.performance.domain.PerScoreschangelog;
-import com.ruoyi.performance.domain.PerTeamperformance;
+import com.ruoyi.performance.domain.*;
 import com.ruoyi.performance.service.TeamPerformanceService;
 import com.ruoyi.project.domain.PmTeam;
 import com.ruoyi.project.service.PmTeamService;
@@ -261,6 +258,26 @@ public class TeamPerformanceController extends BaseController {
         if (result > 0) {
 
             ajax.put(AjaxResult.DATA_TAG, result);
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @PreAuthorize("@ss.hasPermi('performance:indicatortable:list')")
+    @GetMapping("/indicatortable")
+    public AjaxResult getIndictorTable() {
+        AjaxResult ajax = AjaxResult.success();
+
+        List<TeamPerformanceService.IndicatorTree> list = teamPerformanceService.selectPerIndictorTree();
+
+        logger.debug("getIndictorTable is " + list.toString());
+        if (list.size() > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, list);
 
             return ajax;
         } else {
