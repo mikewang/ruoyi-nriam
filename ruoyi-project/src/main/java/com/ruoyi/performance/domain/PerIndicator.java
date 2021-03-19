@@ -164,10 +164,6 @@ public class PerIndicator extends BaseEntity {
         this.parentid = parentid;
     }
 
-    public List<PerIndicator> getChildList() {
-        return childList;
-    }
-
     @Override
     public String toString() {
         return "PerIndicator{" +
@@ -188,6 +184,10 @@ public class PerIndicator extends BaseEntity {
                 ", parentid=" + parentid +
                 ", childList=" + childList +
                 '}';
+    }
+
+    public List<PerIndicator> getChildList() {
+        return childList;
     }
 
     public void setChildList(List<PerIndicator> childList) {

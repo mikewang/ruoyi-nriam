@@ -46,7 +46,7 @@ export default {
         console.log("获取字典数据:" + this.dictType, response.rows);
         const listOptions = [];
         response.rows.sort(function (a, b) {
-          return a.dictValue < b.dictValue
+          return a.dictValue - b.dictValue
         }).forEach(function (item) {
           const adict = {value: item.dictLabel, id: item.dictValue};
           listOptions.push(adict);
