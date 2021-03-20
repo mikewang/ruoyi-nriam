@@ -303,3 +303,29 @@ export function listIndicatorTree() {
   })
 }
 
+
+// 添加
+export function addIndicator(data) {
+  return request({
+    url: '/performance/indicatortable',
+    method: 'post',
+    data: data
+  })
+}
+
+
+// 修改
+export function updateIndicator(data) {
+  return request({
+    url: '/performance/indicatortable',
+    method: 'put',
+    data: data
+  })
+}
+
+export function deleteIndicator(indicatorid) {
+  return request({
+    url: '/performance/indicatortable/' + indicatorid,
+    method: 'delete'
+  })
+}

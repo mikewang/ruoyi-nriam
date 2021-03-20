@@ -51,7 +51,7 @@
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
 
-        <el-table v-loading="loading" :data="indicatorOptions" >
+        <el-table v-loading="loading" :data="indicatorOptions" :key="timer">
           <el-table-column label="指标类型" align="center" prop="indicatortype"  width="120">
           </el-table-column>
 
@@ -110,7 +110,6 @@
 </template>
 
 <script>
-import {exportVerifyTeam, addVerifyTeamConfirmrequest, updateVerifypoints, getVerifypoints,deleteVerifyTeam} from "@/api/performance/teamperformance";
 import TeamData from "../../public/team-data";
 import IndicatorInfo from "../../public/indicator-info";
 import {spanRow} from "@/api/performance/spanRow";
@@ -145,6 +144,7 @@ export default {
       // 表格数据
       indicatorList: [],
       indicatorOptions: [],
+      clickedNodeData:undefined,
 
       // 弹出层标题
       title: "",
@@ -165,8 +165,6 @@ export default {
       // 表单参数
       form: {},
       level: 1,
-      scorelogList:[],
-
 
       timer: '',
       // 表单校验
@@ -220,6 +218,12 @@ export default {
           let tree = {id: i + 1, label: row.type, children: leve1list, level: 0};
           this.indicatorTreeOptions.push(tree);
         }
+
+
+        if (this.clickedNodeData !== undefined) {
+          this.handleNodeClick(this.clickedNodeData);
+        }
+
         this.loading = false;
       });
     },
@@ -244,6 +248,7 @@ export default {
 
       console.log("data.level is ", data.level, data.id, data.label, "indicatorList count is ", this.indicatorList.length);
 
+      this.clickedNodeData = data;
       this.indicatorOptions = [];
       const this_ = this;
 
@@ -251,15 +256,18 @@ export default {
 
         this.indicatorList.forEach(function (item) {
           item.childList.forEach(function (level1item) {
+            //console.log("level1item is ", level1item);
             level1item.childList.forEach(function (level2item) {
+              //console.log("level2item is ", level2item);
               if (level2item.indicatorid === data.id) {
                 level2item.childList.forEach(function (k) {
-                  // console.log(k);
+
                   k.indicatortype = item.type;
                   k.level1id = level1item.indicatorid;
                   k.level1name = level1item.indicatorname;
                   k.level2id = level2item.indicatorid;
                   k.level2name = level2item.indicatorname;
+                  console.log("show item is ", k);
                   this_.indicatorOptions.push(k);
                 });
 
@@ -333,9 +341,9 @@ export default {
 
     /** 新增按钮操作 */
     handleAdd() {
-      this.open = true;
       this.title = "新增绩效考核指标信息";
       this.form = {indicatorid: undefined};
+      this.open = true;
     },
 
     handleUpdate(row) {
@@ -350,23 +358,12 @@ export default {
       if (info === null) {
         this.open = false;
       }
+      else {
+        this.open = false;
+        this.getList();
+        console.log("this.indicatorOptions count is ", this.indicatorOptions.length);
 
-    },
-
-    handleDelete(row) {
-      console.log("update row is  ", row);
-      const this_ = this;
-      this.$confirm('是否确认删除？', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        deleteVerifyTeam(row.performanceid);
-      }).then(() => {
-        this_.msgSuccess("删除成功");
-        this_.getList();
-
-      });
+      }
 
     },
 

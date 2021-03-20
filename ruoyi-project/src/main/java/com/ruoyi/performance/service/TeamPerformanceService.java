@@ -385,10 +385,34 @@ public class TeamPerformanceService {
                 });
             }
         });
-
-
-
         return trees;
     }
 
+
+    @Transactional
+    public Integer insertPerIndicator(PerIndicator record) {
+
+        Integer  result = indicatorMapper.insertPerIndicator(record);
+
+        return result;
+    }
+
+    @Transactional
+    public Integer updatePerIndicator(PerIndicator record) {
+
+        Integer  result = indicatorMapper.updatePerIndicator(record);
+
+
+        return result;
+    }
+
+
+    @Transactional
+    public Integer updatePerIndicatorDeletedById(PerIndicator record) {
+
+        Integer  result = indicatorMapper.updatePerIndicatorDeleted(record);
+
+
+        return result;
+    }
 }

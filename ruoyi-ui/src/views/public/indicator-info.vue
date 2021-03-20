@@ -16,8 +16,8 @@
         </el-form-item>
       </el-col>
       <el-col :span="24">
-        <el-form-item label="指标级别" prop="level">
-          <el-select v-model="form.level" placeholder="请选择" style="display:block;"
+        <el-form-item label="指标级别" prop="indicatorlevel">
+          <el-select v-model="form.indicatorlevel" placeholder="请选择" style="display:block;"
                      clearable @clear="clearLevelValue" @change="changeLevelValue"
                      filterable :filter-method="filterLevelOptions" >
             <el-option
@@ -29,7 +29,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="24">
-        <el-form-item v-if="this.hidden.level1id===false" label="所属一级指标" prop="level1id">
+        <el-form-item :hidden="this.hidden.level1id" label="所属一级指标" prop="level1id">
           <el-select v-model="form.level1id" placeholder="请选择" style="display:block;"
                      clearable @clear="clearLevel1Value" @change="changeLevel1Value"
                      filterable :filter-method="filterLevel1Options" >
@@ -42,7 +42,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="24">
-        <el-form-item v-if="this.hidden.level2id===false" label="所属二级指标" prop="level2id">
+        <el-form-item :hidden="this.hidden.level2id" label="所属二级指标" prop="level2id">
           <el-select v-model="form.level2id" placeholder="请选择" style="display:block;"
                      clearable @clear="clearLevel2Value" @change="changeLevel2Value"
                      filterable :filter-method="filterLevel2Options" >
@@ -60,19 +60,25 @@
         </el-form-item>
       </el-col>
       <el-col :span="24">
-        <el-form-item v-if="this.hidden.score===false" label="单项分值" prop="score">
-          <el-input  v-model="form.score" placeholder="请输入"/>
+        <el-form-item :hidden="this.hidden.score" label="单项分值" prop="score">
+          <el-input type="number" v-model="form.score" placeholder="请输入"/>
         </el-form-item>
       </el-col>
       <el-col :span="24">
-        <el-form-item v-if="this.hidden.ifselfapply===false" label="是否自主申请" prop="ifselfapply">
-          <el-input  v-model="form.ifselfapply" placeholder="请输入"/>
+        <el-form-item :hidden="this.hidden.ifselfapply" label="是否自主申请" prop="ifselfapply">
+          <template>
+            <el-radio-group v-model="form.ifselfapply">
+              <el-radio :label="true">是</el-radio>
+              <el-radio :label="false">否</el-radio>
+            </el-radio-group>
+          </template>
+
         </el-form-item>
       </el-col>
     </el-row>
   </el-form>
   <div slot="footer" class="dialog-footer" align="center">
-    <el-button type="danger" @click="removeForm">删除</el-button>
+    <el-button v-if="this.hidden.deleteBtn===false" type="danger" @click="deleteForm">删除</el-button>
     <el-button type="primary" @click="submitForm">确 定</el-button>
     <el-button @click="cancelForm">取 消</el-button>
   </div>
@@ -80,7 +86,7 @@
 </template>
 
 <script>
-import {listData} from "@/api/system/dict/data";
+import {addIndicator,updateIndicator,deleteIndicator} from "@/api/performance/indicator";
 
 export default {
   name: "IndicatorInfo",
@@ -92,8 +98,8 @@ export default {
       // 遮罩层
       loading: true,
       // 传入的参数
-      form:{level:this.infoLevel, indicatorid:this.info.indicatorid, indicatortype:this.info.indicatortype,
-        level1id: this.info.level1id.toString(), level2id: this.info.level2id.toString(), indicatorname:this.info.indicatorname,
+      form:{indicatorlevel:this.infoLevel, indicatorid:this.info.indicatorid, indicatortype:this.info.indicatortype,
+        level1id: this.info.level1id, level2id: this.info.level2id, indicatorname:this.info.indicatorname,
          score:this.info.score, ifselfapply: this.info.ifselfapply},
       rules:{},
       timer: '',
@@ -113,19 +119,16 @@ export default {
       indicatorLevelOptions: [{id:1, value:"一级指标"},{id:2,value:"二级指标"},{id:3, value:"统计指标"}],
       indicatorLevelList: [],
 
-      hidden:{level1id:false, level2id:false, score:false, ifselfapply:false},
+      hidden:{level1id:false, level2id:false, score:false, ifselfapply:false, deleteBtn:false},
       readonly:[]
 
     };
   },
   created() {
-    // this.getList();
+    this.getList();
 
     console.log(" props info is ", this.info);
 
-    this.configTemplate(this.form.level);
-
-    this.loading = false;
   },
   watch: {
 
@@ -136,19 +139,19 @@ export default {
       this.loading = true;
       console.log("加载 组件 " + this.form);
 
-      listData({"dictType": "项目类型"}).then(response => {
-        console.log(response.rows);
-        const listOptions = [];
-        response.rows.sort(function (a, b) {
-          return a.dictValue - b.dictValue
-        }).forEach(function (item) {
-          const adict = {value: item.dictLabel, id: item.dictValue};
-          listOptions.push(adict);
-        });
-        this.indicatorTypeList = listOptions;
-        this.indicatorTypeOptions = listOptions;
-        this.loading = false;
-      });
+      if (this.form.indicatorid === undefined) {
+        this.hidden.deleteBtn = true;
+        this.form.indicatorlevel = 3;
+        this.form.ifselfapply = false;
+
+        this.configTemplate(this.form.indicatorlevel);
+
+      }
+      else {
+        this.configTemplate(this.form.indicatorlevel);
+      }
+
+      this.loading = false;
 
     },
 
@@ -158,27 +161,27 @@ export default {
       return ["定量积分评价","定性系数评价"];
     },
 
-    configTemplate(level) {
+    configTemplate(indicatorlevel) {
 
-      if (level === 1) {
+      if (indicatorlevel === 1) {
         this.hidden.ifselfapply = true;
         this.hidden.score = true;
         this.hidden.level2id = true;
         this.hidden.level1id = true;
       }
-      else if (level === 2) {
+      else if (indicatorlevel === 2) {
         this.hidden.ifselfapply = true;
         this.hidden.score = true;
         this.hidden.level2id = true;
         this.hidden.level1id = false;
       }
-      else if (level === 3) {
+      else if (indicatorlevel === 3) {
         this.hidden.ifselfapply = false;
         this.hidden.score = false;
         this.hidden.level2id = false;
         this.hidden.level1id = false;
-      }
 
+      }
 
       this.indicatorTypeOptions =[];
       this.indicatorLevel1List = [];
@@ -193,11 +196,11 @@ export default {
       this.indicatorTreeOptions.forEach(function (tree) {
         this_.indicatorTypeOptions.push(tree.label);
 
-        if (level ===1) {
+        if (indicatorlevel ===1) {
 
 
         }
-        else if (level === 2) {
+        else if (indicatorlevel === 2) {
           //
           if (this_.form.indicatortype === tree.label) {
             tree.children.forEach(function(level1) {
@@ -210,15 +213,18 @@ export default {
 
           }
         }
-        else if (level === 3) {
+        else if (indicatorlevel === 3) {
           if (this_.form.indicatortype === tree.label) {
             tree.children.forEach(function(level1) {
               this_.indicatorLevel1List.push({id:level1.id, value:level1.label});
               this_.indicatorLevel1Options.push({id:level1.id, value:level1.label});
-              console.log("this_.form.level1name is ", this_.form.level1name);
-              console.log("level1.id is ", level1.label);
 
-              if (this_.info.level1name === level1.label) {
+              console.log("level 3 this_.form.level1name is ", this_.form.level1id, this_.form.level1name);
+
+              if (this_.form.level1id === level1.id) {
+
+                console.log("level 3 level1.id is ", level1.label);
+
                 level1.children.forEach(function(level2) {
                   this_.indicatorLevel2List.push({id: level2.id, value: level2.label});
                   this_.indicatorLevel2Options.push({id:level2.id, value:level2.label});
@@ -237,8 +243,6 @@ export default {
       console.log("indicatorLevel1Options is ", this_.indicatorLevel1Options);
       console.log("indicatorLevel2Options is ", this_.indicatorLevel2Options);
 
-
-
     },
 
     clearIndicatorTypeValue() {
@@ -247,17 +251,23 @@ export default {
 
     changeIndicatorTypeValue(value) {
 
-      if (value) {
+      console.log("changeIndicatorTypeValue is ",value);
 
-        let projectType = {id:value, value:undefined};
+      if (value) {
 
         for (let i=0; i< this.indicatorTypeList.length; i++) {
           let item = this.indicatorTypeList[i];
-          if (item.id === value) {
-            projectType.value = item.value;
+          if (item === value) {
+            updateItem.value = item.value;
             break;
           }
         }
+
+        this.form.indicatortype = value;
+        this.form.indicatorlevel = 1;
+
+        this.configTemplate(this.form.indicatorlevel);
+
       } else {
 
       }
@@ -268,17 +278,6 @@ export default {
 
       console.log("filter value is " + v);
 
-      if (v) {
-        this.indicatorTypeOptions = this.indicatorTypeList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.indicatorTypeOptions = this.indicatorTypeList;
-      }
     },
 
 
@@ -290,39 +289,35 @@ export default {
 
       if (value) {
 
-        let projectType = {id:value, value:undefined};
+        let updateitem = {id:value, value:undefined};
 
-        for (let i=0; i< this.indicatorTypeList.length; i++) {
-          let item = this.indicatorTypeList[i];
+        for (let i=0; i< this.indicatorLevelOptions.length; i++) {
+          let item = this.indicatorLevelOptions[i];
           if (item.id === value) {
-            projectType.value = item.value;
+            updateitem.value = item.value;
             break;
           }
         }
+
+        this.form.indicatorlevel = value;
+
+        this.configTemplate(this.form.indicatorlevel);
+
+
       } else {
 
       }
 
     },
+
+
+
 
     filterLevelOptions(v) {
 
       console.log("filter value is " + v);
 
-      if (v) {
-        this.indicatorTypeOptions = this.indicatorTypeList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.indicatorTypeOptions = this.indicatorTypeList;
-      }
     },
-
-
 
     clearLevel1Value() {
 
@@ -332,15 +327,20 @@ export default {
 
       if (value) {
 
-        let projectType = {id:value, value:undefined};
+        let updateitem = {id:value, value:undefined};
 
         for (let i=0; i< this.indicatorLevel1List.length; i++) {
           let item = this.indicatorLevel1List[i];
           if (item.id === value) {
-            projectType.value = item.value;
+            updateitem.value = item.value;
             break;
           }
         }
+        console.log("changeLevel1Value updateitem is ", updateitem);
+
+        this.form.level1id = value;
+        this.configTemplate(this.form.indicatorlevel);
+
       } else {
 
       }
@@ -350,18 +350,18 @@ export default {
     filterLevel1Options(v) {
 
       console.log("filter value is " + v);
-
-      if (v) {
-        this.indicatorLevel1Options = this.indicatorLevel1List.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.indicatorLevel1Options = this.indicatorLevel1List;
-      }
+      //
+      // if (v) {
+      //   this.indicatorLevel1Options = this.indicatorLevel1List.filter((item) => {
+      //     // 如果直接包含输入值直接返回true
+      //     const val = v.toLowerCase()
+      //     if (item.value.indexOf(val) !== -1) return true
+      //     // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
+      //     // if (item.szm.indexOf(val) !== -1) return true
+      //   });
+      // } else {
+      //   this.indicatorLevel1Options = this.indicatorLevel1List;
+      // }
     },
 
 
@@ -407,8 +407,6 @@ export default {
 
 
     cancelForm: function () {
-      this.open = false;
-
       this.$emit('changeIndicatorInfo',null);
     },
 
@@ -416,12 +414,46 @@ export default {
       const this_ = this;
       this_.$refs["form"].validate(valid => {
         if (valid) {
-          this.$emit('changeIndicatorInfo',null);
+          const this_ = this;
+          this.$confirm('是否确认保存？', "警告", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }).then(function () {
+            console.log("submit form is ", this_.form);
+            if (this_.form.indicatorid === undefined) {
+              addIndicator(this_.form).then(()=>{
+                this_.msgSuccess("保存成功");
+                this_.$emit('changeIndicatorInfo',this_.form);
+              });
+            }
+            else {
+              updateIndicator(this_.form).then(()=>{
+                this_.msgSuccess("保存成功");
+                this_.$emit('changeIndicatorInfo',this_.form);
+              });
+            }
+          }).then(() => {
+
+
+          });
         }
       });
     },
-    removeForm: function () {
 
+    deleteForm: function () {
+
+      const this_ = this;
+      this.$confirm('是否确认删除？', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        deleteIndicator(this_.form.indicatorid).then(() => {
+          this_.msgSuccess("删除成功");
+          this_.$emit('changeIndicatorInfo', this_.form);
+        });
+      });
     }
 
   }

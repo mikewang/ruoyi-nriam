@@ -10,6 +10,11 @@ public interface PerIndicatorMapper {
 
     List<PerIndicator> selectPerIndicatorTree();
 
+    int updatePerIndicator(PerIndicator record);
+
+    int updatePerIndicatorDeleted(PerIndicator record);
+
+
     int deleteByPrimaryKey(Integer indicatorid);
 
     /**

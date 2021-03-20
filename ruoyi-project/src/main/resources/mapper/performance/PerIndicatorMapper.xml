@@ -53,25 +53,46 @@
   <select id="selectPerIndicatorTree"  resultMap="BaseResultMap">
     with cte as
            (
-             select IndicatorID,IndicatorLevel, IndicatorType,  IndicatorName, OrderNumber,Score,IfSelfApply,IfDisplay, parentid
+             select IndicatorID,IndicatorLevel, IndicatorType,  IndicatorName, OrderNumber,Score,IfSelfApply,IfDisplay, parentid,level1id,level2id
              from (select a.* ,(case a.IndicatorLevel when 2 then a.Level1ID when 3 then a.Level2ID else null end ) as  parentid from PER_Indicator a where  a.IfDeleted = 0 ) v  where parentid is null
              union all
-             select  a.IndicatorID,a.IndicatorLevel, a.IndicatorType, a.IndicatorName,a.OrderNumber, a.Score, a.IfSelfApply, a.IfDisplay, a.parentid
+             select  a.IndicatorID,a.IndicatorLevel, a.IndicatorType, a.IndicatorName,a.OrderNumber, a.Score, a.IfSelfApply, a.IfDisplay, a.parentid,a.level1id,a.level2id
              from  (select a.* ,(case a.IndicatorLevel when 2 then a.Level1ID when 3 then a.Level2ID else null end ) as  parentid from PER_Indicator a  where  a.IfDeleted = 0 ) a join cte b on a.parentid = b.IndicatorID
            )
     select *  from cte order by IndicatorType, parentid asc
   </select>
 
-  <insert id="insertPerIndicator" parameterType="com.ruoyi.performance.domain.PerIndicator">
-    insert into PER_Indicator (IndicatorID, IndicatorType, IndicatorName,
+  <insert id="insertPerIndicator" parameterType="com.ruoyi.performance.domain.PerIndicator" useGeneratedKeys="true"
+          keyProperty="indicatorid">
+    insert into PER_Indicator (IndicatorType, IndicatorName,
                                IndicatorLevel, Level1ID, Level2ID,
                                Score, OrderNumber, IfDisplay,
                                IfSelfApply, IfDeleted)
-    values (#{indicatorid,jdbcType=INTEGER}, #{indicatortype,jdbcType=VARCHAR}, #{indicatorname,jdbcType=VARCHAR},
+    values (#{indicatortype,jdbcType=VARCHAR}, #{indicatorname,jdbcType=VARCHAR},
             #{indicatorlevel,jdbcType=INTEGER}, #{level1id,jdbcType=INTEGER}, #{level2id,jdbcType=INTEGER},
             #{score,jdbcType=VARCHAR}, #{ordernumber,jdbcType=INTEGER}, #{ifdisplay,jdbcType=BIT},
             #{ifselfapply,jdbcType=BIT}, #{ifdeleted,jdbcType=BIT})
   </insert>
+
+
+  <update id="updatePerIndicator" parameterType="com.ruoyi.performance.domain.PerIndicator">
+    update PER_Indicator
+    set IndicatorType = #{indicatortype,jdbcType=VARCHAR},
+    IndicatorName = #{indicatorname,jdbcType=VARCHAR},
+    IndicatorLevel = #{indicatorlevel,jdbcType=INTEGER},
+    Level1ID = #{level1id,jdbcType=INTEGER},
+    Level2ID = #{level2id,jdbcType=INTEGER},
+    Score = #{score,jdbcType=VARCHAR},
+    OrderNumber = #{ordernumber,jdbcType=INTEGER},
+    IfSelfApply = #{ifselfapply,jdbcType=BIT}
+    where IndicatorID = #{indicatorid,jdbcType=INTEGER}
+  </update>
+
+  <update id="updatePerIndicatorDeleted" parameterType="com.ruoyi.performance.domain.PerIndicator">
+    update PER_Indicator
+    set IfDeleted = 1
+    where IndicatorID = #{indicatorid,jdbcType=INTEGER}
+  </update>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
