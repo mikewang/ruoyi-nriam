@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.performance.mapper.PerAddscoreapplyMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.performance.domain.PerAddscoreapply">
+    <id column="ApplyID" jdbcType="INTEGER" property="applyid" />
+    <result column="TeamID" jdbcType="INTEGER" property="teamid" />
+    <result column="Year" jdbcType="INTEGER" property="year" />
+    <result column="Level1ID" jdbcType="INTEGER" property="level1id" />
+    <result column="Level1Name" jdbcType="VARCHAR" property="level1name" />
+    <result column="Level2ID" jdbcType="INTEGER" property="level2id" />
+    <result column="Level2Name" jdbcType="VARCHAR" property="level2name" />
+    <result column="Level3ID" jdbcType="INTEGER" property="level3id" />
+    <result column="Level3Name" jdbcType="VARCHAR" property="level3name" />
+    <result column="ApplyScores" jdbcType="DECIMAL" property="applyscores" />
+    <result column="ApplyUserID" jdbcType="INTEGER" property="applyuserid" />
+    <result column="ApplyTime" jdbcType="VARCHAR" property="applytime" />
+    <result column="ApplyContent" jdbcType="VARCHAR" property="applycontent" />
+    <result column="AuditUserID" jdbcType="INTEGER" property="audituserid" />
+    <result column="AuditTime" jdbcType="VARCHAR" property="audittime" />
+    <result column="AuditOpinion" jdbcType="VARCHAR" property="auditopinion" />
+    <result column="ApplyStatus" jdbcType="VARCHAR" property="applystatus" />
+    <result column="teamidlinktext" jdbcType="VARCHAR" property="teamidlinktext" />
+    <result column="applyuseridlinktext" jdbcType="VARCHAR" property="applyuseridlinktext" />
+    <result column="audituseridlinktext" jdbcType="VARCHAR" property="audituseridlinktext" />
+  </resultMap>
+
+  <select id="selectPerAddscoreapply" parameterType="com.ruoyi.performance.domain.PerAddscoreapply" resultMap="BaseResultMap">
+    select a.*  ,t1.TeamName as TeamIDLinkText  ,t10.real_name as ApplyUserIDLinkText  , t2.real_name as AuditUserIDLinkText
+    from PER_AddScoreApply a  join PM_Team t1 on a.TeamID = t1.TeamID
+                              join sys_user t10 on a.ApplyUserID = t10.user_id
+                              left join sys_user t2 on a.AuditUserID =  t2.user_id
+    where a.ApplyStatus != '已删除'
+    <if test="teamid != null ">
+      and a.teamid = #{teamid,jdbcType=INTEGER}
+    </if>
+    <if test="year != null ">
+      and a.year = #{year,jdbcType=INTEGER}
+    </if>
+    <if test="level1id != null ">
+      and a.level1id = #{level1id,jdbcType=INTEGER}
+    </if>
+    <if test="level2id != null ">
+      and a.level2id = #{level2id,jdbcType=INTEGER}
+    </if>
+    <if test="level3id != null ">
+      and a.level3id = #{level3id,jdbcType=INTEGER}
+    </if>
+    <if test="applystatus != null ">
+      and a.applystatus = #{applystatus,jdbcType=VARCHAR}
+    </if>
+    order by TeamIDLinkText,Level1Name,Level2Name,ApplyStatus
+  </select>
+
+
+  <select id="selectPerAddscoreapplyById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select a.*  ,t1.TeamName as TeamIDLinkText  ,t10.real_name as ApplyUserIDLinkText  , t2.real_name as AuditUserIDLinkText
+    from PER_AddScoreApply a  join PM_Team t1 on a.TeamID = t1.TeamID
+                              join sys_user t10 on a.ApplyUserID = t10.user_id
+                              left join sys_user t2 on a.AuditUserID =  t2.user_id
+    where ApplyID = #{applyid,jdbcType=INTEGER}
+  </select>
+
+
+  <insert id="insertPerAddscoreapply" parameterType="com.ruoyi.performance.domain.PerAddscoreapply" useGeneratedKeys="true"
+          keyProperty="applyid">
+    insert into PER_AddScoreApply (TeamID, Year,
+    Level1ID, Level1Name, Level2ID,
+    Level2Name, Level3ID, Level3Name,
+    ApplyScores, ApplyUserID, ApplyTime,
+    ApplyContent, AuditUserID, AuditTime,
+    AuditOpinion, ApplyStatus)
+    values (#{teamid,jdbcType=INTEGER}, #{year,jdbcType=INTEGER},
+    #{level1id,jdbcType=INTEGER}, #{level1name,jdbcType=VARCHAR}, #{level2id,jdbcType=INTEGER},
+    #{level2name,jdbcType=VARCHAR}, #{level3id,jdbcType=INTEGER}, #{level3name,jdbcType=VARCHAR},
+    #{applyscores,jdbcType=DECIMAL}, #{applyuserid,jdbcType=INTEGER}, #{applytime,jdbcType=VARCHAR},
+    #{applycontent,jdbcType=VARCHAR}, #{audituserid,jdbcType=INTEGER}, #{audittime,jdbcType=VARCHAR},
+    #{auditopinion,jdbcType=VARCHAR}, #{applystatus,jdbcType=VARCHAR})
+  </insert>
+
+
+
+  <update id="updatePerAddscoreapply" parameterType="com.ruoyi.performance.domain.PerAddscoreapply">
+    update PER_AddScoreApply
+    set TeamID = #{teamid,jdbcType=INTEGER},
+    Year = #{year,jdbcType=INTEGER},
+    Level1ID = #{level1id,jdbcType=INTEGER},
+    Level1Name = #{level1name,jdbcType=VARCHAR},
+    Level2ID = #{level2id,jdbcType=INTEGER},
+    Level2Name = #{level2name,jdbcType=VARCHAR},
+    Level3ID = #{level3id,jdbcType=INTEGER},
+    Level3Name = #{level3name,jdbcType=VARCHAR},
+    ApplyScores = #{applyscores,jdbcType=DECIMAL},
+    ApplyUserID = #{applyuserid,jdbcType=INTEGER},
+    ApplyTime = #{applytime,jdbcType=VARCHAR},
+    ApplyContent = #{applycontent,jdbcType=VARCHAR}
+    where ApplyID = #{applyid,jdbcType=INTEGER}
+  </update>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      This element was generated on Tue Mar 23 09:30:21 CST 2021.
+    -->
+    delete from PER_AddScoreApply
+    where ApplyID = #{applyid,jdbcType=INTEGER}
+  </delete>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      This element was generated on Tue Mar 23 09:30:21 CST 2021.
+    -->
+    select ApplyID, TeamID, Year, Level1ID, Level1Name, Level2ID, Level2Name, Level3ID, 
+    Level3Name, ApplyScores, ApplyUserID, ApplyTime, ApplyContent, AuditUserID, AuditTime, 
+    AuditOpinion, ApplyStatus
+    from PER_AddScoreApply
+    where ApplyID = #{applyid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      This element was generated on Tue Mar 23 09:30:21 CST 2021.
+    -->
+    select ApplyID, TeamID, Year, Level1ID, Level1Name, Level2ID, Level2Name, Level3ID, 
+    Level3Name, ApplyScores, ApplyUserID, ApplyTime, ApplyContent, AuditUserID, AuditTime, 
+    AuditOpinion, ApplyStatus
+    from PER_AddScoreApply
+  </select>
+</mapper>

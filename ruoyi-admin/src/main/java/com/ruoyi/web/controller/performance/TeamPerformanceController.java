@@ -351,6 +351,46 @@ public class TeamPerformanceController extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('performance:addscoreapply:list')")
+    @GetMapping("/addscoreapply/list")
+    public TableDataInfo getAddscoreapplyList(PerAddscoreapply record) {
+
+        Integer userid = this.getCurrentLoginUserid();
+
+        Boolean validTeamid = false;
+
+        List<PmTeam> teamList = pmTeamService.selectTeamListOfAUserJoin(userid);
+
+        if (teamList.size() > 0) {
+
+            for (PmTeam team : teamList) {
+
+                if (team.getTeamid() == record.getTeamid()) {
+
+                    validTeamid = true;
+                    break;
+                }
+            }
+
+        }
+
+        logger.debug("query parameters is " + record.getTeamidlinktext() + "  "+ record.getYear());
+
+        if (validTeamid) {
+
+            startPage();
+
+            List<PerAddscoreapply> list = teamPerformanceService.selectAddscoreapply(record);
+
+            return getDataTable(list);
+
+        }
+        else {
+            return getDataTable(new ArrayList<>());
+        }
+
+    }
+
 //
 //    @PreAuthorize("@ss.hasPermi('performance:teamPerformance:list')")
 //    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.INSERT)

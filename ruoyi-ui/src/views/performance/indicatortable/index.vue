@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-
       <!--父级数据-->
       <el-col :span="6" :xs="24">
         <div class="head-container" >
@@ -23,20 +22,6 @@
       <!--子级数据-->
       <el-col :span="18" :xs="24">
         <!--查询数据-->
-        <el-form hidden :model="queryParams" :rules="queryRules" ref="queryForm" :inline="true" v-show="showSearch"
-                 label-width="168px">
-          <el-form-item label="一级指标" prop="performanceyear">
-            <el-input></el-input>
-          </el-form-item>
-          <el-form-item label="二级指标" prop="teamid">
-            <el-input></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-          </el-form-item>
-        </el-form>
-
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
@@ -85,13 +70,6 @@
           </el-table-column>
 
         </el-table>
-        <pagination
-          v-show="total>0"
-          :total="total"
-          :page.sync="queryParams.pageNum"
-          :limit.sync="queryParams.pageSize"
-          @pagination="getList"
-        />
         <el-row>
           <br/>
           <br/>
@@ -319,6 +297,49 @@ export default {
         });
 
       }
+      else if (data.level === 0) {
+        this.indicatorList.forEach(function (item) {
+          console.log("data is ", data,item );
+          if (item.type === data.label) {
+            item.childList.forEach(function (level1item) {
+              level1item.childList.forEach(function (level2item) {
+                if (level2item.childList === null || level2item.childList.length == 0) {
+                  const k = level2item;
+                  k.indicatortype = item.type;
+                  k.level1id = level1item.indicatorid;
+                  k.level1name = level1item.indicatorname;
+                  k.level2id = level2item.indicatorid;
+                  k.level2name = level2item.indicatorname;
+                  this_.indicatorOptions.push(k);
+                } else {
+                  level2item.childList.forEach(function (k) {
+                    // console.log(k);
+                    k.indicatortype = item.type;
+                    k.level1id = level1item.indicatorid;
+                    k.level1name = level1item.indicatorname;
+                    k.level2id = level2item.indicatorid;
+                    k.level2name = level2item.indicatorname;
+                    this_.indicatorOptions.push(k);
+                  });
+
+                  this_.indicatorOptions.sort(function (a, b) {
+                    if(a.level1name === b.level1name){
+                      if(b.level2name === a.level2name){
+                        return a.ordernumber - b.ordernumber;
+                      }
+                      return b.level2name - a.level2name;
+                    }
+                    return b.level1name - a.level1name;
+                  });
+                }
+              });
+            });
+          }
+        });
+
+
+      }
+
 
     },
 

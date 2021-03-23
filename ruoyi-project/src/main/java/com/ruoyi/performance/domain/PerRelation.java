@@ -6,15 +6,11 @@ public class PerRelation extends BaseEntity {
 
     private String indicatortype;
 
-
     private Integer level1id;
-
 
     private String level1name;
 
-
     private Integer level2id;
-
 
     private String level2name;
 

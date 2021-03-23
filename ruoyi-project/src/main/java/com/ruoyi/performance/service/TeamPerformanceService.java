@@ -3,14 +3,8 @@ package com.ruoyi.performance.service;
 import com.ruoyi.achieve.domain.*;
 import com.ruoyi.achieve.mapper.*;
 import com.ruoyi.common.constant.CHString;
-import com.ruoyi.performance.domain.PerConfirmqequest;
-import com.ruoyi.performance.domain.PerIndicator;
-import com.ruoyi.performance.domain.PerScoreschangelog;
-import com.ruoyi.performance.domain.PerTeamperformance;
-import com.ruoyi.performance.mapper.PerConfirmqequestMapper;
-import com.ruoyi.performance.mapper.PerIndicatorMapper;
-import com.ruoyi.performance.mapper.PerScoreschangelogMapper;
-import com.ruoyi.performance.mapper.PerTeamperformanceMapper;
+import com.ruoyi.performance.domain.*;
+import com.ruoyi.performance.mapper.*;
 import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.project.mapper.AudProjectMapper;
 import org.slf4j.Logger;
@@ -65,6 +59,9 @@ public class TeamPerformanceService {
 
     @Resource
     PerScoreschangelogMapper scoreschangelogMapper;
+
+    @Resource
+    PerAddscoreapplyMapper addscoreapplyMapper;
 
 
     public List<PerTeamperformance> selectPerTeamperformance(PerTeamperformance record) {
@@ -415,4 +412,12 @@ public class TeamPerformanceService {
 
         return result;
     }
+
+    public List<PerAddscoreapply> selectAddscoreapply(PerAddscoreapply record) {
+
+        List<PerAddscoreapply> list = addscoreapplyMapper.selectPerAddscoreapply(record);
+
+        return list;
+    }
+
 }

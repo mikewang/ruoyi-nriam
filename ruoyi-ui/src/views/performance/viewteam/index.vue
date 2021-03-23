@@ -73,7 +73,7 @@
     </el-row>
     <el-row>
       <el-col :span="24" align="center">
-        <el-button  v-if="hidden.confirmBtn === false"  type="success" @click="handleConfirm">要求团队确认</el-button>
+        <el-button  v-if="hidden.confirmBtn === false"  type="success" @click="handleConfirm">确认考核结果</el-button>
       </el-col>
 
     </el-row>
@@ -183,7 +183,7 @@ export default {
 
   },
   methods: {
-    /** 查询用户列表 */
+    /** 查询列表 */
 
     getList() {
       this.loading = true;
@@ -292,7 +292,7 @@ export default {
       const this_ = this;
       this.$refs["queryForm"].validate(valid => {
         if (valid) {
-          this.$confirm('是否确认已核对了所有绩效分数？', "警告", {
+          this.$confirm('是否确认最终考核结果？', "警告", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning"
@@ -305,46 +305,10 @@ export default {
           });
         }
       });
-
-
-    },
-
-    /** 导出按钮操作 按钮 */
-    handleExportExcel() {
-      this.$refs["queryForm"].validate(valid => {
-        if (valid) {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function() {
-        return exportVerifyTeam(queryParams);
-      }).then(response => {
-        console.log("exportVerifyTeam is ", response);
-        this.download(response.msg);
-      })
-        }
-      });
-    },
-
-    cancelScoreForm: function () {
-      this.open = false;
-    },
-
-    submitScoreForm: function () {
-      const this_ = this;
-      this_.$refs["form"].validate(valid => {
-        if (valid) {
-          updateVerifypoints(this_.form).then(response=> {
-            this_.open = false;
-            this_.msgSuccess("修改成功");
-            this_.getList();
-
-          });
-        }
-      });
     }
+
+
+
   }
 
 };

@@ -93,3 +93,14 @@ export function listIndicatorTree() {
     method: 'get'
   })
 }
+
+
+
+
+export function listAddscoreapply(query) {
+  return request({
+    url: '/performance/addscoreapply/list',
+    method: 'get',
+    params: query
+  })
+}
