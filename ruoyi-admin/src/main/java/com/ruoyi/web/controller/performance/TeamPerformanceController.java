@@ -391,6 +391,67 @@ public class TeamPerformanceController extends BaseController {
 
     }
 
+    @Log(title = "绩效评价 加分申请", businessType = BusinessType.INSERT)
+    @PreAuthorize("@ss.hasPermi('performance:addscoreapply:list')")
+    @PostMapping("/addscoreapply")
+    public AjaxResult addAddscoreapply(@Validated @RequestBody PerAddscoreapply record) {
+        AjaxResult ajax = AjaxResult.success();
+
+        record.setApplyuserid(getCurrentLoginUserid());
+        record.setApplytime(DateUtils.dateTimeNow());
+        Integer result = teamPerformanceService.insertAddscoreapply(record);
+
+        if (result > 0) {
+            ajax.put(AjaxResult.DATA_TAG, record.getApplyid());
+            return ajax;
+        } else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @Log(title = "绩效评价 加分申请", businessType = BusinessType.INSERT)
+    @PreAuthorize("@ss.hasPermi('performance:addscoreapply:list')")
+    @PutMapping("/addscoreapply")
+    public AjaxResult updateAddscoreapply(@Validated @RequestBody PerAddscoreapply record) {
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer result = teamPerformanceService.updateAddscoreapply(record);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, record.getApplyid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @Log(title = "绩效评价 考核指标管理", businessType = BusinessType.DELETE)
+    @PreAuthorize("@ss.hasPermi('performance:addscoreapply:list')")
+    @DeleteMapping("/addscoreapply/{indicatorid}")
+    public AjaxResult deleteAddscoreapply(@PathVariable Integer applyid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        PerAddscoreapply record = new PerAddscoreapply();
+        record.setApplyid(applyid);
+        Integer result = teamPerformanceService.updateAddscoreapplyDeletedById(record);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, record.getApplyid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+    }
+
+
 //
 //    @PreAuthorize("@ss.hasPermi('performance:teamPerformance:list')")
 //    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.INSERT)

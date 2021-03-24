@@ -104,3 +104,29 @@ export function listAddscoreapply(query) {
     params: query
   })
 }
+
+
+// 新建
+export function addAddscoreapply(data) {
+  return request({
+    url:  '/performance/addscoreapply',
+    method: 'post',
+    data: data
+  })
+}
+
+export function updateAddscoreapply(data) {
+  return request({
+    url:  '/performance/addscoreapply',
+    method: 'put',
+    data: data
+  })
+}
+
+export function deleteAddscoreapply(applyid) {
+  return request({
+    url: '/performance/addscoreapply/' + applyid,
+    method: 'delete'
+  })
+}
+

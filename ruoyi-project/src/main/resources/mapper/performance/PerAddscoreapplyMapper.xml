@@ -97,6 +97,14 @@
   </update>
 
 
+  <update id="updatePerAddscoreapplyDeletedById" parameterType="java.lang.Integer">
+    update PER_AddScoreApply
+    set applystatus = #{applystatus,jdbcType=VARCHAR}
+    where ApplyID = #{applyid,jdbcType=INTEGER}
+  </update>
+
+
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
       WARNING - @mbg.generated

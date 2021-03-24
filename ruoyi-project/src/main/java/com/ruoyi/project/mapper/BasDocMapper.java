@@ -7,6 +7,7 @@ import java.util.List;
 public interface BasDocMapper {
     int insertBasDoc(BasDoc record);
     int updateBasDoc(BasDoc record);
+    int updateBasDocAttachToType(BasDoc record);
     int deleteBasDocById(Integer id);
     int deleteBasDocByIds(List ids);
     List<BasDoc> selectBasDocListByIds(List ids);

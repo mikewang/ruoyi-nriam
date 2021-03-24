@@ -32,7 +32,7 @@
         <el-table-column label="年度" align="center" prop="year" width="100"/>
         <el-table-column label="一级指标" align="center" prop="level1name"/>
         <el-table-column label="二级指标" align="center" prop="level2name" width="180"/>
-        <el-table-column label="统计指标" align="center" prop="level3name" />
+        <el-table-column label="统计指标" align="center" prop="level3name"/>
         <el-table-column label="申请人" align="center" prop="applyscores" width="100"/>
         <el-table-column label="统计指标" align="center" prop="applyuseridlinktext" width="100"/>
         <el-table-column label="申请时间" align="center" prop="applytime" width="100">
@@ -105,7 +105,7 @@
                          size="mini"
                          type="text"
                          icon="el-icon-plus"
-                         @click="handleViewAddScoreApply(scope.row)"
+                         @click="handleAddScoreApply(scope.row)"
                          v-hasPermi="['performance:addscoreapply:list']"
               >申请加分
               </el-button>
@@ -119,18 +119,6 @@
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
       <template>
         <el-form ref="form" :model="form" :rules="rules" label-width="100px" :key="timer">
-          <el-row :gutter="20">
-            <el-col :span="12">
-              <el-form-item label="所属团队" prop="teamidlinktext">
-                <el-input readonly v-model="form.teamidlinktext" placeholder=""/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="年度" prop="year">
-                <el-input readonly v-model="form.year" placeholder=""/>
-              </el-form-item>
-            </el-col>
-          </el-row>
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="所属团队" prop="teamidlinktext">
@@ -163,7 +151,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="申请分数" prop="applyscores">
-                <el-input v-model="form.applyscores" placeholder=""/>
+                <el-input type="number" v-model="form.applyscores" placeholder=""/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -173,9 +161,46 @@
                 <el-input type="textarea" v-model="form.applycontent" placeholder=""/>
               </el-form-item>
             </el-col>
-
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="24">
+              <el-form-item label="证明材料" prop="fileList">
+                <bas-doc v-if="open" @changeFileList="changeBasDocFileList" :basdoc="form.basdoc"
+                         :editable="form.docEditable"></bas-doc>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="申请时间" prop="applytime">
+                <el-input readonly v-model="form.applytime" placeholder=""/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="申请人" prop="applyuseridlinktext">
+                <el-input readonly v-model="form.applyuseridlinktext" placeholder=""/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="24">
+              <el-form-item label="状态" prop="applystatus">
+                <el-input readonly v-model="form.applystatus" placeholder=""/>
+              </el-form-item>
+            </el-col>
           </el-row>
         </el-form>
+      </template>
+      <template>
+        <el-row>
+          <el-col :span="24" align="center">
+            <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删 除</el-button>
+            <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修 改</el-button>
+            <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">确 定</el-button>
+            <el-button @click="closeForm">取 消</el-button>
+          </el-col>
+        </el-row>
+
       </template>
 
     </el-dialog>
@@ -185,14 +210,16 @@
 </template>
 
 <script>
-import {getVerifypoints, listAddscoreapply} from "@/api/performance/teamperformance";
+import {listAddscoreapply,addAddscoreapply,updateAddscoreapply} from "@/api/performance/teamperformance";
+import BasDoc from "../../public/bas-doc"
 import TeamData from "../../public/team-data";
 import {spanRow} from "@/api/performance/spanRow";
 import {listIndicatorTree} from "@/api/performance/indicator";
 
+
 export default {
   name: "addscoreapply_index",
-  components: {"team-data": TeamData},
+  components: {"bas-doc": BasDoc, "team-data": TeamData},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -233,7 +260,7 @@ export default {
 
       },
       queryRules: {
-        performanceyear: [
+        year: [
           {required: true, message: "年度不能为空", trigger: "blur"}
         ],
         teamid: [
@@ -241,22 +268,20 @@ export default {
         ]
       },
       //
-      sendConfirmText: "",
+
       // 表单参数
-      form: {},
-      scorelogList: [],
+      form: {fileList: []},
 
 
       timer: '',
       // 表单校验
-      scoreRules: {
-        newscores: [
-          {required: true, message: "分数不能为空", trigger: "blur"}
+      rules: {
+        applyscores: [
+          {required: true, message: "申请分数不能为空", trigger: "blur"}
         ],
-        reason: [
-          {required: true, message: "理由不能为空", trigger: "blur"}
-        ]
-      },
+        applycontent: [
+          {required: true, message: "内容描述不能为空", trigger: "blur"}
+        ]},
 
       // 父级树选项
       indicatorTreeOptions: undefined,
@@ -346,32 +371,103 @@ export default {
 
     },
 
-    clickTeamperformancePoints(row) {
-      console.log("clickTeamperformancePoints", row);
-
-      this.loading = true;
-      getVerifypoints({performanceid: row.performanceid}).then(response => {
-        console.log("getVerifypoints is ", response.data);
-        this.loading = false;
-        this.open = true;
-        this.title = "分数变动记录";
-        this.scorelogList = response.data;
-
-      });
-
-
-    },
-
-    clickIndicatortypeDetail(row) {
-      console.log("clickIndicatortypeDetail", row);
-
-
-    },
 
     handleView(row) {
-      console.log("查看 ", row);
+      console.log("查看加分申请信息 ", row);
+
+      this.title = "加分申请信息";
+      this.form = row;
+      //加载文档
+      // CommonDoc1.InitSomeInfo(false, "加分申请", kid, "证明材料");
+      this.form.fileList = [];
+      const kid = this.form.applyid;
+      const query = {attachtotype: "加分申请", relatedid: kid, doctype: "证明材料"};
+      this.form.basdoc = query;
+      if (this.form.applystatus === "待审核" || this.form.applystatus === "审核不通过") {
+        this.form.docEditable = true;
+
+        this.hidden = {saveBtn: true, changeBtn: false, deleteBtn: false};
+      } else {
+        this.form.docEditable = false;
+
+        this.hidden = {saveBtn: true, changeBtn: true, deleteBtn: true};
+      }
+
+      this.open = true;
 
     },
+
+    changeBasDocFileList(fileList) {
+      console.log("changeBasDocFileList is ", fileList);
+      this.form.fileList = fileList;
+
+    },
+
+    /** 删除按钮 */
+    deleteForm() {
+
+
+      this.open = false;
+    },
+
+
+    /** 修改按钮 */
+    changeForm() {
+      this.$refs["form"].validate(
+        valid => {
+          if (valid) {
+            const this_ = this;
+            if (this_.form.fileList.length === 0) {
+              this_.msgError("保存失败，没有上传证明材料");
+            }
+            else {
+              updateAddscoreapply(this_.form).then(response=>{
+                this_.msgSuccess("保存成功");
+                this_.open = false;
+              });
+            }
+          }
+        }
+      );
+    },
+
+
+    /** 保存按钮 */
+    saveForm() {
+      this.$refs["form"].validate(
+        valid => {
+          if (valid) {
+            const this_ = this;
+            if (this_.form.fileList.length === 0) {
+              this_.msgError("保存失败，没有上传证明材料");
+            }
+            else {
+
+              const docFileList = [];
+              for (let i=0; i<this_.form.fileList.length; i++) {
+                let item = this_.form.fileList[i];
+                docFileList.push({docid:item.url});
+              }
+
+              this_.form.fileList = docFileList;
+
+              console.log("保存的数据为", this_.form);
+              addAddscoreapply(this_.form).then(response=>{
+                this_.msgSuccess("保存成功");
+                this_.open = false;
+              });
+            }
+          }
+        }
+      );
+    },
+
+
+    /** 关闭按钮 */
+    closeForm() {
+      this.open = false;
+    },
+
 
     getIndicatorTree() {
       this.loading = true;
@@ -534,10 +630,35 @@ export default {
       }
     },
 
-    handleViewAddScoreApply(row) {
+    handleAddScoreApply(row) {
 
-      this.open = false
+      console.log("新增加分申请 is ", row);
+      this.title = "新增加分申请"
+      this.form = {
+        teamid: this.queryParams.teamid,
+        teamidlinktext: this.queryParams.teamidlinktext,
+        year: this.queryParams.year,
+        level1id: row.level1id,
+        level1name: row.level1name,
+        level2id: row.level2id,
+        level2name: row.level2name,
+        level3id: row.indicatorid,
+        level3name: row.indicatorname,
+        applyscores: row.score,
+        fileList: [],
+        applytime: Date.now().toString(),
+        applyuseridlinktext: this.$store.getters.realName,
+        applyuserid: this.$store.getters.userId,
+        applystatus: "待审核"
+      };
 
+      const query = {attachtotype: "加分申请", relatedid: undefined, doctype: "证明材料"};
+      this.form.basdoc = query;
+      this.form.docEditable = true;
+
+      this.hidden = {saveBtn: false, changeBtn: true, deleteBtn: true};
+
+      this.open = true;
     }
   }
 

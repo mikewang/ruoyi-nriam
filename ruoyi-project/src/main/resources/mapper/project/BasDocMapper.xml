@@ -26,6 +26,14 @@
     where DocID = #{docid,jdbcType=INTEGER}
   </update>
 
+  <update id="updateBasDocAttachToType" parameterType="com.ruoyi.common.core.domain.model.BasDoc">
+    update BAS_Doc
+    set AttachToType = #{attachtotype,jdbcType=VARCHAR},
+        RelatedID = #{relatedid,jdbcType=INTEGER},
+        DocType = #{doctype,jdbcType=VARCHAR}
+    where DocID = #{docid,jdbcType=INTEGER}
+  </update>
+
   <delete id="deleteBasDocById" parameterType="java.lang.Integer">
     delete from BAS_Doc
     where DocID = #{docid,jdbcType=INTEGER}

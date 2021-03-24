@@ -43,7 +43,7 @@ public class BasDocController extends BaseController {
     private BasDocService basDocService;
 
 
-    @PreAuthorize("@ss.hasPermi('bas:doc:list')")
+//    @PreAuthorize("@ss.hasPermi('bas:doc:list')")
     @GetMapping("/list")
     public AjaxResult list(BasDoc query) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
@@ -59,7 +59,7 @@ public class BasDocController extends BaseController {
 
 
 
-    @PreAuthorize("@ss.hasPermi('bas:doc:add')")
+//    @PreAuthorize("@ss.hasPermi('bas:doc:add')")
     @Log(title = "基础文档管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody BasDoc doc) {
@@ -70,7 +70,7 @@ public class BasDocController extends BaseController {
 
     }
 
-    @PreAuthorize("@ss.hasPermi('bas:doc:edit')")
+//    @PreAuthorize("@ss.hasPermi('bas:doc:edit')")
     @Log(title = "基础文档管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody  BasDoc doc) {
@@ -84,7 +84,7 @@ public class BasDocController extends BaseController {
     /**
      * 删除
      */
-    @PreAuthorize("@ss.hasPermi('bas:doc:remove')")
+//    @PreAuthorize("@ss.hasPermi('bas:doc:remove')")
     @Log(title = "基础文档管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Integer[] ids) {
@@ -97,7 +97,7 @@ public class BasDocController extends BaseController {
     /**
      * 文件上传
      */
-    @PreAuthorize("@ss.hasPermi('bas:doc:add')")
+//    @PreAuthorize("@ss.hasPermi('bas:doc:add')")
     @Log(title = "文件上传", businessType = BusinessType.IMPORT)
     @PostMapping("/upload/{type}")
     public AjaxResult upload(@PathVariable Integer type, @RequestParam("file") MultipartFile file) throws IOException
@@ -163,8 +163,8 @@ public class BasDocController extends BaseController {
     /**
      * 文件下载
      */
-    @PreAuthorize("@ss.hasPermi('bas:doc:list')")
-    @Log(title = "项目文件下载", businessType = BusinessType.EXPORT)
+//    @PreAuthorize("@ss.hasPermi('bas:doc:list')")
+    @Log(title = "文件下载", businessType = BusinessType.EXPORT)
     @GetMapping("/download")
     public void download(@RequestParam("file") Integer fileid, HttpServletResponse response, HttpServletRequest request) throws IOException
     {

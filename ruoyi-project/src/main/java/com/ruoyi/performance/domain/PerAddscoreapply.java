@@ -1,6 +1,10 @@
 package com.ruoyi.performance.domain;
 
+import com.ruoyi.common.core.domain.model.BasDoc;
+
 import java.math.BigDecimal;
+import java.util.Dictionary;
+import java.util.List;
 
 public class PerAddscoreapply {
 
@@ -41,6 +45,16 @@ public class PerAddscoreapply {
     private String teamidlinktext;
     private String applyuseridlinktext;
     private String audituseridlinktext;
+
+    private List<BasDoc> fileList;
+
+    public List<BasDoc> getFileList() {
+        return fileList;
+    }
+
+    public void setFileList(List<BasDoc> fileList) {
+        this.fileList = fileList;
+    }
 
     public Integer getApplyid() {
         return applyid;

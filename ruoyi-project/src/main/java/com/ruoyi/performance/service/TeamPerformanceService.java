@@ -3,10 +3,13 @@ package com.ruoyi.performance.service;
 import com.ruoyi.achieve.domain.*;
 import com.ruoyi.achieve.mapper.*;
 import com.ruoyi.common.constant.CHString;
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.performance.domain.*;
 import com.ruoyi.performance.mapper.*;
 import com.ruoyi.project.domain.AudProject;
+import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.project.mapper.AudProjectMapper;
+import com.ruoyi.project.mapper.BasDocMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Dictionary;
 import java.util.List;
 
 @Service
@@ -62,6 +66,9 @@ public class TeamPerformanceService {
 
     @Resource
     PerAddscoreapplyMapper addscoreapplyMapper;
+
+    @Resource
+    BasDocMapper basDocMapper;
 
 
     public List<PerTeamperformance> selectPerTeamperformance(PerTeamperformance record) {
@@ -420,4 +427,48 @@ public class TeamPerformanceService {
         return list;
     }
 
+
+    @Transactional
+    public Integer insertAddscoreapply(PerAddscoreapply record) {
+
+        Integer  result = addscoreapplyMapper.insertPerAddscoreapply(record);
+
+        for (BasDoc file : record.getFileList()) {
+            BasDoc doc = new BasDoc();
+            doc.setAttachtotype("加分申请");
+            doc.setRelatedid(record.getApplyid());
+            doc.setDoctype("证明材料");
+            doc.setDocid(file.getDocid());
+            basDocMapper.updateBasDocAttachToType(doc);
+        }
+
+//        if (doclist.size() > 0) {
+//            Integer rows = projectdocMapper.mergeProjectdoc(doclist);
+//            rows = projectdocMapper.sourceMergeProjectdoc(doclist);
+//        } else {
+//            AudProjectdoc query = new AudProjectdoc();
+//            query.setProjectid(project.getProjectid());
+//            Integer rows = projectdocMapper.deleteProjectdoc(query);
+//        }
+
+
+        return result;
+    }
+
+    @Transactional
+    public Integer updateAddscoreapply(PerAddscoreapply record) {
+
+        Integer  result = addscoreapplyMapper.updatePerAddscoreapply(record);
+
+        return result;
+    }
+
+
+    @Transactional
+    public Integer updateAddscoreapplyDeletedById(PerAddscoreapply record) {
+
+        Integer  result = addscoreapplyMapper.updatePerAddscoreapplyDeletedById(record.getApplyid());
+
+        return result;
+    }
 }
