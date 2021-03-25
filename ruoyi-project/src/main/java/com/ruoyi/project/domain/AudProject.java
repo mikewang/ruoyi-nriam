@@ -2,6 +2,7 @@ package com.ruoyi.project.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.enums.ProjectColor;
+import com.ruoyi.performance.domain.PerFund;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -90,6 +91,17 @@ public class AudProject extends BaseEntity {
     private Integer confirmResult;
     private String confirmNote;
     private Integer confirmUserid;
+
+    // 经费确认模块
+    private PerFund fundreport;
+
+    public PerFund getFundreport() {
+        return fundreport;
+    }
+
+    public void setFundreport(PerFund fundreport) {
+        this.fundreport = fundreport;
+    }
 
     public Integer getProjectid() {
         return projectid;

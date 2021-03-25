@@ -130,3 +130,61 @@ export function deleteAddscoreapply(applyid) {
   })
 }
 
+
+export function listApplylisttoconfirm(query) {
+  return request({
+    url: '/performance/applylisttoconfirm/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function confirmAddscoreapply(data) {
+  return request({
+    url:  '/performance/applylisttoconfirm',
+    method: 'put',
+    data: data
+  })
+}
+
+
+
+export function listFundreport(query) {
+  return request({
+    url: '/performance/perfundreport/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function addFundreport(data) {
+  return request({
+    url:  '/performance/perfundreport',
+    method: 'post',
+    data: data
+  })
+}
+
+export function updateFundreport(data) {
+  return request({
+    url:  '/performance/perfundreport',
+    method: 'put',
+    data: data
+  })
+}
+
+
+export function listFundconfirm(query) {
+  return request({
+    url: '/performance/perfundconfirm/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function confirmFundreport(ids) {
+  return request({
+    url:  '/performance/perfundconfirm/' + ids,
+    method: 'put'
+  })
+}

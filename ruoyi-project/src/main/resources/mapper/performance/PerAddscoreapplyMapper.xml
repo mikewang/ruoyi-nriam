@@ -103,6 +103,16 @@
     where ApplyID = #{applyid,jdbcType=INTEGER}
   </update>
 
+  <update id="updatePerAddscoreapplyConfirm" parameterType="com.ruoyi.performance.domain.PerAddscoreapply">
+    update PER_AddScoreApply
+    set
+        ApplyScores = #{applyscores,jdbcType=DECIMAL},
+        AuditUserID = #{audituserid,jdbcType=INTEGER},
+        AuditTime = #{audittime,jdbcType=VARCHAR},
+        AuditOpinion = #{auditopinion,jdbcType=VARCHAR},
+        ApplyStatus = #{applystatus,jdbcType=VARCHAR}
+    where ApplyID = #{applyid,jdbcType=INTEGER}
+  </update>
 
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

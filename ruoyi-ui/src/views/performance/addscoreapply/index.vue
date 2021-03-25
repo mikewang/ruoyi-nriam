@@ -33,8 +33,8 @@
         <el-table-column label="一级指标" align="center" prop="level1name"/>
         <el-table-column label="二级指标" align="center" prop="level2name" width="180"/>
         <el-table-column label="统计指标" align="center" prop="level3name"/>
-        <el-table-column label="申请人" align="center" prop="applyscores" width="100"/>
-        <el-table-column label="统计指标" align="center" prop="applyuseridlinktext" width="100"/>
+        <el-table-column label="统计指标" align="center" prop="applyscores" width="100"/>
+        <el-table-column label="申请人" align="center" prop="applyuseridlinktext" width="100"/>
         <el-table-column label="申请时间" align="center" prop="applytime" width="100">
         </el-table-column>
         <el-table-column label="状态" align="center" prop="applystatus" width="100">
@@ -65,7 +65,7 @@
       <br/>
       <br/>
     </el-row>
-    <el-row :gutter="20" v-if="this.performanceList.length > 0">
+    <el-row :gutter="20">
       <!--父级数据-->
       <el-col :span="6" :xs="24">
         <div class="head-container">
@@ -116,12 +116,12 @@
     </el-row>
 
     <!-- 添加或修改对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+    <el-dialog v-if="open" :title="title" :visible.sync="open" width="800px" append-to-body>
       <template>
         <el-form ref="form" :model="form" :rules="rules" label-width="100px" :key="timer">
           <el-row :gutter="20">
             <el-col :span="12">
-              <el-form-item label="所属团队" prop="teamidlinktext">
+              <el-form-item label="所属团队" prop="teamid">
                 <el-input readonly v-model="form.teamidlinktext" placeholder=""/>
               </el-form-item>
             </el-col>
@@ -165,7 +165,7 @@
           <el-row :gutter="20">
             <el-col :span="24">
               <el-form-item label="证明材料" prop="fileList">
-                <bas-doc v-if="open" @changeFileList="changeBasDocFileList" :basdoc="form.basdoc"
+                <bas-doc @changeFileList="changeBasDocFileList" :basdoc="form.basdoc"
                          :editable="form.docEditable"></bas-doc>
               </el-form-item>
             </el-col>
@@ -210,7 +210,12 @@
 </template>
 
 <script>
-import {listAddscoreapply,addAddscoreapply,updateAddscoreapply} from "@/api/performance/teamperformance";
+import {
+  addAddscoreapply,
+  deleteAddscoreapply,
+  listAddscoreapply,
+  updateAddscoreapply
+} from "@/api/performance/teamperformance";
 import BasDoc from "../../public/bas-doc"
 import TeamData from "../../public/team-data";
 import {spanRow} from "@/api/performance/spanRow";
@@ -256,7 +261,7 @@ export default {
         userid: undefined,
         teamid: undefined,
         teamidlinktext: undefined,
-        performanceyear: undefined
+        year: undefined
 
       },
       queryRules: {
@@ -276,12 +281,19 @@ export default {
       timer: '',
       // 表单校验
       rules: {
+        year: [
+          {required: true, message: "年度不能为空", trigger: "blur"}
+        ],
+        teamid: [
+          {required: true, message: "所属团队不能为空", trigger: "blur"}
+        ],
         applyscores: [
           {required: true, message: "申请分数不能为空", trigger: "blur"}
         ],
         applycontent: [
           {required: true, message: "内容描述不能为空", trigger: "blur"}
-        ]},
+        ]
+      },
 
       // 父级树选项
       indicatorTreeOptions: undefined,
@@ -373,21 +385,28 @@ export default {
 
 
     handleView(row) {
-      console.log("查看加分申请信息 ", row);
+      console.log("加分申请信息", row);
 
       this.title = "加分申请信息";
       this.form = row;
       //加载文档
-      // CommonDoc1.InitSomeInfo(false, "加分申请", kid, "证明材料");
       this.form.fileList = [];
       const kid = this.form.applyid;
       const query = {attachtotype: "加分申请", relatedid: kid, doctype: "证明材料"};
       this.form.basdoc = query;
-      if (this.form.applystatus === "待审核" || this.form.applystatus === "审核不通过") {
-        this.form.docEditable = true;
 
-        this.hidden = {saveBtn: true, changeBtn: false, deleteBtn: false};
+      if (this.form.applyuserid === this.$store.getters.userId) {
+        if (this.form.applystatus === "待审核" || this.form.applystatus === "审核不通过") {
+          this.form.docEditable = true;
+
+          this.hidden = {saveBtn: true, changeBtn: false, deleteBtn: false};
+        } else {
+          this.form.docEditable = false;
+
+          this.hidden = {saveBtn: true, changeBtn: true, deleteBtn: true};
+        }
       } else {
+        // 非本人 ，只读
         this.form.docEditable = false;
 
         this.hidden = {saveBtn: true, changeBtn: true, deleteBtn: true};
@@ -405,9 +424,19 @@ export default {
 
     /** 删除按钮 */
     deleteForm() {
+      const this_ = this;
+      this_.$confirm('是否确认删除 加分申请?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        deleteAddscoreapply(this_.form.applyid).then(() => {
+          this_.msgSuccess("删除成功");
+          this_.open = false;
+          this_.getList();
 
-
-      this.open = false;
+        });
+      });
     },
 
 
@@ -419,11 +448,21 @@ export default {
             const this_ = this;
             if (this_.form.fileList.length === 0) {
               this_.msgError("保存失败，没有上传证明材料");
-            }
-            else {
-              updateAddscoreapply(this_.form).then(response=>{
+            } else {
+              const docFileList = [];
+              for (let i = 0; i < this_.form.fileList.length; i++) {
+                let item = this_.form.fileList[i];
+                docFileList.push({docid: item.url});
+              }
+
+              this_.form.fileList = docFileList;
+
+              console.log("保存的数据为", this_.form);
+
+              updateAddscoreapply(this_.form).then(response => {
                 this_.msgSuccess("保存成功");
                 this_.open = false;
+                this_.getList();
               });
             }
           }
@@ -440,21 +479,21 @@ export default {
             const this_ = this;
             if (this_.form.fileList.length === 0) {
               this_.msgError("保存失败，没有上传证明材料");
-            }
-            else {
+            } else {
 
               const docFileList = [];
-              for (let i=0; i<this_.form.fileList.length; i++) {
+              for (let i = 0; i < this_.form.fileList.length; i++) {
                 let item = this_.form.fileList[i];
-                docFileList.push({docid:item.url});
+                docFileList.push({docid: item.url});
               }
 
               this_.form.fileList = docFileList;
 
               console.log("保存的数据为", this_.form);
-              addAddscoreapply(this_.form).then(response=>{
+              addAddscoreapply(this_.form).then(response => {
                 this_.msgSuccess("保存成功");
                 this_.open = false;
+                this_.getList();
               });
             }
           }

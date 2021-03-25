@@ -38,6 +38,7 @@ public class PerAddscoreapply {
 
     private String audittime;
 
+
     private String auditopinion;
 
     private String applystatus;
@@ -47,6 +48,9 @@ public class PerAddscoreapply {
     private String audituseridlinktext;
 
     private List<BasDoc> fileList;
+
+    private BigDecimal lastApplyscores;
+    private String auditResult;
 
     public List<BasDoc> getFileList() {
         return fileList;
@@ -176,6 +180,14 @@ public class PerAddscoreapply {
         this.audittime = audittime;
     }
 
+    public String getAuditResult() {
+        return auditResult;
+    }
+
+    public void setAuditResult(String auditResult) {
+        this.auditResult = auditResult;
+    }
+
     public String getAuditopinion() {
         return auditopinion;
     }
@@ -214,6 +226,15 @@ public class PerAddscoreapply {
 
     public void setAudituseridlinktext(String audituseridlinktext) {
         this.audituseridlinktext = audituseridlinktext;
+    }
+
+
+    public BigDecimal getLastApplyscores() {
+        return lastApplyscores;
+    }
+
+    public void setLastApplyscores(BigDecimal lastApplyscores) {
+        this.lastApplyscores = lastApplyscores;
     }
 
     @Override

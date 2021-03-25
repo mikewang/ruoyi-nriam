@@ -43,6 +43,7 @@ export default {
         this.loading = true;
         listBasDoc(this.basdoc).then(response => {
           const data = response.data;
+          console.log("listBasDoc", data);
           this.basDocList = data;
 
           for (let i=0; i< data.length; i++) {
@@ -50,6 +51,7 @@ export default {
             let file = {name:item.docname, url:item.docid};
             this.fileList.push(file);
           }
+          this.$emit('changeFileList',this.fileList);
           this.loading = false;
         });
       }

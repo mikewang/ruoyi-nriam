@@ -24,8 +24,6 @@ public interface PerTeamperformanceMapper {
     Integer selectPerTeamperformancePointsSum(PerTeamperformance record);
 
 
-
-
     int deleteByPrimaryKey(Integer performanceid);
 
 

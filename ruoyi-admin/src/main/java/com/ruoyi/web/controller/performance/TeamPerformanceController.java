@@ -13,7 +13,10 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.performance.domain.*;
+import com.ruoyi.performance.service.AddscoreapplyService;
+import com.ruoyi.performance.service.FundreportService;
 import com.ruoyi.performance.service.TeamPerformanceService;
+import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.project.domain.PmTeam;
 import com.ruoyi.project.service.PmTeamService;
 import io.swagger.models.auth.In;
@@ -22,8 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/performance")
@@ -40,6 +42,14 @@ public class TeamPerformanceController extends BaseController {
 
     @Resource
     private PmTeamService pmTeamService;
+
+    @Resource
+    private AddscoreapplyService addscoreapplyService;
+
+    @Resource
+    private FundreportService fundreportService;
+
+
 
 
     @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
@@ -380,7 +390,7 @@ public class TeamPerformanceController extends BaseController {
 
             startPage();
 
-            List<PerAddscoreapply> list = teamPerformanceService.selectAddscoreapply(record);
+            List<PerAddscoreapply> list = addscoreapplyService.selectAddscoreapply(record);
 
             return getDataTable(list);
 
@@ -399,7 +409,7 @@ public class TeamPerformanceController extends BaseController {
 
         record.setApplyuserid(getCurrentLoginUserid());
         record.setApplytime(DateUtils.dateTimeNow());
-        Integer result = teamPerformanceService.insertAddscoreapply(record);
+        Integer result = addscoreapplyService.insertAddscoreapply(record);
 
         if (result > 0) {
             ajax.put(AjaxResult.DATA_TAG, record.getApplyid());
@@ -410,13 +420,18 @@ public class TeamPerformanceController extends BaseController {
 
     }
 
-    @Log(title = "绩效评价 加分申请", businessType = BusinessType.INSERT)
+    @Log(title = "绩效评价 加分申请", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('performance:addscoreapply:list')")
     @PutMapping("/addscoreapply")
     public AjaxResult updateAddscoreapply(@Validated @RequestBody PerAddscoreapply record) {
         AjaxResult ajax = AjaxResult.success();
 
-        Integer result = teamPerformanceService.updateAddscoreapply(record);
+        if (record.getApplyuserid() != getCurrentLoginUserid() && record.getApplyuserid() != 1) {
+            // 非本人，非管理员
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+        Integer result = addscoreapplyService.updateAddscoreapply(record);
 
         if (result > 0) {
 
@@ -430,15 +445,20 @@ public class TeamPerformanceController extends BaseController {
 
     }
 
-    @Log(title = "绩效评价 考核指标管理", businessType = BusinessType.DELETE)
+    @Log(title = "绩效评价 加分申请", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('performance:addscoreapply:list')")
-    @DeleteMapping("/addscoreapply/{indicatorid}")
+    @DeleteMapping("/addscoreapply/{applyid}")
     public AjaxResult deleteAddscoreapply(@PathVariable Integer applyid) {
         AjaxResult ajax = AjaxResult.success();
 
-        PerAddscoreapply record = new PerAddscoreapply();
-        record.setApplyid(applyid);
-        Integer result = teamPerformanceService.updateAddscoreapplyDeletedById(record);
+        PerAddscoreapply record = addscoreapplyService.selectAddscoreapplyById(applyid);
+
+        if (record.getApplyuserid() != getCurrentLoginUserid() && record.getApplyuserid() != 1) {
+            // 非本人，非管理员
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+        Integer result = addscoreapplyService.updateAddscoreapplyDeletedById(record);
 
         if (result > 0) {
 
@@ -452,67 +472,185 @@ public class TeamPerformanceController extends BaseController {
     }
 
 
-//
-//    @PreAuthorize("@ss.hasPermi('performance:teamPerformance:list')")
-//    @Log(title = "绩效评价 团队考核管理", businessType = BusinessType.INSERT)
-//    @PostMapping("/teamPerformance")
-//    public AjaxResult add(@Validated @RequestBody PerTeamperformance prize) {
-//
-//        AjaxResult ajax = AjaxResult.success();
-//
-//        Integer userid = getCurrentLoginUserid();
-//
-//        Integer result = teamPerformanceService.addPerTeamperformance(prize);
-//
-//        if (result > 0) {
-//
-//            ajax.put(AjaxResult.DATA_TAG, prize.getIndicatorprizeid());
-//
-//            return ajax;
-//        } else {
-//
-//            return AjaxResult.error(" 操作失败，请联系管理员");
-//        }
-//
-//    }
-//
-//    @PreAuthorize("@ss.hasPermi('performance:teamPerformance:list')")
-//    @Log(title = "绩效评价获奖管理", businessType = BusinessType.UPDATE)
-//    @PutMapping("/teamPerformance")
-//    public AjaxResult update(@Validated @RequestBody  PerTeamperformance prize) {
-//        AjaxResult ajax = AjaxResult.success();
-//        logger.debug("PerTeamperformance update is " + prize.toString());
-//
-//        Integer result = teamPerformanceService.updatePerTeamperformance(prize);
-//
-//        if (result > 0) {
-//            return ajax;
-//        } else {
-//
-//            return AjaxResult.error(" 操作失败，请联系管理员");
-//        }
-//
-//    }
-//
-//    @PreAuthorize("@ss.hasPermi('performance:teamPerformance:list')")
-//    @Log(title = "绩效评价获奖管理", businessType = BusinessType.DELETE)
-//    @DeleteMapping("/teamPerformance/{prizeids}")
-//    public AjaxResult delete(@PathVariable Integer[] prizeids) {
-//        AjaxResult ajax = AjaxResult.success();
-//
-//        Integer result = 0;
-//        for (Integer prizeid : prizeids ) {
-//            PerTeamperformance prize = teamPerformanceService.selectPerTeamperformanceById(prizeid);
-//            result = teamPerformanceService.deletePerTeamperformance(prize);
-//        }
-//
-//        if (result > 0) {
-//            return ajax;
-//        } else {
-//
-//            return AjaxResult.error(" 操作失败，请联系管理员");
-//        }
-//
-//    }
+    @PreAuthorize("@ss.hasPermi('performance:applylisttoconfirm:list')")
+    @GetMapping("/applylisttoconfirm/list")
+    public TableDataInfo getApplylisttoconfirmList(PerAddscoreapply record) {
+
+        Integer userid = this.getCurrentLoginUserid();
+
+        logger.debug("query parameters is " + record.getTeamidlinktext() + "  "+ record.getYear());
+
+        startPage();
+
+        record.setApplystatus("待审核");
+
+        List<PerAddscoreapply> list = addscoreapplyService.selectAddscoreapply(record);
+
+        return getDataTable(list);
+
+    }
+
+    @Log(title = "绩效评价 加分申请", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('performance:applylisttoconfirm:list')")
+    @PutMapping("/applylisttoconfirm")
+    public AjaxResult confirmAddscoreapply(@Validated @RequestBody PerAddscoreapply record) {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (record.getAuditResult().equals("1")) {
+            record.setApplystatus("审核通过");
+        }
+        else {
+            record.setApplystatus("审核不通过");
+        }
+
+        Integer result = addscoreapplyService.updateAddscoreapplyConfirm(record);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, record.getApplyid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+
+
+    @PreAuthorize("@ss.hasPermi('performance:perfundreport:list')")
+    @GetMapping("/perfundreport/list")
+    public TableDataInfo getFundreportList(AudProject record) {
+
+        Integer userid = this.getCurrentLoginUserid();
+
+        Boolean validTeamid = false;
+
+        List<PmTeam> teamList = pmTeamService.selectTeamListOfAUserJoin(userid);
+
+        if (teamList.size() > 0) {
+
+            for (PmTeam team : teamList) {
+
+                if (team.getTeamid() == record.getTeamid()) {
+
+                    validTeamid = true;
+                    break;
+                }
+            }
+
+        }
+
+        logger.debug("query parameters is " + record.getTeamname() + "  "+ record.getProjectyear());
+
+        if (validTeamid) {
+
+            startPage();
+
+            List<AudProject> list = fundreportService.selectPorjectFundreportList(record);
+
+            return getDataTable(list);
+
+        }
+        else {
+            return getDataTable(new ArrayList<>());
+        }
+
+    }
+
+
+    @Log(title = "绩效评价 经费到账情况填报", businessType = BusinessType.INSERT)
+    @PreAuthorize("@ss.hasPermi('performance:addscoreapply:list')")
+    @PostMapping("/perfundreport")
+    public AjaxResult addFundreport(@Validated @RequestBody PerFund record) {
+        AjaxResult ajax = AjaxResult.success();
+
+
+        record.setStatus("待确认");
+        Integer result = fundreportService.insertPerFund(record);
+
+        if (result > 0) {
+            ajax.put(AjaxResult.DATA_TAG, record.getFundid());
+            return ajax;
+        } else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @Log(title = "绩效评价 经费到账情况填报", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('performance:perfundreport:list')")
+    @PutMapping("/perfundreport")
+    public AjaxResult updateFundreport(@Validated @RequestBody PerFund record) {
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer result = fundreportService.updatePerFundFundById(record);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, record.getFundid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @PreAuthorize("@ss.hasPermi('performance:perfundconfirm:list')")
+    @GetMapping("/perfundconfirm/list")
+    public TableDataInfo getFundconfirmList(AudProject record) {
+
+        Integer userid = this.getCurrentLoginUserid();
+
+        logger.debug("query parameters is " + record.getTeamname() + "  "+ record.getProjectyear());
+
+        startPage();
+
+        List<AudProject> list = fundreportService.selectPorjectFundreportList(record);
+
+        return getDataTable(list);
+
+    }
+
+    @Log(title = "绩效评价 经费到账情况确认", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('performance:perfundconfirm:list')")
+    @PutMapping("/perfundconfirm/{fundids}")
+    public AjaxResult confirmFundreport(@PathVariable Integer[] fundids) {
+        AjaxResult ajax = AjaxResult.success();
+
+        List<Integer> ids = new ArrayList<>();
+
+        Iterator iterator = Arrays.asList(fundids).iterator();
+
+        while (iterator.hasNext()) {
+            Integer s = (Integer) iterator.next();
+            if (s == null) {
+                logger.debug("iterator.next() null is ");
+                // iterator.remove(); 不能删除 null
+            }
+            else {
+                logger.debug("iterator.next() is " + s.toString());
+                ids.add(s);
+            }
+        }
+
+        logger.debug("confirmFundreport ids is " + ids.toString());
+
+        Integer result = fundreportService.confirmPerFundByIds(ids);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, result);
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
 
 }
