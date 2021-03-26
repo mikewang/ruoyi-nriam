@@ -639,6 +639,11 @@ public class TeamPerformanceController extends BaseController {
 
         logger.debug("confirmFundreport ids is " + ids.toString());
 
+        if (ids.size() ==0) {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
         Integer result = fundreportService.confirmPerFundByIds(ids);
 
         if (result > 0) {

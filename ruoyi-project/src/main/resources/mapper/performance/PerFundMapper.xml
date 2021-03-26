@@ -39,6 +39,13 @@
     where FundID = #{fundid,jdbcType=INTEGER}
   </update>
 
+  <update id="updatePerFundStatusById" parameterType="com.ruoyi.performance.domain.PerFund">
+    update PER_Fund
+    set
+      Status = '已确认'
+    where FundID = #{fundid,jdbcType=INTEGER}
+  </update>
+
   <select id="selectPerFund" parameterType="com.ruoyi.performance.domain.PerFund" resultMap="BaseResultMap">
     select FundID, ProjectID, Year, Fund, Status
     from PER_Fund
@@ -51,26 +58,20 @@
     where FundID = #{fundid,jdbcType=INTEGER}
   </select>
 
-  <select id="selectCaculateTotalNationalByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.DECIMAL">
+  <select id="selectCaculateTotalNationalByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.Double">
     select coalesce(sum(a.Fund),0)
     from PER_Fund a join Aud_Project b on  b.ProjectID = a.ProjectID
     where a.Year = #{year,jdbcType=INTEGER} and b.TeamID = #{teamid,jdbcType=INTEGER}
       and a.Status = '已确认'and b.ProjectType in (select NationalProject from PER_NationalProject)
   </select>
 
-  <select id="selectCaculateTotalOtherByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.DECIMAL">
+  <select id="selectCaculateTotalOtherByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.Double">
     select coalesce(sum(a.Fund),0)
     from PER_Fund a join Aud_Project b on  b.ProjectID = a.ProjectID
     where a.Year = #{year,jdbcType=INTEGER} and b.TeamID = #{teamid,jdbcType=INTEGER}
       and a.Status = '已确认'and b.ProjectType not in (select NationalProject from PER_NationalProject)
   </select>
 
-  <select id="selectCaculateTotalNationalByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.DECIMAL">
-    select coalesce(sum(a.Fund),0)
-    from PER_Fund a join Aud_Project b on  b.ProjectID = a.ProjectID
-    where a.Year = #{year,jdbcType=INTEGER} and b.TeamID = #{teamid,jdbcType=INTEGER}
-      and a.Status = '已确认'and b.ProjectType in (select NationalProject from PER_NationalProject)
-  </select>
 
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

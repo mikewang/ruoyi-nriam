@@ -75,7 +75,7 @@
             and  IndicatorID = #{indicatorid,jdbcType=INTEGER}
         </if>
         <if test="teamid != null ">
-            and a.teamid = #{teamid,jdbcType=INTEGER}
+            and teamid = #{teamid,jdbcType=INTEGER}
         </if>
           and  Status = #{status,jdbcType=VARCHAR}
     </update>

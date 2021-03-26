@@ -188,3 +188,15 @@ export function confirmFundreport(ids) {
     method: 'put'
   })
 }
+
+
+
+
+
+export function listIncomereport(query) {
+  return request({
+    url: '/performance/perfundreport/list',
+    method: 'get',
+    params: query
+  })
+}

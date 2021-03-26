@@ -107,7 +107,7 @@ public class FundreportService {
 
     }
 
-    private Integer addFundRecord(Integer indicatorType, Decimal total, String chIndicator,Integer teamid, Integer year) {
+    private Integer addFundRecord(Integer indicatorType, java.lang.Double total, String chIndicator,Integer teamid, Integer year) {
 
 //            IIndicatorFundManager indifund = IndicatorFundManager.GetInstance();
 //            DataSet pointsDS = indifund.Get(indicatorType);
@@ -202,18 +202,14 @@ public class FundreportService {
                 fundreport.setTeamid(team.getTeamid());
                 fundreport.setYear(record.getYear());
 
-                Decimal totalNational = fundMapper.selectCaculateTotalNationalByTeamidYear(record);
+                java.lang.Double totalNational = fundMapper.selectCaculateTotalNationalByTeamidYear(record);
                 addFundRecord(1, totalNational, CHString.IndicatorFundNational, team.getTeamid(), record.getYear());
 
                 //计算该团队今年的总到账(其它类型项目)
 
-                Decimal total_Other = fundMapper.selectCaculateTotalOtherByTeamidYear(record);
+                java.lang.Double total_Other = fundMapper.selectCaculateTotalOtherByTeamidYear(record);
                 addFundRecord(4, total_Other, CHString.IndicatorFundOther, team.getTeamid(), record.getYear());
             }
-
-
-
-
 
         }
         return result;

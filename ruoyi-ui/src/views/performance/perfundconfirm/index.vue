@@ -70,10 +70,7 @@
             <el-input  @focus="changeFundreport(scope.row)" v-model="scope.row.fundreport.fund" placeholder="0.00"></el-input>
             </span>
           </template>
-
         </el-table-column>
-
-
         <el-table-column label="状态" align="center" prop="fundreport.status" width="100">
           <template slot-scope="scope">
             <span v-if="scope.row.fundreport.status==='已确认'">
@@ -82,6 +79,18 @@
             <span v-else style="color: red">
                 {{scope.row.fundreport.status}}
             </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-check"
+              @click="handleConfirm(scope.row)"
+              v-hasPermi="['performance:perfundconfirm:list']"
+            >确认到账
+            </el-button>
           </template>
         </el-table-column>
 
@@ -271,6 +280,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
+      console.log("selection is ", selection);
       this.ids = selection.map(item => item.fundreport.fundid);
       this.single = selection.length !== 1;
       this.multiple = !selection.length;
@@ -322,17 +332,48 @@ export default {
     },
 
     handleConfirm(row) {
-      const fundids = row.fundid || this.ids;
-      this.$confirm('是否确认已核对了编号为"' + fundids + '"的经费到账情况?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return confirmFundreport(fundids);
-      }).then(() => {
-        this.getList();
-        this.msgSuccess("确认成功");
-      })
+      let fundids = [];
+
+      const this_ = this;
+      console.log("handleConfirm is", this.ids, "row is ", row);
+
+      if (row.fundreport) {
+        console.log("handleConfirm fundreport is", row.fundreport);
+
+        if (row.fundreport.fundid !== null) {
+          fundids = [row.fundreport.fundid]
+        }
+      }
+      else {
+        console.log("handleConfirm 2  is", this.ids);
+
+        for (let i=0 ; i < this.ids.length; i++) {
+          let fundid = this.ids[i];
+          console.log("fundid is ", fundid);
+          if (fundid !== null) {
+            fundids.push(fundid);
+          }
+        }
+      }
+
+      if (fundids.length > 0) {
+        this.$confirm('是否确认已核对了编号为"' + fundids + '"的经费到账情况?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function () {
+          confirmFundreport(fundids).then(() => {
+            this_.msgSuccess("确认成功");
+            this_.getList();
+
+          });
+        }).catch(() => {
+
+        });
+      }
+      else {
+        this.msgError("确认对账无效");
+      }
     },
 
     /** 导出按钮操作 */
