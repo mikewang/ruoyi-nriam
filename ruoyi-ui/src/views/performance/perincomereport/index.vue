@@ -4,8 +4,8 @@
       <!--查询数据-->
       <el-form :model="queryParams" :rules="queryRules" ref="queryForm" :inline="true" v-show="showSearch"
                label-width="168px">
-        <el-form-item label="筛选条件: 年度" prop="projectyear">
-          <el-date-picker type="year" value-format="yyyy" v-model="queryParams.projectyear" clearable />
+        <el-form-item label="筛选条件: 年度" prop="year">
+          <el-date-picker type="year" value-format="yyyy" v-model="queryParams.year" clearable />
         </el-form-item>
         <el-form-item label="所属团队" prop="teamid">
           <!-- 所属团队组件-->
@@ -34,44 +34,52 @@
 
       <el-table v-loading="loading" :data="performanceList" >
         <el-table-column type="index" width="50" align="center"/>
-        <el-table-column label="所属团队" align="center" prop="teamname" :show-overflow-tooltip="true">
+        <el-table-column label="所属团队" align="center" prop="teamidlinktext" :show-overflow-tooltip="true">
         </el-table-column>
-        <el-table-column label="年度" align="center" prop="projectyear" width="60"/>
+        <el-table-column label="年度" align="center" prop="year" width="60"/>
         <el-table-column label="项目名称" align="center" prop="projectname"/>
         <el-table-column label="项目编号" align="center" prop="projectcode" width="180"/>
-        <el-table-column label="项目经费编号" align="center" prop="subjectcode"/>
-        <el-table-column label="负责人" align="center" prop="projectManagerIDLinkText" width="100">
+        <el-table-column label="负责人" align="center" prop="manageridlinktext" width="100">
 
         </el-table-column>
 
-        <el-table-column label="总经费（元）" align="center" prop="projectfunds" width="100">
+        <el-table-column label="起止时间" align="center" prop="period" width="100">
 
         </el-table-column>
 
-        <el-table-column label="到账可支配经费（元）" align="center" width="200">
+        <el-table-column label="合同总金额（元）" align="center" prop="contractmoney" width="100">
+        </el-table-column>
+        <el-table-column label="今年到账经费（元）" align="center" prop="thisyearmoney" width="100">
+        </el-table-column>
+        <el-table-column label="类型" align="center" prop="type" width="180"/>
+        <el-table-column label="状态" align="center" prop="status" width="180"/>
+        <el-table-column
+          label="操作"
+          align="center"
+          width="160"
+          class-name="small-padding fixed-width"
+        >
           <template slot-scope="scope">
-            <span v-if="scope.row.fundreport.status==='已确认'">
-               <el-input  readonly v-model="scope.row.fundreport.fund" placeholder="0.00"></el-input>
-            </span>
-            <span v-else>
-            <el-input  @focus="changeFundreport(scope.row)" v-model="scope.row.fundreport.fund" placeholder="0.00"></el-input>
-            </span>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-edit"
+              @click="handleUpdate(scope.row)"
+              v-hasPermi="['performance:perincomereport:list']"
+              v-if="scope.row.status !== '已确认'"
+            >编辑
+            </el-button>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-remove"
+              @click="handleRemove(scope.row)"
+              v-hasPermi="['performance:perincomereport:list']"
+              v-if="scope.row.status !== '已确认'"
+            >删除
+            </el-button>
           </template>
-
         </el-table-column>
-
-
-        <el-table-column label="状态" align="center" prop="fundreport.status" width="100">
-          <template slot-scope="scope">
-            <span v-if="scope.row.fundreport.status==='已确认'">
-               {{scope.row.fundreport.status}}
-            </span>
-            <span v-else style="color: red">
-                {{scope.row.fundreport.status}}
-            </span>
-          </template>
-        </el-table-column>
-
       </el-table>
       <pagination
         v-show="total>0"
@@ -88,13 +96,28 @@
     </el-row>
 
     <!-- 添加或修改对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="400px" append-to-body>
+    <el-dialog v-if="open" :title="title" :visible.sync="open" width="800px" append-to-body>
       <template>
-        <el-form ref="form" :model="form" :rules="rules" :key="timer">
+        <el-form ref="form" :model="form" :rules="rules" label-width="100px" :key="timer">
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="所属团队" prop="teamid">
+                <!-- 所属团队组件-->
+                <team-data :selected-team-id="form.teamid" :join-team-user-id="undefined"
+                           @changeTeamId="selectFormTeamId"></team-data>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="年度" prop="year">
+                <el-date-picker type="year" value-format="yyyy" v-model="form.year" clearable />
+              </el-form-item>
+
+            </el-col>
+          </el-row>
           <el-row :gutter="20">
             <el-col :span="24">
-              <el-form-item label="" prop="fund">
-                <el-input ref="fundinput" type="number" v-model="form.fund" placeholder="0.00"/>
+              <el-form-item label="项目名称" prop="projectname">
+                <el-input  v-model="form.projectname" placeholder="请输入项目名称？"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -118,7 +141,7 @@
 
 <script>
 import {
-  listFundreport,updateFundreport,addFundreport
+  listIncomereport,updateFundreport,addFundreport
 } from "@/api/performance/teamperformance";
 import BasDoc from "../../public/bas-doc"
 import TeamData from "../../public/team-data";
@@ -164,11 +187,11 @@ export default {
         userid: undefined,
         teamid: undefined,
         teamidlinktext: undefined,
-        projectyear: undefined
+        year: undefined
 
       },
       queryRules: {
-        projectyear: [
+        year: [
           {required: true, message: "年度不能为空", trigger: "blur"}
         ],
         teamid: [
@@ -231,7 +254,7 @@ export default {
       this.open = true;
 
       this.title = "修改到账可支配经费";
-      this.form = {fund: row.fundreport.fund, fundid:row.fundreport.fundid, projectid:row.projectid, year:row.projectyear};
+      this.form = {fund: row.fundreport.fund, fundid:row.fundreport.fundid, projectid:row.projectid, year:row.year};
 
       let dom = this.$refs.fundinput;
 
@@ -270,9 +293,26 @@ export default {
     },
 
 
+    // 组件方法
+    selectFormTeamId(value) {
+      console.log("selectTeamId is ", value);
+      this.form.teamid = value.id;
+      this.form.teamidlinktext = value.value;
+
+    },
+
 
     handleAdd() {
 
+      this.open = true;
+
+    },
+
+    handleUpdate(row){
+
+    },
+
+    handleRemove(row){
 
     },
 

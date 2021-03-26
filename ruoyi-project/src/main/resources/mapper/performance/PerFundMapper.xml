@@ -58,14 +58,14 @@
     where FundID = #{fundid,jdbcType=INTEGER}
   </select>
 
-  <select id="selectCaculateTotalNationalByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.Double">
+  <select id="selectCaculateTotalNationalByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.math.BigDecimal">
     select coalesce(sum(a.Fund),0)
     from PER_Fund a join Aud_Project b on  b.ProjectID = a.ProjectID
     where a.Year = #{year,jdbcType=INTEGER} and b.TeamID = #{teamid,jdbcType=INTEGER}
       and a.Status = '已确认'and b.ProjectType in (select NationalProject from PER_NationalProject)
   </select>
 
-  <select id="selectCaculateTotalOtherByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.Double">
+  <select id="selectCaculateTotalOtherByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.math.BigDecimal">
     select coalesce(sum(a.Fund),0)
     from PER_Fund a join Aud_Project b on  b.ProjectID = a.ProjectID
     where a.Year = #{year,jdbcType=INTEGER} and b.TeamID = #{teamid,jdbcType=INTEGER}

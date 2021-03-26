@@ -195,7 +195,7 @@ export function confirmFundreport(ids) {
 
 export function listIncomereport(query) {
   return request({
-    url: '/performance/perfundreport/list',
+    url: '/performance/perincomereport/list',
     method: 'get',
     params: query
   })

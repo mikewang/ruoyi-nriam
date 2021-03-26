@@ -15,6 +15,7 @@ import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.performance.domain.*;
 import com.ruoyi.performance.service.AddscoreapplyService;
 import com.ruoyi.performance.service.FundreportService;
+import com.ruoyi.performance.service.IncomereportService;
 import com.ruoyi.performance.service.TeamPerformanceService;
 import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.project.domain.PmTeam;
@@ -49,7 +50,8 @@ public class TeamPerformanceController extends BaseController {
     @Resource
     private FundreportService fundreportService;
 
-
+    @Resource
+    private IncomereportService incomereportService;
 
 
     @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
@@ -657,5 +659,49 @@ public class TeamPerformanceController extends BaseController {
         }
 
     }
+
+
+
+
+    @PreAuthorize("@ss.hasPermi('performance:perincomereport:list')")
+    @GetMapping("/perincomereport/list")
+    public TableDataInfo getIncomereportList(PerIncome record) {
+
+        Integer userid = this.getCurrentLoginUserid();
+
+        Boolean validTeamid = false;
+
+        List<PmTeam> teamList = pmTeamService.selectTeamListOfAUserJoin(userid);
+
+        if (teamList.size() > 0) {
+
+            for (PmTeam team : teamList) {
+
+                if (team.getTeamid() == record.getTeamid()) {
+
+                    validTeamid = true;
+                    break;
+                }
+            }
+
+        }
+
+        logger.debug("query parameters is " + record.getTeamidlinktext() + "  "+ record.getYear());
+
+        if (validTeamid) {
+
+            startPage();
+
+            List<PerIncome> list = incomereportService.selectPerIncome(record);
+
+            return getDataTable(list);
+
+        }
+        else {
+            return getDataTable(new ArrayList<>());
+        }
+
+    }
+
 
 }

@@ -107,7 +107,7 @@ public class FundreportService {
 
     }
 
-    private Integer addFundRecord(Integer indicatorType, java.lang.Double total, String chIndicator,Integer teamid, Integer year) {
+    private Integer addFundRecord(Integer indicatorType, java.math.BigDecimal total, String chIndicator,Integer teamid, Integer year) {
 
 //            IIndicatorFundManager indifund = IndicatorFundManager.GetInstance();
 //            DataSet pointsDS = indifund.Get(indicatorType);
@@ -131,10 +131,9 @@ public class FundreportService {
         //计算分数
         PerIndicatorfund indicatorfund = indicatorfundMapper.selectPerIndicatorfundById(indicatorType);
 
-        BigDecimal t = new BigDecimal(total.toString());
         BigDecimal p = new BigDecimal(indicatorfund.getPermoney());
         p = p.multiply(new BigDecimal(10000));
-        BigDecimal count = t.divide(p);
+        BigDecimal count = total.divide(p);
         BigDecimal points = new BigDecimal(indicatorfund.getPoints().toString()).multiply(count);
 
         PerTeamperformance tp = new PerTeamperformance();
@@ -202,12 +201,12 @@ public class FundreportService {
                 fundreport.setTeamid(team.getTeamid());
                 fundreport.setYear(record.getYear());
 
-                java.lang.Double totalNational = fundMapper.selectCaculateTotalNationalByTeamidYear(record);
+                java.math.BigDecimal totalNational = fundMapper.selectCaculateTotalNationalByTeamidYear(record);
                 addFundRecord(1, totalNational, CHString.IndicatorFundNational, team.getTeamid(), record.getYear());
 
                 //计算该团队今年的总到账(其它类型项目)
 
-                java.lang.Double total_Other = fundMapper.selectCaculateTotalOtherByTeamidYear(record);
+                java.math.BigDecimal total_Other = fundMapper.selectCaculateTotalOtherByTeamidYear(record);
                 addFundRecord(4, total_Other, CHString.IndicatorFundOther, team.getTeamid(), record.getYear());
             }
 

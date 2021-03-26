@@ -19,9 +19,9 @@ public interface PerFundMapper {
 
     PerFund selectPerFundById(Integer fundid);
 
-    java.lang.Double selectCaculateTotalNationalByTeamidYear(PerFund record);
+    java.math.BigDecimal  selectCaculateTotalNationalByTeamidYear(PerFund record);
 
-    java.lang.Double selectCaculateTotalOtherByTeamidYear(PerFund record);
+    java.math.BigDecimal  selectCaculateTotalOtherByTeamidYear(PerFund record);
 
 
     int deleteByPrimaryKey(Integer fundid);
