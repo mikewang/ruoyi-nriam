@@ -7,6 +7,7 @@
     <result column="Year" jdbcType="INTEGER" property="year" />
     <result column="Fund" jdbcType="DECIMAL" property="fund" />
     <result column="Status" jdbcType="VARCHAR" property="status" />
+    <result column="teamid" jdbcType="INTEGER" property="teamid" />
   </resultMap>
   <insert id="insertPerFund" parameterType="com.ruoyi.performance.domain.PerFund"  useGeneratedKeys="true"
           keyProperty="fundid">
@@ -49,6 +50,28 @@
     from PER_Fund
     where FundID = #{fundid,jdbcType=INTEGER}
   </select>
+
+  <select id="selectCaculateTotalNationalByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.DECIMAL">
+    select coalesce(sum(a.Fund),0)
+    from PER_Fund a join Aud_Project b on  b.ProjectID = a.ProjectID
+    where a.Year = #{year,jdbcType=INTEGER} and b.TeamID = #{teamid,jdbcType=INTEGER}
+      and a.Status = '已确认'and b.ProjectType in (select NationalProject from PER_NationalProject)
+  </select>
+
+  <select id="selectCaculateTotalOtherByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.DECIMAL">
+    select coalesce(sum(a.Fund),0)
+    from PER_Fund a join Aud_Project b on  b.ProjectID = a.ProjectID
+    where a.Year = #{year,jdbcType=INTEGER} and b.TeamID = #{teamid,jdbcType=INTEGER}
+      and a.Status = '已确认'and b.ProjectType not in (select NationalProject from PER_NationalProject)
+  </select>
+
+  <select id="selectCaculateTotalNationalByTeamidYear" parameterType="com.ruoyi.performance.domain.PerFund" resultType="java.lang.DECIMAL">
+    select coalesce(sum(a.Fund),0)
+    from PER_Fund a join Aud_Project b on  b.ProjectID = a.ProjectID
+    where a.Year = #{year,jdbcType=INTEGER} and b.TeamID = #{teamid,jdbcType=INTEGER}
+      and a.Status = '已确认'and b.ProjectType in (select NationalProject from PER_NationalProject)
+  </select>
+
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--

@@ -1,6 +1,8 @@
 package com.ruoyi.performance.mapper;
 
 import com.ruoyi.performance.domain.PerFund;
+import org.apache.poi.hpsf.Decimal;
+
 import java.util.List;
 
 public interface PerFundMapper {
@@ -16,6 +18,10 @@ public interface PerFundMapper {
     List<PerFund> selectPerFund(PerFund record);
 
     PerFund selectPerFundById(Integer fundid);
+
+    Decimal selectCaculateTotalNationalByTeamidYear(PerFund record);
+
+    Decimal selectCaculateTotalOtherByTeamidYear(PerFund record);
 
 
     int deleteByPrimaryKey(Integer fundid);

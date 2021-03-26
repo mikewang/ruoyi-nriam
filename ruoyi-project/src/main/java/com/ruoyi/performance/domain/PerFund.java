@@ -19,6 +19,9 @@ public class PerFund extends BaseEntity {
 
 
     private String status;
+
+    private Integer teamid;
+
 //
 //    public PerFund(){
 //
@@ -64,6 +67,14 @@ public class PerFund extends BaseEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getTeamid() {
+        return teamid;
+    }
+
+    public void setTeamid(Integer teamid) {
+        this.teamid = teamid;
     }
 
     @Override

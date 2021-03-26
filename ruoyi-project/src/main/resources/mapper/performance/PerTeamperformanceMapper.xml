@@ -70,7 +70,13 @@
         set Status = '已删除'
         where PerformanceYear = #{performanceyear,jdbcType=INTEGER}
         and IndicatorType = #{indicatortype,jdbcType=VARCHAR}
-          and  IndicatorID = #{indicatorid,jdbcType=INTEGER}
+
+        <if test="indicatorid != null ">
+            and  IndicatorID = #{indicatorid,jdbcType=INTEGER}
+        </if>
+        <if test="teamid != null ">
+            and a.teamid = #{teamid,jdbcType=INTEGER}
+        </if>
           and  Status = #{status,jdbcType=VARCHAR}
     </update>
 

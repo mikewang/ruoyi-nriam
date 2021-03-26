@@ -21,7 +21,9 @@
   </resultMap>
 
   <select id="selectPerIndicator" resultMap="BaseResultMap">
-    select a.*, b.IndicatorName as Level1Name,c.IndicatorName as Level2Name from PER_Indicator a left join PER_Indicator b on a.Level1ID=b.IndicatorID left join PER_Indicator c on a.Level1ID=c.IndicatorID
+    select a.*, b.IndicatorName as Level1Name,c.IndicatorName as Level2Name
+    from PER_Indicator a left join PER_Indicator b on a.Level1ID=b.IndicatorID
+        left join PER_Indicator c on a.Level1ID=c.IndicatorID
     where a.IfDeleted =0
     <if test="indicatorlevel != null ">
       and a.IndicatorLevel = #{indicatorlevel,jdbcType=INTEGER}
