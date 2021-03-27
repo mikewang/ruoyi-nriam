@@ -1,6 +1,5 @@
 <template>
 <div>
-
   <el-select v-model="filterId" placeholder="请选择" style="display:block;"
              clearable @clear="clearValue" @change="changeValue"
              filterable :filter-method="filterOptions" >
@@ -16,7 +15,6 @@
 <script>
 import {listTeam, getJoinTeamlist} from "@/api/project/team";
 
-
 export default {
   name: "TeamData",
   components: {},
@@ -26,13 +24,19 @@ export default {
       // 遮罩层
       loading: true,
       // 传入的参数
-      filterId: this.selectedTeamId === undefined ? undefined : this.selectedTeamId.toString(),
+      teamid: undefined,
+      // filterId 必须 Integer类型，否则 因为类型不匹配而不显示名称，只显示字符串。
+      filterId: this.selectedTeamId === undefined ? undefined : this.selectedTeamId,
       // 数据源
       options: [],
       list: []
     };
   },
+  mounted() {
+
+  },
   created() {
+    console.log("created,", this.filterId);
     this.getList();
   },
 
@@ -45,7 +49,7 @@ export default {
 
       if (this.joinTeamUserId == undefined) {
         listTeam().then(response => {
-          console.log("获取字典数据:" + dictType, response.rows);
+         // console.log("获取字典数据:" + dictType, response.rows);
           const listOptions = [];
           let rows = response.rows;
           // rows.forEach(function (item) {
@@ -84,13 +88,11 @@ export default {
 
           this.loading = false;
         });
-
       }
-
-
     },
 
     clearValue() {
+      this.teamid = undefined;
       this.$emit('changeTeamId',{id:undefined, value:undefined});
     },
 
@@ -107,6 +109,8 @@ export default {
             break;
           }
         }
+
+        this.filterId = adict.id;
 
         this.$emit('changeTeamId',adict);
 

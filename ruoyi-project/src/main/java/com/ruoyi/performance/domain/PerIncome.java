@@ -6,27 +6,21 @@ public class PerIncome {
 
     private Integer incomeid;
 
-
     private Integer teamid;
-
 
     private Integer year;
 
+    private String projectid;
 
     private String projectname;
 
-
     private String projectcode;
-
 
     private Integer managerid;
 
-
     private String period;
 
-
     private BigDecimal contractmoney;
-
 
     private BigDecimal thisyearmoney;
 
@@ -138,6 +132,14 @@ public class PerIncome {
 
     public void setManageridlinktext(String manageridlinktext) {
         this.manageridlinktext = manageridlinktext;
+    }
+
+    public String getProjectid() {
+        return projectid;
+    }
+
+    public void setProjectid(String projectid) {
+        this.projectid = projectid;
     }
 
     @Override

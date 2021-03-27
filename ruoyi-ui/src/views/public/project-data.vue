@@ -18,13 +18,13 @@ import {listProject} from "@/api/project/project";
 export default {
   name: "ProjectData",
   components: {},
-  props:['selectedProjectData'],
+  props:['selectedProjectid'],
   data() {
     return {
       // 遮罩层
       loading: true,
       // 传入的参数
-      filterProjectid: this.selectedProjectData === undefined ? undefined : this.selectedProjectData.projectid.toString(),
+      filterProjectid: this.selectedProjectid === undefined ? undefined : this.selectedProjectid.toString(),
       // 数据源
       projectDataOptions: [],
       projectDataList: []
@@ -52,7 +52,7 @@ export default {
         this_.projectDataList.sort(function (a, b) {
           return b.projectname.charCodeAt(0) - a.projectname.charCodeAt(0)
         }).forEach(function (item) {
-          const adict = {value: item.projectname, id: item.projectid};
+          const adict = {value: item.projectname, id: item.projectcode};
           listOptions.push(adict);
         });
 
@@ -77,6 +77,7 @@ export default {
           let item = this.projectDataList[i];
           if (item.projectid === value) {
             projectData = item;
+            this.filterProjectid = item.projectid;
             break;
           }
         }
@@ -111,7 +112,7 @@ export default {
       rows.sort(function (a, b) {
         return b.projectname.charCodeAt(0) - a.projectname.charCodeAt(0)
       }).forEach(function (item) {
-        const adict = {value: item.projectname, id: item.projectid};
+        const adict = {value: item.projectname, id: item.projectcode};
         listOptions.push(adict);
       });
       this.projectDataOptions = listOptions;

@@ -96,14 +96,14 @@
     </el-row>
 
     <!-- 添加或修改对话框 -->
-    <el-dialog v-if="open" :title="title" :visible.sync="open" width="800px" >
+    <el-dialog v-if="open" :title="title" :visible.sync="open" width="800px"  :key="timer" >
       <template>
-        <el-form ref="form" :model="form" :rules="rules" label-width="150px" :key="timer">
+        <el-form ref="form" :model="form" :rules="rules" label-width="150px">
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="所属团队" prop="teamid">
                 <!-- 所属团队组件-->
-                <team-data :selected-team-id="form.teamid" :join-team-user-id="undefined"
+                <team-data :selected-team-id="form.teamid" :join-team-user-id="queryParams.userid"
                            @changeTeamId="selectFormTeamId"></team-data>
               </el-form-item>
             </el-col>
@@ -111,13 +111,12 @@
               <el-form-item label="年度" prop="year">
                 <el-date-picker type="year" value-format="yyyy" v-model="form.year" clearable />
               </el-form-item>
-
             </el-col>
           </el-row>
           <el-row :gutter="20">
             <el-col :span="24">
               <el-form-item label="项目名称" prop="projectname">
-                <project-data :selected-project-data="undefined" @changeProjectData="selectedFormProjectData" ></project-data>
+                <el-input v-model="form.projectname" ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -128,8 +127,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="负责人" prop="projectManagerIDLinkText">
-                <el-input v-model="form.projectManagerIDLinkText" ></el-input>
+              <el-form-item label="负责人" prop="managerid">
+                <user-data :selected-user-id="form.managerid" @changeUserData="changeFormUserData"></user-data>
               </el-form-item>
             </el-col>
           </el-row>
@@ -137,7 +136,7 @@
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="合同总金额（元）" prop="contractmoney">
-                <el-input v-model="form.contractmoney" placeholder=""/>
+                <el-input type="number" v-model="form.contractmoney" placeholder=""/>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -149,7 +148,7 @@
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="今年到账经费（元）" prop="thisyearmoney">
-                <el-input v-model="form.thisyearmoney" placeholder=""/>
+                <el-input type="number" v-model="form.thisyearmoney" placeholder=""/>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -185,18 +184,18 @@
 
 <script>
 import {
-  listIncomereport,updateFundreport,addFundreport
+  listIncomereport,updateIncomereport,addIncomereport
 } from "@/api/performance/teamperformance";
 import BasDoc from "../../public/bas-doc"
 import TeamData from "../../public/team-data";
-import ProjectData from "../../public/project-data";
 import {spanRow} from "@/api/performance/spanRow";
 import {listIndicatorTree} from "@/api/performance/indicator";
+import UserData from "@/views/public/user-data";
 
 
 export default {
   name: "perincome_report_index",
-  components: {"bas-doc": BasDoc, "team-data": TeamData, "project-data": ProjectData},
+  components: {UserData, "bas-doc": BasDoc, "team-data": TeamData, "user-data": UserData},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -244,21 +243,42 @@ export default {
         ]
       },
       //
-
+      timer: '',
       // 表单参数
       form: {},
 
       contractTypeOptions: ["科技产业开发收入", "技术转让收入"],
 
-
-      timer: '',
       // 表单校验
       rules: {
-        fund: [
+        teamid: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        year: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        projectname: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        projectcode: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        managerid: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        contractmoney: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        period: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        thisyearmoney: [
+          {required: true, message: "不能为空", trigger: "blur"}
+        ],
+        type: [
           {required: true, message: "不能为空", trigger: "blur"}
         ]
       }
-
 
     };
   },
@@ -295,24 +315,6 @@ export default {
       this.resetForm("form");
     },
 
-    changeFundreport(row){
-
-      console.log("row is ", row);
-      this.open = true;
-
-      this.title = "修改到账可支配经费";
-      this.form = {fund: row.fundreport.fund, fundid:row.fundreport.fundid, projectid:row.projectid, year:row.year};
-
-      let dom = this.$refs.fundinput;
-
-      if (dom !== undefined) {
-        dom.focus();
-      }
-      console.log("this.$refs.fundInput is ", dom);
-
-    },
-
-
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.page = 1;
@@ -336,7 +338,6 @@ export default {
       console.log("selectTeamId is ", value);
       this.queryParams.teamid = value.id;
       this.queryParams.teamidlinktext = value.value;
-
     },
 
 
@@ -346,26 +347,34 @@ export default {
       this.form.teamid = value.id;
       this.form.teamidlinktext = value.value;
     },
+
     // 组件方法
-    selectedFormProjectData(project) {
-      console.log("selectedFormProjectData is ", project.projectcode, project.projectManagerIDLinkText);
-      this.form.projectcode = project.projectcode;
-      this.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
-      this.form.timer = Date.now().toString();
+    changeFormUserData(user) {
+      console.log("changeFormUserData is ", user);
+      this.form.managerid = user.userId;
+      this.form.manageridlinktext = user.realName;
     },
 
     changeContractTypeValue(value){
       this.form.contracttype = value;
     },
 
-
     handleAdd() {
+      this.reset();
       this.title = "新增成果转化收入信息";
+      this.form = {};
       this.open = true;
     },
 
     handleUpdate(row){
+      this.title = "成果转化收入信息";
+      console.log("row is ", row);
+      const form = row;
+      form.year = form.year.toString();
+      form.teamid = form.teamid === undefined ? undefined : form.teamid;
 
+      this.form = form;
+      this.open = true;
     },
 
     handleRemove(row){
@@ -380,15 +389,15 @@ export default {
           if (valid) {
             const this_ = this;
             console.log("保存的数据为", this_.form);
-            if (this_.form.fundid === undefined|| this_.form.fundid === null) {
-              addFundreport(this_.form).then(response => {
+            if (this_.form.incomeid === undefined|| this_.form.incomeid === null) {
+              addIncomereport(this_.form).then(response => {
                 this_.msgSuccess("保存成功");
                 this_.open = false;
                 this_.getList();
               });
             }
             else {
-              updateFundreport(this_.form).then(response => {
+              updateIncomereport(this_.form).then(response => {
                 this_.msgSuccess("修改成功");
                 this_.open = false;
                 this_.getList();

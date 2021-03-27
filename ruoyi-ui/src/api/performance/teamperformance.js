@@ -190,13 +190,26 @@ export function confirmFundreport(ids) {
 }
 
 
-
-
-
 export function listIncomereport(query) {
   return request({
     url: '/performance/perincomereport/list',
     method: 'get',
     params: query
+  })
+}
+
+export function addIncomereport(data) {
+  return request({
+    url:  '/performance/perincomereport',
+    method: 'post',
+    data: data
+  })
+}
+
+export function updateIncomereport(data) {
+  return request({
+    url:  '/performance/perincomereport',
+    method: 'put',
+    data: data
   })
 }

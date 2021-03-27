@@ -1224,7 +1224,7 @@ export default {
           // 如果直接包含输入值直接返回true
           const val = v.toLowerCase()
           const py = item.hotKey;
-          var hh = -1;
+          let hh = -1;
           if (py !== undefined && py !== null) {
             hh = py.indexOf(val);
           }

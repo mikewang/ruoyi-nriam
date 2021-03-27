@@ -704,4 +704,44 @@ public class TeamPerformanceController extends BaseController {
     }
 
 
+
+    @Log(title = "绩效评价 经费到账情况填报", businessType = BusinessType.INSERT)
+    @PreAuthorize("@ss.hasPermi('performance:perincomereport:list')")
+    @PostMapping("/perincomereport")
+    public AjaxResult addIncomereport(@Validated @RequestBody PerIncome record) {
+        AjaxResult ajax = AjaxResult.success();
+
+
+        record.setStatus("待确认");
+        Integer result = incomereportService.insertPerIncome(record);
+
+        if (result > 0) {
+            ajax.put(AjaxResult.DATA_TAG, record.getIncomeid());
+            return ajax;
+        } else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+    @Log(title = "绩效评价 经费到账情况填报", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('performance:perincomereport:list')")
+    @PutMapping("/perincomereport")
+    public AjaxResult updateIncomereport(@Validated @RequestBody PerIncome record) {
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer result = incomereportService.updatePerIncome(record);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, record.getIncomeid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
 }
