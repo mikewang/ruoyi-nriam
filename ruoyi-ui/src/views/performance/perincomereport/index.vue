@@ -184,13 +184,14 @@
 
 <script>
 import {
-  listIncomereport,updateIncomereport,addIncomereport
+  listIncomereport,updateIncomereport,addIncomereport,deleteIncomereport
 } from "@/api/performance/teamperformance";
 import BasDoc from "../../public/bas-doc"
 import TeamData from "../../public/team-data";
 import {spanRow} from "@/api/performance/spanRow";
 import {listIndicatorTree} from "@/api/performance/indicator";
 import UserData from "@/views/public/user-data";
+import {handleUploadReview} from "@/api/project/projectdoc";
 
 
 export default {
@@ -378,7 +379,23 @@ export default {
     },
 
     handleRemove(row){
+      const this_ = this;
+      this.$confirm('是否确认删除?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
 
+        deleteIncomereport(row.incomeid).then(response => {
+          this_.msgSuccess("删除成功");
+
+          this_.getList();
+        });
+
+
+      }).then(() => {
+
+      })
     },
 
     /** 保存按钮 */

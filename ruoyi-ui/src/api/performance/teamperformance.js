@@ -213,3 +213,26 @@ export function updateIncomereport(data) {
     data: data
   })
 }
+
+export function deleteIncomereport(incomeid) {
+  return request({
+    url: '/performance/perincomereport/' + incomeid,
+    method: 'delete'
+  })
+}
+
+
+export function listIncomeconfirm(query) {
+  return request({
+    url: '/performance/perincomeconfirm/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function confirmIncomereport(incomeids) {
+  return request({
+    url: '/performance/perincomeconfirm/' + incomeids,
+    method: 'update'
+  })
+}

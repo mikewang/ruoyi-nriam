@@ -19,7 +19,6 @@
       </el-form>
 
       <el-row :gutter="10" class="mb8">
-
         <el-col :span="2.5">
           <el-button
             type="primary"

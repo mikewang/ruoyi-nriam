@@ -705,7 +705,7 @@ public class TeamPerformanceController extends BaseController {
 
 
 
-    @Log(title = "绩效评价 经费到账情况填报", businessType = BusinessType.INSERT)
+    @Log(title = "绩效评价 成果转化收入填报", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('performance:perincomereport:list')")
     @PostMapping("/perincomereport")
     public AjaxResult addIncomereport(@Validated @RequestBody PerIncome record) {
@@ -724,7 +724,7 @@ public class TeamPerformanceController extends BaseController {
 
     }
 
-    @Log(title = "绩效评价 经费到账情况填报", businessType = BusinessType.UPDATE)
+    @Log(title = "绩效评价 成果转化收入填报", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('performance:perincomereport:list')")
     @PutMapping("/perincomereport")
     public AjaxResult updateIncomereport(@Validated @RequestBody PerIncome record) {
@@ -743,5 +743,89 @@ public class TeamPerformanceController extends BaseController {
         }
 
     }
+
+    @Log(title = "绩效评价 成果转化收入填报", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('performance:perincomereport:list')")
+    @DeleteMapping("/perincomereport/{incomeid}")
+    public AjaxResult deleteIncomereport(@PathVariable Integer incomeid) {
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer result = incomereportService.deletePerIncomeById(incomeid);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, result);
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+
+
+
+    @PreAuthorize("@ss.hasPermi('performance:perincomeconfirm:list')")
+    @GetMapping("/perincomeconfirm/list")
+    public TableDataInfo getIncomeconfirmList(PerIncome record) {
+
+        Integer userid = this.getCurrentLoginUserid();
+
+        logger.debug("query parameters is " + record.getTeamidlinktext() + "  "+ record.getYear());
+
+        startPage();
+
+        List<PerIncome> list = incomereportService.selectPerIncome(record);
+
+        return getDataTable(list);
+
+    }
+
+    @Log(title = "绩效评价 成果转化收入填报", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('performance:perincomeconfirm:list')")
+    @PutMapping("/perincomeconfirm/{incomeids}")
+    public AjaxResult confirmIncomeconfirm(@PathVariable Integer[] incomeids) {
+        AjaxResult ajax = AjaxResult.success();
+
+        List<Integer> ids = new ArrayList<>();
+
+        Iterator iterator = Arrays.asList(incomeids).iterator();
+
+        while (iterator.hasNext()) {
+            Integer s = (Integer) iterator.next();
+            if (s == null) {
+                logger.debug("iterator.next() null is ");
+                // iterator.remove(); 不能删除 null
+            }
+            else {
+                logger.debug("iterator.next() is " + s.toString());
+                ids.add(s);
+            }
+        }
+
+        logger.debug("confirmIncomeconfirm ids is " + ids.toString());
+
+        if (ids.size() ==0) {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+        Integer result = incomereportService.confirmPerIncomeByIds(ids);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, result);
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
+
 
 }
