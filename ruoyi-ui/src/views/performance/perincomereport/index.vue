@@ -96,9 +96,9 @@
     </el-row>
 
     <!-- 添加或修改对话框 -->
-    <el-dialog v-if="open" :title="title" :visible.sync="open" width="800px" append-to-body>
+    <el-dialog v-if="open" :title="title" :visible.sync="open" width="800px" >
       <template>
-        <el-form ref="form" :model="form" :rules="rules" label-width="100px" :key="timer">
+        <el-form ref="form" :model="form" :rules="rules" label-width="150px" :key="timer">
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="所属团队" prop="teamid">
@@ -117,7 +117,51 @@
           <el-row :gutter="20">
             <el-col :span="24">
               <el-form-item label="项目名称" prop="projectname">
-                <el-input  v-model="form.projectname" placeholder="请输入项目名称？"/>
+                <project-data :selected-project-data="undefined" @changeProjectData="selectedFormProjectData" ></project-data>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="项目编号" prop="projectcode">
+                <el-input v-model="form.projectcode" placeholder=""  />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="负责人" prop="projectManagerIDLinkText">
+                <el-input v-model="form.projectManagerIDLinkText" ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="合同总金额（元）" prop="contractmoney">
+                <el-input v-model="form.contractmoney" placeholder=""/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="起止时间" prop="period">
+                <el-input v-model="form.period"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="今年到账经费（元）" prop="thisyearmoney">
+                <el-input v-model="form.thisyearmoney" placeholder=""/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="类型" prop="type">
+                <el-select v-model="form.type" placeholder="请选择类型" style="display:block;"
+                           @change="changeContractTypeValue" >
+                  <el-option
+                    v-for="item in contractTypeOptions"
+                    :key="item"
+                    :label="item"
+                    :value="item"/>
+                </el-select>
               </el-form-item>
             </el-col>
           </el-row>
@@ -145,13 +189,14 @@ import {
 } from "@/api/performance/teamperformance";
 import BasDoc from "../../public/bas-doc"
 import TeamData from "../../public/team-data";
+import ProjectData from "../../public/project-data";
 import {spanRow} from "@/api/performance/spanRow";
 import {listIndicatorTree} from "@/api/performance/indicator";
 
 
 export default {
   name: "perincome_report_index",
-  components: {"bas-doc": BasDoc, "team-data": TeamData},
+  components: {"bas-doc": BasDoc, "team-data": TeamData, "project-data": ProjectData},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -202,6 +247,8 @@ export default {
 
       // 表单参数
       form: {},
+
+      contractTypeOptions: ["科技产业开发收入", "技术转让收入"],
 
 
       timer: '',
@@ -298,14 +345,23 @@ export default {
       console.log("selectTeamId is ", value);
       this.form.teamid = value.id;
       this.form.teamidlinktext = value.value;
+    },
+    // 组件方法
+    selectedFormProjectData(project) {
+      console.log("selectedFormProjectData is ", project.projectcode, project.projectManagerIDLinkText);
+      this.form.projectcode = project.projectcode;
+      this.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
+      this.form.timer = Date.now().toString();
+    },
 
+    changeContractTypeValue(value){
+      this.form.contracttype = value;
     },
 
 
     handleAdd() {
-
+      this.title = "新增成果转化收入信息";
       this.open = true;
-
     },
 
     handleUpdate(row){

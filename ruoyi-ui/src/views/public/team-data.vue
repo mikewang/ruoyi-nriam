@@ -47,9 +47,19 @@ export default {
         listTeam().then(response => {
           console.log("获取字典数据:" + dictType, response.rows);
           const listOptions = [];
-          response.rows.sort(function (a, b) {
-            return a.teamname < b.teamname
-          }).forEach(function (item) {
+          let rows = response.rows;
+          // rows.forEach(function (item) {
+          //   console.log(item.teamid, item.teamname);
+          // });
+          rows = response.rows.sort(function (a, b) {
+            return b.teamname.charCodeAt(0) - a.teamname.charCodeAt(0)
+          });
+          // console.log("排序之后");
+          // rows.forEach(function (item) {
+          //   console.log(item.teamid, item.teamname);
+          // });
+
+          rows.forEach(function (item) {
             const team = {value: item.teamname, id: item.teamid};
             listOptions.push(team);
           });
