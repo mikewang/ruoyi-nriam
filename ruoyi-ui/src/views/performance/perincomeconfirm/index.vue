@@ -87,21 +87,21 @@
         >
           <template slot-scope="scope">
             <el-button
+              v-if="scope.row.status !== '已确认'"
               size="mini"
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
               v-hasPermi="['performance:perincomeconfirm:list']"
-              v-if="scope.row.status !== '已确认'"
             >编辑
             </el-button>
             <el-button
+              v-if="scope.row.status !== '已确认'"
               size="mini"
               type="text"
               icon="el-icon-remove"
               @click="handleRemove(scope.row)"
               v-hasPermi="['performance:perincomeconfirm:list']"
-              v-if="scope.row.status !== '已确认'"
             >删除
             </el-button>
           </template>

@@ -215,7 +215,7 @@ public class TeamPerformanceController extends BaseController {
     }
 
 
-    @PreAuthorize("@ss.hasPermi('performance:verifyteam:list')")
+    @PreAuthorize("@ss.hasPermi('performance:viewteam:list')")
     @GetMapping("/viewteam/list")
     public TableDataInfo viewTeamList(PerTeamperformance teamperformance) {
 
@@ -544,7 +544,7 @@ public class TeamPerformanceController extends BaseController {
 
         }
 
-        logger.debug("query parameters is " + record.getTeamname() + "  "+ record.getProjectyear());
+        logger.debug("query parameters is " + record.getTeamidlinktext() + "  "+ record.getProjectyear());
 
         if (validTeamid) {
 
@@ -607,7 +607,7 @@ public class TeamPerformanceController extends BaseController {
 
         Integer userid = this.getCurrentLoginUserid();
 
-        logger.debug("query parameters is " + record.getTeamname() + "  "+ record.getProjectyear());
+        logger.debug("query parameters is " + record.getTeamidlinktext() + "  "+ record.getProjectyear());
 
         startPage();
 
@@ -711,7 +711,6 @@ public class TeamPerformanceController extends BaseController {
     public AjaxResult addIncomereport(@Validated @RequestBody PerIncome record) {
         AjaxResult ajax = AjaxResult.success();
 
-
         record.setStatus("待确认");
         Integer result = incomereportService.insertPerIncome(record);
 
@@ -729,6 +728,13 @@ public class TeamPerformanceController extends BaseController {
     @PutMapping("/perincomereport")
     public AjaxResult updateIncomereport(@Validated @RequestBody PerIncome record) {
         AjaxResult ajax = AjaxResult.success();
+
+        PerIncome income = incomereportService.selectPerIncomeById(record.getIncomeid());
+
+        if (income.getStatus().equals("已确认")) {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
 
         Integer result = incomereportService.updatePerIncome(record);
 
@@ -750,7 +756,16 @@ public class TeamPerformanceController extends BaseController {
     public AjaxResult deleteIncomereport(@PathVariable Integer incomeid) {
         AjaxResult ajax = AjaxResult.success();
 
+
+        PerIncome income = incomereportService.selectPerIncomeById(incomeid);
+
+        if (income.getStatus().equals("已确认")) {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
         Integer result = incomereportService.deletePerIncomeById(incomeid);
+
+
 
         if (result > 0) {
 
@@ -826,6 +841,37 @@ public class TeamPerformanceController extends BaseController {
 
     }
 
+    @PreAuthorize("@ss.hasPermi('performance:viewall:list')")
+    @GetMapping("/viewall/list")
+    public TableDataInfo viewAllList(PerTeamperformance teamperformance) {
 
+        Integer userid = this.getCurrentLoginUserid();
+
+        startPage();
+
+        List<PerTeamperformance> list = teamPerformanceService.selectPerTeamperformance(teamperformance);
+
+        return getDataTable(list);
+
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('performance:viewallapply:list')")
+    @GetMapping("/viewallapply/list")
+    public TableDataInfo getAllApplyList(PerAddscoreapply record) {
+
+        Integer userid = this.getCurrentLoginUserid();
+
+        logger.debug("query parameters is " + record.getTeamidlinktext() + "  "+ record.getYear());
+
+        startPage();
+
+//        record.setApplystatus("待审核");
+
+        List<PerAddscoreapply> list = addscoreapplyService.selectAddscoreapply(record);
+
+        return getDataTable(list);
+
+    }
 
 }

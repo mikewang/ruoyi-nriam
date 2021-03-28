@@ -47,9 +47,9 @@
 
 
   <select id="selectPerIncomeCaculateTotal" parameterType="com.ruoyi.performance.domain.PerIncome" resultType="java.math.BigDecimal">
-    select sum(ThisYearMoney)
-    from PER_Income
-    where status = '已确认'
+    select  coalesce(sum(ThisYearMoney),0)
+    from PER_Income a
+    where a.status = '已确认'
     <if test="year != null ">
       and a.year = #{year,jdbcType=INTEGER}
     </if>

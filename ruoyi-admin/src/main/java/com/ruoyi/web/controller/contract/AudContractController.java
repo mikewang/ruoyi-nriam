@@ -528,7 +528,7 @@ public class AudContractController extends BaseController {
                     }
 
                     dataMap.put("suppliername_cover", contract.getSupplieridlinktext());
-                    dataMap.put("projecttype", contract.getProjectinfo().getProjectTypeLinkText());
+                    dataMap.put("projecttype", contract.getProjectinfo().getProjecttypelinktext());
                     dataMap.put("projectname", contract.getProjectinfo().getProjectname());
                     dataMap.put("suppliername_mudi", contract.getSupplierinfo().getSuppliername());
                     dataMap.put("suppliername_qianyan", contract.getSupplierinfo().getSuppliername());

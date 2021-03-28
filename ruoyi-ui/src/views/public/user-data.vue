@@ -41,7 +41,7 @@ export default {
     /** 查询列表 */
     getList() {
       this.loading = true;
-      console.log("加载 组件 " + this.selectedUserId);
+      console.log("加载 用户组件 " + this.selectedUserId);
       const this_ = this;
 
       listUser(this.selectedUserId).then(response => {

@@ -59,15 +59,15 @@ public class AudProject extends BaseEntity {
 
     private Integer status;
 
-    private String projectTypeLinkText;
-    private String dictionaryOrderNum;
-    private String ProjectManagerIDLinkText;
-    private String organizationIDLinkText;
-    private String statusLinkText;
-    private String teamname;
-    private String createUserIDLinkText;
+    private String projecttypelinktext;
+    private String dictionaryordernum;
+    private String projectmanageridlinktext;
+    private String organizationidlinktext;
+    private String statuslinktext;
+    private String teamidlinktext;
+    private String createuseridlinktext;
 
-    private List<PmProjectjoinorganization> projectJoinOrganizationList;
+    private List<PmProjectjoinorganization> projectjoinorganizationlist;
     private PmUplevelproject uplevelproject;
     private List<Integer> projectmemberList;
     private List<AudProjectdoc> projectdocList;
@@ -255,69 +255,68 @@ public class AudProject extends BaseEntity {
         this.status = status;
     }
 
-    public String getProjectTypeLinkText() {
-        return projectTypeLinkText;
+    public String getProjecttypelinktext() {
+        return projecttypelinktext;
     }
 
-    public void setProjectTypeLinkText(String projectTypeLinkText) {
-        this.projectTypeLinkText = projectTypeLinkText;
+    public void setProjecttypelinktext(String projecttypelinktext) {
+        this.projecttypelinktext = projecttypelinktext;
     }
 
-    public String getDictionaryOrderNum() {
-        return dictionaryOrderNum;
+    public String getDictionaryordernum() {
+        return dictionaryordernum;
     }
 
-    public void setDictionaryOrderNum(String dictionaryOrderNum) {
-        this.dictionaryOrderNum = dictionaryOrderNum;
+    public void setDictionaryordernum(String dictionaryordernum) {
+        this.dictionaryordernum = dictionaryordernum;
     }
 
-    public String getOrganizationIDLinkText() {
-        return organizationIDLinkText;
+    public String getProjectmanageridlinktext() {
+        return projectmanageridlinktext;
     }
 
-    public void setOrganizationIDLinkText(String organizationIDLinkText) {
-        this.organizationIDLinkText = organizationIDLinkText;
+    public void setProjectmanageridlinktext(String projectmanageridlinktext) {
+        this.projectmanageridlinktext = projectmanageridlinktext;
     }
 
-    public String getStatusLinkText() {
-        return statusLinkText;
+    public String getOrganizationidlinktext() {
+        return organizationidlinktext;
     }
 
-    public void setStatusLinkText(String statusLinkText) {
-        this.statusLinkText = statusLinkText;
+    public void setOrganizationidlinktext(String organizationidlinktext) {
+        this.organizationidlinktext = organizationidlinktext;
     }
 
-    public String getTeamname() {
-        return teamname;
+    public String getStatuslinktext() {
+        return statuslinktext;
     }
 
-    public void setTeamname(String teamname) {
-        this.teamname = teamname;
+    public void setStatuslinktext(String statuslinktext) {
+        this.statuslinktext = statuslinktext;
     }
 
-
-    public String getProjectManagerIDLinkText() {
-        return ProjectManagerIDLinkText;
+    public String getTeamidlinktext() {
+        return teamidlinktext;
     }
 
-    public void setProjectManagerIDLinkText(String projectManagerIDLinkText) {
-        ProjectManagerIDLinkText = projectManagerIDLinkText;
+    public void setTeamidlinktext(String teamidlinktext) {
+        this.teamidlinktext = teamidlinktext;
     }
 
-    public String getCreateUserIDLinkText() {
-        return createUserIDLinkText;
+    public String getCreateuseridlinktext() {
+        return createuseridlinktext;
     }
 
-    public void setCreateUserIDLinkText(String createUserIDLinkText) {
-        this.createUserIDLinkText = createUserIDLinkText;
+    public void setCreateuseridlinktext(String createuseridlinktext) {
+        this.createuseridlinktext = createuseridlinktext;
     }
 
-    public List<PmProjectjoinorganization> getProjectJoinOrganizationList() {
-        return projectJoinOrganizationList;
+    public List<PmProjectjoinorganization> getProjectjoinorganizationlist() {
+        return projectjoinorganizationlist;
     }
 
-    public void setProjectJoinOrganizationList(List<PmProjectjoinorganization> projectJoinOrganizationList) {
-        this.projectJoinOrganizationList = projectJoinOrganizationList;
+    public void setProjectjoinorganizationlist(List<PmProjectjoinorganization> projectjoinorganizationlist) {
+        this.projectjoinorganizationlist = projectjoinorganizationlist;
     }
 
     public PmUplevelproject getUplevelproject() {
@@ -445,14 +444,27 @@ public class AudProject extends BaseEntity {
                 ", ifaudited=" + ifaudited +
                 ", ifacceptancefull=" + ifacceptancefull +
                 ", status=" + status +
-                ", projectTypeLinkText='" + projectTypeLinkText + '\'' +
-                ", dictionaryOrderNum='" + dictionaryOrderNum + '\'' +
-                ", ProjectManagerIDLinkText='" + ProjectManagerIDLinkText + '\'' +
-                ", organizationIDLinkText='" + organizationIDLinkText + '\'' +
-                ", statusLinkText='" + statusLinkText + '\'' +
-                ", teamname='" + teamname + '\'' +
+                ", projecttypelinktext='" + projecttypelinktext + '\'' +
+                ", dictionaryordernum='" + dictionaryordernum + '\'' +
+                ", projectmanageridlinktext='" + projectmanageridlinktext + '\'' +
+                ", organizationidlinktext='" + organizationidlinktext + '\'' +
+                ", statuslinktext='" + statuslinktext + '\'' +
+                ", teamidlinktext='" + teamidlinktext + '\'' +
+                ", createuseridlinktext='" + createuseridlinktext + '\'' +
+                ", projectjoinorganizationlist=" + projectjoinorganizationlist +
+                ", uplevelproject=" + uplevelproject +
+                ", projectmemberList=" + projectmemberList +
+                ", projectdocList=" + projectdocList +
                 ", statusList=" + statusList +
                 ", projectyear='" + projectyear + '\'' +
+                ", projectDateRange='" + projectDateRange + '\'' +
+                ", projectColor=" + projectColor +
+                ", operateCode=" + operateCode +
+                ", confirmSubjectcode='" + confirmSubjectcode + '\'' +
+                ", confirmResult=" + confirmResult +
+                ", confirmNote='" + confirmNote + '\'' +
+                ", confirmUserid=" + confirmUserid +
+                ", fundreport=" + fundreport +
                 '}';
     }
 }

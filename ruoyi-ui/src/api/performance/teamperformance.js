@@ -233,6 +233,24 @@ export function listIncomeconfirm(query) {
 export function confirmIncomereport(incomeids) {
   return request({
     url: '/performance/perincomeconfirm/' + incomeids,
-    method: 'update'
+    method: 'put'
+  })
+}
+
+
+
+export function listViewAll(query) {
+  return request({
+    url: '/performance/viewall/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function listViewAllapply(query) {
+  return request({
+    url: '/performance/viewallapply/list',
+    method: 'get',
+    params: query
   })
 }

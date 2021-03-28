@@ -21,13 +21,13 @@
         <result column="IfAudited" jdbcType="BIT" property="ifaudited"/>
         <result column="IfAcceptanceFull" jdbcType="BIT" property="ifacceptancefull"/>
         <result column="Status" jdbcType="INTEGER" property="status"/>
-        <result column="ProjectTypeLinkText" jdbcType="VARCHAR" property="projectTypeLinkText"/>
-        <result column="dictionaryOrderNum" jdbcType="VARCHAR" property="dictionaryOrderNum"/>
-        <result column="ProjectManagerIDLinkText" jdbcType="VARCHAR" property="projectManagerIDLinkText"/>
-        <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationIDLinkText"/>
-        <result column="StatusLinkText" jdbcType="VARCHAR" property="statusLinkText"/>
-        <result column="TeamName" jdbcType="VARCHAR" property="teamname"/>
-        <result column="CreateUserIDLinkText" jdbcType="VARCHAR" property="createUserIDLinkText"/>
+        <result column="ProjectTypeLinkText" jdbcType="VARCHAR" property="projecttypelinktext"/>
+        <result column="dictionaryOrderNum" jdbcType="VARCHAR" property="dictionaryordernum"/>
+        <result column="ProjectManagerIDLinkText" jdbcType="VARCHAR" property="projectmanageridlinktext"/>
+        <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationidlinktext"/>
+        <result column="StatusLinkText" jdbcType="VARCHAR" property="statuslinktext"/>
+        <result column="TeamIDLinkText" jdbcType="VARCHAR" property="teamidlinktext"/>
+        <result column="CreateUserIDLinkText" jdbcType="VARCHAR" property="createuseridlinktext"/>
     </resultMap>
 
     <sql id="selectAudProject">
@@ -57,7 +57,7 @@
                       , t6.Real_Name  AS ProjectManagerIDLinkText
                       , b.dept_name   AS OrganizationIDLinkText
                       , c.dict_label  AS StatusLinkText
-                      , d.TeamName
+                      , d.TeamName as TeamIDLinkText
                       , e.Real_Name   as CreateUserIDLinkText
                  FROM Aud_Project a
                           join (select * from sys_dict_data where dict_type = '项目类型') t5

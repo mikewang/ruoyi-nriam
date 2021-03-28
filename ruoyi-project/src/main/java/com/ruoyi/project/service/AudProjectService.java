@@ -218,7 +218,7 @@ public class AudProjectService {
 
         if (project.getJointype() != null) {
             if (project.getJointype() == 1) {
-                List<PmProjectjoinorganization> joinList = project.getProjectJoinOrganizationList();
+                List<PmProjectjoinorganization> joinList = project.getProjectjoinorganizationlist();
                 List<Integer> ids = new ArrayList<>();
                 for (PmProjectjoinorganization s : joinList) {
                     s.setProjectid(projectId.toString());
@@ -357,7 +357,7 @@ public class AudProjectService {
 
         if (projectId > 0) {
 
-            log.debug("projectJoinOrganizationList is " + project.getProjectJoinOrganizationList());
+            log.debug("projectJoinOrganizationList is " + project.getProjectjoinorganizationlist());
             log.debug("uplevelproject is " + project.getUplevelproject());
             log.debug("projectmemberList is " + project.getProjectmemberList());
             log.debug("projectdocList is " + project.getProjectdocList());

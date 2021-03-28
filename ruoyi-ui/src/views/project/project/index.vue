@@ -15,17 +15,9 @@
             style="width: 240px"
           />
         </el-form-item>
-        <el-form-item label="所属团队" prop="teamname">
-          <el-autocomplete class="input-with-select"
-                           v-model="queryParams.teamname"
-                           :fetch-suggestions="queryTeamListSearch"
-                           placeholder="请输入团队名称"
-                           clearable
-                           size="small"
-                           style="width: 240px"
-                           @select="handleSelectTeam"
-          >
-          </el-autocomplete>
+        <el-form-item label="所属团队" prop="teamid">
+          <!-- 所属团队组件-->
+          <team-data :selected-team-id="queryParams.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
         </el-form-item>
         <el-form-item label="项目名称" prop="projectname">
           <el-input v-model="queryParams.projectname" clearable/>
@@ -75,15 +67,15 @@
 
         <el-table-column label="项目编号" align="center" prop="projectcode" width="120"/>
         <el-table-column label="项目起止日期" align="center" prop="projectDateRange" width="250"/>
-        <el-table-column label="项目类型" align="center" prop="projectTypeLinkText" width="300"/>
-        <el-table-column label="负责人" align="center" prop="projectManagerIDLinkText" width="100"/>
-        <el-table-column label="项目状态" align="center" prop="statusLinkText" width="100">
+        <el-table-column label="项目类型" align="center" prop="projecttypelinktext" width="300"/>
+        <el-table-column label="负责人" align="center" prop="projectmanageridlinktext" width="100"/>
+        <el-table-column label="项目状态" align="center" prop="statuslinktext" width="100">
           <template slot-scope="scope">
             <span v-if="scope.row.projectColor === -1" style="color:red"
-                  :key="Math.random()">{{ scope.row.statusLinkText }}</span>
+                  :key="Math.random()">{{ scope.row.statuslinktext }}</span>
             <span v-else-if="scope.row.projectColor === 1" style="color:green"
-                  :key="Math.random()">{{ scope.row.statusLinkText }}</span>
-            <span v-else :key="Math.random()">{{ scope.row.statusLinkText }}</span>
+                  :key="Math.random()">{{ scope.row.statuslinktext }}</span>
+            <span v-else :key="Math.random()">{{ scope.row.statuslinktext }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -129,11 +121,12 @@
 <script>
 import {listProject} from "@/api/project/project";
 import {listTeam} from "@/api/project/team";
+import TeamData from "@/views/public/team-data";
 
 
 export default {
-  name: "zaiyan",
-  // components: {  },
+  name: "project_zaiyan_index",
+  components: {"team-data": TeamData},
   data() {
     return {
       // 遮罩层
@@ -172,8 +165,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        teamid: 0,
-        teamname: undefined,
+        teamid: undefined,
         projectyear: "2021",
         projectname: undefined
       },
@@ -289,29 +281,11 @@ export default {
       });
     },
 
-    queryTeamListSearch(queryString, cb) {
-
-      const queryParams = {
-        pageNum: 1,
-        pageSize: 30,
-        teamname: queryString
-      };
-      listTeam(queryParams).then(response => {
-          const teamListOptions = [];
-          const teamList = response.rows;
-          teamList.forEach(function (team) {
-            const item = {"value": team.teamname, "teamid": team.teamid};
-            teamListOptions.push(item);
-          });
-          cb(teamListOptions);
-        }
-      );
-    },
-
-    handleSelectTeam(team) {
-      console.log("handleSelectTeam is " + team["value"]);
-      this.queryParams.teamid = team["teamid"];
-      this.queryParams.teamname = team["value"];
+    // 组件方法
+    selectTeamId(value) {
+      console.log("handleSelectTeam is " , value);
+      this.queryParams.teamid = value.id;
+      this.queryParams.teamidlinktext = value.value;
     }
   }
 };

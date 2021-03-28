@@ -168,6 +168,36 @@ public class FundreportService {
         return 1;
     }
 
+    private Integer addFundRecordByTeamidYear(Integer teamid, Integer year) {
+
+        //先删除对应的旧评分记录
+        PerTeamperformance teamperformance = new PerTeamperformance();
+        teamperformance.setStatus("待确认");
+        teamperformance.setPerformanceyear(year);
+        teamperformance.setTeamid(teamid);
+        teamperformance.setIndicatortype(CHString.IndicatorFundNational);
+        teamperformanceMapper.updatePerTeamperformanceDeleted(teamperformance);
+
+        teamperformance.setIndicatortype(CHString.IndicatorFundOther);
+        teamperformanceMapper.updatePerTeamperformanceDeleted(teamperformance);
+
+        // 计算某个团队某年的总到账经费(国家项目)
+        PerFund fundreport = new PerFund();
+        fundreport.setTeamid(teamid);
+        fundreport.setYear(year);
+
+        java.math.BigDecimal totalNational = fundMapper.selectCaculateTotalNationalByTeamidYear(fundreport);
+        addFundRecord(1, totalNational, CHString.IndicatorFundNational, teamid, year);
+
+        //计算该团队今年的总到账(其它类型项目)
+
+        java.math.BigDecimal total_Other = fundMapper.selectCaculateTotalOtherByTeamidYear(fundreport);
+        addFundRecord(4, total_Other, CHString.IndicatorFundOther, teamid, year);
+
+        return 1;
+    }
+
+
     @Transactional
     public Integer confirmPerFundByIds(List<Integer> ids) {
         Integer  result = 0;
@@ -180,34 +210,14 @@ public class FundreportService {
             record.setStatus("已确认");
             result = fundMapper.updatePerFundStatusById(record);
 
-
             //增加评分记录（从到账经费）(某团队)
             List<PmTeam> teamList = teamMapper.selectTeamList(new PmTeam());
 
             for (PmTeam team : teamList) {
-                //先删除对应的旧评分记录
-                PerTeamperformance teamperformance = new PerTeamperformance();
-                teamperformance.setStatus("待确认");
-                teamperformance.setPerformanceyear(record.getYear());
-                teamperformance.setTeamid(team.getTeamid());
-                teamperformance.setIndicatortype(CHString.IndicatorFundNational);
-                teamperformanceMapper.updatePerTeamperformanceDeleted(teamperformance);
+                Integer teamid = team.getTeamid();
+                Integer year = record.getYear();
 
-                teamperformance.setIndicatortype(CHString.IndicatorFundOther);
-                teamperformanceMapper.updatePerTeamperformanceDeleted(teamperformance);
-
-                // 计算某个团队某年的总到账经费(国家项目)
-                PerFund fundreport = new PerFund();
-                fundreport.setTeamid(team.getTeamid());
-                fundreport.setYear(record.getYear());
-
-                java.math.BigDecimal totalNational = fundMapper.selectCaculateTotalNationalByTeamidYear(record);
-                addFundRecord(1, totalNational, CHString.IndicatorFundNational, team.getTeamid(), record.getYear());
-
-                //计算该团队今年的总到账(其它类型项目)
-
-                java.math.BigDecimal total_Other = fundMapper.selectCaculateTotalOtherByTeamidYear(record);
-                addFundRecord(4, total_Other, CHString.IndicatorFundOther, team.getTeamid(), record.getYear());
+                addFundRecordByTeamidYear(teamid, year);
             }
 
         }

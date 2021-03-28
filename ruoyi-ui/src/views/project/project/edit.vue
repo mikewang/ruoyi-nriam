@@ -43,15 +43,7 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目所属部门" prop="organizationid">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.organizationIDLinkText" placeholder="请选择项目所属部门" style="display:block;"
-                           clearable @clear="clearDeptValue" @change="changeDeptValue"
-                           filterable :filter-method="filterDeptOptions" :show-overflow-tooltip="true">
-                  <el-option
-                    v-for="item in deptOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+                <dept-data :key="timer" v-bind:readonly="readonly.basic" :selected-dept-id="form.organizationid" @changeDeptId="changeFormDeptId"></dept-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -71,42 +63,18 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目类型" prop="projecttype">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.projectTypeLinkText" placeholder="请选择项目类型" style="display:block;"
-                           clearable @clear="clearProjectTypeValue" @change="changeProjectTypeValue"
-                           filterable :filter-method="filterProjectTypeOptions">
-                  <el-option
-                    v-for="item in projectTypeOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+                <dict-data v-bind:readonly="readonly.basic" :dict-type-name="DictTypeNameProjectType" :selected-dict-value="form.projecttype" @changeDictValue="changeFormProjectTypeValue"></dict-data>
               </el-form-item>
             </el-col>
 
             <el-col :span="8">
               <el-form-item label="项目所属团队" prop="teamid">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.teamname" placeholder="请选择项目所属团队" style="display:block;"
-                           clearable @clear="clearTeamValue" @change="changeTeamValue"
-                           filterable :filter-method="filterTeamOptions">
-                  <el-option
-                    v-for="item in teamOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+                <team-data  v-bind:readonly="readonly.basic"  :selected-team-id="form.teamid" @changeTeamId="changeFormTeamValue"></team-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目负责人" prop="projectmanagerid">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.projectmanagerid" placeholder="请选择项目负责人" style="display:block;"
-                           clearable @clear="clearManagerValue" @change="changeManagerValue"
-                           filterable :filter-method="filterManagerOptions">
-                  <el-option
-                    v-for="item in userOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+                <user-data v-bind:readonly="readonly.basic"  :selected-user-id="form.projectmanagerid" @changeUserData="changeFormManagerValue" ></user-data>
               </el-form-item>
             </el-col>
 
@@ -114,16 +82,9 @@
 
           <el-row>
             <el-col :span="8">
-              <el-form-item label="主持/参与" prop="jointype">
 
-                <el-select v-bind:readonly="readonly.basic" v-model="form.jointype" placeholder="请选择" style="display:block;" clearable
-                           @clear="clearJointypeValue" @change="changeJointypeValue">
-                  <el-option
-                    v-for="item in jointypeOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"/>
-                </el-select>
+              <el-form-item label="主持/参与" prop="jointype">
+                <dict-data v-bind:readonly="readonly.basic" :dict-type-name="DictTypeNameJoinType" :selected-dict-value="form.jointype" @changeDictValue="changeJoinTypeValue"></dict-data>
               </el-form-item>
             </el-col>
             <el-col :span="16">
@@ -247,13 +208,14 @@
 
             <el-col :span="16">
               <el-form-item label="项目申报书" prop="basicfileList1">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload1" :before-remove="beforeRemove1"
-                           :on-remove="handleUploadRemove1" :on-preview="handleReview"
-                           :file-list="basicfileList1" :before-upload="beforeUpload1"
-                           >
-                  <el-button size="small" v-if="readonly.basic == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
+                <project-doc :doc-list="basicdocList1" :editable="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+<!--                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload1" :before-remove="beforeRemove1"-->
+<!--                           :on-remove="handleUploadRemove1" :on-preview="handleReview"-->
+<!--                           :file-list="basicfileList1" :before-upload="beforeUpload1"-->
+<!--                           >-->
+<!--                  <el-button size="small" v-if="readonly.basic == false" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon&#45;&#45;right"></i>-->
+<!--                  </el-button>-->
+<!--                </el-upload>-->
               </el-form-item>
             </el-col>
           </el-row>
@@ -261,13 +223,14 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="项目合同" prop="basicfileList2">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload2" :before-remove="beforeRemove2"
-                           :on-remove="handleUploadRemove2" :on-preview="handleReview"
-                           :file-list="basicfileList2" :before-upload="beforeUpload2"
-                           >
-                  <el-button v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
+                <project-doc :doc-list="basicdocList2" :editable="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+<!--                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload2" :before-remove="beforeRemove2"-->
+<!--                           :on-remove="handleUploadRemove2" :on-preview="handleReview"-->
+<!--                           :file-list="basicfileList2" :before-upload="beforeUpload2"-->
+<!--                           >-->
+<!--                  <el-button v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']" :key="timer">上传文件<i class="el-icon-upload el-icon&#45;&#45;right"></i>-->
+<!--                  </el-button>-->
+<!--                </el-upload>-->
               </el-form-item>
             </el-col>
 
@@ -276,13 +239,14 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="实施方案" prop="basicfileList3">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload3" :before-remove="beforeRemove3"
-                           :on-remove="handleUploadRemove3" :on-preview="handleReview"
-                           :file-list="basicfileList3" :before-upload="beforeUpload3"
-                           >
-                  <el-button  v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
+                <project-doc :doc-list="basicdocList3" :editable="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+<!--                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload3" :before-remove="beforeRemove3"-->
+<!--                           :on-remove="handleUploadRemove3" :on-preview="handleReview"-->
+<!--                           :file-list="basicfileList3" :before-upload="beforeUpload3"-->
+<!--                           >-->
+<!--                  <el-button  v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i class="el-icon-upload el-icon&#45;&#45;right"></i>-->
+<!--                  </el-button>-->
+<!--                </el-upload>-->
               </el-form-item>
             </el-col>
           </el-row>
@@ -586,9 +550,16 @@ import {
 import {beforeUpload, requestUpload, beforeRemove, handleUploadRemove, handleUploadReview} from "@/api/project/projectdoc";
 
 import {isNumber} from "@/utils/validate.js";
+import TeamData from "@/views/public/team-data";
+import DeptData from "@/views/public/dept-data";
+import DictData from "@/views/public/dict-data";
+import UserData from "@/views/public/user-data";
+import BasDoc from "@/views/public/bas-doc";
+import ProjectDoc from "@/views/public/project-doc";
 
 export default {
   name: "EditInfo",
+  components: {ProjectDoc, UserData, "dept-data":DeptData ,"team-data": TeamData,"dict-data": DictData},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -608,18 +579,9 @@ export default {
       // 是否显示弹出层
       open: false,
       // 数据字典
-      projectTypeOptions: [],
-      projectTypeList: [],
+      DictTypeNameProjectType: "项目类型",
       // 数据字典
-      teamOptions: [],
-      teamList: [],
-
-      // 数据字典
-      deptOptions: [],
-      deptList: [],
-
-      userOptions: [],
-      userList: [],
+      DictTypeNameJoinType: "主持参与",
 
       jointypeOptions: [{value: 1, label: "主持"}, {value: 2, label: "参与"}],
 
@@ -627,6 +589,10 @@ export default {
       projectmemberOptions: [],
 
       ProjectStatus: {XinJianZhong: 48, DaiQueRen: 40,BuTongGuo:44, ZaiYan: 41, JieTiDaiQueRen: 45,JietiBuTongGuo:46, YiJieTi: 42, YiShanChu: 43},
+
+      basicdocList1: [],
+      basicdocList2: [],
+      basicdocList3: [],
 
       basicfileList1: [],
       basicfileList2: [],
@@ -759,7 +725,7 @@ export default {
         this.loading = false;
       } else {
         getProject(projectid.toString()).then(response => {
-          console.log("this.form is ", response.data);
+          console.log("getProject this.form is ", response.data);
 
           const data = response.data;
 
@@ -831,12 +797,21 @@ export default {
                   let rows = response.data;
                   console.log("listProjectdoc is ", rows);
                   this.form.projectdocList = rows;
-                  this.basicfileList1 = this.filterProjectdoc("项目申报书");
-                  console.log("项目申报书 is ", this.basicfileList1);
-                  this.basicfileList2 = this.filterProjectdoc("项目合同");
-                  console.log("项目合同 is ", this.basicfileList2);
-                  this.basicfileList3 = this.filterProjectdoc("实施方案");
-                  console.log("实施方案 is ", this.basicfileList3);
+
+                  this.basicdocList1 = this.form.projectdocList.filter(function (item) {
+                    return  item.doctype === "项目申报书"
+                  });
+
+                  this_.timer = Date.now().toString();
+
+                  this.basicdocList2 = this.form.projectdocList.filter(function (item) {
+                    return  item.doctype === "项目合同"
+                  });
+
+                  this.basicdocList3 = this.form.projectdocList.filter(function (item) {
+                    return  item.doctype === "实施方案"
+                  });
+
                   this.basicfileList4 = this.filterProjectdoc("项目批复文件");
                   console.log("项目批复文件 is ", this.basicfileList4);
 
@@ -862,70 +837,28 @@ export default {
                   console.log("成果照片视频 is ", this.acceptfileList10);
                 });
 
+                this.timer = Date.now().toString();
                 this.loading = false;
               });
 
             });
 
           });
-
-
         });
       }
 
-
-      listData({"dictType": "项目类型"}).then(response => {
-        console.log(response);
-
-        var listOptions = [];
-        response.rows.sort(function (a, b) {
-          return a.dictValue < b.dictValue
-        }).forEach(function (item) {
-          const projecttype = {value: item.dictLabel, id: item.dictValue};
-          listOptions.push(projecttype);
+      const listOptions = [];
+      listUser().then(response => {
+        console.log("listUser is ", response);
+        response.rows.forEach(function (item) {
+          //console.log("item is ", item);
+          const user = {value: item.realName, id: item.userId, hotKey: item.hotKey};
+          //console.log(user);
+          listOptions.push(user);
         });
-
-        this.projectTypeList = listOptions;
-        this.projectTypeOptions = listOptions;
-
-        listOptions = [];
-
-        listDept().then(response => {
-          console.log(response);
-
-          response.data.forEach(function (item) {
-            const dept = {value: item.deptName, id: item.deptId};
-            listOptions.push(dept);
-          });
-          this.deptList = listOptions;
-          this.deptOptions = listOptions;
-
-          listOptions = [];
-          listTeam().then(response => {
-            console.log(response);
-            response.rows.forEach(function (item) {
-              const team = {value: item.teamname, id: item.teamid};
-              listOptions.push(team);
-            });
-            this.teamList = listOptions;
-            this.teamOptions = listOptions;
-
-            listOptions = [];
-            listUser().then(response => {
-              console.log("listUser is ", response);
-              response.rows.forEach(function (item) {
-                //console.log("item is ", item);
-                const user = {value: item.realName, id: item.userId, hotKey: item.hotKey};
-                //console.log(user);
-                listOptions.push(user);
-              });
-              this.userList = listOptions;
-              this.userOptions = listOptions;
-            });
-          });
-        });
+        this.userList = listOptions;
+        this.userOptions = listOptions;
       });
-
     },
 
     resetTemplateStatus() {
@@ -1109,151 +1042,56 @@ export default {
     },
 
 
-    clearDeptValue() {
+    // 组件方法
+    changeFormDeptId(dept) {
+      this.form.organizationid = dept.deptId;
 
     },
-    changeDeptValue(value) {
-      if (value) {
-        this.form.organizationid = value;
-      } else {
-        this.form.organizationid = undefined;
-      }
-    },
 
-    filterDeptOptions(v) {
-      console.log("filter value is " + v);
-      if (v) {
-        this.deptOptions = this.deptList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.deptOptions = this.deptList;
-      }
-    },
 
-    clearProjectTypeValue() {
-      this.form.projecttype = undefined;
-      this.form.projectTypeLinkText = undefined;
-    },
-
-    changeProjectTypeValue(value) {
+    changeFormProjectTypeValue(value) {
 
       if (value) {
-        this.form.projecttype = value;
+        this.form.projecttype = value.id.toString();
       } else {
         this.form.projecttype = undefined;
       }
 
     },
 
-    filterProjectTypeOptions(v) {
-
-      console.log("filter value is " + v);
-
-      if (v) {
-        this.projectTypeOptions = this.projectTypeList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.projectTypeOptions = this.projectTypeList;
-      }
-    },
-
-    clearTeamValue() {
-
-
-    },
-
-    changeTeamValue(value) {
+    changeFormTeamValue(value) {
 
       if (value) {
 
-        this.form.teamid = value;
+        this.form.teamid = value.id;
       } else {
         this.form.teamid = undefined;
       }
     },
 
-    filterTeamOptions(v) {
-
-      console.log("filter value is " + v);
-
-      if (v) {
-        this.teamOptions = this.teamList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.teamOptions = this.teamList;
-      }
-    },
-
-    clearManagerValue() {
-
-
-    },
-
-    changeManagerValue(value) {
+    changeFormManagerValue(value) {
 
       if (value) {
 
-        this.form.projectmanagerid = value;
+        this.form.projectmanagerid = value.userId;
       } else {
         this.form.projectmanagerid = undefined;
       }
 
     },
 
-    filterManagerOptions(v) {
 
-      console.log("filterManagerOptions value is " + v);
-
-      if (v) {
-        this.userOptions = this.userList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          const py = item.hotKey;
-          let hh = -1;
-          if (py !== undefined && py !== null) {
-            hh = py.indexOf(val);
-          }
-
-          if (item.value.indexOf(val) !== -1 || hh !== -1) return true
-
-        });
-      } else {
-        this.userOptions = this.userList;
-      }
-    },
-
-    clearJointypeValue() {
-      console.log("clear jointype");
-    },
-
-    changeJointypeValue(value) {
+    changeJoinTypeValue(value) {
 
       if (value) {
-        this.form.jointype = value;
+        this.form.jointype = value.id;
       } else {
         this.form.jointype = undefined;
       }
 
     },
 
-    filterJointypeValue() {
-      console.log("filter jointype");
-    },
+
 
     createFilter(v) {
       return (item) => {
@@ -1349,6 +1187,14 @@ export default {
     },
 
 
+    changeBasicDocList(fileList) {
+
+      console.log("fileList is ", fileList);
+
+    },
+
+
+
     filterProjectdoc(doctype) {
       const doclist = [];
 
@@ -1367,7 +1213,7 @@ export default {
     /* 项目申报书 */
     beforeUpload1(file) {
 
-      return beforeUpload(file, this.basicfileList2, "项目申报书");
+      return beforeUpload(file, this.basicfileList1, "项目申报书");
 
     },
 

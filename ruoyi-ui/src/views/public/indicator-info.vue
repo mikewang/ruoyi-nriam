@@ -180,7 +180,6 @@ export default {
         this.hidden.score = false;
         this.hidden.level2id = false;
         this.hidden.level1id = false;
-
       }
 
       this.indicatorTypeOptions =[];
@@ -230,9 +229,7 @@ export default {
                   this_.indicatorLevel2Options.push({id:level2.id, value:level2.label});
                 });
               }
-
             });
-
           }
         }
 
@@ -302,8 +299,6 @@ export default {
         this.form.indicatorlevel = value;
 
         this.configTemplate(this.form.indicatorlevel);
-
-
       } else {
 
       }

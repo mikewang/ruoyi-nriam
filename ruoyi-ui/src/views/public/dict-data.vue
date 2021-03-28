@@ -40,13 +40,13 @@ export default {
     /** 查询列表 */
     getList() {
       this.loading = true;
-      console.log("加载 " + this.dictType + " 组件 " + this.selectedPrizeLevel);
+      console.log("加载 " + this.dictType + " 组件 " + this.selectedDictValue);
 
       listData({"dictType": this.dictType}).then(response => {
         console.log("获取字典数据:" + this.dictType, response.rows);
         const listOptions = [];
         response.rows.sort(function (a, b) {
-          return a.dictValue - b.dictValue
+          return a.dictLabel.charCodeAt(0) - b.dictLabel.charCodeAt(0)
         }).forEach(function (item) {
           const adict = {value: item.dictLabel, id: item.dictValue};
           listOptions.push(adict);
