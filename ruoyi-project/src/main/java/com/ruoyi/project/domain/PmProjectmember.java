@@ -6,7 +6,7 @@ public class PmProjectmember extends BaseEntity {
 
     private Integer projectid;
 
-    private Integer userid;
+    private Integer userId;
 
     private String realName;
 
@@ -26,11 +26,11 @@ public class PmProjectmember extends BaseEntity {
         this.projectid = projectid;
     }
 
-    public Integer getUserid() {
-        return userid;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUserid(Integer userid) {
-        this.userid = userid;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

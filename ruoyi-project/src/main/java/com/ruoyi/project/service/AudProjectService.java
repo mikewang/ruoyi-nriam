@@ -4,6 +4,7 @@ import com.ruoyi.audit.domain.AudApply;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudApplyMapper;
 import com.ruoyi.audit.mapper.AudMessageMapper;
+import com.ruoyi.common.constant.MID;
 import com.ruoyi.common.enums.AchieveStatus;
 import com.ruoyi.common.enums.AchieveType;
 import com.ruoyi.common.enums.ProjectColor;
@@ -57,48 +58,49 @@ public class AudProjectService {
 
         List<AudProject> projectList = audProjectMapper.selectAudProjectList(statusProject);
 
-        for (AudProject prj : projectList) {
-
-            List<Integer> list = new ArrayList<>();
-            list.add(ProjectStatus.DaiQueRen.getCode());
-            list.add(ProjectStatus.JieTiDaiQueRen.getCode());
-            list.add(ProjectStatus.XinJianZhong.getCode());
-            List<Integer> list2 = new ArrayList<>();
-            list2.add(ProjectStatus.BuTongGuo.getCode());
-            list2.add(ProjectStatus.JietiBuTongGuo.getCode());
-
-            if (list.contains(prj.toString()) || list2.contains(prj.toString())) {
-
-                if (list.contains(prj.getStatus())) {
-                    prj.setProjectColor(ProjectColor.Red.getCode());
-                }
-
-                if (list2.contains(prj.getStatus())) {
-                    prj.setProjectColor(ProjectColor.Green.getCode());
-                }
-
-                log.debug("prj.getProjectenddate() is " + prj.getProjectenddate());
-                java.util.Date ended = DateUtils.getNowDate();
-
-                try {
-                    ended = DateUtils.parseDate(prj.getProjectenddate());
-                } catch (Exception e) {
-
-                }
-
-                long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
-
-                if (days < 90) {
-                    prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate() + "(剩余 " + String.valueOf(days) + "天)");
-                    prj.setProjectColor(ProjectColor.Red.getCode());
-                } else {
-                    prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
-                }
-            } else {
-                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
-            }
-
-        }
+//        for (AudProject prj : projectList) {
+//
+//            List<Integer> list = new ArrayList<>();
+//            list.add(ProjectStatus.DaiQueRen.getCode());
+//            list.add(ProjectStatus.JieTiDaiQueRen.getCode());
+//            list.add(ProjectStatus.XinJianZhong.getCode());
+//
+//            List<Integer> list2 = new ArrayList<>();
+//            list2.add(ProjectStatus.BuTongGuo.getCode());
+//            list2.add(ProjectStatus.JietiBuTongGuo.getCode());
+//
+//            if (list.contains(prj.toString()) || list2.contains(prj.toString())) {
+//
+//                if (list.contains(prj.getStatus())) {
+//                    prj.setProjectColor(ProjectColor.Red.getCode());
+//                }
+//
+//                if (list2.contains(prj.getStatus())) {
+//                    prj.setProjectColor(ProjectColor.Green.getCode());
+//                }
+//
+//                log.debug("prj.getProjectenddate() is " + prj.getProjectenddate());
+//                java.util.Date ended = DateUtils.getNowDate();
+//
+//                try {
+//                    ended = DateUtils.parseDate(prj.getProjectenddate());
+//                } catch (Exception e) {
+//
+//                }
+//
+//                long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
+//
+//                if (days < 90) {
+//                    prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate() + "(剩余 " + String.valueOf(days) + "天)");
+//                    prj.setProjectColor(ProjectColor.Red.getCode());
+//                } else {
+//                    prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
+//                }
+//            } else {
+//                prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
+//            }
+//
+//        }
 
         return projectList;
     }
@@ -281,11 +283,11 @@ public class AudProjectService {
         //同步项目员工
         projectmemberMapper.deleteProjectmemberByProjectId(projectId);
 
-        log.debug("project.getProjectmemberList is " + project.getProjectmemberList().toString());
-        for (Integer s : project.getProjectmemberList()) {
+        log.debug("project.getProjectmemberUserIdList is " + project.getProjectmemberUserIdList().toString());
+        for (Integer s : project.getProjectmemberUserIdList()) {
             PmProjectmember projectmember = new PmProjectmember();
             projectmember.setProjectid(projectId);
-            projectmember.setUserid(s);
+            projectmember.setUserId(s);
             projectmemberMapper.insertProjectmember(projectmember);
         }
 
@@ -311,16 +313,11 @@ public class AudProjectService {
 
     }
 
-    private void sendMessage(String projectname, Integer projectid, String relatedsheettype) {
-        String title = "新的项目信息待审核(Java)";
-        String content = "项目：“" + projectname + "”的信息待审核。";
-        content = content + "<a href=\"/Project/ToConfirmProjectList.aspx?" + "kid=" + projectid.toString() + "&f=todo\" target=\"_self\" >查看</a> ";
-        // 下面写操作代码。
-
-        String perms = "project:toconfirm:list";
+    // 有"项目新建审核"权限的人
+    public Set<Long> getConfirmUserIdList(){
 
         SysUserMenu userMenu = new SysUserMenu();
-        userMenu.setPerms(perms);
+        userMenu.setRoleId(Long.valueOf(MID.ProjectConfirm));
 
         List<SysUserMenu> userMenuList = userMenuMapper.selectUserMenuList(userMenu);
 
@@ -328,6 +325,17 @@ public class AudProjectService {
         for (SysUserMenu um : userMenuList) {
             useridSet.add(um.getUserId());
         }
+        return useridSet;
+    }
+
+    private void sendMessage(String projectname, Integer projectid, String relatedsheettype) {
+        String title = "新的项目信息待审核(Java)";
+        String content = "项目：“" + projectname + "”的信息待审核。";
+        content = content + "<a href=\"/Project/ToConfirmProjectList.aspx?" + "kid=" + projectid.toString() + "&f=todo\" target=\"_self\" >查看</a> ";
+        // 下面写操作代码。
+
+        Set<Long> useridSet = getConfirmUserIdList();
+
         log.debug("send message " + relatedsheettype + " userid is " + useridSet.toString());
 
         for (Long userid : useridSet) {
@@ -359,7 +367,7 @@ public class AudProjectService {
 
             log.debug("projectJoinOrganizationList is " + project.getProjectjoinorganizationlist());
             log.debug("uplevelproject is " + project.getUplevelproject());
-            log.debug("projectmemberList is " + project.getProjectmemberList());
+            log.debug("getProjectmemberUserIdList is " + project.getProjectmemberUserIdList());
             log.debug("projectdocList is " + project.getProjectdocList());
 
             this.updateProjectDetail(project);

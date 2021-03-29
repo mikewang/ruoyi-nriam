@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.project;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
+import com.ruoyi.common.constant.MID;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -12,6 +13,7 @@ import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.enums.ProjectColor;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
@@ -25,6 +27,7 @@ import com.ruoyi.project.domain.AudProject;
 import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.project.domain.PmProjectjoinorganization;
 import com.ruoyi.project.service.*;
+import com.ruoyi.system.domain.SysUserMenu;
 import io.swagger.models.auth.In;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +40,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -67,18 +72,85 @@ public class AudProjectController extends BaseController {
     @Resource
     private BasDocService basDocService;
 
+
+    private Long getCurrentLoginUserId() {
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+
+        userId = 87L; // 测试用户 changchun 。
+        return userId;
+    }
+
     ///Project/ProjectList.aspx 在研项目
     @PreAuthorize("@ss.hasPermi('project:project:list')")
     @GetMapping("/project/list")
     public TableDataInfo zaiyanList(AudProject project) {
-        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-        Long userId = loginUser.getUser().getUserId();
 
         logger.debug("query parameters is " + project.getProjectyear());
 
         startPage();
 
         List<AudProject> list = projectService.selectProjectNewList(project);
+
+        //只对于admin和有"项目新建审核"权限的人显示执行期的提示
+        Set<Long> useridSet = projectService.getConfirmUserIdList();
+
+        logger.debug("getConfirmUserIdList  is " + useridSet.toString());
+
+        for (AudProject record :list) {
+
+            record.setProjectDateRange(record.getProjectbegindate() + "至" + record.getProjectenddate());
+
+            if (useridSet.contains(getCurrentLoginUserId())) {
+
+                java.util.Date ended = DateUtils.getNowDate();
+
+                try {
+                    ended = DateUtils.parseDate(record.getProjectenddate());
+                } catch (Exception e) {
+
+                }
+
+                long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
+
+
+                logger.debug(" days is " + Long.valueOf(days).toString());
+
+                if (days < 0) {
+
+                    record.setProjectDateRange(record.getProjectbegindate() + "至" + record.getProjectenddate() + "(已超 " + String.valueOf(Math.abs(days)) + "天)");
+                    record.setProjectDateRangeColor(ProjectColor.Red.getCode());
+                }
+                else if (days < 90) {
+                    record.setProjectDateRange(record.getProjectbegindate() + "至" + record.getProjectenddate() + "(剩余 " + String.valueOf(days) + "天)");
+                    record.setProjectDateRangeColor(ProjectColor.Red.getCode());
+                }
+                else {
+
+                }
+            }
+
+            List<Integer> statusList = new ArrayList<>();
+            statusList.add(ProjectStatus.DaiQueRen.getCode());
+            statusList.add(ProjectStatus.JieTiDaiQueRen.getCode());
+            statusList.add(ProjectStatus.XinJianZhong.getCode());
+
+            List<Integer> statusList2 = new ArrayList<>();
+            statusList2.add(ProjectStatus.BuTongGuo.getCode());
+            statusList2.add(ProjectStatus.JietiBuTongGuo.getCode());
+
+            if (statusList.contains(record.getStatus()) || statusList2.contains(record.getStatus())) {
+                if (statusList.contains(record.getStatus())) {
+                    record.setProjectColor(ProjectColor.Red.getCode());
+                }
+
+                if (statusList2.contains(record.getStatus())) {
+                    record.setProjectColor(ProjectColor.Green.getCode());
+                }
+            }
+
+        }
+
 
         return getDataTable(list);
     }

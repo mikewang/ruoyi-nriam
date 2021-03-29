@@ -1,6 +1,6 @@
 <template>
-<div>
-  <el-select v-model="filterId" placeholder="请选择" style="display:block;"
+<div >
+  <el-select v-if="readonly===false || readonly === undefined" v-model="filterId" placeholder="请选择" style="display:block;"
              clearable @clear="clearValue" @change="changeValue"
              filterable :filter-method="filterOptions" >
     <el-option
@@ -9,7 +9,9 @@
       :label="item.value"
       :value="item.id"/>
   </el-select>
+  <el-input v-else  v-model="selectedDeptName"  readonly  placeholder="部门名称"></el-input>
 </div>
+
 </template>
 
 <script>
@@ -18,7 +20,7 @@ import {listDept} from "@/api/system/dept";
 export default {
   name: "DeptData",
   components: {},
-  props:['selectedDeptId'],
+  props:['selectedDeptId', 'readonly'],
   data() {
     return {
       // 遮罩层
@@ -27,6 +29,7 @@ export default {
       teamid: undefined,
       // filterId 必须 Integer类型，否则 因为类型不匹配而不显示名称，只显示字符串。
       filterId: this.selectedDeptId === undefined ? undefined : this.selectedDeptId,
+      selectedDeptName:"",
       // 数据源
       options: [],
       list: []
@@ -44,6 +47,7 @@ export default {
     /** 查询列表 */
     getList() {
       this.loading = true;
+
       const dictType = "部门";
       console.log("加载 " + dictType + " 组件 " + this.selectedDeptId);
       listDept().then(response => {
@@ -51,6 +55,15 @@ export default {
         console.log("listDept is ", response.data);
         this.list =  response.data;
         this.filterOptions(null);
+
+        const this_ = this;
+        if (this.selectedDeptId !== undefined && this.selectedDeptId !== '') {
+         let deptList =  this.list.filter(function (item) {
+            return item.deptId === this_.selectedDeptId;
+          });
+          let dept = deptList[0];
+          this_.selectedDeptName = dept.deptName;
+        }
 
         this.loading = false;
       });

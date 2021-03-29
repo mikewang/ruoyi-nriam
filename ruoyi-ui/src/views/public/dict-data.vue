@@ -1,7 +1,6 @@
 <template>
 <div>
-
-  <el-select v-model="filterId" placeholder="请选择" style="display:block;"
+  <el-select v-if="readonly===false || readonly === undefined"  v-model="filterId" placeholder="请选择" style="display:block;"
              clearable @clear="clearValue" @change="changeValue"
              filterable :filter-method="filterOptions" >
     <el-option
@@ -10,6 +9,7 @@
       :label="item.value"
       :value="item.id"/>
   </el-select>
+  <el-input v-else  v-model="filterValue"  readonly  placeholder="dictType"></el-input>
 </div>
 </template>
 
@@ -19,7 +19,7 @@ import {listData} from "@/api/system/dict/data";
 export default {
   name: "DictData",
   components: {},
-  props:['dictTypeName','selectedDictValue'],
+  props:['dictTypeName','selectedDictValue', 'readonly'],
   data() {
     return {
       // 遮罩层
@@ -27,6 +27,7 @@ export default {
       // 传入的参数
       dictType: this.dictTypeName,
       filterId: this.selectedDictValue === undefined ? undefined : this.selectedDictValue.toString(),
+      filterValue:undefined,
       // 数据源
       options: [],
       list: []
@@ -42,6 +43,8 @@ export default {
       this.loading = true;
       console.log("加载 " + this.dictType + " 组件 " + this.selectedDictValue);
 
+      const this_ = this;
+
       listData({"dictType": this.dictType}).then(response => {
         console.log("获取字典数据:" + this.dictType, response.rows);
         const listOptions = [];
@@ -49,14 +52,18 @@ export default {
           return a.dictLabel.charCodeAt(0) - b.dictLabel.charCodeAt(0)
         }).forEach(function (item) {
           const adict = {value: item.dictLabel, id: item.dictValue};
+          // console.log("item.dictValue is ", item.dictValue, "this.filterId is ", this_.filterId);
+          if (item.dictValue === this_.filterId) {
+            this_.filterValue = item.dictLabel;
+          }
           listOptions.push(adict);
         });
+
         this.list = listOptions;
         this.options = listOptions;
 
         this.loading = false;
       });
-
     },
 
     clearValue() {

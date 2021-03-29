@@ -9,6 +9,7 @@ public class MID
 {
 
     public static final String   ScoreApplyAudit="70" ;
+    public static final String   ProjectConfirm="41" ;
 
 
 }

@@ -69,7 +69,7 @@ public class AudProject extends BaseEntity {
 
     private List<PmProjectjoinorganization> projectjoinorganizationlist;
     private PmUplevelproject uplevelproject;
-    private List<Integer> projectmemberList;
+    private List<Integer> projectmemberUserIdList;
     private List<AudProjectdoc> projectdocList;
 
     //忘记这个 list 是做什么用的了。哦。项目的各种状态过滤用的，也是附加操作的属性，
@@ -80,6 +80,8 @@ public class AudProject extends BaseEntity {
     private String projectyear;
 
     private String projectDateRange;
+
+    private Integer projectDateRangeColor;
 
     private Integer projectColor = ProjectColor.Default.getCode();
 
@@ -327,12 +329,12 @@ public class AudProject extends BaseEntity {
         this.uplevelproject = uplevelproject;
     }
 
-    public List<Integer> getProjectmemberList() {
-        return projectmemberList;
+    public List<Integer> getProjectmemberUserIdList() {
+        return projectmemberUserIdList;
     }
 
-    public void setProjectmemberList(List<Integer> projectmemberList) {
-        this.projectmemberList = projectmemberList;
+    public void setProjectmemberUserIdList(List<Integer> projectmemberUserIdList) {
+        this.projectmemberUserIdList = projectmemberUserIdList;
     }
 
     public List<AudProjectdoc> getProjectdocList() {
@@ -371,6 +373,14 @@ public class AudProject extends BaseEntity {
 
     public void setProjectDateRange(String projectDateRange) {
         this.projectDateRange = projectDateRange;
+    }
+
+    public Integer getProjectDateRangeColor() {
+        return projectDateRangeColor;
+    }
+
+    public void setProjectDateRangeColor(Integer projectDateRangeColor) {
+        this.projectDateRangeColor = projectDateRangeColor;
     }
 
     public Integer getProjectColor() {
@@ -453,11 +463,12 @@ public class AudProject extends BaseEntity {
                 ", createuseridlinktext='" + createuseridlinktext + '\'' +
                 ", projectjoinorganizationlist=" + projectjoinorganizationlist +
                 ", uplevelproject=" + uplevelproject +
-                ", projectmemberList=" + projectmemberList +
+                ", projectmemberUserIdList=" + projectmemberUserIdList +
                 ", projectdocList=" + projectdocList +
                 ", statusList=" + statusList +
                 ", projectyear='" + projectyear + '\'' +
                 ", projectDateRange='" + projectDateRange + '\'' +
+                ", projectDateRangeColor=" + projectDateRangeColor +
                 ", projectColor=" + projectColor +
                 ", operateCode=" + operateCode +
                 ", confirmSubjectcode='" + confirmSubjectcode + '\'' +

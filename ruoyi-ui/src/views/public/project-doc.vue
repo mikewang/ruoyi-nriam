@@ -3,19 +3,19 @@
   <el-upload action="#" :http-request="requestUpload" :before-remove="beforeRemove"
              :on-remove="handleOnRemove" :on-preview="handleOnPreview"
              :file-list="fileList" :before-upload="beforeUpload">
-    <el-button v-if="this.editable" size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
+    <el-button v-if="readonly === false" size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
   </el-upload>
 
 </div>
 </template>
 
 <script>
-import {listBasDoc, downloadBasDoc, uploadBasDoc} from "@/api/public/basdoc";
+import {downloadBasDoc, uploadBasDoc} from "@/api/public/basdoc";
 
 export default {
   name: "ProjectDoc",
   components: {},
-  props:['docList','editable'],
+  props:['docType', 'docList','readonly'],
   data() {
     return {
 // 遮罩层
@@ -37,8 +37,9 @@ export default {
       this.fileList = [];
       for (let i = 0; i < this.docList.length; i++) {
         let item = this.docList[i];
-        this.fileList.push({"name": item.docname, "url": item.docid});
+        this.fileList.push({name:item.docname, url:item.docid});
       }
+      this.$emit('changeFileList',this.fileList, this.docType, undefined,undefined);
     },
 
 // 上传。
@@ -51,9 +52,11 @@ export default {
       uploadBasDoc(1, formData).then(response => {
         console.log("response.name is ", response.name);
         console.log("response.url is ", response.url);
-        this.fileList.push({name: response.name, url: response.url});
 
-        this.$emit('changeFileList',this.fileList);
+        this.fileList.push({name:response.name, url:response.url});
+
+        this.$emit('changeFileList',this.fileList, this.docType,"add",response.url);
+
 
       });
 
@@ -61,7 +64,7 @@ export default {
     },
 
     beforeRemove(file) {
-      if (this.editable) {
+      if (this.readonly === false) {
         return this.$confirm(`确定移除 ${ file.name }？`);
       }
       else {
@@ -74,23 +77,33 @@ export default {
       let index = this.fileList.indexOf(file);
       if (index !== -1) {
         this.fileList.splice(index, 1);
-        this.$emit('changeFileList',this.fileList);
+        this.$emit('changeFileList',this.fileList, this.docType,"remove",file.url);
       }
 
     },
 
     handleOnPreview(file) {
+      const this_ = this;
       this.$confirm('是否确认下载"' + file.name + '"的文件?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
+        downloadBasDoc({file: file.url}).then((response) => {
+          this_.msgSuccess("下载开始");
+          var fileURL = window.URL.createObjectURL(new Blob([response]));
+          var fileLink = document.createElement('a');
 
-        downloadBasDoc({file: file.url});
+          console.log("response.data is ", response);
 
-      }).then(() => {
-        this.msgSuccess("下载开始");
-      })
+          fileLink.href = fileURL;
+          fileLink.setAttribute('download', file.name);
+          document.body.appendChild(fileLink);
+
+          fileLink.click();
+          URL.revokeObjectURL(fileURL);
+        }).catch(console.error);
+      });
     },
 
     beforeUpload(file) {

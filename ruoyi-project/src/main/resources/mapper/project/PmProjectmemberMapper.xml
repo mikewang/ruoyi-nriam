@@ -3,7 +3,7 @@
 <mapper namespace="com.ruoyi.project.mapper.PmProjectmemberMapper">
   <resultMap id="BaseResultMap" type="com.ruoyi.project.domain.PmProjectmember">
     <result column="ProjectID" jdbcType="INTEGER" property="projectid" />
-    <result column="UserID" jdbcType="INTEGER" property="userid" />
+    <result column="UserID" jdbcType="INTEGER" property="userId" />
     <result column="real_Name" jdbcType="VARCHAR" property="realName" />
   </resultMap>
 
@@ -20,7 +20,7 @@
   <insert id="insertProjectmember" parameterType="com.ruoyi.project.domain.PmProjectmember">
 
     insert into PM_ProjectMember (ProjectID, UserID)
-    values (#{projectid,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER})
+    values (#{projectid,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER})
   </insert>
 
 

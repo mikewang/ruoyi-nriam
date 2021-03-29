@@ -1,6 +1,6 @@
 <template>
 <div>
-  <el-select v-model="filterId" placeholder="请选择" style="display:block;"
+  <el-select  v-if="readonly===false || readonly === undefined"  v-model="filterId" placeholder="请选择" style="display:block;"
              clearable @clear="clearValue" @change="changeValue"
              filterable :filter-method="filterOptions" >
     <el-option
@@ -9,6 +9,7 @@
       :label="item.value"
       :value="item.id"/>
   </el-select>
+  <el-input v-else  v-model="selectedTeamName"  readonly  placeholder=""></el-input>
 </div>
 </template>
 
@@ -18,7 +19,7 @@ import {listTeam, getJoinTeamlist} from "@/api/project/team";
 export default {
   name: "TeamData",
   components: {},
-  props:['selectedTeamId', 'joinTeamUserId'],
+  props:['selectedTeamId', 'joinTeamUserId', 'readonly'],
   data() {
     return {
       // 遮罩层
@@ -27,6 +28,7 @@ export default {
       teamid: undefined,
       // filterId 必须 Integer类型，否则 因为类型不匹配而不显示名称，只显示字符串。
       filterId: this.selectedTeamId === undefined ? undefined : this.selectedTeamId,
+      selectedTeamName: undefined,
       // 数据源
       options: [],
       list: []
@@ -63,8 +65,13 @@ export default {
           //   console.log(item.teamid, item.teamname);
           // });
 
+          const this_ = this;
+
           rows.forEach(function (item) {
             const team = {value: item.teamname, id: item.teamid};
+            if (this_.filterId === item.teamid) {
+              this_.selectedTeamName = item.teamname;
+            }
             listOptions.push(team);
           });
           this.list = listOptions;

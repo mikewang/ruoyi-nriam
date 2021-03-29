@@ -174,7 +174,7 @@ public class BasDocController extends BaseController {
 
             String resource = doc.getRelativepath() + "/" + doc.getDocname();
 
-            logger.debug("resource is " + resource);
+            logger.debug("download resource is " + resource);
 
             if (!FileUtils.checkAllowDownload(resource))
             {

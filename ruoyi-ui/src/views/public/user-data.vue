@@ -1,6 +1,6 @@
 <template>
 <div>
-  <el-select v-model="filterUserId" placeholder="" style="display:block;"
+  <el-select  v-if="readonly===false || readonly === undefined"  v-model="filterUserId" placeholder="" style="display:block;"
              clearable @clear="clearUserDataValue" @change="changeUserDataValue"
              filterable :filter-method="filterUserDataOptions" >
     <el-option
@@ -9,6 +9,8 @@
       :label="item.value"
       :value="item.id"/>
   </el-select>
+
+  <el-input v-else  v-model="selectedRealName"  readonly  placeholder=""></el-input>
 </div>
 </template>
 
@@ -18,7 +20,7 @@ import {listUser} from "@/api/system/user";
 export default {
   name: "UserData",
   components: {},
-  props:['selectedUserId'],
+  props:['selectedUserId','readonly'],
   data() {
     return {
       // 遮罩层
@@ -26,6 +28,8 @@ export default {
       // 传入的参数
       // filterId 必须 Integer类型，否则 因为类型不匹配而不显示名称，只显示字符串。
       filterUserId: this.selectedUserId === undefined ? undefined : this.selectedUserId,
+      selectedRealName: undefined,
+
       // 数据源
       userDataOptions: [],
       userDataList: []
@@ -105,11 +109,18 @@ export default {
 
       }
 
+      const this_ = this;
+
       const listOptions = [];
       rows.sort(function (a, b) {
         return b.realName.charCodeAt(0) - a.realName.charCodeAt(0)
       }).forEach(function (item) {
         const adict = {value: item.realName, id: item.userId};
+
+        if (this_.selectedUserId === item.userId) {
+          this_.selectedRealName = item.realName;
+        }
+
         listOptions.push(adict);
       });
 

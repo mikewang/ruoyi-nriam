@@ -17,8 +17,8 @@ public class PMProjectMemberService {
     private PmProjectmemberMapper mapper;
 
 
-    public List<PmProjectmember> selectProjectmemberByProjectid(Integer projectId)
+    public List<PmProjectmember> selectProjectmemberByProjectid(Integer projectid)
     {
-        return mapper.selectProjectmemberByProjectid(projectId);
+        return mapper.selectProjectmemberByProjectid(projectid);
     }
 }

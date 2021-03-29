@@ -38,20 +38,11 @@
             icon="el-icon-plus"
             size="mini"
             @click="handleAdd"
-            v-hasPermi="['project:project:add']"
+            v-hasPermi="['project:project:list']"
           >新增
           </el-button>
         </el-col>
-        <el-col :span="1.5" v-if="1==0">
-          <el-button
-            type="warning"
-            icon="el-icon-download"
-            size="mini"
-            @click="handleExport"
-            v-hasPermi="['project:project:export']"
-          >导出
-          </el-button>
-        </el-col>
+
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
@@ -66,7 +57,15 @@
         </el-table-column>
 
         <el-table-column label="项目编号" align="center" prop="projectcode" width="120"/>
-        <el-table-column label="项目起止日期" align="center" prop="projectDateRange" width="250"/>
+        <el-table-column label="项目起止日期" align="center" prop="projectDateRange" width="250">
+          <template slot-scope="scope">
+            <span v-if="scope.row.projectDateRangeColor === -1" style="color:red"
+                  :key="Math.random()">{{ scope.row.projectDateRange }}</span>
+            <span v-else-if="scope.row.projectDateRangeColor === 1" style="color:green"
+                  :key="Math.random()">{{ scope.row.projectDateRange }}</span>
+            <span v-else :key="Math.random()">{{ scope.row.projectDateRange }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="项目类型" align="center" prop="projecttypelinktext" width="300"/>
         <el-table-column label="负责人" align="center" prop="projectmanageridlinktext" width="100"/>
         <el-table-column label="项目状态" align="center" prop="statuslinktext" width="100">
@@ -90,7 +89,7 @@
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
-              v-hasPermi="['project:project:query']"
+              v-hasPermi="['project:project:list']"
             >查看
             </el-button>
             <el-button
@@ -98,8 +97,8 @@
               type="text"
               icon="el-icon-check"
               @click="handleToAccept(scope.row)"
-              v-hasPermi="['project:project:edit']"
-              v-if="scope.row.toAcceptBtnHidden === false"
+              v-hasPermi="['project:project:list']"
+              v-if="!scope.row.FinishBtnHidden"
             >申请验收
             </el-button>
           </template>
@@ -120,9 +119,7 @@
 
 <script>
 import {listProject} from "@/api/project/project";
-import {listTeam} from "@/api/project/team";
 import TeamData from "@/views/public/team-data";
-
 
 export default {
   name: "project_zaiyan_index",
@@ -148,7 +145,7 @@ export default {
       // 是否显示弹出层
       open: false,
       // 数据字典
-      teamListOptions: [],
+
       ProjectStatus: {
         XinJianZhong: 48,
         DaiQueRen: 40,
@@ -179,18 +176,10 @@ export default {
   },
   watch: {
 
-    form() {
-
-    }
 
   },
   created() {
     this.getList();
-    listTeam().then(response => {
-      console.log(response);
-      this.teamListOptions = response.rows;
-
-    });
   },
   methods: {
     /** 查询用户列表 */
@@ -199,19 +188,18 @@ export default {
       listProject(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
 
           let currentUserId = this.$store.getters.userId;
+
           for (let i = 0; i < response.rows.length; i++) {
             let project = response.rows[i];
             if (project.projectmanagerid === currentUserId || project.createuserid === currentUserId || project.createuserid === 2) {
               if (project.status == this.ProjectStatus.ZaiYan) {
-                project.toAcceptBtnHidden = false;
+                project.FinishBtnHidden = false;
               } else {
-                project.toAcceptBtnHidden = true;
+                project.FinishBtnHidden = true;
               }
             } else {
-              project.toAcceptBtnHidden = true;
+              project.FinishBtnHidden = true;
             }
-
-            //  console.log("project projectmanagerid is ", project.projectmanagerid, "createuserid is", project.createuserid);
           }
           this.projectList = response.rows;
           console.log(this.projectList);
@@ -265,20 +253,6 @@ export default {
       const projectid = row.projectid
       console.log("toaccept project id is ", projectid);
       this.$router.push({path: '/project/toaccept/' + projectid});
-    },
-
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有项目的数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        // return exportUser(queryParams);
-      }).then(response => {
-        // this.download(response.msg);
-      });
     },
 
     // 组件方法

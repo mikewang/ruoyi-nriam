@@ -103,10 +103,21 @@ export default {
         type: "warning"
       }).then(function () {
 
-        downloadBasDoc({file: file.url});
+        downloadBasDoc({file: file.url}).then((response) => {
+          this_.msgSuccess("下载开始");
+          var fileURL = window.URL.createObjectURL(new Blob([response]));
+          var fileLink = document.createElement('a');
 
-      }).then(() => {
-        this.msgSuccess("下载开始");
+          console.log("response.data is ", response);
+
+          fileLink.href = fileURL;
+          fileLink.setAttribute('download', file.name);
+          document.body.appendChild(fileLink);
+
+          fileLink.click();
+          URL.revokeObjectURL(fileURL);
+        }).catch(console.error);
+
       })
     },
 
