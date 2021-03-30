@@ -36,7 +36,7 @@ public class AchPatent extends BaseEntity {
     private Integer status;
 
     private String projectidlinktext;
-    private String teamname;
+    private String teamidlinktext;
 
     private String createuseridlinktext;
     private String statuslinktext;
@@ -182,12 +182,12 @@ public class AchPatent extends BaseEntity {
         this.projectidlinktext = projectidlinktext;
     }
 
-    public String getTeamname() {
-        return teamname;
+    public String getTeamidlinktext() {
+        return teamidlinktext;
     }
 
-    public void setTeamname(String teamname) {
-        this.teamname = teamname;
+    public void setTeamidlinktext(String teamidlinktext) {
+        this.teamidlinktext = teamidlinktext;
     }
 
     public String getCreateuseridlinktext() {
@@ -312,12 +312,20 @@ public class AchPatent extends BaseEntity {
                 ", createtime='" + createtime + '\'' +
                 ", status=" + status +
                 ", projectidlinktext='" + projectidlinktext + '\'' +
-                ", teamname='" + teamname + '\'' +
+                ", teamidlinktext='" + teamidlinktext + '\'' +
                 ", createuseridlinktext='" + createuseridlinktext + '\'' +
                 ", statuslinktext='" + statuslinktext + '\'' +
                 ", fixparamordernum=" + fixparamordernum +
+                ", authorList=" + authorList +
+                ", authors='" + authors + '\'' +
+                ", docList=" + docList +
                 ", statusList=" + statusList +
                 ", patentYear='" + patentYear + '\'' +
+                ", statusColor=" + statusColor +
+                ", confirmResult=" + confirmResult +
+                ", confirmNote='" + confirmNote + '\'' +
+                ", confirmUserid=" + confirmUserid +
+                ", applyid=" + applyid +
                 '}';
     }
 }

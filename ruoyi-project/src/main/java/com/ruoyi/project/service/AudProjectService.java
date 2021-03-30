@@ -196,14 +196,14 @@ public class AudProjectService {
         project.setStatusList(statusList);
 
         List<AudProject> projectList = audProjectMapper.selectAudProjectList(project);
-        for (AudProject prj : projectList) {
-            prj.setProjectDateRange(prj.getProjectbegindate() + "至" + prj.getProjectenddate());
-        }
+
 
         return projectList;
     }
 
     public AudProject selectProjectById(Integer projectId) {
+        // 项目详细信息。
+
         AudProject prj = audProjectMapper.selectProjectById(projectId);
 
         return prj;

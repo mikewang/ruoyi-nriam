@@ -45,7 +45,7 @@ public class PmTeamService {
 
             for (PmTeamMember s : memberList) {
                 HashMap user = new HashMap();
-                user.put("userid", s.getUserid());
+                user.put("userid", s.getUserId());
                 user.put("realName", s.getRealName());
 
                 Boolean roleMemberX = true;
@@ -105,11 +105,11 @@ public class PmTeamService {
             int index = team.getCheckedIdList().indexOf(itemList);
             HashMap<String, Object> memberGroup = team.getMemberList().get(index);
 
-            for (Integer userid : itemList) {
+            for (Integer userId : itemList) {
                 PmTeamMember member = new PmTeamMember();
                 member.setTeamid(teamid);
                 member.setTeamrole((Integer) memberGroup.get("teamrole"));
-                member.setUserid(userid);
+                member.setUserId(userId);
                 rows = pmTeamMemberMapper.insertTeamMember(member);
             }
         }
@@ -131,17 +131,16 @@ public class PmTeamService {
                 int index = team.getCheckedIdList().indexOf(itemList);
                 HashMap<String, Object> memberGroup = team.getMemberList().get(index);
 
-                for (Integer userid : itemList) {
+                for (Integer userId : itemList) {
                     PmTeamMember member = new PmTeamMember();
                     member.setTeamid(teamid);
 
                     member.setTeamrole((Integer) memberGroup.get("teamrole"));
-                    member.setUserid(userid);
+                    member.setUserId(userId);
                     rows = pmTeamMemberMapper.insertTeamMember(member);
                 }
             }
         }
-
 
 
         return rows;

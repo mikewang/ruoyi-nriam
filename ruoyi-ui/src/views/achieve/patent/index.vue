@@ -3,12 +3,12 @@
     <el-row :gutter="20">
       <!--查询数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="年份" prop="year">
+        <el-form-item label="年份" prop="passtime">
           <el-date-picker
             type="year"
             format="yyyy"
             value-format="yyyy"
-            v-model="queryParams.patentYear"
+            v-model="queryParams.passtime"
             placeholder="请输入"
             clearable
             size="small"
@@ -16,17 +16,10 @@
           />
         </el-form-item>
         <el-form-item label="所属团队" prop="teamid">
-          <el-select v-model="queryParams.teamid" placeholder="请选择所属团队"
-                     style="display:block;"
-                     clearable @clear="clearTeamValue" @change="changeTeamValue"
-                     filterable :filter-method="filterTeamOptions">
-            <el-option
-              v-for="item in teamOptions"
-              :key="item.id"
-              :label="item.value"
-              :value="item.id"/>
-          </el-select>
-        </el-form-item>
+            <!-- 所属团队组件-->
+            <team-data :selected-team-id="queryParams.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
+          </el-form-item>
+
         <el-form-item>
           <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -44,27 +37,12 @@
           >新增
           </el-button>
         </el-col>
-        <el-col :span="1.5">
-          <el-button
-            type="warning"
-            icon="el-icon-download"
-            size="mini"
-            @click="handleExport"
-            v-hasPermi="['achieve:patent:list']"
-          >导出
-          </el-button>
-        </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
       <el-table v-loading="loading" :data="achieveList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" align="center"/>
+        <el-table-column type="index" width="50" align="center"/>
         <el-table-column label="专利名称" align="center" prop="patentname" :show-overflow-tooltip="true">
-          <template slot-scope="scope">
-            <span v-if="scope.row.statusColor === -1" style="color:red">{{ scope.row.patentname }}</span>
-            <span v-else-if="scope.row.statusColor === 1" style="color:green">{{ scope.row.patentname }}</span>
-            <span v-else>{{ scope.row.patentname }}</span>
-          </template>
         </el-table-column>
         <el-table-column label="专利号" align="center" prop="patentcode" width="200"/>
 
@@ -73,7 +51,7 @@
 
         <el-table-column label="专利人" align="center" prop="authors" />
 
-        <el-table-column label="所属团队" align="center" prop="teamname" width="100"/>
+        <el-table-column label="所属团队" align="center" prop="teamidlinktext" width="100"/>
         <el-table-column label="状态" align="center" prop="statuslinktext" width="100">
           <template slot-scope="scope">
             <span v-if="scope.row.statusColor === -1" style="color:red"
@@ -116,12 +94,12 @@
 
 <script>
 import {listPatent} from "@/api/achieve/patent";
-import {listTeam} from "@/api/project/team";
-
+import TeamData from "@/views/public/team-data";
 
 export default {
-  name: "patent",
-  // components: {  },
+  // 专利
+  name: "achieve_patent_index",
+  components: {"team-data": TeamData},
   data() {
     return {
       // 遮罩层
@@ -143,8 +121,6 @@ export default {
       // 是否显示弹出层
       open: false,
       // 数据字典
-      teamOptions: [],
-      teamList: [],
       AchieveStatus: {DaiQueRen: 36, BuTongGuo: 38, ZhengChang: 37, YiShanChu: 39},
       // 日期范围
       dateRange: [],
@@ -153,8 +129,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         teamid: undefined,
-        projectyear: "2021",
-        projectname: undefined
+        passtime: "2021"
       },
       // 表单参数
       form: {},
@@ -173,17 +148,6 @@ export default {
   },
   created() {
     this.getList();
-    listTeam().then(response => {
-      console.log(response);
-      var listOptions = [];
-      response.rows.forEach(function (item) {
-        const team = {value: item.teamname, id: item.teamid};
-        listOptions.push(team);
-      });
-      this.teamList = listOptions;
-      this.teamOptions = listOptions;
-
-    });
   },
   methods: {
     /** 查询用户列表 */
@@ -237,60 +201,12 @@ export default {
       this.$router.push({path: '/achieve/patent/' + patentid});
     },
 
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有项目的数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        // return exportUser(queryParams);
-      }).then(response => {
-        // this.download(response.msg);
-      });
-    },
-
-    clearTeamValue() {
-      this.queryParams.teamid = undefined;
-    },
-
-    changeTeamValue(value) {
-
-      if (value) {
-        this.queryParams.teamid = value;
-
-      } else {
-        this.queryParams.teamid = undefined;
-      }
-    },
-
-    filterTeamOptions(queryString) {
-      console.log("filter value is " + queryString);
-      this.teamOptions = queryString ? this.teamList.filter(this.createFilter(queryString)) : this.teamList;
-    },
-
-    createFilter(v) {
-      return (item) => {
-        const queryString = v.toLowerCase();
-
-        let x = false;
-
-        const keys =  Object.keys(item);
-        for(let i=0; i < keys.length; i++) {
-          let key = keys[i];
-          let value = item[key];
-          let pp = -1;
-          if (value !== undefined && value !== null) {
-            pp = value.toString().indexOf(queryString);
-          }
-          if (pp != -1) {
-            x = true;
-            break;
-          }
-        }
-        return x;
-      };
+    // 组件方法
+    selectTeamId(value) {
+      console.log("handleSelectTeam is ", value);
+      this.queryParams.teamid = value.id;
+      this.queryParams.teamidlinktext = value.value;
+      this.getList();
     }
   }
 };

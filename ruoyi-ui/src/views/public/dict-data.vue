@@ -19,7 +19,7 @@ import {listData} from "@/api/system/dict/data";
 export default {
   name: "DictData",
   components: {},
-  props:['dictTypeName','selectedDictValue', 'readonly'],
+  props:['dictTypeName','selectedDictValue', 'readonly', 'dataOptions'],
   data() {
     return {
       // 遮罩层
@@ -45,25 +45,43 @@ export default {
 
       const this_ = this;
 
-      listData({"dictType": this.dictType}).then(response => {
-        console.log("获取字典数据:" + this.dictType, response.rows);
+      if (this_.dataOptions === undefined) {
+        listData({"dictType": this.dictType}).then(response => {
+          console.log("获取字典数据:" + this.dictType, response.rows);
+          const listOptions = [];
+          response.rows.sort(function (a, b) {
+            return a.dictLabel.charCodeAt(0) - b.dictLabel.charCodeAt(0)
+          }).forEach(function (item) {
+            const adict = {value: item.dictLabel, id: item.dictValue};
+            // console.log("item.dictValue is ", item.dictValue, "this.filterId is ", this_.filterId);
+            if (item.dictValue === this_.filterId) {
+              this_.filterValue = item.dictLabel;
+            }
+            listOptions.push(adict);
+          });
+
+          this_.list = listOptions;
+          this_.options = listOptions;
+
+          this_.loading = false;
+        });
+      }
+      else {
         const listOptions = [];
-        response.rows.sort(function (a, b) {
-          return a.dictLabel.charCodeAt(0) - b.dictLabel.charCodeAt(0)
-        }).forEach(function (item) {
+        this_.dataOptions.forEach(function (item) {
           const adict = {value: item.dictLabel, id: item.dictValue};
-          // console.log("item.dictValue is ", item.dictValue, "this.filterId is ", this_.filterId);
           if (item.dictValue === this_.filterId) {
             this_.filterValue = item.dictLabel;
           }
           listOptions.push(adict);
         });
 
-        this.list = listOptions;
-        this.options = listOptions;
+        this_.list = listOptions;
+        this_.options = listOptions;
 
-        this.loading = false;
-      });
+        this_.loading = false;
+      }
+
     },
 
     clearValue() {

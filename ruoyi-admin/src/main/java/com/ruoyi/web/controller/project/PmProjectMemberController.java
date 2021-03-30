@@ -43,6 +43,7 @@ public class PmProjectMemberController extends BaseController {
 
         if (projectid != null) {
             List<PmProjectmember> list = projectMemberService.selectProjectmemberByProjectid(projectid);
+            logger.debug("selectProjectmemberByProjectid " + projectid.toString() + " " + list.toString());
             ajax.put(AjaxResult.DATA_TAG, list);
         }
 

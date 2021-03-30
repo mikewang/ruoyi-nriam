@@ -121,9 +121,6 @@
               <template>
                 <div v-for="(item, index) in form.memberList" :key="index">
                   <el-tag>{{ item.teamroleName }}</el-tag>
-<!--                  <el-tag>{{ form.checkedIdList[index] }}</el-tag>-->
-                  <!--                <el-tag>{{item.userList}} </el-tag>-->
-                  <!--                <el-label v-for="data in item.userList" name="data.realName"  >{{data.userid}}{{data.realName}} </el-label>-->
                   <el-checkbox-group v-model="form.checkedIdList[index]"
                                      @change="handleCheckedIdListChange(item.teamrole,index)" :key="timer">
                     <el-checkbox v-for="data in item.userList" :label="data.userid" :key="data.userid"

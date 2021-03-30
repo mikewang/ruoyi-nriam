@@ -5,7 +5,7 @@
     <result column="TeamID" jdbcType="INTEGER" property="teamid" />
     <result column="TeamRole" jdbcType="INTEGER" property="teamrole" />
     <result column="TeamRoleName" jdbcType="VARCHAR" property="teamroleName" />
-    <result column="UserID" jdbcType="INTEGER" property="userid" />
+    <result column="UserID" jdbcType="INTEGER" property="userId" />
     <result column="real_Name" jdbcType="VARCHAR" property="realName" />
     <result column="hot_key" jdbcType="VARCHAR" property="hotKey" />
   </resultMap>

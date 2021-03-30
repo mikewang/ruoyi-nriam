@@ -3,7 +3,7 @@
   <el-upload action="#" :http-request="requestUpload" :before-remove="beforeRemove"
              :on-remove="handleOnRemove" :on-preview="handleOnPreview"
              :file-list="fileList" :before-upload="beforeUpload">
-    <el-button v-if="this.editable" size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
+    <el-button v-if="this.readonly === false" size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
   </el-upload>
 
 </div>
@@ -15,7 +15,7 @@ import {listBasDoc, downloadBasDoc, uploadBasDoc} from "@/api/public/basdoc";
 export default {
   name: "BasDoc",
   components: {},
-  props:['basdoc','editable'],
+  props:['basdoc','readonly'],
   data() {
     return {
 // 遮罩层
@@ -65,7 +65,13 @@ export default {
       console.log(file);
       let formData = new FormData();
       formData.append('file', file);
-      uploadBasDoc(1, formData).then(response => {
+
+      let filepath = 1;
+      if (this.basdoc.attachtotype === "专利") {
+          filepath = 2;
+      }
+
+      uploadBasDoc(filepath, formData).then(response => {
         console.log("response.name is ", response.name);
         console.log("response.url is ", response.url);
         this.fileList.push({name: response.name, url: response.url});
@@ -78,7 +84,7 @@ export default {
     },
 
     beforeRemove(file) {
-      if (this.editable) {
+      if (this.readonly === false) {
         return this.$confirm(`确定移除 ${ file.name }？`);
       }
       else {

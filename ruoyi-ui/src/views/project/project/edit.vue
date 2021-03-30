@@ -6,10 +6,11 @@
       >
         <template>
           <el-tag size="medium" type="info">项目信息</el-tag>
-          <el-row >
+          <el-row>
             <el-col :span="8">
               <el-form-item label="项目名称" prop="projectname">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.projectname" placeholder="请输入项目名称" :show-overflow-tooltip="true" />
+                <el-input v-bind:readonly="readonly.basic" v-model="form.projectname" placeholder="请输入项目名称"
+                          :show-overflow-tooltip="true"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -26,36 +27,42 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目总经费（元）" prop="projectfunds">
-                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.projectfunds" placeholder="请输入项目总经费（元）"/>
+                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.projectfunds"
+                          placeholder="请输入项目总经费（元）"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="财政拨款（元）" prop="financefunds">
-                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.financefunds" placeholder="请输入财政拨款（元）"/>
+                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.financefunds"
+                          placeholder="请输入财政拨款（元）"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="可支配经费（元）" prop="canusefunds">
-                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.canusefunds" placeholder="请输入可支配经费（元）"/>
+                <el-input type="number" v-bind:readonly="readonly.basic" v-model="form.canusefunds"
+                          placeholder="请输入可支配经费（元）"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目所属部门" prop="organizationid">
-                <dept-data :key="timer" :readonly="readonly.basic" :selected-dept-id="form.organizationid" @changeDeptId="changeFormDeptId"></dept-data>
+                <dept-data :key="timer" :readonly="readonly.basic" :selected-dept-id="form.organizationid"
+                           @changeDeptId="changeFormDeptId"></dept-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目开始日期" prop="projectbegindate">
-                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.projectbegindate" type="date" placeholder="请选择日期"
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.projectbegindate" type="date"
+                                placeholder="请选择日期"
                                 value-format="yyyy-MM-dd"
                                 style="display:block;"></el-date-picker>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目结束日期" prop="projectenddate">
-                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.projectenddate" type="date" placeholder="请选择日期" value-format="yyyy-MM-dd"
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.projectenddate" type="date"
+                                placeholder="请选择日期" value-format="yyyy-MM-dd"
                                 style="display:block;"></el-date-picker>
               </el-form-item>
             </el-col>
@@ -63,18 +70,22 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目类型" prop="projecttype">
-                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameProjectType" :selected-dict-value="form.projecttype" @changeDictValue="changeFormProjectTypeValue"></dict-data>
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameProjectType"
+                           :selected-dict-value="form.projecttype"
+                           @changeDictValue="changeFormProjectTypeValue"></dict-data>
               </el-form-item>
             </el-col>
 
             <el-col :span="8">
               <el-form-item label="项目所属团队" prop="teamid">
-                <team-data  :readonly="readonly.basic"  :selected-team-id="form.teamid" @changeTeamId="changeFormTeamValue"></team-data>
+                <team-data :readonly="readonly.basic" :selected-team-id="form.teamid"
+                           @changeTeamId="changeFormTeamValue"></team-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目负责人" prop="projectmanagerid">
-                <user-data :readonly="readonly.basic"  :selected-user-id="form.projectmanagerid" @changeUserData="changeFormManagerValue" ></user-data>
+                <user-data :readonly="readonly.basic" :selected-user-id="form.projectmanagerid"
+                           @changeUserData="changeFormManagerValue"></user-data>
               </el-form-item>
             </el-col>
 
@@ -84,7 +95,9 @@
             <el-col :span="8">
 
               <el-form-item label="主持/参与" prop="jointype">
-                <dict-data  :readonly="readonly.basic" :dict-type-name="DictTypeNameJoinType" :selected-dict-value="form.jointype" @changeDictValue="changeJoinTypeValue"></dict-data>
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameJoinType"
+                           :selected-dict-value="form.jointype" @changeDictValue="changeJoinTypeValue"></dict-data>
+                <!--              <el-button type="primary" @click="changeJoinTypeValue2">主持/参与</el-button>-->
               </el-form-item>
             </el-col>
             <el-col :span="16">
@@ -93,88 +106,91 @@
               </el-form-item>
             </el-col>
           </el-row>
-<!--          <el-row v-bind:hidden="form.jointype != 1" :key="timer">-->
-<!--            <el-col :span="24">-->
-<!--              <el-form-item label="项目参加单位列表" prop="JoinorganizationList">-->
-<!--                <el-row :gutter="10" class="mb8" v-bind:hidden="readonly.basic">-->
-<!--                  <el-col :span="1.5">-->
-<!--                    <el-button plain-->
-<!--                               type="primary"-->
-<!--                               icon="el-icon-plus"-->
-<!--                               size="mini"-->
-<!--                               @click="handleJoinorganizationAdd"-->
-<!--                               v-hasPermi="['project:project:list']"-->
-<!--                    >新增-->
-<!--                    </el-button>-->
-<!--                  </el-col>-->
-<!--                  <el-col :span="1.5">-->
-<!--                    <el-button plain-->
-<!--                               v-if="1===0"-->
-<!--                               type="danger"-->
-<!--                               icon="el-icon-delete"-->
-<!--                               size="mini"-->
-<!--                               :disabled="multiple"-->
-<!--                               @click="handleJoinorganizationDelete"-->
-<!--                               v-hasPermi="['project:project:list']"-->
-<!--                    >删除-->
-<!--                    </el-button>-->
-<!--                  </el-col>-->
-<!--                </el-row>-->
-<!--                <el-table :data="form.projectjoinorganizationlist"-->
-<!--                          @selection-change="handleJoinorganizationSelectionChange"-->
-<!--                          style="display:block;">-->
-<!--                  <el-table-column type="index" width="50" align="center"/>-->
-<!--                  <el-table-column label="子项目名称" align="center" prop="subjectname" :show-overflow-tooltip="true"/>-->
-<!--                  <el-table-column label="参加单位" align="center" prop="organizationname"/>-->
-<!--                  <el-table-column label="负责人" align="center" prop="manager" width="100"/>-->
-<!--                  <el-table-column label="经费（元）" align="center" prop="funds" width="100"/>-->
-<!--                  <el-table-column-->
-<!--                    label="操作"-->
-<!--                    align="center"-->
-<!--                    width="160"-->
-<!--                    class-name="small-padding fixed-width" v-if="!readonly.basic"-->
-<!--                  >-->
-<!--                    <template slot-scope="scope">-->
-<!--                      <el-button-->
-<!--                        size="mini"-->
-<!--                        type="text"-->
-<!--                        icon="el-icon-edit"-->
-<!--                        @click="handleJoinorganizationUpdate(scope.row)"-->
-<!--                        v-hasPermi="['project:project:list']"-->
-<!--                        v-if="!readonly.basic"-->
-<!--                      >编辑-->
-<!--                      </el-button>-->
-<!--                      <el-button-->
-<!--                        size="mini"-->
-<!--                        type="text"-->
-<!--                        icon="el-icon-delete"-->
-<!--                        @click="handleJoinorganizationDelete(scope.row)"-->
-<!--                        v-hasPermi="['project:project:remove']"-->
-<!--                        v-if="!readonly.basic"-->
-<!--                      >删除-->
-<!--                      </el-button>-->
-<!--                    </template>-->
-<!--                  </el-table-column>-->
-<!--                </el-table>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--          </el-row>-->
-          <el-row>
-            <template v-bind:hidden="form.jointype === 2">
-              xxxx hidden
+          <el-row v-if="form.jointype === 1" :key="form.jointype">
+            <el-col :span="24">
+              <el-form-item label="项目参加单位列表" prop="JoinorganizationList">
+                <el-row :gutter="10" class="mb8" v-bind:hidden="readonly.basic">
+                  <el-col :span="1.5">
+                    <el-button plain
+                               type="primary"
+                               icon="el-icon-plus"
+                               size="mini"
+                               @click="handleJoinorganizationAdd"
+                               v-hasPermi="['project:project:list']"
+                    >新增
+                    </el-button>
+                  </el-col>
+                  <el-col :span="1.5">
+                    <el-button plain
+                               v-if="1===0"
+                               type="danger"
+                               icon="el-icon-delete"
+                               size="mini"
+                               :disabled="multiple"
+                               @click="handleJoinorganizationDelete"
+                               v-hasPermi="['project:project:list']"
+                    >删除
+                    </el-button>
+                  </el-col>
+                </el-row>
+                <el-table :data="form.projectjoinorganizationlist"
+                          @selection-change="handleJoinorganizationSelectionChange"
+                          style="display:block;">
+                  <el-table-column type="index" width="50" align="center"/>
+                  <el-table-column label="子项目名称" align="center" prop="subjectname" :show-overflow-tooltip="true"/>
+                  <el-table-column label="参加单位" align="center" prop="organizationname"/>
+                  <el-table-column label="负责人" align="center" prop="manager" width="100"/>
+                  <el-table-column label="经费（元）" align="center" prop="funds" width="100"/>
+                  <el-table-column
+                    label="操作"
+                    align="center"
+                    width="160"
+                    class-name="small-padding fixed-width" v-if="!readonly.basic"
+                  >
+                    <template slot-scope="scope">
+                      <el-button
+                        size="mini"
+                        type="text"
+                        icon="el-icon-edit"
+                        @click="handleJoinorganizationUpdate(scope.row)"
+                        v-hasPermi="['project:project:list']"
+                        v-if="!readonly.basic"
+                      >编辑
+                      </el-button>
+                      <el-button
+                        size="mini"
+                        type="text"
+                        icon="el-icon-delete"
+                        @click="handleJoinorganizationDelete(scope.row)"
+                        v-hasPermi="['project:project:remove']"
+                        v-if="!readonly.basic"
+                      >删除
+                      </el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row v-if="form.jointype === 2" :key="form.jointype">
+
             <el-col :span="8">
               <el-form-item label="参与项目名称" prop="uplevelsubjectname">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.subjectname" placeholder="请输入项目名称"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.subjectname"
+                          placeholder="请输入项目名称"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="主持单位" prop="uplevelmanageorganization">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.manageorganization" placeholder="请输入项目编号"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.manageorganization"
+                          placeholder="请输入项目编号"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="负责人" prop="uplevelmanager">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.manager" placeholder="请输入项目经费编号"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.manager"
+                          placeholder="请输入项目经费编号"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -182,8 +198,8 @@
                 <el-input v-bind:readonly="readonly.basic" v-model="form.uplevelproject.funds" placeholder="0.00"/>
               </el-form-item>
             </el-col>
-            </template>
           </el-row>
+          <el-divider></el-divider>
           <el-row>
             <el-col :span="24">
               <el-form-item label="项目成员" prop="projectmemberUserIdList">
@@ -198,21 +214,21 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row v-if="!readonly.basic"  >
-          <el-col :span="8">
-            <el-form-item label="添加项目成员" prop="addProjectmemberId">
-              <template>
-                <user-data :selected-user-id="undefined" @changeUserData="changeFormProjectMemberValue" ></user-data>
-              </template>
-            </el-form-item>
-          </el-col>
-    </el-row>
+          <el-row v-if="!readonly.basic">
+            <el-col :span="8">
+              <el-form-item label="添加项目成员">
+                <template>
+                  <user-data :selected-user-id="undefined" @changeUserData="changeFormProjectMemberValue"></user-data>
+                </template>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
           <el-row>
-
             <el-col :span="16">
               <el-form-item label="项目申报书" prop="basicdocList1">
-                <project-doc :doc-type="DocTypeXiangmuShenbaoShu" :doc-list="basicdocList1" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeXiangmuShenbaoShu" :doc-list="basicdocList1" :readonly="readonly.basic"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -221,7 +237,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="项目合同" prop="basicdocList2">
-                <project-doc  :doc-type="DocTypeXiangmuHetong"  :doc-list="basicdocList2" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeXiangmuHetong" :doc-list="basicdocList2" :readonly="readonly.basic"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -231,7 +248,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="实施方案" prop="basicdocList3">
-                <project-doc  :doc-type="DocTypeShishiFangan"  :doc-list="basicdocList3" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeShishiFangan" :doc-list="basicdocList3" :readonly="readonly.basic"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -240,31 +258,33 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="项目批复文件" prop="basicdocList4">
-                <project-doc  :doc-type="DocTypeXiangmuPifu"  :doc-list="basicdocList4" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeXiangmuPifu" :doc-list="basicdocList4" :readonly="readonly.basic"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="项目状态" prop="statusLinkText">
-                <el-input v-model="form.statusLinkText" disabled/>
+              <el-form-item label="项目状态" prop="statuslinktext">
+                <el-input v-model="form.statuslinktext" disabled/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="信息输入人员" prop="createUserIDLinkText">
-                <el-input v-model="form.createUserIDLinkText"  disabled/>
+              <el-form-item label="信息输入人员" prop="createuseridlinktext">
+                <el-input v-model="form.createuseridlinktext" disabled/>
               </el-form-item>
             </el-col>
           </el-row>
         </template>
 
         <template>
-          <el-tag v-if="hidden.acceptance === false" size="medium" >项目验收信息</el-tag>
+          <el-divider v-if="hidden.acceptance === false">项目验收信息</el-divider>
           <el-row>
             <el-col :span="16">
-              <el-form-item v-if="hidden.acceptance === false" label="项目验收意见" prop="acceptanceOpinion" >
-                <el-input  v-bind:readonly="readonly.acceptance"  v-model="form.acceptance.opinion" placeholder="" type="textarea"/>
+              <el-form-item v-if="hidden.acceptance === false" label="项目验收意见" prop="acceptanceOpinion">
+                <el-input v-bind:readonly="readonly.acceptance" v-model="form.acceptance.opinion" placeholder=""
+                          type="textarea"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -272,7 +292,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="验收申请书" prop="acceptdocList1">
-                <project-doc  :doc-type="DocTypeYanshouShenqingshu"  :doc-list="acceptdocList1" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeYanshouShenqingshu" :doc-list="acceptdocList1" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -281,7 +302,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="验收证书" prop="acceptdocList2">
-                <project-doc  :doc-type="DocTypeYanshouZhengshu"  :doc-list="acceptdocList2" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeYanshouZhengshu" :doc-list="acceptdocList2" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -289,7 +311,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="技术总结" prop="acceptdocList3">
-                <project-doc  :doc-type="DocTypeJishuZongjie"  :doc-list="acceptdocList3" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeJishuZongjie" :doc-list="acceptdocList3" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
               </el-form-item>
             </el-col>
           </el-row>
@@ -297,7 +320,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="工作总结" prop="acceptdocList4">
-                <project-doc  :doc-type="DocTypeGongzuoZongjie"  :doc-list="acceptdocList4" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeGongzuoZongjie" :doc-list="acceptdocList4" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -305,7 +329,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="查新报告" prop="acceptdocList5">
-                <project-doc  :doc-type="DocTypeChaxinBaogao"  :doc-list="acceptdocList5" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeChaxinBaogao" :doc-list="acceptdocList5" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -314,7 +339,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="审计报告" prop="acceptdocList6">
-                <project-doc  :doc-type="DocTypeShenjiBaogao"  :doc-list="acceptdocList6" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeShenjiBaogao" :doc-list="acceptdocList6" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -322,7 +348,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="检测报告" prop="acceptdocList7">
-                <project-doc  :doc-type="DocTypeJiancheBaogao"  :doc-list="acceptdocList7" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeJiancheBaogao" :doc-list="acceptdocList7" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -331,7 +358,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="其它附件" prop="acceptdocList8">
-                <project-doc  :doc-type="DocTypeQitaFujian"  :doc-list="acceptdocList8" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeQitaFujian" :doc-list="acceptdocList8" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -339,7 +367,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="用户证明" prop="acceptdocList9">
-                 <project-doc  :doc-type="DocTypeYonghuZhengmin"  :doc-list="acceptdocList9" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeYonghuZhengmin" :doc-list="acceptdocList9" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -348,7 +377,8 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="成果照片视频" prop="acceptdocList10">
-                <project-doc  :doc-type="DocTypeChengguoZhaopian"  :doc-list="acceptdocList10" :readonly="readonly.basic" @changeFileList="changeBasicDocList"></project-doc>
+                <project-doc :doc-type="DocTypeChengguoZhaopian" :doc-list="acceptdocList10" :readonly="readonly.acceptance"
+                             @changeFileList="changeBasicDocList"></project-doc>
 
               </el-form-item>
             </el-col>
@@ -356,19 +386,22 @@
           <el-row>
             <el-col :span="16">
               <el-form-item v-if="hidden.acceptance === false" label="备注" prop="acceptanceMemo">
-                <el-input v-bind:readonly="readonly.acceptance" v-model="form.acceptance.memo" placeholder="" type="textarea"/>
+                <el-input v-bind:readonly="readonly.acceptance" v-model="form.acceptance.memo" placeholder=""
+                          type="textarea"/>
               </el-form-item>
             </el-col>
           </el-row>
         </template>
 
         <template>
-          <el-tag v-if="this.opcode.indexOf('acceptconfirm') !== -1 && this.hidden.confirm === false" size="medium">审核 验收项目信息</el-tag>
-          <el-tag v-else-if="this.opcode.indexOf('confirm') !== -1 && this.hidden.confirm === false" size="medium">审核新建项目信息</el-tag>
-          <el-row  v-if="this.hidden.confirm == false">
+          <el-divider v-if="this.opcode.indexOf('acceptconfirm') !== -1 && this.hidden.confirm === false">审核验收项目信息
+          </el-divider>
+          <el-divider v-else-if="this.opcode.indexOf('confirm') !== -1 && this.hidden.confirm === false">审核新建项目信息
+          </el-divider>
+          <el-row v-if="this.hidden.confirm == false">
             <el-col :span="8">
               <el-form-item v-if="this.opcode === 'confirm'" label="更正项目经费编号" prop="confirmSubjectcode">
-                <el-input   v-model="form.confirmSubjectcode"/>
+                <el-input v-model="form.confirmSubjectcode"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -383,16 +416,18 @@
                 </template>
               </el-form-item>
             </el-col>
-            <el-col :span="8" v-if="this.opcode.indexOf('acceptconfirm') !== -1" >
-              <el-form-item  label="" prop="ifacceptancefull">
-                <el-checkbox v-model="form.ifacceptancefull" v-bind:readonly="this.readonly.confirm">验收材料已齐全</el-checkbox>
+            <el-col :span="8" v-if="this.opcode.indexOf('acceptconfirm') !== -1">
+              <el-form-item label="" prop="ifacceptancefull">
+                <el-checkbox v-model="form.ifacceptancefull" v-bind:readonly="this.readonly.confirm">验收材料已齐全
+                </el-checkbox>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row v-if="this.hidden.confirm == false">
             <el-col :span="16">
               <el-form-item label="意见" prop="confirmNote">
-                <el-input v-model="form.confirmNote" placeholder="请输入意见" type="textarea" v-bind:readonly="this.readonly.confirm"/>
+                <el-input v-model="form.confirmNote" placeholder="请输入意见" type="textarea"
+                          v-bind:readonly="this.readonly.confirm"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -401,19 +436,21 @@
       </el-form>
 
 
-        <el-row >
-          <el-col :span="24" align="center">
-            <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">暂 存</el-button>
-            <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改项目信息</el-button>
-            <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除项目</el-button>
-            <el-button v-if="hidden.submitBtn === false" type="primary" @click="submitForm">提交审核</el-button>
-            <el-button v-if="hidden.changeAcceptanceBtn === false" type="warning" @click="changeAcceptanceForm">修改验收信息</el-button>
-            <el-button v-if="hidden.returnBtn === false" type="warning" @click="returnForm">退回新建</el-button>
-            <el-button v-if="hidden.confirmBtn === false" type="primary" @click="confirmForm">确 认</el-button>
-            <el-button v-if="hidden.addAcceptanceBtn === false" type="primary" @click="addAcceptanceForm">补充验收材料</el-button>
-            <el-button @click="closeForm">取 消</el-button>
-          </el-col>
-        </el-row>
+      <el-row>
+        <el-col :span="24" align="center">
+          <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">暂 存</el-button>
+          <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改项目信息</el-button>
+          <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除项目</el-button>
+          <el-button v-if="hidden.submitBtn === false" type="primary" @click="submitForm">提交审核</el-button>
+          <el-button v-if="hidden.changeAcceptanceBtn === false" type="warning" @click="changeAcceptanceForm">修改验收信息
+          </el-button>
+          <el-button v-if="hidden.returnBtn === false" type="warning" @click="returnForm">退回新建</el-button>
+          <el-button v-if="hidden.confirmBtn === false" type="primary" @click="confirmForm">确 认</el-button>
+          <el-button v-if="hidden.addAcceptanceBtn === false" type="primary" @click="addAcceptanceForm">补充验收材料
+          </el-button>
+          <el-button @click="closeForm">取 消</el-button>
+        </el-col>
+      </el-row>
 
 
     </el-row>
@@ -455,25 +492,22 @@
 </template>
 
 <script>
-import {listTeam} from "@/api/project/team";
-import {listData} from "@/api/system/dict/data";
-import {listDept} from "@/api/system/dept";
 import {listUser} from "@/api/system/user";
 import {
+  acceptanceconfirmProject,
   addProject,
-  uniqueProject,
+  addProjectacceptance,
+  confirmProject,
   getProject,
+  getProjectacceptance,
+  getProjectConfirm,
   getUplevelProject,
   listProjectdoc,
   listProjectjoinorganization,
   listProjectmember,
+  uniqueProject,
   updateProject,
-  confirmProject,
-  getProjectConfirm,
-  getProjectacceptance,
-  addProjectacceptance,
-  xinjianzhongProject,
-  acceptanceconfirmProject
+  xinjianzhongProject
 } from "@/api/project/project";
 
 
@@ -486,12 +520,12 @@ import ProjectDoc from "@/views/public/project-doc";
 
 export default {
   name: "EditInfo",
-  components: {ProjectDoc, UserData, "dept-data":DeptData ,"team-data": TeamData,"dict-data": DictData},
+  components: {ProjectDoc, UserData, "dept-data": DeptData, "team-data": TeamData, "dict-data": DictData},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
       readonly: {},
-      hidden:{},
+      hidden: {},
       opcode: undefined,
       // 遮罩层
       loading: true,
@@ -510,13 +544,21 @@ export default {
       // 数据字典
       DictTypeNameJoinType: "主持参与",
 
-      jointypeOptions: [{value: 1, label: "主持"}, {value: 2, label: "参与"}],
 
-      addProjectmemberId: undefined,
       projectmemberOptions: [],
 
-      ProjectStatus: {XinJianZhong: 48, DaiQueRen: 40,BuTongGuo:44, ZaiYan: 41, JieTiDaiQueRen: 45,JietiBuTongGuo:46, YiJieTi: 42, YiShanChu: 43},
+      ProjectStatus: {
+        XinJianZhong: 48,
+        DaiQueRen: 40,
+        BuTongGuo: 44,
+        ZaiYan: 41,
+        JieTiDaiQueRen: 45,
+        JietiBuTongGuo: 46,
+        YiJieTi: 42,
+        YiShanChu: 43
+      },
 
+      // 数据字典
       DocTypeXiangmuShenbaoShu: "项目申报书",
       DocTypeXiangmuHetong: "项目合同",
       DocTypeShishiFangan: "实施方案",
@@ -557,6 +599,7 @@ export default {
       // 表单参数
       form: {},
       timer: '',
+      timerkey: '',
       // 表单校验
       rules: {
         projectname: [
@@ -621,11 +664,11 @@ export default {
   },
 
   mounted() {
-    console.log("mounted this.$route.meta is ",   this.$route.meta);
+    console.log("mounted this.$route.meta is ", this.$route.meta);
   },
 
   beforeCreate() {
-    console.log(" beforeCreate this.$route.meta is ",   this.$route.meta);
+    console.log(" beforeCreate this.$route.meta is ", this.$route.meta);
     const projectid = this.$route.params && this.$route.params.projectid;
     // 新增之后，再加编辑项目，会默认将标题 设置为 新增项目，不添加新页面的话，这个问题暂时不能解决，所以先注释掉，一律为 编辑项目
     // if (Number(projectid) === 0) {
@@ -635,7 +678,7 @@ export default {
     // }
   },
   created() {
-    console.log(" created this.$route.meta is ",   this.$route.meta);
+    console.log(" created this.$route.meta is ", this.$route.meta);
     this.resetTemplateStatus();
     var projectid = this.$route.params && this.$route.params.projectid;
     if (projectid === undefined || Number(projectid) === 0) {
@@ -682,17 +725,16 @@ export default {
 
           // 获取 审核结果信息。
           if (this.form.status === this.ProjectStatus.BuTongGuo) {
-            getProjectConfirm(projectid,this.ProjectStatus.BuTongGuo).then(response => {
+            getProjectConfirm(projectid, this.ProjectStatus.BuTongGuo).then(response => {
               console.log("getProjectConfirm is ", response);
               this.form.confirmResult = response.data.applystatus;
-              this.form.confirmNote =  response.data.auditopinion;
+              this.form.confirmNote = response.data.auditopinion;
             });
-          }
-          else if (this.form.status === this.ProjectStatus.JietiBuTongGuo) {
-            getProjectConfirm(projectid,this.ProjectStatus.JietiBuTongGuo).then(response => {
+          } else if (this.form.status === this.ProjectStatus.JietiBuTongGuo) {
+            getProjectConfirm(projectid, this.ProjectStatus.JietiBuTongGuo).then(response => {
               console.log("getProjectAcceptanceConfirm is ", response);
               this.form.confirmResult = response.data.applystatus;
-              this.form.confirmNote =  response.data.auditopinion;
+              this.form.confirmNote = response.data.auditopinion;
             });
           }
 
@@ -721,8 +763,8 @@ export default {
                 this_.form.uplevelproject = {subjectname: null};
               }
 
-              console.log("this.form.uplevelproject is ", this.form.uplevelproject);
-              listProjectmember({projectid: this.form.projectid}).then(response => {
+              console.log("this.form.uplevelproject is ", this_.form.uplevelproject);
+              listProjectmember({projectid: this_.form.projectid}).then(response => {
 
                 let rows = response.data;
                 this_.projectmemberOptions = rows;
@@ -741,58 +783,58 @@ export default {
                   this.form.projectdocList = rows;
 
                   this.basicdocList1 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "项目申报书"
+                    return item.doctype === "项目申报书"
                   });
 
                   this_.timer = Date.now().toString();
 
                   this.basicdocList2 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "项目合同"
+                    return item.doctype === "项目合同"
                   });
 
                   this.basicdocList3 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "实施方案"
+                    return item.doctype === "实施方案"
                   });
 
                   this.basicdocList4 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "项目批复文件"
+                    return item.doctype === "项目批复文件"
                   });
 
                   this.acceptdocList1 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "验收申请书"
+                    return item.doctype === "验收申请书"
                   });
                   this.acceptdocList2 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "验收证书"
+                    return item.doctype === "验收证书"
                   });
 
                   this.acceptdocList3 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "技术总结"
+                    return item.doctype === "技术总结"
                   });
 
                   this.acceptdocList4 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "工作总结"
+                    return item.doctype === "工作总结"
                   });
 
                   this.acceptdocList5 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "查新报告"
+                    return item.doctype === "查新报告"
                   });
 
                   this.acceptdocList6 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "审计报告"
+                    return item.doctype === "审计报告"
                   });
 
                   this.acceptdocList7 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "检测报告"
+                    return item.doctype === "检测报告"
                   });
                   this.acceptdocList8 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "其它附件"
+                    return item.doctype === "其它附件"
                   });
 
                   this.acceptdocList9 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "用户证明"
+                    return item.doctype === "用户证明"
                   });
                   this.acceptdocList10 = this.form.projectdocList.filter(function (item) {
-                    return  item.doctype === "成果照片视频"
+                    return item.doctype === "成果照片视频"
                   });
                 });
 
@@ -822,13 +864,26 @@ export default {
 
     resetTemplateStatus() {
       // 初始化各个组件的状态。
-      this.readonly = {basic: true,acceptance:true, confirm: true};
-      this.hidden = {basic:false,acceptance:true,confirm:true, saveBtn:true,changeBtn:true,deleteBtn:true,submitBtn:true,changeAcceptanceBtn:true,returnBtn:true,confirmBtn:true,addAcceptanceBtn:true };
+      this.readonly = {basic: true, acceptance: true, confirm: true};
+      this.hidden = {
+        basic: false,
+        acceptance: true,
+        confirm: true,
+        saveBtn: true,
+        changeBtn: true,
+        deleteBtn: true,
+        submitBtn: true,
+        changeAcceptanceBtn: true,
+        returnBtn: true,
+        confirmBtn: true,
+        addAcceptanceBtn: true
+      };
     },
 
     configTemplateStatus() {
       this.resetTemplateStatus();
       console.log("configTemplateStatus is ", this.form.status);
+
       if (this.form.status === this.ProjectStatus.XinJianZhong) {
 
         this.readonly.basic = false;
@@ -836,22 +891,19 @@ export default {
         this.hidden.submitBtn = false;
         this.hidden.deleteBtn = (this.form.projectid === undefined || this.form.projectid === 0)
 
-      }
-      else if (this.form.status === this.ProjectStatus.DaiQueRen) {
+      } else if (this.form.status === this.ProjectStatus.DaiQueRen) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
           // this.hidden.changeBtn = false;
           // this.hidden.deleteBtn = false;
           // this.hidden.returnBtn = false;
-        }
-        else if (this.opcode.indexOf("confirm") !== -1) {
+        } else if (this.opcode.indexOf("confirm") !== -1) {
           this.readonly.confirm = false;
           this.hidden.confirm = false;
           this.hidden.confirmBtn = false;
         }
 
-      }
-      else if (this.form.status === this.ProjectStatus.BuTongGuo) {
+      } else if (this.form.status === this.ProjectStatus.BuTongGuo) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
           this.readonly.confirm = true;
@@ -860,37 +912,32 @@ export default {
           this.hidden.changeBtn = false;
           this.hidden.deleteBtn = false;
         }
-      }
-      else if (this.form.status === this.ProjectStatus.ZaiYan) {
+      } else if (this.form.status === this.ProjectStatus.ZaiYan) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.returnBtn = false;
           this.hidden.acceptance = false;
-        }
-        else if (this.opcode.indexOf("toaccept") !== -1) {
+        } else if (this.opcode.indexOf("toaccept") !== -1) {
           this.hidden.acceptance = false;
           this.readonly.acceptance = false;
           this.hidden.confirmBtn = false;
 
         }
-      }
-      else if (this.form.status === this.ProjectStatus.JieTiDaiQueRen) {
+      } else if (this.form.status === this.ProjectStatus.JieTiDaiQueRen) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
           this.hidden.changeAcceptanceBtn = false;
 
-        }
-        else if (this.opcode.indexOf("acceptconfirm") !== -1) {
+        } else if (this.opcode.indexOf("acceptconfirm") !== -1) {
           this.hidden.acceptance = false;
           this.hidden.confirm = false;
-          this.readonly.confirm =false;
+          this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
 
         }
-      }
-      else if (this.form.status === this.ProjectStatus.JietiBuTongGuo) {
+      } else if (this.form.status === this.ProjectStatus.JietiBuTongGuo) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
           this.readonly.confirm = true;
@@ -903,23 +950,19 @@ export default {
           this.hidden.returnBtn = false;
           this.hidden.changeAcceptanceBtn = false;
         }
-      }
-      else if (this.form.status === this.ProjectStatus.YiJieTi) {
+      } else if (this.form.status === this.ProjectStatus.YiJieTi) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
-        }
-        else if (this.opcode.indexOf("addacceptance") !== -1) {
+        } else if (this.opcode.indexOf("addacceptance") !== -1) {
           this.hidden.acceptance = false;
           this.hidden.confirmBtn = false;
           this.readonly.acceptance = false;
-        }
-        else if (this.opcode.indexOf("acceptance") !== -1) {
+        } else if (this.opcode.indexOf("acceptance") !== -1) {
           this.hidden.acceptance = false;
           this.hidden.addAcceptanceBtn = false;
         }
-      }
-      else {
+      } else {
         this.readonly.basic = true;
         this.hidden.acceptance = false;
       }
@@ -988,13 +1031,13 @@ export default {
         uplevelproject: {subjectname: null},
         projectmemberUserIdList: [],
         projectdocList: [],
-        acceptance:{projectid: prjId, opinion: null, memo: null},
+        acceptance: {projectid: prjId, opinion: null, memo: null},
 
         // 审核结果
         confirmSubjectcode: undefined,
         confirmResult: undefined,
         confirmNote: undefined,
-        ifacceptancefull:true
+        ifacceptancefull: true
       };
 
       this.resetForm("form");
@@ -1039,19 +1082,44 @@ export default {
 
     },
 
-
     changeJoinTypeValue(value) {
 
+      if (value === undefined) {
+        this.form.jointype = undefined;
+      } else {
+        if (value.id === "1") {
+          this.form.jointype = 1;
+        } else if (value.id === "2") {
+          this.form.jointype = 2;
+        } else {
+
+          console.log("changeJoinTypeValue is 意外 ", value);
+        }
+
+      }
+
+      console.log("changeJoinTypeValue value is ", value.id, "this.form.jointype is ", this.form.jointype);
+
+      return;
 
       if (value !== undefined) {
         this.form.jointype = value.id;
+
+        if (this.form.jointype === 1) {
+          this.hidden.uplevelproject = true;
+        } else {
+          this.hidden.uplevelproject = false;
+        }
+        console.log("changeJoinTypeValue is ", value.id, "this.form.jointype is ", this.form.jointype);
+
       } else {
         this.form.jointype = undefined;
+        this.hidden.uplevelproject = true;
+        console.log("changeJoinTypeValue is undefined ", value.id, "this.form.jointype is ", this.form.jointype);
       }
 
-      console.log("changeJoinTypeValue is ", value.id, "this.form.jointype is ", this.form.jointype);
 
-     // this.timer = Date.now().toString();
+      this.timerkey = Date.now().toString();
 
     },
 
@@ -1165,7 +1233,7 @@ export default {
       if (docType === this.DocTypeShenjiBaogao) {
         this.acceptdocList6 = fileList;
       }
-       /* 检测报告 */
+      /* 检测报告 */
       if (docType === this.DocTypeJiancheBaogao) {
         this.acceptdocList7 = fileList;
       }
@@ -1187,21 +1255,20 @@ export default {
 
       if (operate === "add") {
 
-        this.form.projectdocList .push({docid: docid, doctype: docType});
+        this.form.projectdocList.push({docid: docid, doctype: docType});
 
-      }
-      else if (operate === "remove") {
-        for (let i =0; i < this.form.projectdocList.length; i++) {
+      } else if (operate === "remove") {
+        for (let i = 0; i < this.form.projectdocList.length; i++) {
           let doc = this.form.projectdocList[i];
           if (doc.docid === docid) {
-            this.form.projectdocList.splice(i,1);
+            this.form.projectdocList.splice(i, 1);
             break;
           }
         }
 
       }
 
-      console.log("this.basdocList is ", this.form.projectdocList );
+      console.log("this.basdocList is ", this.form.projectdocList);
     },
 
 
@@ -1312,7 +1379,7 @@ export default {
 
     /** 修改验收信息模式按钮 */
     changeAcceptanceForm() {
-      console.log(" 修改验收信息 ",this.form.status);
+      console.log(" 修改验收信息 ", this.form.status);
 
       this.form.status = this.ProjectStatus.ZaiYan;
       this.opcode = "toaccept";
@@ -1354,8 +1421,7 @@ export default {
           this_.closeForm();
           this_.msgSuccess("验收信息提交成功");
         });
-      }
-      else if (this.form.status === this.ProjectStatus.DaiQueRen){
+      } else if (this.form.status === this.ProjectStatus.DaiQueRen) {
         this.$refs["form"].validate(
           valid => {
             if (valid) {
@@ -1376,28 +1442,26 @@ export default {
                   type: "warning"
                 }).then(function () {
                   return confirmProject(this_.form);
-                  }).then(() => {
-                    this_.closeForm();
-                    this_.msgSuccess("新建审核成功");
-                  });
-              }
-              else if (result === 2) {
+                }).then(() => {
+                  this_.closeForm();
+                  this_.msgSuccess("新建审核成功");
+                });
+              } else if (result === 2) {
 
                 const note = this_.form.confirmNote;
                 console.log("confirmNote is ", note);
-                if (note !== null && note !== undefined && note.trim() !== '' ) {
+                if (note !== null && note !== undefined && note.trim() !== '') {
                   this_.$confirm('是否确认项目新建审核 不通过?', "警告", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
                     type: "warning"
                   }).then(function () {
-                   return  confirmProject(this_.form);
+                    return confirmProject(this_.form);
                   }).then(() => {
                     this_.closeForm();
                     this_.msgSuccess("新建审核不通过 完成");
                   });
-                }
-                else {
+                } else {
                   this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
                     confirmButtonText: "确定",
                     type: "warning"
@@ -1409,8 +1473,7 @@ export default {
             }
           }
         );
-      }
-      else if (this.form.status === this.ProjectStatus.JieTiDaiQueRen){
+      } else if (this.form.status === this.ProjectStatus.JieTiDaiQueRen) {
         this.$refs["form"].validate(
           valid => {
             if (valid) {
@@ -1435,24 +1498,22 @@ export default {
                   this_.closeForm();
                   this_.msgSuccess("项目验收审核成功");
                 });
-              }
-              else if (result === 2) {
+              } else if (result === 2) {
 
                 var note = this_.form.confirmNote;
                 console.log("confirmNote is ", note);
-                if (note !== null && note !== undefined && note.trim() !== '' ) {
+                if (note !== null && note !== undefined && note.trim() !== '') {
                   this_.$confirm('是否确认项目验收审核 不通过?', "警告", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
                     type: "warning"
                   }).then(function () {
-                    return  acceptanceconfirmProject(this_.form);
+                    return acceptanceconfirmProject(this_.form);
                   }).then(() => {
                     this_.closeForm();
                     this_.msgSuccess("验收审核不通过 完成");
                   });
-                }
-                else {
+                } else {
                   this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
                     confirmButtonText: "确定",
                     type: "warning"
@@ -1464,8 +1525,7 @@ export default {
             }
           }
         );
-      }
-      else if (this.form.status === this.ProjectStatus.YiJieTi) {
+      } else if (this.form.status === this.ProjectStatus.YiJieTi) {
         this_.$confirm('是否确认提交 补充验收材料?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
@@ -1479,8 +1539,7 @@ export default {
           this_.closeForm();
           this_.msgSuccess("补充验收材料提交成功");
         });
-      }
-      else {
+      } else {
 
 
       }
@@ -1488,7 +1547,7 @@ export default {
 
     /** 补充验收材料模式按钮 */
     addAcceptanceForm() {
-      console.log(" 补充验收材料 ",this.form.status);
+      console.log(" 补充验收材料 ", this.form.status);
 
       this.form.status = this.ProjectStatus.YiJieTi;
       this.opcode = "addacceptance";

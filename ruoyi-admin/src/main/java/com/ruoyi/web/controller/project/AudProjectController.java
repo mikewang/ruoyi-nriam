@@ -99,8 +99,6 @@ public class AudProjectController extends BaseController {
 
         for (AudProject record :list) {
 
-            record.setProjectDateRange(record.getProjectbegindate() + "至" + record.getProjectenddate());
-
             if (useridSet.contains(getCurrentLoginUserId())) {
 
                 java.util.Date ended = DateUtils.getNowDate();
@@ -234,20 +232,20 @@ public class AudProjectController extends BaseController {
     /**
      * 根据编号获取详细信息
      */
-    @PreAuthorize("@ss.hasPermi('project:project:query')")
-    @GetMapping(value = { "/{projectId}" })
-    public AjaxResult getProject(@PathVariable(value = "projectId", required = false) Integer projectId)
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping(value = { "/{projectid}" })
+    public AjaxResult getProject(@PathVariable(value = "projectid", required = false) Integer projectid)
     {
         AjaxResult ajax = AjaxResult.success();
 
-        if (StringUtils.isNotNull(projectId))
+        if (StringUtils.isNotNull(projectid))
         {
-            ajax.put(AjaxResult.DATA_TAG, projectService.selectProjectById(projectId));
+            ajax.put(AjaxResult.DATA_TAG, projectService.selectProjectById(projectid));
         }
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('project:project:query')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @GetMapping( "/unique")
     public AjaxResult getIfDuplicate(AudProject project)
     {
@@ -266,7 +264,7 @@ public class AudProjectController extends BaseController {
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('project:project:add')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "项目管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody AudProject project) {
@@ -300,7 +298,7 @@ public class AudProjectController extends BaseController {
         }
     }
 
-    @PreAuthorize("@ss.hasPermi('project:project:edit')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "项目管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody  AudProject project) {
@@ -331,7 +329,7 @@ public class AudProjectController extends BaseController {
     }
 
 
-    @PreAuthorize("@ss.hasPermi('project:project:edit')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "项目管理", businessType = BusinessType.UPDATE)
     @PutMapping( "/xinjianzhong")
     public AjaxResult updateStatus(@Validated @RequestBody  AudProject project) {
@@ -353,7 +351,7 @@ public class AudProjectController extends BaseController {
     /**
      * 删除
      */
-    @PreAuthorize("@ss.hasPermi('project:project:remove')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "项目管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{projectids}")
     public AjaxResult remove(@PathVariable Integer[] projectids) {
@@ -368,7 +366,7 @@ public class AudProjectController extends BaseController {
     /**
      * 文件上传
      */
-    @PreAuthorize("@ss.hasPermi('project:project:edit')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "文件上传", businessType = BusinessType.UPDATE)
     @PostMapping("/upload")
     public AjaxResult upload(@RequestParam("file") MultipartFile file) throws IOException
@@ -421,7 +419,7 @@ public class AudProjectController extends BaseController {
     /**
      * 文件下载
      */
-    @PreAuthorize("@ss.hasPermi('project:project:download')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "项目文件下载", businessType = BusinessType.EXPORT)
     @GetMapping("/download")
     public void download(@RequestParam("file") Integer fileid, HttpServletResponse response, HttpServletRequest request) throws IOException
@@ -478,7 +476,7 @@ public class AudProjectController extends BaseController {
     }
 
 
-    @PreAuthorize("@ss.hasPermi('project:project:add')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "项目管理", businessType = BusinessType.INSERT)
     @PostMapping("/doc")
     public AjaxResult addDoc(@Validated @RequestBody AudProjectdoc project) {
@@ -490,7 +488,7 @@ public class AudProjectController extends BaseController {
     }
 
 
-    @PreAuthorize("@ss.hasPermi('project:project:edit')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "项目管理", businessType = BusinessType.UPDATE)
     @PutMapping("/doc")
     public AjaxResult editDoc(@Validated @RequestBody  AudProjectdoc project) {
@@ -503,7 +501,7 @@ public class AudProjectController extends BaseController {
     /**
      * 删除
      */
-    @PreAuthorize("@ss.hasPermi('project:project:remove')")
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
     @Log(title = "项目管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/doc/{projectids}")
     public AjaxResult removeDoc(@PathVariable Integer[] projectids) {
@@ -549,15 +547,15 @@ public class AudProjectController extends BaseController {
     /**
      * 根据编号获取审核详细信息 或 验收审核详细信息。
      */
-    @PreAuthorize("@ss.hasPermi('project:project:query')")
-    @GetMapping(value = { "/confirm/{projectId}/{status}" })
-    public AjaxResult getProjectConfirm(@PathVariable(value = "projectId") Integer projectId, @PathVariable(value = "status") Integer status)
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping(value = { "/confirm/{projectid}/{status}" })
+    public AjaxResult getProjectConfirm(@PathVariable(value = "projectid") Integer projectid, @PathVariable(value = "status") Integer status)
     {
         AjaxResult ajax = AjaxResult.success();
 
-        if (StringUtils.isNotNull(projectId))
+        if (StringUtils.isNotNull(projectid))
         {
-            ajax.put(AjaxResult.DATA_TAG, projectService.selectApplyByTypeAndRelatedID(projectId, status));
+            ajax.put(AjaxResult.DATA_TAG, projectService.selectApplyByTypeAndRelatedID(projectid, status));
         }
         return ajax;
     }

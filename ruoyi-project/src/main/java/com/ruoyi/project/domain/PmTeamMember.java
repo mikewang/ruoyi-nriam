@@ -11,7 +11,7 @@ public class PmTeamMember extends BaseEntity {
 
     private String teamroleName;
 
-    private Integer userid;
+    private Integer userId;
     private String realName;
     private String hotKey;
 
@@ -47,12 +47,12 @@ public class PmTeamMember extends BaseEntity {
         this.teamroleName = teamroleName;
     }
 
-    public Integer getUserid() {
-        return userid;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUserid(Integer userid) {
-        this.userid = userid;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getHotKey() {
@@ -69,8 +69,9 @@ public class PmTeamMember extends BaseEntity {
                 "teamid=" + teamid +
                 ", teamrole=" + teamrole +
                 ", teamroleName='" + teamroleName + '\'' +
-                ", userid=" + userid +
+                ", userId=" + userId +
                 ", realName='" + realName + '\'' +
+                ", hotKey='" + hotKey + '\'' +
                 '}';
     }
 }

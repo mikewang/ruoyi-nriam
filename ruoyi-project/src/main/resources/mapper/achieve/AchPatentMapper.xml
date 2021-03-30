@@ -41,7 +41,7 @@
                       , a.CreateTime
                       , a.Status
                       , b.ProjectName  AS ProjectIDLinkText
-                      , c.TeamName     AS teamname
+                      , c.TeamName     AS teamidlinktext
                       , t10.real_name  AS CreateUserIDLinkText
                       , t12.dict_label AS StatusLinkText
                       , bs.dict_sort   AS FixParamOrderNum
@@ -74,9 +74,9 @@
             </foreach>
         </if>
 
-        <if test="patentYear != null and patentYear != '' ">
-            and #{patentYear,jdbcType=VARCHAR} &gt;= SUBSTRING(passtime,1,4)
-            and #{patentYear,jdbcType=VARCHAR} &lt;= SUBSTRING(passtime,1,4)
+        <if test="passtime != null ">
+            and #{passtime,jdbcType=VARCHAR} &gt;= SUBSTRING(passtime,1,4)
+            and #{passtime,jdbcType=VARCHAR} &lt;= SUBSTRING(passtime,1,4)
         </if>
         <if test="teamid != null and teamid != 0 ">
             and teamid = #{teamid, jdbcType=INTEGER}

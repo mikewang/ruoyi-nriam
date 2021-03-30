@@ -76,7 +76,7 @@
     <if test="attachtotype != null and attachtotype != '' ">
       and AttachToType = #{attachtotype,jdbcType=VARCHAR}
     </if>
-    <if test="relatedid != null and relatedid != '' ">
+    <if test="relatedid != null ">
       and RelatedID = #{relatedid,jdbcType=INTEGER}
     </if>
     <if test="doctype != null and doctype != '' ">

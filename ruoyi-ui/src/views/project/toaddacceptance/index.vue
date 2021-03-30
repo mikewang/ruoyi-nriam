@@ -15,17 +15,9 @@
             style="width: 240px"
           />
         </el-form-item>
-        <el-form-item label="所属团队" prop="teamname">
-          <el-autocomplete class="input-with-select"
-                           v-model="queryParams.teamname"
-                           :fetch-suggestions="queryTeamListSearch"
-                           placeholder="请输入团队名称"
-                           clearable
-                           size="small"
-                           style="width: 240px"
-                           @select="handleSelectTeam"
-          >
-          </el-autocomplete>
+        <el-form-item label="所属团队" prop="teamid">
+          <!-- 所属团队组件-->
+          <team-data :selected-team-id="queryParams.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
         </el-form-item>
         <el-form-item label="项目名称" prop="projectname">
           <el-input v-model="queryParams.projectname" clearable />
@@ -37,39 +29,18 @@
       </el-form>
 
       <el-row :gutter="10" class="mb8">
-        <el-col :span="1.5" v-if="1==0">
-          <el-button
-            type="warning"
-            icon="el-icon-download"
-            size="mini"
-            @click="handleExport"
-            v-hasPermi="['project:project:export']"
-          >导出
-          </el-button>
-        </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
       <el-table v-loading="loading" :data="projectList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" align="center"/>
+        <el-table-column type="index" width="50" align="center"/>
         <el-table-column label="项目名称" align="center" prop="projectname"  :show-overflow-tooltip="true" >
-          <template slot-scope="scope">
-            <span v-if="scope.row.projectColor === -1" style="color:red" >{{ scope.row.projectname }}</span>
-            <span v-else-if="scope.row.projectColor === 1" style="color:green" >{{ scope.row.projectname }}</span>
-            <span v-else>{{ scope.row.projectname }}</span>
-          </template>
         </el-table-column>
-
         <el-table-column label="项目编号" align="center" prop="projectcode" width="120"   />
         <el-table-column label="项目起止日期" align="center" prop="projectDateRange" width="250" />
-        <el-table-column label="项目类型" align="center" prop="projectTypeLinkText" width="300"/>
-        <el-table-column label="负责人" align="center" prop="projectManagerIDLinkText" width="100"/>
-        <el-table-column label="项目状态" align="center" prop="statusLinkText" width="100">
-          <template slot-scope="scope">
-            <span v-if="scope.row.projectColor === -1" style="color:red" :key="Math.random()">{{ scope.row.statusLinkText }}</span>
-            <span v-else-if="scope.row.projectColor === 1" style="color:green" :key="Math.random()">{{ scope.row.statusLinkText }}</span>
-            <span v-else :key="Math.random()">{{ scope.row.statusLinkText }}</span>
-          </template>
+        <el-table-column label="项目类型" align="center" prop="projecttypelinktext" width="300"/>
+        <el-table-column label="负责人" align="center" prop="projectmanageridlinktext" width="100"/>
+        <el-table-column label="项目状态" align="center" prop="statuslinktext" width="100">
         </el-table-column>
         <el-table-column
           label="操作"
@@ -104,12 +75,12 @@
 
 <script>
 import {listToaddacceptance} from "@/api/project/project";
-import {listTeam} from "@/api/project/team";
-
+import TeamData from "@/views/public/team-data";
 
 export default {
-  name: "toaddacceptance",
-  // components: {  },
+  // 补充验收材料
+  name: "project_toaddacceptance_index",
+  components: {"team-data": TeamData},
   data() {
     return {
       // 遮罩层
@@ -138,8 +109,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        teamid: 0,
-        teamname: undefined,
+        teamid: undefined,
         projectyear: undefined,
         projectname: undefined
       },
@@ -159,11 +129,6 @@ export default {
   },
   created() {
     this.getList();
-    listTeam().then(response => {
-      console.log(response);
-      this.teamListOptions = response.rows;
-
-    });
   },
   methods: {
     /** 查询用户列表 */
@@ -215,38 +180,6 @@ export default {
       this.$router.push({ path: '/project/toaddacceptance/' + projectid });
     },
 
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有项目的数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        // return exportUser(queryParams);
-      }).then(response => {
-        // this.download(response.msg);
-      });
-    },
-
-    queryTeamListSearch(queryString, cb) {
-
-      const queryParams = {
-        pageNum: 1,
-        pageSize: 30,
-        teamname: queryString
-      };
-      listTeam(queryParams).then(response => {
-        const teamListOptions = [];
-        const teamList = response.rows;
-        teamList.forEach(function (team) {
-          const item = {"value": team.teamname, "teamid": team.teamid};
-          teamListOptions.push(item);
-          });
-          cb(teamListOptions);
-        }
-      );
-    },
 
     handleSelectTeam(team) {
       console.log("handleSelectTeam is " + team["value"]);

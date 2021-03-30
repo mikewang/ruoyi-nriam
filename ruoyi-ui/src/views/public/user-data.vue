@@ -20,7 +20,7 @@ import {listUser} from "@/api/system/user";
 export default {
   name: "UserData",
   components: {},
-  props:['selectedUserId','readonly'],
+  props:['selectedUserId','readonly', 'userList'],
   data() {
     return {
       // 遮罩层
@@ -48,15 +48,28 @@ export default {
       console.log("加载 用户组件 " + this.selectedUserId);
       const this_ = this;
 
-      listUser(this.selectedUserId).then(response => {
-        console.log(response.rows);
+      if (this_.userList === undefined) {
 
-        this_.userDataList = response.rows;
+        listUser(this.selectedUserId).then(response => {
+          console.log(response.rows);
+
+          this_.userDataList = response.rows;
+
+          this_.filterUserDataOptions(null);
+
+          this_.loading = false;
+        });
+      }
+      else {
+
+        this_.userDataList = this_.userList;
 
         this_.filterUserDataOptions(null);
 
         this_.loading = false;
-      });
+      }
+
+
 
     },
 

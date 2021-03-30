@@ -47,7 +47,7 @@
       </el-row>
 
       <el-table v-loading="loading" :data="projectList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" align="center"/>
+        <el-table-column type="index" width="50" align="center"/>
         <el-table-column label="项目名称" align="center" prop="projectname" :show-overflow-tooltip="true">
           <template slot-scope="scope">
             <span v-if="scope.row.projectColor === -1" style="color:red">{{ scope.row.projectname }}</span>
@@ -260,6 +260,7 @@ export default {
       console.log("handleSelectTeam is " , value);
       this.queryParams.teamid = value.id;
       this.queryParams.teamidlinktext = value.value;
+      this.getList();
     }
   }
 };

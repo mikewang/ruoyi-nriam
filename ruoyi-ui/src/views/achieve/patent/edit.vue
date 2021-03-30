@@ -20,15 +20,9 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="专利类型" prop="patenttype">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.patenttype" placeholder="请选择"
-                           style="display:block;" clearable
-                           @change="changePatenttypeValue">
-                  <el-option
-                    v-for="item in patenttypeOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"/>
-                </el-select>
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNamePatentType"
+                           :selected-dict-value="form.patenttype" :data-options="patenttypeOptions"
+                           @changeDictValue="changeFormDictType"></dict-data>
               </el-form-item>
             </el-col>
           </el-row>
@@ -42,29 +36,15 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="本所排名" prop="ourunitorder">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.ourunitorder" placeholder="请选择"
-                           style="display:block;" clearable
-                           @change="changeOurunitorderValue">
-                  <el-option
-                    v-for="item in ourunitorderOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"/>
-                </el-select>
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameOurunitOrder"
+                           :selected-dict-value="form.ourunitorder" :data-options="ourunitorderOptions"
+                           @changeDictValue="changeFormDictType"></dict-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="所属团队" prop="teamid">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.teamname" placeholder="请选择项目所属团队"
-                           style="display:block;"
-                           clearable @clear="clearTeamValue" @change="changeTeamValue"
-                           filterable :filter-method="filterTeamOptions">
-                  <el-option
-                    v-for="item in teamOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+                <!-- 所属团队组件-->
+                <team-data :readonly="readonly.basic" :selected-team-id="form.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
               </el-form-item>
             </el-col>
           </el-row>
@@ -143,15 +123,7 @@
 
             <el-col :span="16">
               <el-form-item label="专利证书" prop="basicfileList1">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload1"
-                           :before-remove="beforeRemove1"
-                           :on-remove="handleUploadRemove1" :on-preview="handleReview"
-                           :file-list="basicfileList1" :before-upload="beforeUpload1"
-                >
-                  <el-button size="small" v-if="readonly.basic == false" v-hasPermi="['project:project:edit']">上传文件<i
-                    class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
+                <bas-doc :basdoc="basDocPatentZhengshu" :readonly="readonly.basic" @changeFileList="changeBasicfileList1" :key="basDocPatentZhengshu.relatedid" ></bas-doc>
               </el-form-item>
             </el-col>
           </el-row>
@@ -159,15 +131,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="其他附件" prop="basicfileList2">
-                <el-upload v-bind:disabled="readonly.basic" action="#" :http-request="requestUpload2"
-                           :before-remove="beforeRemove2"
-                           :on-remove="handleUploadRemove2" :on-preview="handleReview"
-                           :file-list="basicfileList2" :before-upload="beforeUpload2"
-                >
-                  <el-button v-if="readonly.basic == false" size="small" v-hasPermi="['project:project:edit']">上传文件<i
-                    class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-upload>
+                <bas-doc :basdoc="basDocPatentQita" :readonly="readonly.basic" @changeFileList="changeBasicfileList2" :key="basDocPatentQita.relatedid" ></bas-doc>
               </el-form-item>
             </el-col>
 
@@ -259,27 +223,8 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="人员" prop="userid">
-              <el-select v-if="authorForm.ifourunit == 1"  v-model="authorForm.userid" placeholder="请选择人员" style="display:block;"
-                         clearable @clear="clearAuthorPersonname" @change="changeAuthorPersonname"
-                         filterable :filter-method="filterAuthorPersonnameOptions" :show-overflow-tooltip="true">
-                <el-option
-                  v-for="item in teamMemberOptions"
-                  :key="item.id"
-                  :label="item.value"
-                  :value="item.id"></el-option>
-              </el-select>
-              <el-autocomplete v-if="0 == 1" class="input-with-select"
-                               v-model="authorForm.personname"
-                               :fetch-suggestions="queryAuthorPersonListSearch"
-                               placeholder="请输入人员名称"
-                               clearable
-                               size="small"
-                               style="width: 240px"
-                               @select="handleSelectAuthorPerson"
-              >
-              </el-autocomplete>
-              <el-input v-if="authorForm.ifourunit == 0" v-model="authorForm.personname"
-                        placeholder="请输入人员名称"></el-input>
+              <user-data v-if="authorForm.ifourunit == 1" :selected-user-id="authorForm.userid" :user-list="teamMemberList" @changeUserData="changeAuthorPersonname" :key="timer" ></user-data>
+              <el-input v-else v-model="authorForm.personname"  placeholder="请输入人员名称"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -298,9 +243,14 @@ import {listTeam, listTeamMember} from "@/api/project/team";
 import {listUser} from "@/api/system/user";
 import {getPatent, addPatent, updatePatent, deletePatent, confirmPatent, uniquePatent,getPatentConfirm} from "@/api/achieve/patent";
 import {listBasDoc,requestUpload, beforeRemove, beforeUpload, handleUploadRemove, handleUploadReview} from "@/api/achieve/basdoc";
+import TeamData from "@/views/public/team-data";
+import DictData from "@/views/public/dict-data";
+import UserData from "@/views/public/user-data";
+import BasDoc from "@/views/public/bas-doc";
 
 export default {
-  name: "EditPatent",
+  name: "achieve_patent_edit",
+  components: {"team-data": TeamData, "dict-data": DictData, "user-data": UserData, "bas-doc": BasDoc},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -318,12 +268,16 @@ export default {
       multiple: true,
       // 弹出层标题
       title: "",
-      // 是否显示弹出层
-      open: false,
-
+      DictTypeNamePatentType: "专利类型",
       // 数据字典  专利类型
-      patenttypeOptions: [{value: "发明", label: "发明"}, {value: "实用新型", label: "实用新型"}, {value: "外观设计",label: "外观设计"}, {value: "国际专利", label: "国际专利"}],
-      ourunitorderOptions: [{value: 1, label: 1}, {value: 2, label: 2}, {value: 3, label: 3}, {value: 4,label: 4}, {value: 5, label: 5}],
+      patenttypeOptions: [{dictLabel: "发明", dictValue: "发明"}, {dictLabel: "实用新型", dictValue: "实用新型"}, {dictLabel: "外观设计",dictValue: "外观设计"}, {dictLabel: "国际专利", dictValue: "国际专利"}],
+
+      DictTypeNameOurunitOrder: "本所排名",
+      ourunitorderOptions: [{dictLabel: 1, dictValue: 1}, {dictLabel: 2, dictValue: 2}, {dictLabel: 3, dictValue: 3}, {dictLabel: 4,dictValue: 4}, {dictLabel: 5, dictValue: 5}],
+
+      basDocPatentZhengshu: {relatedid: -2, attachtotype: "专利", doctype: "专利证书"},
+      basDocPatentQita: {relatedid: -2, attachtotype: "专利", doctype: "其它附件"},
+
       // 数据字典
       teamOptions: [],
       teamList: [],
@@ -331,7 +285,6 @@ export default {
       userOptions: [],
       userList: [],
 
-      teamMemberOptions: [],
       teamMemberList: [],
 
       AchieveStatus: {DaiQueRen: 36, BuTongGuo: 38, ZhengChang: 37, YiShanChu: 39},
@@ -401,7 +354,7 @@ export default {
     this.resetTemplateStatus();
     console.log(" created this.$route.params is ", this.$route.params);
 
-    var patentid = this.$route.params && this.$route.params.patentid;
+    let patentid = this.$route.params && this.$route.params.patentid;
     if (patentid === undefined || Number(patentid) === 0) {
       patentid = undefined;
     } else {
@@ -442,17 +395,8 @@ export default {
 
           this_.configTemplateStatus();
 
-          listBasDoc({relatedid: this_.form.patentid, attachtotype: "专利"}).then(response => {
-
-            let rows = response.data;
-            console.log("listBasDoc is ", rows);
-            this.form.docList = rows;
-            this.basicfileList1 = this.filterDocList("专利证书");
-            console.log("专利证书 is ", this.basicfileList1);
-            this.basicfileList2 = this.filterDocList("其它附件");
-            console.log("其它附件 is ", this.basicfileList2);
-
-          });
+          this_.basDocPatentZhengshu.relatedid = this_.form.patentid;
+          this_.basDocPatentQita.relatedid = this_.form.patentid;
 
           this.loading = false;
 
@@ -467,32 +411,6 @@ export default {
 
         });
       }
-
-      var listOptions = [];
-      listTeam().then(response => {
-        console.log(response);
-        response.rows.forEach(function (item) {
-          const team = {value: item.teamname, id: item.teamid};
-          listOptions.push(team);
-        });
-        this.teamList = listOptions;
-        this.teamOptions = listOptions;
-
-        listOptions = [];
-        listUser().then(response => {
-          console.log("listUser is ", response);
-          response.rows.forEach(function (item) {
-            //console.log("item is ", item);
-            const user = {value: item.realName, id: item.userId, hotKey: item.hotKey};
-            //console.log(user);
-            listOptions.push(user);
-          });
-          this.userList = listOptions;
-          this.userOptions = listOptions;
-        });
-
-      });
-
     },
 
     resetTemplateStatus() {
@@ -612,70 +530,38 @@ export default {
       this.resetForm("form");
     },
 
+    // 组件方法
+    changeFormDictType(type,id, value) {
 
-    changePatenttypeValue(value) {
-
-      if (value) {
-        this.form.patenttype = value;
-      } else {
-        this.form.patenttype = undefined;
+      console.log("changeFormDictType is ", type, value);
+      if (type === this.DictTypeNameOurunitOrder) {
+        if (value) {
+          this.form.ourunitorder = value.id;
+        } else {
+          this.form.ourunitorder = undefined;
+        }
       }
-
-    },
-
-    changeOurunitorderValue(value) {
-
-      if (value) {
-        this.form.ourunitorder = value;
-      } else {
-        this.form.ourunitorder = undefined;
+      else if (type === this.DictTypeNamePatentType) {
+        if (value) {
+          this.form.patenttype = value.id;
+        } else {
+          this.form.patenttype = undefined;
+        }
       }
-
     },
 
 
-    clearTeamValue() {
-      this.form.teamid = undefined;
-      this.teamMemberList = [];
-      this.teamMemberOptions = [];
-    },
-
-    changeTeamValue(value) {
-
+    // 组件方法
+    selectTeamId(value) {
+      console.log("handleSelectTeam is ", value);
       if (value) {
-        this.form.teamid = value;
-        this.teamMemberList = [];
-        this.teamMemberOptions = [];
-
-        const queryParams = {
-          pageNum: 1,
-          pageSize: 30,
-          teamid: this.form.teamid
-        };
-
-        listTeamMember(queryParams).then(response => {
-            const teamMemberOptions = [];
-            const teamMemberList = response.rows;
-            teamMemberList.forEach(function (member) {
-              const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
-              teamMemberOptions.push(item);
-            });
-            this.teamMemberList = teamMemberOptions;
-            this.teamMemberOptions = teamMemberOptions;
-          }
-        );
-
+        this.form.teamid = value.id;
       } else {
         this.form.teamid = undefined;
-        this.teamMemberList = [];
-        this.teamMemberOptions = [];
       }
     },
 
-    filterTeamOptions(queryString) {
-      console.log("filter value is " + queryString);
-      this.teamOptions = queryString ? this.teamList.filter(this.createFilter(queryString)) : this.teamList;
-    },
+
 
     changeAuthorIfourunit() {
       if (this.authorForm.ifourunit === 1) {
@@ -689,221 +575,62 @@ export default {
 
     },
 
-    clearAuthorPersonname() {
-
-    },
-    changeAuthorPersonname(value) {
-        console.log("changeAuthorPersonname value is " + value);
-      if (value) {
-        this.authorForm.userid = value;
-        for (let i=0; i< this.teamMemberOptions.length; i++) {
-          let member = this.teamMemberOptions[i];
-          if (member.id === value) {
-            this.authorForm.personname = member.value;
-            break;
-          }
-        }
-
+    changeAuthorPersonname(user) {
+        console.log("changeAuthorPersonname user is " + user);
+      if (user) {
+        this.authorForm.userid = user.userId;
+        this.authorForm.personname = user.realName;
       } else {
         this.authorForm.userid = undefined;
         this.authorForm.personname = undefined;
       }
     },
 
-    filterAuthorPersonnameOptions(queryString) {
-      console.log("filter value is " + queryString);
-      console.log("teamMemberList is " , this.teamMemberList);
-
-      let options = [];
-      if (this.teamMemberList.length > 0) {
-        options = this.teamMemberList;
-        this.teamMemberOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
-      }
-     else if (this.userList.length > 0) {
-        options = this.userList;
-        this.teamMemberOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
-      }
-     else  {
-        // 在线查询。
-        const queryParams = {
-          pageNum: 1,
-          pageSize: 30,
-          teamid: this.form.teamid,
-          realName: queryString
-        };
-
-        listTeamMember(queryParams).then(response => {
-            const teamMemberOptions = [];
-            const teamMemberList = response.rows;
-            teamMemberList.forEach(function (member) {
-              const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
-              var x = true;
-              for (let i = 0; i < teamMemberOptions.length; i++) {
-                let opt = teamMemberOptions[i];
-                if (opt.value === member.realName) {
-                  x = false;
-                  break;
-                }
-              }
-              if (x) {
-                teamMemberOptions.push(item);
-              }
-            });
-            this.teamMemberOptions = teamMemberOptions;
-          }
-        );
-      }
-    },
-
-    createFilter(v) {
-      return (item) => {
-        const queryString = v.toLowerCase();
-
-        let x = false;
-
-        const keys =  Object.keys(item);
-        for(let i=0; i < keys.length; i++) {
-          let key = keys[i];
-          let value = item[key];
-          let pp = -1;
-          if (value !== undefined && value !== null) {
-            pp = value.toString().indexOf(queryString);
-          }
-          if (pp != -1) {
-            x = true;
-            break;
-          }
-        }
-        return x;
-      };
-    },
-
-    queryAuthorPersonListSearch(queryString, cb) {
-      // 调用 callback 返回建议列表的数据
-      var options = [];
-      if (this.teamMemberList.length > 0) {
-        options = this.teamMemberList;
-        const results = queryString ? options.filter(this.createFilter(queryString)) : options;
-        // 调用 callback 返回建议列表的数据
-        cb(results);
-      } else if (this.userList.length > 0) {
-        options = this.userList;
-        const results = queryString ? options.filter(this.createFilter(queryString)) : options;
-        // 调用 callback 返回建议列表的数据
-        cb(results);
-      } else {
-        // 在线查询。
-        const queryParams = {
-          pageNum: 1,
-          pageSize: 30,
-          teamid: this.form.teamid,
-          realName: queryString
-        };
-
-        listTeamMember(queryParams).then(response => {
-            const teamMemberListOptions = [];
-            const teamMemberList = response.rows;
-            teamMemberList.forEach(function (member) {
-              const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
-              var x = true;
-              for (let i = 0; i < teamMemberListOptions.length; i++) {
-                let opt = teamMemberListOptions[i];
-                if (opt.value === member.realName) {
-                  x = false;
-                  break;
-                }
-              }
-              if (x) {
-                teamMemberListOptions.push(item);
-              }
-            });
-            cb(teamMemberListOptions);
-          }
-        );
-
-      }
-    },
-
-    handleSelectAuthorPerson(member) {
-      console.log("handleSelectAuthorPerson is " + member["value"] + " userid is " +  member["id"]);
-      this.authorForm.personname = member["value"];
-      this.authorForm.userid = member["id"];
-    },
-
-    filterDocList(doctype) {
-      const doclist = [];
-
-      if (doctype !== "") {
-        for (let i = 0; i < this.form.docList.length; i++) {
-          let item = this.form.docList[i];
-          if (item.doctype === doctype) {
-            doclist.push({"name": item.docname, "url": item.docid});
-          }
-        }
-      }
-      return doclist;
-    },
-
 
     /* 专利证书 */
-    beforeUpload1(file) {
 
-      return beforeUpload(file, this.basicfileList1, "专利证书");
+    changeBasicfileList1(filelist) {
 
-    },
+      console.log("专利证书 is ", filelist, this.form.docList);
 
-    requestUpload1: function (params) {
-      requestUpload(2, params, this.basicfileList1, "专利证书", this.form.docList);
-    },
+      let doctype = "专利证书";
 
-    beforeRemove1(file, fileList) {
-      let index = fileList.indexOf(file);
-      console.log("beforeRemove1 index=" + index, file.name);
-      return true;
-      //  return this.$confirm(`确定移除 ${ file.name }？`);
-    },
+      for (let i=0; i < this.form.docList.length; i++) {
+        let doc = this.form.docList[i];
+        if (doc.doctype === doctype) {
+          this.docList.splice(i,1);
+        }
+      }
 
-    handleUploadRemove1(file) {
-
-      handleUploadRemove(file, this.basicfileList1, "专利证书", this.form.docList);
-
-      return;
-    },
-
-    handleReview(file) {
-      this.$confirm('是否确认下载"' + file.name + '"的文件?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-
-        handleUploadReview(file);
-
-      }).then(() => {
-        this.msgSuccess("下载开始");
-      })
+      for (let i=0; i < filelist.length; i++) {
+        let file = filelist[i];
+        this.docList.push({docid: file.url, doctype: doctype});
+      }
 
     },
 
     /* 其它附件 */
-    beforeUpload2(file) {
-      return beforeUpload(file, this.basicfileList2, "其它附件");
+
+    changeBasicfileList2(filelist) {
+
+      console.log("其它附件 is ", filelist);
+
+      let doctype = "其它附件";
+
+      for (let i=0; i < this.form.docList.length; i++) {
+        let doc = this.form.docList[i];
+        if (doc.doctype === doctype) {
+          this.docList.splice(i,1);
+        }
+      }
+
+      for (let i=0; i < filelist.length; i++) {
+        let file = filelist[i];
+        this.docList.push({docid: file.url, doctype: doctype});
+      }
+
     },
 
-    requestUpload2: function (params) {
-      requestUpload(2, params, this.basicfileList2, "其它附件", this.form.docList);
-    },
-
-    beforeRemove2(file, fileList) {
-      let index = fileList.indexOf(file);
-      console.log("beforeRemove2 index=" + index, file.name);
-      return true;
-      //  return this.$confirm(`确定移除 ${ file.name }？`);
-    },
-
-    handleUploadRemove2(file) {
-      handleUploadRemove(file, this.basicfileList2, "其它附件", this.form.docList);
-    },
 
     /** 关闭按钮 */
     closeForm() {
@@ -1056,14 +783,8 @@ export default {
       };
 
       listTeamMember(queryParams).then(response => {
-          const teamMemberOptions = [];
-          const teamMemberList = response.rows;
-          teamMemberList.forEach(function (member) {
-            const item = {"value": member.realName, "id": member.userid, "hotKey": member.hotKey};
-            teamMemberOptions.push(item);
-          });
-          this.teamMemberList = teamMemberOptions;
-          this.teamMemberOptions = teamMemberOptions;
+          this.teamMemberList = response.rows;
+          this.timer = Date.now().toString();
         }
       );
 
@@ -1071,11 +792,15 @@ export default {
 
     handleAuthorAdd() {
       this.resetAuthorForm();
+
       this.authorFormOpen = true;
       this.authorFormTitle = "添加专利人";
 
       if (this.form.teamid !== undefined) {
         this.getTeamMember(this.form.teamid);
+      }
+      else {
+        console.error(" 所属团队没有选", this.form);
       }
     },
 
