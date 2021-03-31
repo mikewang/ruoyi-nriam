@@ -59,7 +59,7 @@ public class IndicatorPatentService {
         record.setPasstime(currYear);
         record.setPatenttype(patent.getPatenttype());
 
-        List<AchPatent>   patentList =      achPatentMapper.selectAchPatentList(record);
+        List<AchPatent> patentList = achPatentMapper.selectAchPatentList(record);
 
         if (patentList.size() > 0) {
             //获奖成果

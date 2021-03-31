@@ -165,6 +165,24 @@ export const constantRoutes = [
         component: (resolve) => require(['@/views/achieve/patent/edit'], resolve),
         name: 'ConfirmPatent',
         meta: { title: '专利审核', icon: '', opcode: 'confirm',noCache: true,}
+      },
+      {
+        path: 'thesis',
+        component: (resolve) => require(['@/views/achieve/thesis/edit'], resolve),
+        name: 'AddThesis',
+        meta: {title: '论文新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'thesis/:thesisid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/thesis/edit'], resolve),
+        name: 'EditThesis',
+        meta: { title: '专利编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'thesis/confirm/:thesisid(\\d+)/:applyid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/thesis/edit'], resolve),
+        name: 'ConfirmThesis',
+        meta: { title: '专利审核', icon: '', opcode: 'confirm',noCache: true,}
       }
     ]
   },

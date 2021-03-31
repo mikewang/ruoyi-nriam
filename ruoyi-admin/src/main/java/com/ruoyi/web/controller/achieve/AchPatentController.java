@@ -38,11 +38,19 @@ public class AchPatentController extends BaseController {
     @Resource
     private ServerConfig serverConfig;
 
+    private Long getCurrentLoginUserId(){
+        LoginUser loginUser=tokenService.getLoginUser(ServletUtils.getRequest());
+        Long userId=loginUser.getUser().getUserId();
+
+        userId=87L; // 测试用户 changchun 。
+        return userId;
+    }
+
     @PreAuthorize("@ss.hasPermi('achieve:patent:list')")
     @GetMapping("/list")
     public TableDataInfo list(AchPatent query) {
-        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-        Long userId = loginUser.getUser().getUserId();
+
+        Long userId = getCurrentLoginUserId();
         logger.debug("query  is " + query.toString());
 
         startPage();
@@ -99,8 +107,7 @@ public class AchPatentController extends BaseController {
     @PostMapping
     public AjaxResult add(@Validated @RequestBody AchPatent patent) {
 
-        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-        Long userId = loginUser.getUser().getUserId();
+        Long userId = getCurrentLoginUserId();
 
         patent.setCreateuserid(userId.intValue());
 

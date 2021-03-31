@@ -2,10 +2,11 @@ package com.ruoyi.achieve.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.List;
+
 public class AchThesis extends BaseEntity {
 
     private Integer thesisid;
-
 
     private String thesisname;
 
@@ -50,6 +51,18 @@ public class AchThesis extends BaseEntity {
     private String teamidlinktext;
     private String createuseridlinktext;
     private String statuslinktext;
+
+
+    private List<AchAuthor> authorList;
+    private String authors;
+
+
+    private Integer statusColor = 0;
+
+    private Integer confirmResult;
+    private String confirmNote;
+    private Integer confirmUserid;
+    private Integer applyid;
 
     public Integer getThesisid() {
         return thesisid;
@@ -209,6 +222,63 @@ public class AchThesis extends BaseEntity {
 
     public void setStatuslinktext(String statuslinktext) {
         this.statuslinktext = statuslinktext;
+    }
+
+
+    public List<AchAuthor> getAuthorList() {
+        return authorList;
+    }
+
+    public void setAuthorList(List<AchAuthor> authorList) {
+        this.authorList = authorList;
+    }
+
+    public String getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(String authors) {
+        this.authors = authors;
+    }
+
+    public Integer getStatusColor() {
+        return statusColor;
+    }
+
+    public void setStatusColor(Integer statusColor) {
+        this.statusColor = statusColor;
+    }
+
+    public Integer getConfirmResult() {
+        return confirmResult;
+    }
+
+    public void setConfirmResult(Integer confirmResult) {
+        this.confirmResult = confirmResult;
+    }
+
+    public String getConfirmNote() {
+        return confirmNote;
+    }
+
+    public void setConfirmNote(String confirmNote) {
+        this.confirmNote = confirmNote;
+    }
+
+    public Integer getConfirmUserid() {
+        return confirmUserid;
+    }
+
+    public void setConfirmUserid(Integer confirmUserid) {
+        this.confirmUserid = confirmUserid;
+    }
+
+    public Integer getApplyid() {
+        return applyid;
+    }
+
+    public void setApplyid(Integer applyid) {
+        this.applyid = applyid;
     }
 
     @Override

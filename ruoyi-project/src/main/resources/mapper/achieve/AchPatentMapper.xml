@@ -73,7 +73,6 @@
                 #{item}
             </foreach>
         </if>
-
         <if test="passtime != null ">
             and #{passtime,jdbcType=VARCHAR} &gt;= SUBSTRING(passtime,1,4)
             and #{passtime,jdbcType=VARCHAR} &lt;= SUBSTRING(passtime,1,4)
@@ -84,7 +83,6 @@
         <if test="patenttype != null and patenttype != '' ">
             and patenttype = #{patentYear,jdbcType=VARCHAR}
         </if>
-
         order by PatentID desc
     </select>
 
@@ -106,7 +104,7 @@
         select count(*) from ACH_Patent
         where status != 39 and PatentCode = #{patentcode,jdbcType=VARCHAR}
         <if test="patentid != null and patentid != 0 ">
-            and PatentID != #{patentid,jdbcType=INTEGER, jdbcType=INTEGER}
+            and PatentID != #{patentid,jdbcType=INTEGER}
         </if>
 
     </select>
@@ -129,7 +127,7 @@
         where PatentID = #{patentid,jdbcType=INTEGER}
     </update>
 
-    <update id="updateStatusAchPatent" parameterType="com.ruoyi.achieve.domain.AchPatent">
+    <update id="updateAchPatentStatus" parameterType="com.ruoyi.achieve.domain.AchPatent">
         update ACH_Patent
         set Status = #{status,jdbcType=INTEGER}
         where PatentID = #{patentid,jdbcType=INTEGER}

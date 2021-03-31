@@ -5,53 +5,85 @@
       <el-form v-loading="loading" ref="form" :model="form" :rules="rules" label-width="160px" :key="timer"
       >
         <template>
-          <el-tag size="medium" type="info">专利信息</el-tag>
+          <el-tag size="medium" type="info">论文信息</el-tag>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="专利名称" prop="patentname">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.patentname" placeholder="请输入专利名称"
+              <el-form-item label="论文题目" prop="thesisname">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.thesisname" placeholder="请输入论文题目"
                           :show-overflow-tooltip="true"/>
               </el-form-item>
             </el-col>
-            <el-col :span="8">
-              <el-form-item label="专利号" prop="patentcode">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.patentcode" placeholder="请输入专利号"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="专利类型" prop="patenttype">
-                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNamePatentType"
-                           :selected-dict-value="form.patenttype" :data-options="patenttypeOptions"
-                           @changeDictValue="changeFormDictType" :key="timer"></dict-data>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="8">
-              <el-form-item label="授权日期" prop="passtime">
-                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.passtime" type="date" placeholder="请选择日期"
-                                value-format="yyyy-MM-dd"
-                                style="display:block;"></el-date-picker>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="本所排名" prop="ourunitorder">
-                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameOurunitOrder"
-                           :selected-dict-value="form.ourunitorder" :data-options="ourunitorderOptions"
-                           @changeDictValue="changeFormDictType"></dict-data>
-              </el-form-item>
-            </el-col>
+
             <el-col :span="8">
               <el-form-item label="所属团队" prop="teamid">
                 <!-- 所属团队组件-->
                 <team-data :readonly="readonly.basic" :selected-team-id="form.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
               </el-form-item>
             </el-col>
+
+            <el-col :span="8">
+              <el-form-item label="期刊级别" prop="publishbooklevel">
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNamePublishbooklevel"
+                           :selected-dict-value="form.publishbooklevel" :data-options="undefined"
+                           @changeDictValue="changeFormDictType" :key="timer"></dict-data>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="期刊名称" prop="publishbookname">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.publishbookname" placeholder="请输入专利号"/>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="8">
+              <el-form-item label="发表年度" prop="year">
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.year" type="year" placeholder="请选择日期"
+                                format="yyyy"
+                                value-format="yyyy"
+                                style="display:block;"></el-date-picker>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="卷数" prop="issue">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.issue" placeholder="请输入"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="期数" prop="period">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.period" placeholder="请输入"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="起止页码" prop="page">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.page" placeholder="请输入"/>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="8">
+              <el-form-item label="论文级别" prop="thesislevel">
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameThesislevel"
+                           :selected-dict-value="form.thesislevel" :data-options="thesislevelOptions"
+                           @changeDictValue="changeFormDictType"></dict-data>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="16">
+              <el-form-item label="DOI" prop="doi">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.doi" placeholder="请输入"/>
+              </el-form-item>
+            </el-col>
+
           </el-row>
 
           <el-row>
             <el-col :span="24">
-              <el-form-item label="专利人" prop="authorList">
+              <el-form-item label="作者列表" prop="authorList">
                 <el-row :gutter="10" class="mb8" v-bind:hidden="readonly.basic">
                   <el-col :span="1.5">
                     <el-button plain
@@ -89,6 +121,12 @@
                   </el-table-column>
                   <el-table-column label="单位名称" align="center" prop="unitname"/>
                   <el-table-column label="人员" align="center" prop="personname" width="100"/>
+                  <el-table-column label="通讯作者" align="center" prop="ifreporter" width="100">
+                    <template slot-scope="scope">
+                      <span v-if="scope.row.ifreporter">是</span>
+                      <span v-else>否</span>
+                    </template>
+                  </el-table-column>
                   <el-table-column
                     label="操作"
                     align="center"
@@ -122,20 +160,12 @@
           <el-row>
 
             <el-col :span="16">
-              <el-form-item label="专利证书" prop="basicfileList1">
+              <el-form-item label="论文全文" prop="basicfileList1">
                 <bas-doc :basdoc="basDocPatentZhengshu" :readonly="readonly.basic" @changeFileList="changeBasicfileList1" :key="basDocPatentZhengshu.relatedid" ></bas-doc>
               </el-form-item>
             </el-col>
           </el-row>
 
-          <el-row>
-            <el-col :span="16">
-              <el-form-item label="其他附件" prop="basicfileList2">
-                <bas-doc :basdoc="basDocPatentQita" :readonly="readonly.basic" @changeFileList="changeBasicfileList2" :key="basDocPatentQita.relatedid" ></bas-doc>
-              </el-form-item>
-            </el-col>
-
-          </el-row>
 
           <el-row>
             <el-col :span="16">
@@ -227,6 +257,11 @@
               <el-input v-else v-model="authorForm.personname"  placeholder="请输入人员名称"></el-input>
             </el-form-item>
           </el-col>
+          <el-col :span="24">
+            <el-form-item label="通讯作者" prop="ifreporter">
+              <el-checkbox v-model="authorForm.ifreporter" >是</el-checkbox>
+            </el-form-item>
+          </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -249,7 +284,7 @@ import UserData from "@/views/public/user-data";
 import BasDoc from "@/views/public/bas-doc";
 
 export default {
-  name: "achieve_patent_edit",
+  name: "achieve_thesis_edit",
   components: {"team-data": TeamData, "dict-data": DictData, "user-data": UserData, "bas-doc": BasDoc},
   data() {
     return {
@@ -268,12 +303,15 @@ export default {
       multiple: true,
       // 弹出层标题
       title: "",
+      DictTypeNamePublishbooklevel: "期刊级别",
+
       DictTypeNamePatentType: "专利类型",
       // 数据字典  专利类型
       patenttypeOptions: [{dictLabel: "发明", dictValue: "发明"}, {dictLabel: "实用新型", dictValue: "实用新型"}, {dictLabel: "外观设计",dictValue: "外观设计"}, {dictLabel: "国际专利", dictValue: "国际专利"}],
 
-      DictTypeNameOurunitOrder: "本所排名",
-      ourunitorderOptions: [{dictLabel: 1, dictValue: 1}, {dictLabel: 2, dictValue: 2}, {dictLabel: 3, dictValue: 3}, {dictLabel: 4,dictValue: 4}, {dictLabel: 5, dictValue: 5}],
+      DictTypeNameThesislevel: "论文级别",
+
+      thesislevelOptions: [{dictLabel: "A", dictValue:  "A"}, {dictLabel:  "B", dictValue:  "B"}, {dictLabel:  "C", dictValue:  "C"}, {dictLabel: "D",dictValue: "D"}, {dictLabel: "E", dictValue: "E"}],
 
       basDocPatentZhengshu: {relatedid: -2, attachtotype: "专利", doctype: "专利证书"},
       basDocPatentQita: {relatedid: -2, attachtotype: "专利", doctype: "其它附件"},

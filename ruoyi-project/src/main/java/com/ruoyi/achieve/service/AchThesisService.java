@@ -1,9 +1,9 @@
 package com.ruoyi.achieve.service;
 
 import com.ruoyi.achieve.domain.AchAuthor;
-import com.ruoyi.achieve.domain.AchPatent;
+import com.ruoyi.achieve.domain.AchThesis;
 import com.ruoyi.achieve.mapper.AchAuthorMapper;
-import com.ruoyi.achieve.mapper.AchPatentMapper;
+import com.ruoyi.achieve.mapper.AchThesisMapper;
 import com.ruoyi.audit.domain.AudApply;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudApplyMapper;
@@ -12,27 +12,16 @@ import com.ruoyi.common.constant.MID;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.AchieveStatus;
 import com.ruoyi.common.enums.AchieveType;
-
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.performance.domain.PerIndicator;
-import com.ruoyi.performance.domain.PerIndicatorpatent;
-
 import com.ruoyi.performance.domain.PerTeamperformance;
-import com.ruoyi.performance.mapper.PerIndicatorMapper;
-import com.ruoyi.performance.mapper.PerIndicatorpatentMapper;
-
 import com.ruoyi.performance.mapper.PerTeamperformanceMapper;
-
-import com.ruoyi.performance.service.TeamPerformanceService;
-
 import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.system.domain.SysUserMenu;
 import com.ruoyi.system.mapper.SysUserMenuMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -41,29 +30,21 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class AchPatentService {
-    private static final Logger log = LoggerFactory.getLogger(AchPatentService.class);
+public class AchThesisService {
+    private static final Logger log = LoggerFactory.getLogger(AchThesisService.class);
 
     @Resource
-    private AchPatentMapper patentMapper;
+    private AchThesisMapper thesisMapper;
 
     @Resource
     private AchAuthorMapper authorMapper;
 
     @Resource
-    private BasDocMapper basDocMapper;
-
-    @Resource
     private AudApplyMapper applyMapper;
 
     @Resource
-    private TeamPerformanceService teamperformanceService;
+    private PerTeamperformanceMapper teamperformanceMapper;
 
-    @Resource
-    PerIndicatorpatentMapper indicatorpatentMapper;
-
-    @Resource
-    PerIndicatorMapper indicatorMapper;
 
     @Resource
     private SysUserMenuMapper userMenuMapper;
@@ -71,16 +52,17 @@ public class AchPatentService {
     @Resource
     private AudMessageMapper messageMapper;
 
-    private String ACHIEVETYPE = AchieveType.PATENT.getInfo();
+    private String ACHIEVETYPE = AchieveType.THESIS.getInfo();
 
-    public List<AchPatent> selectAchPatentList(AchPatent patent) {
-        List<AchPatent> patentList = patentMapper.selectAchPatentList(patent);
+    public List<AchThesis> selectAchThesisList(AchThesis thesis) {
 
-        for (AchPatent p : patentList) {
-            Integer patentid = p.getPatentid();
+        List<AchThesis> thesisList = thesisMapper.selectAchThesis(thesis);
+
+        for (AchThesis p : thesisList) {
+            Integer thesisid = p.getThesisid();
             AchAuthor query = new AchAuthor();
             query.setAchievetype(ACHIEVETYPE);
-            query.setRelatedid(patentid);
+            query.setRelatedid(thesisid);
 
             List<AchAuthor> achAuthorList = authorMapper.selectAchAuthorList(query);
             List<String> personnames = new ArrayList<>();
@@ -91,6 +73,11 @@ public class AchPatentService {
 
             p.setAuthorList(achAuthorList);
             p.setAuthors(authors);
+
+            if (p.getThesislevel().equals("-1")) {
+                p.setThesislevel("");
+            }
+
 
             //状态文字设置颜色
             if (p.getStatus() == AchieveStatus.DaiQueRen.getCode()) {
@@ -104,21 +91,21 @@ public class AchPatentService {
             }
 
         }
-        log.debug("AchPatent list is request.");
-        return patentList;
+        log.debug("AchThesis list is request.");
+        return thesisList;
     }
 
-    public AchPatent selectAchPatentById(Integer patentid) {
+    public AchThesis selectAchThesisById(Integer thesisid) {
 
-        AchPatent p =  patentMapper.selectAchPatentById(patentid);
+        AchThesis p =  thesisMapper.selectAchThesisById(thesisid);
         if (p == null) {
             return null;
         }
 
         AchAuthor query = new AchAuthor();
-        log.debug("ACHIEVETYPE is " + ACHIEVETYPE + " patentid is " + patentid.toString());
+        log.debug("ACHIEVETYPE is " + ACHIEVETYPE + " thesisid is " + thesisid.toString());
         query.setAchievetype(ACHIEVETYPE);
-        query.setRelatedid(patentid);
+        query.setRelatedid(thesisid);
 
         List<AchAuthor> achAuthorList = authorMapper.selectAchAuthorList(query);
         log.debug("achAuthorList is " + achAuthorList.toString());
@@ -135,45 +122,33 @@ public class AchPatentService {
         return  p;
     }
 
-    public Integer queryIfDuplicate(AchPatent patent) {
-        return patentMapper.queryIfDuplicate(patent);
+
+    public Integer queryIfDuplicate(AchThesis thesis) {
+        return thesisMapper.queryIfDuplicate(thesis);
     }
 
 
 
-    public Integer updatePatentDetail(AchPatent patent) {
+    public Integer updateThesisDetail(AchThesis thesis) {
 
-        Integer patentid = patent.getPatentid();
+        Integer thesisid = thesis.getThesisid();
 
         //保存对应的作者
-        List<AchAuthor> authors = patent.getAuthorList();
+        List<AchAuthor> authors = thesis.getAuthorList();
         AchAuthor query = new AchAuthor();
         query.setAchievetype(ACHIEVETYPE);
-        query.setRelatedid(patent.getPatentid());
+        query.setRelatedid(thesis.getThesisid());
         log.debug("deleteAchAuthor is " + query.toString());
         authorMapper.deleteAchAuthor(query);
         Integer i = 1;
         for(AchAuthor author : authors) {
-            author.setRelatedid(patentid);
+            author.setRelatedid(thesisid);
             author.setAchievetype(ACHIEVETYPE);
             author.setOrdernumber(i);
             author.setIfreporter(false);
             authorMapper.insertAchAuthor(author);
             i = i + 1;
         }
-
-        //保存对应的文档
-        // 同步 文件。 使用merge方式。
-        List<BasDoc> doclist = patent.getDocList();
-        log.debug("patent.getDocList is " + doclist.toString());
-
-        for (BasDoc s : doclist) {
-            s.setAttachtotype(ACHIEVETYPE);
-            s.setRelatedid(patentid);
-            log.debug("updateBasDocAttachTo is " + s.toString());
-            basDocMapper.updateBasDocAttachTo(s);
-        }
-
         return 1;
     }
 
@@ -194,17 +169,17 @@ public class AchPatentService {
 
 
 
-    public void sendApplyAndMsg(AchPatent patent) {
+    public void sendApplyAndMsg(AchThesis thesis) {
 
         String title = "新的科技成果待审核";
-        String content = "专利：“" + patent.getPatentname()  + "”的信息待审核。"
+        String content = "学术论文：“" + thesis.getThesisname()  + "”的信息待审核。"
             + "<a href=\"/Achieve/ToConfirmList.aspx?at=" + ACHIEVETYPE
-            + "&kid=" + patent.getPatentid() + "&f=todo\" target=\"_self\" >查看</a> ";
+            + "&kid=" + thesis.getThesisid() + "&f=todo\" target=\"_self\" >查看</a> ";
 
         AudApply apply = new AudApply();
         apply.setApplytype(ACHIEVETYPE);
-        apply.setRelatedid(patent.getPatentid());
-        apply.setApplyuserid(patent.getCreateuserid());
+        apply.setRelatedid(thesis.getThesisid());
+        apply.setApplyuserid(thesis.getCreateuserid());
         apply.setApplytime(DateUtils.dateTimeNow());
         apply.setApplyreason("");
         apply.setApplystatus(0);
@@ -225,94 +200,104 @@ public class AchPatentService {
             message.setMessagecontent(content);
             message.setTouserid(userid.intValue());
             message.setRelatedsheettype(ACHIEVETYPE);
-            message.setRelatedsheetid(patent.getPatentid());
+            message.setRelatedsheetid(thesis.getThesisid());
             messageMapper.insertAudMessage(message);
         }
 
     }
 
-    @Transactional
-    public Integer insertAchPatent(AchPatent patent) {
-        patent.setCreatetime(DateUtils.dateTimeNow());
-        patent.setPatentid(-1);
-        patent.setProjectid(-1);
-        Integer rows = patentMapper.insertAchPatent(patent);
-        updatePatentDetail(patent);
+    public Integer insertAchThesis(AchThesis thesis) {
+        thesis.setCreatetime(DateUtils.dateTimeNow());
+        thesis.setThesisid(-1);
+        Integer rows = thesisMapper.insertAchThesis(thesis);
+        updateThesisDetail(thesis);
         //发申请和通知
-        sendApplyAndMsg(patent);
+        sendApplyAndMsg(thesis);
         return  rows;
     }
 
-    @Transactional
-    public Integer updateAchPatent(AchPatent patent) {
+    public Integer updateAchThesis(AchThesis thesis) {
 
-        AchPatent undoPatent = patentMapper.selectAchPatentById(patent.getPatentid());
+        AchThesis undoThesis = thesisMapper.selectAchThesisById(thesis.getThesisid());
 
-        Integer rows = patentMapper.updateAchPatent(patent);
-        updatePatentDetail(patent);
+        Integer rows = thesisMapper.updateAchThesis(thesis);
+        updateThesisDetail(thesis);
 
-        if (undoPatent.getStatus() == AchieveStatus.BuTongGuo.getCode()) {
+        if (undoThesis.getStatus() == AchieveStatus.BuTongGuo.getCode()) {
             //发申请和通知
-            sendApplyAndMsg(patent);
+            sendApplyAndMsg(thesis);
         }
 
         return  rows;
     }
 
+    public Integer updateStatusAchThesis(AchThesis thesis) {
+        return thesisMapper.updateStatusAchThesis(thesis);
+    }
 
-    @Transactional
-    public Integer confirmAchPatent(AchPatent patent) {
 
-        AchPatent record = new AchPatent();
-        record.setPatentid(patent.getPatentid());
-        if (patent.getConfirmResult() == 1) {
+
+    public Integer confirmAchThesis(AchThesis thesis) {
+
+        AchThesis record = new AchThesis();
+        record.setThesisid(thesis.getThesisid());
+        if (thesis.getConfirmResult() == 1) {
             record.setStatus(AchieveStatus.ZhengChang.getCode());
 
-            //审核通过时，团队绩效加分
-            teamperformanceService.addTeamperformancesForPatent(patent);
+            //审核通过时，团队绩效加分, 后续开发，等绩效模块到位。
 
+            PerTeamperformance p = new PerTeamperformance();
+
+            teamperformanceMapper.insertPerTeamperformance(p);
+
+//            if (Confirm1.rbtl_Result.SelectedValue == "1")  //通过
+//            {
+//                ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
+//                iteamper.AddRecord_FromThesis(Request["kid"]);
+//            }
         }
-        else if (patent.getConfirmResult() == 2) {
+        else if (thesis.getConfirmResult() == 2) {
             record.setStatus(AchieveStatus.BuTongGuo.getCode());
         }
         else {return 0;}
 
-        patentMapper.updateAchPatentStatus(record);
+        thesisMapper.updateStatusAchThesis(record);
 
         AudApply apply = new AudApply();
-        apply.setApplyid(patent.getApplyid());
-        apply.setAudituserid(patent.getConfirmUserid());
+        apply.setApplyid(thesis.getApplyid());
+        apply.setAudituserid(thesis.getConfirmUserid());
         apply.setAudittime(DateUtils.dateTimeNow());
-        apply.setAuditopinion(patent.getConfirmNote());
-        apply.setApplystatus(patent.getConfirmResult());
+        apply.setAuditopinion(thesis.getConfirmNote());
+        apply.setApplystatus(thesis.getConfirmResult());
 
         applyMapper.updateAuditAudApply(apply);
 
 
         //消除"审核人"待办事项
         Set<Long> useridSet = getConfirmUserIdList();
+
         for (Long userid : useridSet) {
             AudMessage message = new AudMessage();
             message.setProcessedtime(DateUtils.dateTimeNow());
             message.setTouserid(userid.intValue());
             message.setRelatedsheettype(ACHIEVETYPE);
-            message.setRelatedsheetid(patent.getPatentid());
+            message.setRelatedsheetid(thesis.getThesisid());
             messageMapper.updateIfProcessedById(message);
         }
 
         String title = "";
         String content = "";
-        if (patent.getConfirmResult() == 1) {
+        if (thesis.getConfirmResult() == 1) {
             title = "您提交的科技成果审核通过";
-            content = "专利：“" + patent.getPatentname() + "”的信息已经审核通过。"
-                    + "<a href=\"/Achieve/PatentList.aspx?"
-                    + "kid=" + patent.getPatentid() + "&f=todo\" target=\"_self\" >查看</a> ";
+            content = "学术论文：“" + thesis.getThesisname()  + "”的信息已经审核通过。"
+                    + "<a href=\"/Achieve/ThesisList.aspx?"
+                    + "kid=" + thesis.getThesisid() + "&f=todo\" target=\"_self\" >查看</a> ";
         }
-        else if (patent.getConfirmResult() == 2) {
+        else if (thesis.getConfirmResult() == 2) {
             title = "您提交的科技成果审核不通过";
-            content = "专利：“" + patent.getPatentname()  + "”的信息审核不通过。"
-                    + "<a href=\"/Achieve/PatentList.aspx?"
-                    + "kid=" + patent.getPatentid() + "&f=todo\" target=\"_self\" >查看</a> ";
+            content = "学术论文：“" + thesis.getThesisname() + "”的信息审核不通过。"
+                    + "<a href=\"/Achieve/ThesisList.aspx?"
+                    + "kid=" + thesis.getThesisid() + "&f=todo\" target=\"_self\" >查看</a> ";
         }
 
         //发送通知
@@ -321,15 +306,15 @@ public class AchPatentService {
         message.setMessagetime(DateUtils.dateTimeNow());
         message.setMessagetitle(title);
         message.setMessagecontent(content);
-        message.setTouserid(patent.getCreateuserid());
+        message.setTouserid(thesis.getCreateuserid());
         message.setRelatedsheettype(ACHIEVETYPE);
-        message.setRelatedsheetid(patent.getPatentid());
+        message.setRelatedsheetid(thesis.getThesisid());
         messageMapper.insertAudMessage(message);
 
         return  1;
     }
 
-    public AudApply selectApplyByTypeAndRelatedID(Integer patentid, Integer status) {
+    public AudApply selectApplyByTypeAndRelatedID(Integer thesisid, Integer status) {
 
         AudApply apply = new AudApply();
 
@@ -339,37 +324,36 @@ public class AchPatentService {
         else {
             return  null;
         }
-        apply.setRelatedid(patentid);
+        apply.setRelatedid(thesisid);
         return applyMapper.selectApplyByTypeAndRelatedID(apply);
     }
 
+    public Integer removeAchThesis(Integer thesisid) {
 
-    @Transactional
-    public Integer removeAchPatent(Integer patentid) {
-
-        AchPatent record = new AchPatent();
-        record.setPatentid(patentid);
+        AchThesis record = new AchThesis();
+        record.setThesisid(thesisid);
         record.setStatus(AchieveStatus.YiShanChu.getCode());
-        Integer rows = patentMapper.updateAchPatentStatus(record);
+        Integer rows = thesisMapper.updateStatusAchThesis(record);
         //如果该成果对应的有待审核的“申请”和消息，则清除掉
 
         AudApply apply = new AudApply();
 
-        apply.setApplytype(AchieveType.PATENT.getInfo());
-        apply.setRelatedid(patentid);
+        apply.setApplytype(AchieveType.THESIS.getInfo());
+        apply.setRelatedid(thesisid);
         apply.setApplystatus(0);
         AudApply apply2 = applyMapper.selectApplyByTypeAndRelatedID(apply);
 
         if (apply2 != null) {
             applyMapper.deleteAudApplyById(apply2.getApplyid());
             AudMessage message = new AudMessage();
-            message.setRelatedsheettype(AchieveType.PATENT.getInfo());
-            message.setRelatedsheetid(patentid);
+            message.setRelatedsheettype(AchieveType.THESIS.getInfo());
+            message.setRelatedsheetid(thesisid);
             messageMapper.updateIfProcessedAudMessageBySheetAndId(message);
         }
 
-        //删掉对应的绩效计分记录
-        teamperformanceService.deletePerTeamperformances(ACHIEVETYPE, patentid);
+        //删掉对应的绩效计分记录。
+
+
 
         return  rows;
     }

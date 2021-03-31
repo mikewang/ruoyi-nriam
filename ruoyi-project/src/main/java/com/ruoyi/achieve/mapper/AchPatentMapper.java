@@ -13,7 +13,7 @@ public interface AchPatentMapper {
 
     int updateAchPatent(AchPatent record);
 
-    int updateStatusAchPatent(AchPatent record);
+    int updateAchPatentStatus(AchPatent record);
 
     int queryIfDuplicate(AchPatent record);
 }

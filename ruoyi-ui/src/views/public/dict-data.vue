@@ -9,7 +9,7 @@
       :label="item.value"
       :value="item.id"/>
   </el-select>
-  <el-input v-else  v-model="filterValue"  readonly  placeholder="dictType"></el-input>
+  <el-input v-else  v-model="filterLabel"  readonly  placeholder="" :key="filterLabel"></el-input>
 </div>
 </template>
 
@@ -26,8 +26,8 @@ export default {
       loading: true,
       // 传入的参数
       dictType: this.dictTypeName,
-      filterId: this.selectedDictValue === undefined ? undefined : this.selectedDictValue.toString(),
-      filterValue:undefined,
+      filterId: this.selectedDictValue === undefined ? undefined : this.selectedDictValue,
+      filterLabel:undefined,
       // 数据源
       options: [],
       list: []
@@ -44,6 +44,7 @@ export default {
       console.log("加载 " + this.dictType + " 组件 " + this.selectedDictValue);
 
       const this_ = this;
+      console.log("this_.dataOptions is ", this_.dataOptions, this_.filterId);
 
       if (this_.dataOptions === undefined) {
         listData({"dictType": this.dictType}).then(response => {
@@ -53,10 +54,11 @@ export default {
             return a.dictLabel.charCodeAt(0) - b.dictLabel.charCodeAt(0)
           }).forEach(function (item) {
             const adict = {value: item.dictLabel, id: item.dictValue};
-            // console.log("item.dictValue is ", item.dictValue, "this.filterId is ", this_.filterId);
+
             if (item.dictValue === this_.filterId) {
-              this_.filterValue = item.dictLabel;
+              this_.filterLabel = item.dictLabel;
             }
+
             listOptions.push(adict);
           });
 
@@ -68,10 +70,12 @@ export default {
       }
       else {
         const listOptions = [];
+
         this_.dataOptions.forEach(function (item) {
           const adict = {value: item.dictLabel, id: item.dictValue};
           if (item.dictValue === this_.filterId) {
-            this_.filterValue = item.dictLabel;
+            this_.filterLabel = item.dictLabel;
+            // console.error("this_.filterLabel is ", this_.filterLabel);
           }
           listOptions.push(adict);
         });
@@ -90,10 +94,9 @@ export default {
 
     changeValue(value) {
 
+      let adict = {type:this.dictType, id:value, value:undefined};
+
       if (value) {
-
-        let adict = {type:this.dictType, id:value, value:undefined};
-
         for (let i=0; i< this.list.length; i++) {
           let item = this.list[i];
           if (item.id === value) {
@@ -101,11 +104,11 @@ export default {
             break;
           }
         }
-
         this.$emit('changeDictValue',adict);
 
       } else {
-        this.$emit('changeDictValue',{type:this.dictType, id:undefined, value:undefined});
+
+        this.$emit('changeDictValue',adict);
       }
 
     },

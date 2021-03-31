@@ -8,6 +8,7 @@ import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.common.constant.CHString;
 import com.ruoyi.common.constant.MID;
 import com.ruoyi.common.core.domain.model.BasDoc;
+import com.ruoyi.common.enums.AchieveType;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SMSSender.Juhe;
 import com.ruoyi.common.utils.push.PushMessageToApp;
@@ -85,6 +86,12 @@ public class TeamPerformanceService {
     @Resource
     private AudMessageMapper messageMapper;
 
+
+    @Resource
+    PerIndicatorpatentMapper indicatorpatentMapper;
+
+    @Resource
+    PerRelationMapper relationMapper;
 
     public List<PerTeamperformance> selectPerTeamperformance(PerTeamperformance record) {
 
@@ -434,6 +441,86 @@ public class TeamPerformanceService {
 
         return result;
     }
+
+
+
+    // 成果管理模块用到 ，团队绩效加分
+
+    public Integer addTeamperformancesForPatent(AchPatent  patent) {
+        Integer result = 1;
+
+        //审核通过时，团队绩效加分。
+        //先删除对应的旧评分记录
+        this.deletePerTeamperformances(AchieveType.PATENT.getInfo(),patent.getPatentid());
+
+        //获取分数
+        PerIndicatorpatent indicatorpatent = new PerIndicatorpatent();
+        indicatorpatent.setPatenttype(patent.getPatenttype());
+
+        List<PerIndicatorpatent> indicatorpatentList = indicatorpatentMapper.selectPerIndicatorpatent(indicatorpatent);
+        indicatorpatent = indicatorpatentList.get(0);
+
+        PerRelation record = new PerRelation();
+        record.setIndicatortype(AchieveType.PATENT.getInfo());
+        List<PerRelation> relationList = relationMapper.selectPerRelation(record);
+        PerRelation relation = relationList.get(0);
+
+        //增加新的记录
+
+        PerTeamperformance teamperformance = new PerTeamperformance();
+
+        teamperformance.setTeamid(patent.getTeamid());
+        Integer currYear = Integer.valueOf(patent.getPasstime().substring(0,4));
+        teamperformance.setPerformanceyear(currYear);
+        teamperformance.setIndicatortype(AchieveType.PATENT.getInfo());
+
+        teamperformance.setIndicatorid(indicatorpatent.getIndicatorpatentid());
+        teamperformance.setAchieveid(patent.getPatentid());
+        String description = AchieveType.PATENT.getInfo() + "-" + indicatorpatent.getPatenttype() + "-" + indicatorpatent.getPoints().toString() + "分";
+        teamperformance.setDescription(description);
+        teamperformance.setPoints(indicatorpatent.getPoints());
+        teamperformance.setLevel1id(relation.getLevel1id());
+        teamperformance.setLevel1name(relation.getLevel1name());
+        teamperformance.setLevel2id(relation.getLevel2id());
+        teamperformance.setLevel2name(relation.getLevel2name());
+        teamperformance.setStatus("待确认");
+        result =  teamperformanceMapper.insertPerTeamperformance(teamperformance);
+
+
+        return result;
+    }
+
+    public Integer deletePerTeamperformances(String indicatortype ,Integer indicatorid) {
+        Integer result = 1;
+
+        Integer curYear = Integer.valueOf(DateUtils.dateTimeNow("yyyy"));
+        PerTeamperformance teamperformance = new PerTeamperformance();
+        teamperformance.setPerformanceyear(curYear);
+        teamperformance.setIndicatortype(indicatortype);
+        teamperformance.setIndicatorid(indicatorid);
+        teamperformance.setStatus("待确认");
+
+        result = teamperformanceMapper.updatePerTeamperformanceDeleted(teamperformance);
+
+        return result;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 //    public List<PerAddscoreapply> selectAddscoreapply(PerAddscoreapply record) {
 //
