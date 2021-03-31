@@ -38,7 +38,7 @@
 
             <el-col :span="8">
               <el-form-item label="发表年度" prop="year">
-                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.year" type="year" placeholder="请选择日期"
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.year.toString()" type="year" placeholder="请选择日期"
                                 format="yyyy"
                                 value-format="yyyy"
                                 style="display:block;"></el-date-picker>
@@ -161,7 +161,7 @@
 
             <el-col :span="16">
               <el-form-item label="论文全文" prop="basicfileList1">
-                <bas-doc :basdoc="basDocPatentZhengshu" :readonly="readonly.basic" @changeFileList="changeBasicfileList1" :key="basDocPatentZhengshu.relatedid" ></bas-doc>
+                <bas-doc :basdoc="basDocThesis" :readonly="readonly.basic" @changeFileList="changeBasicfileList1" :key="basDocThesis.relatedid" ></bas-doc>
               </el-form-item>
             </el-col>
           </el-row>
@@ -274,10 +274,10 @@
 </template>
 
 <script>
-import {listTeam, listTeamMember} from "@/api/project/team";
-import {listUser} from "@/api/system/user";
-import {getPatent, addPatent, updatePatent, deletePatent, confirmPatent, uniquePatent,getPatentConfirm} from "@/api/achieve/patent";
-import {listBasDoc,requestUpload, beforeRemove, beforeUpload, handleUploadRemove, handleUploadReview} from "@/api/achieve/basdoc";
+import {listTeamMember} from "@/api/project/team";
+import {getThesis} from "@/api/achieve/thesis";
+import {getPatent, addPatent, updatePatent, deletePatent, confirmPatent, uniqueThesis,getPatentConfirm} from "@/api/achieve/patent";
+
 import TeamData from "@/views/public/team-data";
 import DictData from "@/views/public/dict-data";
 import UserData from "@/views/public/user-data";
@@ -313,8 +313,7 @@ export default {
 
       thesislevelOptions: [{dictLabel: "A", dictValue:  "A"}, {dictLabel:  "B", dictValue:  "B"}, {dictLabel:  "C", dictValue:  "C"}, {dictLabel: "D",dictValue: "D"}, {dictLabel: "E", dictValue: "E"}],
 
-      basDocPatentZhengshu: {relatedid: -2, attachtotype: "专利", doctype: "专利证书"},
-      basDocPatentQita: {relatedid: -2, attachtotype: "专利", doctype: "其它附件"},
+      basDocThesis: {relatedid: -2, attachtotype: "专利", doctype: "论文全文"},
 
       // 数据字典
       teamOptions: [],
@@ -336,14 +335,11 @@ export default {
       timer: '',
       // 表单校验
       rules: {
-        patentname: [
-          {required: true, message: "专利名称不能为空", trigger: "blur"}
-        ],
-        patentcode: [
+        thesisname: [
           {required: true, message: "专利号不能为空", trigger: "blur"}, {
             required: true,
             trigger: "change",
-            validator: this.validatePatentcode
+            validator: this.validateThesisname
           }
         ],
         patenttype: [
@@ -384,7 +380,7 @@ export default {
 
   beforeCreate() {
     console.log(" beforeCreate this.$route.meta is ", this.$route.meta);
-    const patentid = this.$route.params && this.$route.params.patentid;
+    const thesisid = this.$route.params && this.$route.params.thesisid;
 
   },
   created() {
@@ -392,9 +388,9 @@ export default {
     this.resetTemplateStatus();
     console.log(" created this.$route.params is ", this.$route.params);
 
-    let patentid = this.$route.params && this.$route.params.patentid;
-    if (patentid === undefined || Number(patentid) === 0) {
-      patentid = undefined;
+    let thesisid = this.$route.params && this.$route.params.thesisid;
+    if (thesisid === undefined || Number(thesisid) === 0) {
+      thesisid = undefined;
     } else {
 
     }
@@ -402,24 +398,24 @@ export default {
     this.opcode = this.$route.meta.opcode;
     this.applyid = this.$route.params.applyid;
 
-    this.getData(patentid);
+    this.getData(thesisid);
 
   },
   methods: {
     /** 查询项目信息 */
-    getData(patentid) {
+    getData(thesisid) {
 
       const this_ = this;
 
       this.loading = true;
-      console.log("loading is begin, patentid is ", patentid);
+      console.log("loading is begin, thesisid is ", thesisid);
 
-      if (patentid === undefined) {
+      if (thesisid === undefined) {
         this.reset();
         this.configTemplateStatus();
         this.loading = false;
       } else {
-        getPatent(patentid).then(response => {
+        getThesis(thesisid).then(response => {
           console.log("getData response is ", response.data);
 
           const data = response.data;
@@ -433,12 +429,11 @@ export default {
 
           this_.configTemplateStatus();
 
-          this_.basDocPatentZhengshu.relatedid = this_.form.patentid;
-          this_.basDocPatentQita.relatedid = this_.form.patentid;
+          this_.basDocThesis.relatedid = this_.form.thesisid;
 
           // 获取 审核结果信息。
           if (this.form.status === this.AchieveStatus.BuTongGuo) {
-            getPatentConfirm(patentid,this.AchieveStatus.BuTongGuo).then(response => {
+            getPatentConfirm(thesisid,this.AchieveStatus.BuTongGuo).then(response => {
               console.log("getPatentConfirm is ", response);
               this.form.confirmResult = response.data.applystatus;
               this.form.confirmNote =  response.data.auditopinion;
@@ -515,25 +510,25 @@ export default {
       }
     },
 
-    getPatentcode(query) {
+    getThesisname(query) {
       return new Promise((resolve, reject) => {
-        let res = uniquePatent(query);
+        let res = uniqueThesis(query);
         resolve(res);
       });
     },
 
-    async validatePatentcode(rule, value, callback) {
+    async validateThesisname(rule, value, callback) {
       if (!value) {
-        callback(new Error("专利号不能为空"));
+        callback(new Error("论文名称不能为空"));
       } else {
-        if (this.form.patentcode === undefined) {
+        if (this.form.thesisname === undefined) {
           callback();
         } else {
-          let query = {patentcode: value, patentid: this.form.patentid};
-          let res = await this.getPatentcode(query);
+          let query = {thesisname: value, thesisid: this.form.thesisid};
+          let res = await this.getThesisname(query);
           console.log(res);
           if (res.data > 0) {
-            callback(new Error("专利号重复"));
+            callback(new Error("论文名称重复"));
           } else {
             callback();
           }
@@ -544,8 +539,9 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        patentid: undefined,
-        patentname: undefined,
+        thesisid: undefined,
+        thesisname: undefined,
+
         patentcode: undefined,
 
         patenttype: undefined,
@@ -701,14 +697,14 @@ export default {
     /** 删除按钮 */
     deleteForm() {
 
-      const patentid = this.form.patentid;
+      const thesisid = this.form.thesisid;
 
       this.$confirm('是否确认删除"' + this.form.patentname + '"的成果?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deletePatent(patentid);
+        deletePatent(thesisid);
       }).then(() => {
         this.msgSuccess("删除成功");
         this.closeForm();
@@ -745,14 +741,14 @@ export default {
               }
             });
 
-            if (this_.form.patentid === undefined) {
+            if (this_.form.thesisid === undefined) {
               addPatent(this.form).then(response => {
                 if (response.data === 0) {
                   this_.msgError("提交审核失败");
-                  this_.form.patentid = undefined;
+                  this_.form.thesisid = undefined;
                 } else {
                   this.msgSuccess("提交审核成功");
-                  this.form.patentid = response.data;
+                  this.form.thesisid = response.data;
 
                 }
               }).then(() => {
