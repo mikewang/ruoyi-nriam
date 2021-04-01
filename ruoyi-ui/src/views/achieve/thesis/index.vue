@@ -41,7 +41,7 @@
       </el-row>
 
       <el-table v-loading="loading" :data="achieveList" @selection-change="handleSelectionChange">
-        <el-table-column type="index" width="50" align="center"/>
+        <el-table-column type="index" width="50" align="center"  :index="indexMethod"/>
         <el-table-column label="论文题目" align="center" prop="thesisname" :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column label="期刊名称" align="center" prop="publishbookname" width="200"/>
@@ -189,7 +189,9 @@ export default {
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
-
+    indexMethod(index) {
+      return (index + 1) + this.queryParams.pageSize*(this.queryParams.pageNum-1);
+    },
     /** 新增按钮操作 */
     handleAdd() {
       this.$router.push({path: '/achieve/thesis'});

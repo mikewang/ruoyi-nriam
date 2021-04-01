@@ -40,7 +40,7 @@
       </el-row>
 
       <el-table v-loading="loading" :data="applyList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" align="center"/>
+        <el-table-column type="index" width="50" align="center"  :index="indexMethod"/>
         <el-table-column label="成果名称" align="center" prop="name" :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column label="类型" align="center" prop="applytype" width="200"/>
@@ -197,6 +197,10 @@ export default {
       this.ids = selection.map(item => item.patentid);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
+    },
+
+    indexMethod(index) {
+      return (index + 1) + this.queryParams.pageSize*(this.queryParams.pageNum-1);
     },
 
 
