@@ -60,12 +60,6 @@ public class AchPatentService {
     private TeamPerformanceService teamperformanceService;
 
     @Resource
-    PerIndicatorpatentMapper indicatorpatentMapper;
-
-    @Resource
-    PerIndicatorMapper indicatorMapper;
-
-    @Resource
     private SysUserMenuMapper userMenuMapper;
 
     @Resource

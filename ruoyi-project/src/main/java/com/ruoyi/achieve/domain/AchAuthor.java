@@ -32,6 +32,10 @@ public class AchAuthor extends BaseEntity {
 
     private String  useridlinktext;
 
+    private Integer teamid;
+
+    private Integer manageteamid;
+
     public Integer getAuthorid() {
         return authorid;
     }
@@ -110,6 +114,22 @@ public class AchAuthor extends BaseEntity {
 
     public void setUseridlinktext(String useridlinktext) {
         this.useridlinktext = useridlinktext;
+    }
+
+    public Integer getTeamid() {
+        return teamid;
+    }
+
+    public void setTeamid(Integer teamid) {
+        this.teamid = teamid;
+    }
+
+    public Integer getManageteamid() {
+        return manageteamid;
+    }
+
+    public void setManageteamid(Integer manageteamid) {
+        this.manageteamid = manageteamid;
     }
 
     @Override

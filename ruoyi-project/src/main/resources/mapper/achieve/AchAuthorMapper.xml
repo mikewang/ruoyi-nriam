@@ -12,6 +12,8 @@
         <result column="PersonName" jdbcType="VARCHAR" property="personname"/>
         <result column="IfReporter" jdbcType="BIT" property="ifreporter"/>
         <result column="UserIDLinkText" jdbcType="VARCHAR" property="useridlinktext"/>
+        <result column="TeamID" jdbcType="INTEGER" property="teamid"/>
+        <result column="ManageTeamID" jdbcType="INTEGER" property="manageteamid"/>
     </resultMap>
     <sql id="selectVo">
         select *
@@ -83,5 +85,31 @@
         from ACH_Author
         where AchieveType = #{achievetype,jdbcType=VARCHAR} and   RelatedID   = #{relatedid,jdbcType=INTEGER}
     </delete>
+
+    <select id="selectAuthorListOfTeamAchieve" parameterType="com.ruoyi.achieve.domain.AchAuthor" resultMap="BaseResultMap">
+        select a.*, #{teamid,jdbcType=INTEGER}   as  TeamID, #{teamid,jdbcType=INTEGER}  as ManageTeamID
+        from ACH_Author a
+        where exists (select 1 from PM_TeamMember b where  a.UserID = b.UserID and b.TeamID = #{teamid,jdbcType=INTEGER}  ) and
+            exists (select 1 from PM_Team b where  b.TeamLeaderID = a.UserID and b.TeamID = #{teamid,jdbcType=INTEGER}  )
+          and e a.AchieveType = #{achievetype,jdbcType=VARCHAR} and a.RelatedID =  #{relatedid,jdbcType=INTEGER} and a.IfOurUnit = 1
+        union all
+        select a.*, #{teamid,jdbcType=INTEGER}   as  TeamID, null as ManageTeamID
+        from ACH_Author a
+        where exists (select 1 from PM_TeamMember b where  a.UserID = b.UserID and b.TeamID = #{teamid,jdbcType=INTEGER}  ) and
+            not exists (select 1 from PM_Team b where  b.TeamLeaderID = a.UserID and b.TeamID = #{teamid,jdbcType=INTEGER}  )
+          and e a.AchieveType = #{achievetype,jdbcType=VARCHAR} and a.RelatedID =  #{relatedid,jdbcType=INTEGER} and a.IfOurUnit = 1
+        union all
+        select a.*, null  as  TeamID, #{teamid,jdbcType=INTEGER}  as ManageTeamID
+        from ACH_Author a
+        where not exists (select 1 from PM_TeamMember b where  a.UserID = b.UserID and b.TeamID = #{teamid,jdbcType=INTEGER}  ) and
+             exists (select 1 from PM_Team b where  b.TeamLeaderID = a.UserID and b.TeamID = #{teamid,jdbcType=INTEGER}  )
+          and e a.AchieveType = #{achievetype,jdbcType=VARCHAR} and a.RelatedID =  #{relatedid,jdbcType=INTEGER} and a.IfOurUnit = 1
+        union all
+        select a.*, null  as  TeamID, null as ManageTeamID
+        from ACH_Author a
+        where not exists (select 1 from PM_TeamMember b where  a.UserID = b.UserID and b.TeamID = #{teamid,jdbcType=INTEGER}  ) and
+            not exists (select 1 from PM_Team b where  b.TeamLeaderID = a.UserID and b.TeamID = #{teamid,jdbcType=INTEGER}  )
+          and e a.AchieveType = #{achievetype,jdbcType=VARCHAR} and a.RelatedID =  #{relatedid,jdbcType=INTEGER} and a.IfOurUnit = 1
+    </select>
 
 </mapper>

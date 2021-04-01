@@ -94,14 +94,16 @@
                     align="center"
                     width="160"
                     class-name="small-padding fixed-width"
+                    v-if="!readonly.basic"
                   >
-                    <template slot-scope="scope">
+                    <template slot-scope="scope" >
                       <el-button
                         size="mini"
                         type="text"
                         icon="el-icon-edit"
                         @click="handleAuthorUpdate(scope.row)"
                         v-hasPermi="['achieve:patent:list']"
+
                       >编辑
                       </el-button>
                       <el-button

@@ -18,4 +18,7 @@ public interface AchAuthorMapper {
 
     int deleteAchAuthor(AchAuthor record);
 
+    List<AchAuthor> selectAuthorListOfTeamAchieve(AchAuthor query);
+
+
 }

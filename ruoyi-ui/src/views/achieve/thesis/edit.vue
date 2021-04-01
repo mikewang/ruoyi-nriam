@@ -25,20 +25,20 @@
               <el-form-item label="期刊级别" prop="publishbooklevel">
                 <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNamePublishbooklevel"
                            :selected-dict-value="form.publishbooklevel" :data-options="undefined"
-                           @changeDictValue="changeFormDictType" :key="timer"></dict-data>
+                           @changeDictValue="changeFormDictType" :key="form.publishbooklevel"></dict-data>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
               <el-form-item label="期刊名称" prop="publishbookname">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.publishbookname" placeholder="请输入专利号"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.publishbookname" placeholder="请输入期刊名称"/>
               </el-form-item>
             </el-col>
 
             <el-col :span="8">
               <el-form-item label="发表年度" prop="year">
-                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.year.toString()" type="year" placeholder="请选择日期"
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.year" type="year" placeholder="请选择日期"
                                 format="yyyy"
                                 value-format="yyyy"
                                 style="display:block;"></el-date-picker>
@@ -75,7 +75,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="DOI" prop="doi">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.doi" placeholder="请输入"/>
+                <el-input v-bind:readonly="readonly.basic" v-model="form.doi" placeholder=""/>
               </el-form-item>
             </el-col>
 
@@ -117,7 +117,6 @@
                       <span v-if="scope.row.ifourunit === 1">本所</span>
                       <span v-else>外单位</span>
                     </template>
-
                   </el-table-column>
                   <el-table-column label="单位名称" align="center" prop="unitname"/>
                   <el-table-column label="人员" align="center" prop="personname" width="100"/>
@@ -132,6 +131,7 @@
                     align="center"
                     width="160"
                     class-name="small-padding fixed-width"
+                    v-if="!readonly.basic"
                   >
                     <template slot-scope="scope">
                       <el-button
@@ -227,7 +227,6 @@
         </el-col>
       </el-row>
 
-
     </el-row>
 
 
@@ -259,7 +258,7 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="通讯作者" prop="ifreporter">
-              <el-checkbox v-model="authorForm.ifreporter" >是</el-checkbox>
+              <el-checkbox v-model="authorForm.ifreporter" @change="changeAuthorIfreporter" >是</el-checkbox>
             </el-form-item>
           </el-col>
         </el-row>
@@ -275,8 +274,7 @@
 
 <script>
 import {listTeamMember} from "@/api/project/team";
-import {getThesis} from "@/api/achieve/thesis";
-import {getPatent, addPatent, updatePatent, deletePatent, confirmPatent, uniqueThesis,getPatentConfirm} from "@/api/achieve/patent";
+import {getThesis, addThesis, uniqueThesis, updateThesis, deleteThesis,confirmThesis, getThesisConfirm} from "@/api/achieve/thesis";
 
 import TeamData from "@/views/public/team-data";
 import DictData from "@/views/public/dict-data";
@@ -303,31 +301,21 @@ export default {
       multiple: true,
       // 弹出层标题
       title: "",
+      // 数据字典  期刊级别
       DictTypeNamePublishbooklevel: "期刊级别",
 
-      DictTypeNamePatentType: "专利类型",
-      // 数据字典  专利类型
-      patenttypeOptions: [{dictLabel: "发明", dictValue: "发明"}, {dictLabel: "实用新型", dictValue: "实用新型"}, {dictLabel: "外观设计",dictValue: "外观设计"}, {dictLabel: "国际专利", dictValue: "国际专利"}],
-
       DictTypeNameThesislevel: "论文级别",
-
       thesislevelOptions: [{dictLabel: "A", dictValue:  "A"}, {dictLabel:  "B", dictValue:  "B"}, {dictLabel:  "C", dictValue:  "C"}, {dictLabel: "D",dictValue: "D"}, {dictLabel: "E", dictValue: "E"}],
 
-      basDocThesis: {relatedid: -2, attachtotype: "专利", doctype: "论文全文"},
+      basDocThesis: {relatedid: -2, attachtotype: "学术论文", doctype: "论文全文"},
 
       // 数据字典
-      teamOptions: [],
-      teamList: [],
-
-      userOptions: [],
-      userList: [],
-
       teamMemberList: [],
 
       AchieveStatus: {DaiQueRen: 36, BuTongGuo: 38, ZhengChang: 37, YiShanChu: 39},
 
       basicfileList1: [],
-      basicfileList2: [],
+
       // 日期范围
       // 查询参数
       // 表单参数
@@ -336,20 +324,26 @@ export default {
       // 表单校验
       rules: {
         thesisname: [
-          {required: true, message: "专利号不能为空", trigger: "blur"}, {
+          {required: true, message: "论文题目不能为空", trigger: "blur"}, {
             required: true,
             trigger: "change",
             validator: this.validateThesisname
           }
         ],
-        patenttype: [
-          {required: true, message: "专利类型不能为空", trigger: "blur"}
+        publishbooklevel: [
+          {required: true, message: "期刊级别不能为空", trigger: "blur"}
         ],
-        passtime: [
-          {required: true, message: "授权日期不能为空", trigger: "blur"}
+        publishbookname: [
+          {required: true, message: "期刊名称不能为空", trigger: "blur"}
         ],
-        ourunitorder: [
-          {required: true, message: "本所排名不能为空", trigger: "blur"}
+        period: [
+          {required: true, message: "期数不能为空", trigger: "blur"}
+        ],
+        page: [
+          {required: true, message: "起止页码不能为空", trigger: "blur"}
+        ],
+        thesislevel: [
+          {required: true, message: "论文级别不能为空", trigger: "blur"}
         ],
         teamid: [
           {required: true, message: "所属团队不能为空", trigger: "blur"}
@@ -419,6 +413,9 @@ export default {
           console.log("getData response is ", response.data);
 
           const data = response.data;
+          data.year = data.year.toString();
+          data.publishbooklevel = data.publishbooklevel.toString();
+          data.thesislevel = data.thesislevel.toString();
 
           this_.form = data;
 
@@ -433,8 +430,8 @@ export default {
 
           // 获取 审核结果信息。
           if (this.form.status === this.AchieveStatus.BuTongGuo) {
-            getPatentConfirm(thesisid,this.AchieveStatus.BuTongGuo).then(response => {
-              console.log("getPatentConfirm is ", response);
+            getThesisConfirm(thesisid,this.AchieveStatus.BuTongGuo).then(response => {
+              console.log("getThesisConfirm is ", response);
               this.form.confirmResult = response.data.applystatus;
               this.form.confirmNote =  response.data.auditopinion;
 
@@ -443,7 +440,6 @@ export default {
             });
           }
           else {
-
             this.timer = Date.now().toString();
             this.loading = false;
           }
@@ -558,10 +554,6 @@ export default {
         createuserid: undefined,
         status: this.AchieveStatus.DaiQueRen,
 
-        statusLinkText: undefined,
-        teamname: undefined,
-
-
         // 审核结果
         confirmResult: undefined,
         confirmNote: undefined
@@ -573,20 +565,20 @@ export default {
     // 组件方法
     changeFormDictType(dict) {
 
-      if (dict.type === this.DictTypeNamePatentType) {
+      if (dict.type === this.DictTypeNamePublishbooklevel) {
         console.log("changeFormDictType is ",dict);
         if (dict) {
-          this.form.patenttype = dict.id;
+          this.form.publishbooklevel = dict.id;
         } else {
-          this.form.patenttype = undefined;
+          this.form.publishbooklevel = undefined;
         }
       }
-      else if (dict.type === this.DictTypeNameOurunitOrder) {
+      else if (dict.type === this.DictTypeNameThesislevel) {
         console.log("changeFormDictType is ", dict);
         if (dict) {
-          this.form.ourunitorder = dict.id;
+          this.form.thesislevel = dict.id;
         } else {
-          this.form.ourunitorder = undefined;
+          this.form.thesislevel = undefined;
         }
       }
       else {
@@ -626,44 +618,21 @@ export default {
       }
     },
 
+    changeAuthorIfreporter(value) {
+      console.log("changeAuthorIfreporter is ", value);
+      this.authorForm.ifreporter = value;
+    },
 
-    /* 专利证书 */
+
+    /* 论文全文 */
 
     changeBasicfileList1(filelist) {
       if (this.form.docList == null) {
         this.form.docList = [];
       }
-      console.log("专利证书 is ", filelist.length, this.form.docList.length);
+      console.log("论文全文 is ", filelist.length, this.form.docList.length);
 
-      let doctype = "专利证书";
-
-      for (let i=0; i < this.form.docList.length; i++) {
-        let doc = this.form.docList[i];
-        if (doc.doctype === doctype) {
-          this.form.docList.splice(i,1);
-        }
-      }
-
-      for (let j=0; j < filelist.length; j++) {
-        let file = filelist[j];
-        let doc = {docid: file.url, doctype: doctype};
-        console.log("this docList push is ",this.docList, file, doc);
-
-        this.form.docList.push(doc);
-      }
-
-    },
-
-    /* 其它附件 */
-
-    changeBasicfileList2(filelist) {
-
-      if (this.form.docList == null) {
-        this.form.docList = [];
-      }
-      console.log("其它附件 is ", filelist, this.form.docList);
-
-      let doctype = "其它附件";
+      let doctype = "论文全文";
 
       for (let i=0; i < this.form.docList.length; i++) {
         let doc = this.form.docList[i];
@@ -704,7 +673,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deletePatent(thesisid);
+        deleteThesis(thesisid);
       }).then(() => {
         this.msgSuccess("删除成功");
         this.closeForm();
@@ -729,7 +698,7 @@ export default {
           }
 
           if (this_.form.docList === undefined || this_.form.docList.length === 0) {
-            this.msgError("请上传专利证书");
+            this.msgError("请上传论文全文");
             return;
           }
 
@@ -742,7 +711,7 @@ export default {
             });
 
             if (this_.form.thesisid === undefined) {
-              addPatent(this.form).then(response => {
+              addThesis(this.form).then(response => {
                 if (response.data === 0) {
                   this_.msgError("提交审核失败");
                   this_.form.thesisid = undefined;
@@ -756,7 +725,7 @@ export default {
                 this.closeForm();
               });
             } else {
-              updatePatent(this.form).then(response => {
+              updateThesis(this.form).then(response => {
 
               }).then(()=> {
                 this.msgSuccess("提交审核成功");
@@ -782,7 +751,7 @@ export default {
                 cancelButtonText: "取消",
                 type: "warning"
               }).then(function () {
-                confirmPatent(this_.form).then(response => {
+                confirmThesis(this_.form).then(response => {
                   this_.msgSuccess("审核完成");
                   this_.closeForm();
                 });
@@ -803,7 +772,7 @@ export default {
                   cancelButtonText: "取消",
                   type: "warning"
                 }).then(function () {
-                  confirmPatent(this_.form).then(response => {
+                  confirmThesis(this_.form).then(response => {
                     this_.msgSuccess("审核完成");
                     this_.closeForm();
                   });
@@ -863,6 +832,11 @@ export default {
     },
 
     handleAuthorAdd() {
+      if (this.form.teamid === undefined) {
+        this.msgError("所属团队没有选择");
+        return;
+      }
+
       this.resetAuthorForm();
 
       this.authorFormOpen = true;
@@ -884,7 +858,8 @@ export default {
         ifourunit: row.ifourunit,
         unitname: row.unitname,
         userid: row.userid,
-        personname: row.personname
+        personname: row.personname,
+        ifreporter: row.ifreporter
       };
 
       this.authorForm = author;
@@ -929,6 +904,7 @@ export default {
                 item.unitname = this_.authorForm.unitname;
                 item.userid = this_.authorForm.userid;
                 item.personname = this_.authorForm.personname;
+                item.ifreporter = this_.authorForm.ifreporter;
               }
             });
             this.msgSuccess("修改成功");
@@ -945,7 +921,8 @@ export default {
               ifourunit: this_.authorForm.ifourunit,
               unitname: this_.authorForm.unitname,
               userid : this_.authorForm.userid,
-              personname: this_.authorForm.personname
+              personname: this_.authorForm.personname,
+              ifreporter: this_.authorForm.ifreporter
             };
             console.log("添加专利人", author2);
             this_.form.authorList.push(author2);

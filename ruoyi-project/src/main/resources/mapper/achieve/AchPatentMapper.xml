@@ -120,10 +120,7 @@
             OurUnitOrder = #{ourunitorder,jdbcType=INTEGER},
             ProjectID    = #{projectid,jdbcType=INTEGER},
             TeamID       = #{teamid,jdbcType=INTEGER},
-            Memo         = #{memo,jdbcType=VARCHAR},
-            CreateUserID = #{createuserid,jdbcType=INTEGER},
-            CreateTime   = #{createtime,jdbcType=VARCHAR},
-            Status = #{status,jdbcType=INTEGER}
+            Memo         = #{memo,jdbcType=VARCHAR}
         where PatentID = #{patentid,jdbcType=INTEGER}
     </update>
 

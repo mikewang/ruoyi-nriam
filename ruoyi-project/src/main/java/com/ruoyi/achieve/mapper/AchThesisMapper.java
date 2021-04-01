@@ -15,7 +15,7 @@ public interface AchThesisMapper {
 
     int updateAchThesis(AchThesis record);
 
-    int updateStatusAchThesis(AchThesis record);
+    int updateAchThesisStatus(AchThesis record);
 
     int deleteByPrimaryKey(Integer thesisid);
 

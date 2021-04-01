@@ -106,6 +106,7 @@ export default {
     },
 
     handleOnPreview(file) {
+      const this_ = this;
       this.$confirm('是否确认下载"' + file.name + '"的文件?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",

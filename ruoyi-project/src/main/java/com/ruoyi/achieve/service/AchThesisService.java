@@ -2,6 +2,7 @@ package com.ruoyi.achieve.service;
 
 import com.ruoyi.achieve.domain.AchAuthor;
 import com.ruoyi.achieve.domain.AchThesis;
+import com.ruoyi.achieve.domain.AchThesis;
 import com.ruoyi.achieve.mapper.AchAuthorMapper;
 import com.ruoyi.achieve.mapper.AchThesisMapper;
 import com.ruoyi.audit.domain.AudApply;
@@ -16,12 +17,14 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.performance.domain.PerTeamperformance;
 import com.ruoyi.performance.mapper.PerTeamperformanceMapper;
+import com.ruoyi.performance.service.TeamPerformanceService;
 import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.system.domain.SysUserMenu;
 import com.ruoyi.system.mapper.SysUserMenuMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -40,11 +43,12 @@ public class AchThesisService {
     private AchAuthorMapper authorMapper;
 
     @Resource
+    private BasDocMapper basDocMapper;
+    @Resource
     private AudApplyMapper applyMapper;
 
     @Resource
-    private PerTeamperformanceMapper teamperformanceMapper;
-
+    private TeamPerformanceService teamperformanceService;
 
     @Resource
     private SysUserMenuMapper userMenuMapper;
@@ -129,12 +133,15 @@ public class AchThesisService {
 
 
 
+
     public Integer updateThesisDetail(AchThesis thesis) {
 
         Integer thesisid = thesis.getThesisid();
 
         //保存对应的作者
         List<AchAuthor> authors = thesis.getAuthorList();
+        log.debug("authors is " + authors.toString());
+
         AchAuthor query = new AchAuthor();
         query.setAchievetype(ACHIEVETYPE);
         query.setRelatedid(thesis.getThesisid());
@@ -145,10 +152,27 @@ public class AchThesisService {
             author.setRelatedid(thesisid);
             author.setAchievetype(ACHIEVETYPE);
             author.setOrdernumber(i);
-            author.setIfreporter(false);
+
+            if (author.getIfreporter() == null) {
+                author.setIfreporter(false);
+            }
+
             authorMapper.insertAchAuthor(author);
             i = i + 1;
         }
+
+        //保存对应的文档
+        // 同步 文件。 使用merge方式。
+        List<BasDoc> doclist = thesis.getDocList();
+        log.debug("thesis.getDocList is " + doclist.toString());
+
+        for (BasDoc s : doclist) {
+            s.setAttachtotype(ACHIEVETYPE);
+            s.setRelatedid(thesisid);
+            log.debug("updateBasDocAttachTo is " + s.toString());
+            basDocMapper.updateBasDocAttachTo(s);
+        }
+
         return 1;
     }
 
@@ -167,14 +191,12 @@ public class AchThesisService {
         return useridSet;
     }
 
-
-
     public void sendApplyAndMsg(AchThesis thesis) {
 
         String title = "新的科技成果待审核";
         String content = "学术论文：“" + thesis.getThesisname()  + "”的信息待审核。"
-            + "<a href=\"/Achieve/ToConfirmList.aspx?at=" + ACHIEVETYPE
-            + "&kid=" + thesis.getThesisid() + "&f=todo\" target=\"_self\" >查看</a> ";
+                + "<a href=\"/Achieve/ToConfirmList.aspx?at=" + ACHIEVETYPE
+                + "&kid=" + thesis.getThesisid() + "&f=todo\" target=\"_self\" >查看</a> ";
 
         AudApply apply = new AudApply();
         apply.setApplytype(ACHIEVETYPE);
@@ -206,6 +228,9 @@ public class AchThesisService {
 
     }
 
+
+
+    @Transactional
     public Integer insertAchThesis(AchThesis thesis) {
         thesis.setCreatetime(DateUtils.dateTimeNow());
         thesis.setThesisid(-1);
@@ -216,6 +241,7 @@ public class AchThesisService {
         return  rows;
     }
 
+    @Transactional
     public Integer updateAchThesis(AchThesis thesis) {
 
         AchThesis undoThesis = thesisMapper.selectAchThesisById(thesis.getThesisid());
@@ -231,12 +257,8 @@ public class AchThesisService {
         return  rows;
     }
 
-    public Integer updateStatusAchThesis(AchThesis thesis) {
-        return thesisMapper.updateStatusAchThesis(thesis);
-    }
 
-
-
+    @Transactional
     public Integer confirmAchThesis(AchThesis thesis) {
 
         AchThesis record = new AchThesis();
@@ -244,24 +266,18 @@ public class AchThesisService {
         if (thesis.getConfirmResult() == 1) {
             record.setStatus(AchieveStatus.ZhengChang.getCode());
 
-            //审核通过时，团队绩效加分, 后续开发，等绩效模块到位。
+            //审核通过时，团队绩效加分
+            teamperformanceService.addTeamperformancesForThesis(thesis);
 
-            PerTeamperformance p = new PerTeamperformance();
-
-            teamperformanceMapper.insertPerTeamperformance(p);
-
-//            if (Confirm1.rbtl_Result.SelectedValue == "1")  //通过
-//            {
-//                ITeamPerformanceManager iteamper = TeamPerformanceManager.GetInstance();
-//                iteamper.AddRecord_FromThesis(Request["kid"]);
-//            }
         }
         else if (thesis.getConfirmResult() == 2) {
             record.setStatus(AchieveStatus.BuTongGuo.getCode());
         }
         else {return 0;}
 
-        thesisMapper.updateStatusAchThesis(record);
+        log.debug("updateAchThesisStatus is " + record.toString());
+
+        thesisMapper.updateAchThesisStatus(record);
 
         AudApply apply = new AudApply();
         apply.setApplyid(thesis.getApplyid());
@@ -275,7 +291,6 @@ public class AchThesisService {
 
         //消除"审核人"待办事项
         Set<Long> useridSet = getConfirmUserIdList();
-
         for (Long userid : useridSet) {
             AudMessage message = new AudMessage();
             message.setProcessedtime(DateUtils.dateTimeNow());
@@ -289,13 +304,13 @@ public class AchThesisService {
         String content = "";
         if (thesis.getConfirmResult() == 1) {
             title = "您提交的科技成果审核通过";
-            content = "学术论文：“" + thesis.getThesisname()  + "”的信息已经审核通过。"
+            content = "学术论文：“" + thesis.getThesisname() + "”的信息已经审核通过。"
                     + "<a href=\"/Achieve/ThesisList.aspx?"
                     + "kid=" + thesis.getThesisid() + "&f=todo\" target=\"_self\" >查看</a> ";
         }
         else if (thesis.getConfirmResult() == 2) {
             title = "您提交的科技成果审核不通过";
-            content = "学术论文：“" + thesis.getThesisname() + "”的信息审核不通过。"
+            content = "学术论文：“" + thesis.getThesisname()  + "”的信息审核不通过。"
                     + "<a href=\"/Achieve/ThesisList.aspx?"
                     + "kid=" + thesis.getThesisid() + "&f=todo\" target=\"_self\" >查看</a> ";
         }
@@ -328,17 +343,19 @@ public class AchThesisService {
         return applyMapper.selectApplyByTypeAndRelatedID(apply);
     }
 
+
+    @Transactional
     public Integer removeAchThesis(Integer thesisid) {
 
         AchThesis record = new AchThesis();
         record.setThesisid(thesisid);
         record.setStatus(AchieveStatus.YiShanChu.getCode());
-        Integer rows = thesisMapper.updateStatusAchThesis(record);
+        Integer rows = thesisMapper.updateAchThesisStatus(record);
         //如果该成果对应的有待审核的“申请”和消息，则清除掉
 
         AudApply apply = new AudApply();
 
-        apply.setApplytype(AchieveType.THESIS.getInfo());
+        apply.setApplytype(AchieveType.PATENT.getInfo());
         apply.setRelatedid(thesisid);
         apply.setApplystatus(0);
         AudApply apply2 = applyMapper.selectApplyByTypeAndRelatedID(apply);
@@ -346,16 +363,16 @@ public class AchThesisService {
         if (apply2 != null) {
             applyMapper.deleteAudApplyById(apply2.getApplyid());
             AudMessage message = new AudMessage();
-            message.setRelatedsheettype(AchieveType.THESIS.getInfo());
+            message.setRelatedsheettype(AchieveType.PATENT.getInfo());
             message.setRelatedsheetid(thesisid);
             messageMapper.updateIfProcessedAudMessageBySheetAndId(message);
         }
 
-        //删掉对应的绩效计分记录。
-
-
+        //删掉对应的绩效计分记录
+        teamperformanceService.deletePerTeamperformances(ACHIEVETYPE, thesisid);
 
         return  rows;
     }
+        
 
 }

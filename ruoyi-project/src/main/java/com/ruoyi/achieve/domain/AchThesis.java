@@ -1,6 +1,7 @@
 package com.ruoyi.achieve.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.core.domain.model.BasDoc;
 
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class AchThesis extends BaseEntity {
     private List<AchAuthor> authorList;
     private String authors;
 
+    private List<BasDoc> docList;
 
     private Integer statusColor = 0;
 
@@ -239,6 +241,14 @@ public class AchThesis extends BaseEntity {
 
     public void setAuthors(String authors) {
         this.authors = authors;
+    }
+
+    public List<BasDoc> getDocList() {
+        return docList;
+    }
+
+    public void setDocList(List<BasDoc> docList) {
+        this.docList = docList;
     }
 
     public Integer getStatusColor() {
