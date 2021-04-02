@@ -202,6 +202,25 @@ export const constantRoutes = [
         name: 'ConfirmArticle',
         meta: { title: '著作审核', icon: '', opcode: 'confirm',noCache: true,}
       }
+      ,
+      {
+        path: 'prize',
+        component: (resolve) => require(['@/views/achieve/prize/edit'], resolve),
+        name: 'AddPrize',
+        meta: {title: '获奖新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'prize/:prizeid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/prize/edit'], resolve),
+        name: 'EditPrize',
+        meta: { title: '获奖编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'prize/confirm/:prizeid(\\d+)/:applyid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/prize/edit'], resolve),
+        name: 'ConfirmPrize',
+        meta: { title: '获奖审核', icon: '', opcode: 'confirm',noCache: true,}
+      }
     ]
   },
   {

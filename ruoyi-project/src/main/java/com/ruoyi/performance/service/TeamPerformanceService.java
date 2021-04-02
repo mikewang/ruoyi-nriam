@@ -95,9 +95,12 @@ public class TeamPerformanceService {
     @Resource
     PerIndicatorthesisMapper indicatorthesisMapper;
 
-
     @Resource
     PerIndicatorarticleMapper indicatorarticleMapper;
+
+
+    @Resource
+    PerIndicatorprizeMapper indicatorprizeMapper;
 
     @Resource
     PerRelationMapper relationMapper;
@@ -625,6 +628,40 @@ public class TeamPerformanceService {
     }
 
 
+    public Integer addTeamperformancesForPrize(AchPrize  prize) {
+        Integer result = 1;
+
+        //审核通过时，团队绩效加分。
+        //先删除对应的旧评分记录
+        this.deletePerTeamperformances(AchieveType.ARTICLE.getInfo(),prize.getPrizeid());
+
+        //获取分数
+        PerIndicatorprize indicatorprize = new PerIndicatorprize();
+        indicatorprize.setPrizetype(prize.getPrizetype());
+
+        List<PerIndicatorprize> indicatorprizeList = indicatorprizeMapper.selectPerIndicatorprize(indicatorprize);
+        indicatorprize = indicatorprizeList.get(0);
+
+
+        //增加新的记录
+        Integer teamid = prize.getTeamid();
+        Integer currYear = prize.getPrizeyear();
+        String indicatortype = AchieveType.ARTICLE.getInfo();
+        Integer indicatorid = indicatorprize.getIndicatorprizeid();
+        Integer achieveid = prize.getPrizeid();
+        String description = AchieveType.ARTICLE.getInfo() + "-" + prize.getPrizetypelinktext() + "-" + indicatorprize.getPoints().toString() + "分";
+        BigDecimal points = indicatorprize.getPoints();
+
+
+        PerRelation record = new PerRelation();
+        record.setIndicatortype(AchieveType.ARTICLE.getInfo());
+        List<PerRelation> relationList = relationMapper.selectPerRelation(record);
+        PerRelation relation = relationList.get(0);
+
+        result = addTeamperformances(teamid,currYear,indicatortype,indicatorid,achieveid,description,points, relation);
+
+        return result;
+    }
 
 
 
