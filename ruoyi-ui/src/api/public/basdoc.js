@@ -29,3 +29,41 @@ export function uploadBasDoc(type, data) {
     data: data
   })
 }
+
+
+export function changeDocList(filelist, doctype, docList) {
+
+  docList.forEach(function(item, index, arr) {
+    console.log("清理前 index=" + index.toString(),"doctype is " , item.doctype, "docid", item.docid);
+  });
+
+  while (docList.filter(function (item) {
+    return item.doctype === doctype
+  }).length > 0) {
+    docList.forEach(function(item, index, arr) {
+      if(item.doctype == doctype) {
+        arr.splice(index, 1);
+      }
+    });
+  }
+
+  if (docList.filter(function (item) {return item.doctype === doctype}).length >0 ) {
+    docList.forEach(function(item, index, arr) {
+      console.log("清理后 index=" + index.toString(),"doctype is " , item.doctype, "docid", item.docid);
+    });
+  }
+
+  for (let j=0; j < filelist.length; j++) {
+    let file = filelist[j];
+    let doc = {docid: file.url, doctype: doctype};
+
+    console.log("docList push is ",docList, file, doc);
+
+    docList.push(doc);
+  }
+
+  docList.filter(function (item) {return item.doctype === doctype}).forEach(function(item, index, arr) {
+    console.log("清理结束，index=" + index.toString(),"doctype is " , item.doctype, "docid", item.docid);
+  });
+
+}

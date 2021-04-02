@@ -22,61 +22,60 @@
             </el-col>
 
             <el-col :span="8">
-              <el-form-item label="所属团队" prop="teamid">
-                <!-- 所属团队组件-->
-                <team-data :readonly="readonly.basic" :selected-team-id="form.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
+              <el-form-item label="获奖类型" prop="prizetype">
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNamePrizetype"
+                           :selected-dict-value="form.prizetype" :data-options="undefined"
+                           @changeDictValue="changeFormDictType" :key="form.prizetype"></dict-data>
               </el-form-item>
             </el-col>
-
 
           </el-row>
+
           <el-row>
             <el-col :span="8">
-              <el-form-item label="期刊名称" prop="publishbookname">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.publishbookname" placeholder="请输入期刊名称"/>
+              <el-form-item label="获奖等级" prop="prizerank">
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNamePrizerank"
+                           :selected-dict-value="form.prizerank" :data-options="undefined"
+                           @changeDictValue="changeFormDictType" :key="form.prizerank"></dict-data>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="授奖单位" prop="publishunit">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.publishunit" placeholder="请输入授奖单位"
+                          :show-overflow-tooltip="true"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="证书号" prop="prizecode">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.prizecode" placeholder="请输入证书号"
+                          :show-overflow-tooltip="true"/>
               </el-form-item>
             </el-col>
 
+          </el-row>
+
+          <el-row>
+
             <el-col :span="8">
-              <el-form-item label="发表年度" prop="year">
-                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.year" type="year" placeholder="请选择日期"
+              <el-form-item label="获奖年度" prop="prizeyear">
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.prizeyear" type="year" placeholder="请选择日期"
                                 format="yyyy"
                                 value-format="yyyy"
                                 style="display:block;"></el-date-picker>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="卷数" prop="issue">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.issue" placeholder="请输入"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-row>
-            <el-col :span="8">
-              <el-form-item label="期数" prop="period">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.period" placeholder="请输入"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="起止页码" prop="page">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.page" placeholder="请输入"/>
-              </el-form-item>
-            </el-col>
-
-            <el-col :span="8">
-              <el-form-item label="获奖级别" prop="prizelevel">
-                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNamePrizelevel"
-                           :selected-dict-value="form.prizelevel" :data-options="prizelevelOptions"
+              <el-form-item label="本所排名" prop="ourunitorder">
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameOurunitOrder"
+                           :selected-dict-value="form.ourunitorder" :data-options="OurunitOrderOptions"
                            @changeDictValue="changeFormDictType"></dict-data>
               </el-form-item>
             </el-col>
-          </el-row>
 
-          <el-row>
-            <el-col :span="16">
-              <el-form-item label="DOI" prop="doi">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.doi" placeholder=""/>
+            <el-col :span="8">
+              <el-form-item label="所属团队" prop="teamid">
+                <!-- 所属团队组件-->
+                <team-data :readonly="readonly.basic" :selected-team-id="form.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
               </el-form-item>
             </el-col>
 
@@ -84,7 +83,7 @@
 
           <el-row>
             <el-col :span="24">
-              <el-form-item label="作者列表" prop="authorList">
+              <el-form-item label="完成人" prop="authorList">
                 <el-row :gutter="10" class="mb8" v-bind:hidden="readonly.basic">
                   <el-col :span="1.5">
                     <el-button plain
@@ -104,7 +103,7 @@
                                size="mini"
                                :disabled="multiple"
                                @click="handleAuthorDelete"
-                               v-hasPermi="['achieve:patent:list']"
+                               v-hasPermi="['achieve:prize:list']"
                     >删除
                     </el-button>
                   </el-col>
@@ -121,12 +120,6 @@
                   </el-table-column>
                   <el-table-column label="单位名称" align="center" prop="unitname"/>
                   <el-table-column label="人员" align="center" prop="personname" width="100"/>
-                  <el-table-column label="通讯作者" align="center" prop="ifreporter" width="100">
-                    <template slot-scope="scope">
-                      <span v-if="scope.row.ifreporter">是</span>
-                      <span v-else>否</span>
-                    </template>
-                  </el-table-column>
                   <el-table-column
                     label="操作"
                     align="center"
@@ -140,7 +133,7 @@
                         type="text"
                         icon="el-icon-edit"
                         @click="handleAuthorUpdate(scope.row)"
-                        v-hasPermi="['achieve:patent:list']"
+                        v-hasPermi="['achieve:prize:list']"
                       >编辑
                       </el-button>
                       <el-button
@@ -148,7 +141,7 @@
                         type="text"
                         icon="el-icon-delete"
                         @click="handleAuthorDelete(scope.row)"
-                        v-hasPermi="['achieve:patent:list']"
+                        v-hasPermi="['achieve:prize:list']"
                       >删除
                       </el-button>
                     </template>
@@ -161,8 +154,24 @@
           <el-row>
 
             <el-col :span="16">
-              <el-form-item label="获奖全文" prop="basicfileList1">
-                <bas-doc :basdoc="basDocThesis" :readonly="readonly.basic" @changeFileList="changeBasicfileList1" :key="basDocThesis.relatedid" ></bas-doc>
+              <el-form-item label="获奖证书" prop="basicfileList1">
+                <bas-doc :basdoc="basDocPrizeZhengshu" :readonly="readonly.basic" @changeFileList="changeBasicfileList1" :key="basDocPrizeZhengshu.relatedid" ></bas-doc>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+
+            <el-col :span="16">
+              <el-form-item label="申报材料" prop="basicfileList2">
+                <bas-doc :basdoc="basDocPrizeShenbao" :readonly="readonly.basic" @changeFileList="changeBasicfileList2" :key="basDocPrizeShenbao.relatedid" ></bas-doc>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+
+            <el-col :span="16">
+              <el-form-item label="其它附件" prop="basicfileList3">
+                <bas-doc :basdoc="basDocPrizeQita" :readonly="readonly.basic" @changeFileList="changeBasicfileList3" :key="basDocPrizeQita.relatedid" ></bas-doc>
               </el-form-item>
             </el-col>
           </el-row>
@@ -257,11 +266,6 @@
               <el-input v-else v-model="authorForm.personname"  placeholder="请输入人员名称"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
-            <el-form-item label="通讯作者" prop="ifreporter">
-              <el-checkbox v-model="authorForm.ifreporter" @change="changeAuthorIfreporter" >是</el-checkbox>
-            </el-form-item>
-          </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -275,8 +279,8 @@
 
 <script>
 import {listTeamMember} from "@/api/project/team";
-import {getThesis, addThesis, uniqueThesis, updateThesis, deleteThesis,confirmThesis, getThesisConfirm} from "@/api/achieve/prize";
-
+import {getPrize, addPrize, updatePrize, deletePrize,confirmPrize, getPrizeConfirm} from "@/api/achieve/prize";
+import {changeDocList} from "@/api/public/basdoc";
 import TeamData from "@/views/public/team-data";
 import DictData from "@/views/public/dict-data";
 import UserData from "@/views/public/user-data";
@@ -308,12 +312,12 @@ export default {
       DictTypeNamePrizerank: "获奖等级",
 
 
-      DictTypeNameOrder: "本所排名",
+      DictTypeNameOurunitOrder: "本所排名",
 
 
-      prizelevelOptions: [{dictLabel: "1", dictValue:  "1"}, {dictLabel:  "2", dictValue:  "2"}, {dictLabel:  "3", dictValue:  "3"},
-        {dictLabel: "4",dictValue: "4"}, {dictLabel: "5", dictValue: "5"},{dictLabel: "6", dictValue:  "6"}, {dictLabel:  "7", dictValue:  "7"},
-        {dictLabel:  "8", dictValue:  "8"}, {dictLabel: "9",dictValue: "9"}, {dictLabel: "10", dictValue: "10"}],
+      OurunitOrderOptions: [{dictLabel: "1", dictValue:  1}, {dictLabel:  "2", dictValue:  2}, {dictLabel:  "3", dictValue: 3},
+        {dictLabel: "4",dictValue: 4}, {dictLabel: "5", dictValue: 5},{dictLabel: "6", dictValue:  6}, {dictLabel:  "7", dictValue:  7},
+        {dictLabel:  "8", dictValue:  8}, {dictLabel: "9",dictValue: 9}, {dictLabel: "10", dictValue: 10}],
 
       basDocPrizeZhengshu: {relatedid: -2, attachtotype: "获奖成果", doctype: "获奖证书"},
       basDocPrizeShenbao: {relatedid: -2, attachtotype: "获奖成果", doctype: "申报材料"},
@@ -420,13 +424,14 @@ export default {
         this.configTemplateStatus();
         this.loading = false;
       } else {
-        getThesis(prizeid).then(response => {
+        getPrize(prizeid).then(response => {
           console.log("getData response is ", response.data);
 
           const data = response.data;
-          data.year = data.year.toString();
-          data.publishbooklevel = data.publishbooklevel.toString();
+          data.prizeyear = data.prizeyear.toString();
+          data.prizetype = data.prizetype.toString();
           data.prizelevel = data.prizelevel.toString();
+          data.prizerank = data.prizerank.toString();
 
           this_.form = data;
 
@@ -437,12 +442,14 @@ export default {
 
           this_.configTemplateStatus();
 
-          this_.basDocThesis.relatedid = this_.form.prizeid;
+          this_.basDocPrizeZhengshu.relatedid = this_.form.prizeid;
+          this_.basDocPrizeShenbao.relatedid = this_.form.prizeid;
+          this_.basDocPrizeQita.relatedid = this_.form.prizeid;
 
           // 获取 审核结果信息。
           if (this.form.status === this.AchieveStatus.BuTongGuo) {
-            getThesisConfirm(prizeid,this.AchieveStatus.BuTongGuo).then(response => {
-              console.log("getThesisConfirm is ", response);
+            getPrizeConfirm(prizeid,this.AchieveStatus.BuTongGuo).then(response => {
+              console.log("getPrizeConfirm is ", response);
               this.form.confirmResult = response.data.applystatus;
               this.form.confirmNote =  response.data.auditopinion;
 
@@ -517,31 +524,6 @@ export default {
       }
     },
 
-    getThesisname(query) {
-      return new Promise((resolve, reject) => {
-        let res = uniqueThesis(query);
-        resolve(res);
-      });
-    },
-
-    async validateThesisname(rule, value, callback) {
-      if (!value) {
-        callback(new Error("获奖名称不能为空"));
-      } else {
-        if (this.form.prizename === undefined) {
-          callback();
-        } else {
-          let query = {prizename: value, prizeid: this.form.prizeid};
-          let res = await this.getThesisname(query);
-          console.log(res);
-          if (res.data > 0) {
-            callback(new Error("获奖名称重复"));
-          } else {
-            callback();
-          }
-        }
-      }
-    },
 
     // 表单重置
     reset() {
@@ -549,9 +531,9 @@ export default {
         prizeid: undefined,
         prizename: undefined,
 
-        patentcode: undefined,
+        prizecode: undefined,
 
-        patenttype: undefined,
+        prizetype: undefined,
         passtime: undefined,
         ourunitorder: undefined,
 
@@ -576,12 +558,12 @@ export default {
     // 组件方法
     changeFormDictType(dict) {
 
-      if (dict.type === this.DictTypeNamePublishbooklevel) {
+      if (dict.type === this.DictTypeNamePrizetype) {
         console.log("changeFormDictType is ",dict);
         if (dict) {
-          this.form.publishbooklevel = dict.id;
+          this.form.prizetype = dict.id;
         } else {
-          this.form.publishbooklevel = undefined;
+          this.form.prizetype = undefined;
         }
       }
       else if (dict.type === this.DictTypeNamePrizelevel) {
@@ -590,6 +572,14 @@ export default {
           this.form.prizelevel = dict.id;
         } else {
           this.form.prizelevel = undefined;
+        }
+      }
+      else if (dict.type === this.DictTypeNamePrizerank) {
+        console.log("changeFormDictType is ", dict);
+        if (dict) {
+          this.form.prizerank = dict.id;
+        } else {
+          this.form.prizerank = undefined;
         }
       }
       else {
@@ -645,20 +635,31 @@ export default {
 
       let doctype = "获奖全文";
 
-      for (let i=0; i < this.form.docList.length; i++) {
-        let doc = this.form.docList[i];
-        if (doc.doctype === doctype) {
-          this.form.docList.splice(i,1);
-        }
-      }
+      changeDocList(filelist, doctype, this.form.docList);
 
-      for (let j=0; j < filelist.length; j++) {
-        let file = filelist[j];
-        let doc = {docid: file.url, doctype: doctype};
-        console.log("this docList push is ",this.form.docList, file, doc);
+    },
 
-        this.form.docList.push(doc);
+    changeBasicfileList2(filelist) {
+      if (this.form.docList == null) {
+        this.form.docList = [];
       }
+      console.log("获奖全文 is ", filelist.length, this.form.docList.length);
+
+      let doctype = "获奖全文";
+
+      changeDocList(filelist, doctype, this.form.docList);
+
+    },
+
+    changeBasicfileList3(filelist) {
+      if (this.form.docList == null) {
+        this.form.docList = [];
+      }
+      console.log("获奖全文 is ", filelist.length, this.form.docList.length);
+
+      let doctype = "获奖全文";
+
+      changeDocList(filelist, doctype, this.form.docList);
 
     },
 
@@ -679,12 +680,12 @@ export default {
 
       const prizeid = this.form.prizeid;
 
-      this.$confirm('是否确认删除"' + this.form.patentname + '"的成果?', "警告", {
+      this.$confirm('是否确认删除"' + this.form.prizename + '"的成果?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deleteThesis(prizeid);
+        deletePrize(prizeid);
       }).then(() => {
         this.msgSuccess("删除成功");
         this.closeForm();
@@ -722,7 +723,7 @@ export default {
             });
 
             if (this_.form.prizeid === undefined) {
-              addThesis(this.form).then(response => {
+              addPrize(this.form).then(response => {
                 if (response.data === 0) {
                   this_.msgError("提交审核失败");
                   this_.form.prizeid = undefined;
@@ -736,7 +737,7 @@ export default {
                 this.closeForm();
               });
             } else {
-              updateThesis(this.form).then(response => {
+              updatePrize(this.form).then(response => {
 
               }).then(()=> {
                 this.msgSuccess("提交审核成功");
@@ -762,7 +763,7 @@ export default {
                 cancelButtonText: "取消",
                 type: "warning"
               }).then(function () {
-                confirmThesis(this_.form).then(response => {
+                confirmPrize(this_.form).then(response => {
                   this_.msgSuccess("审核完成");
                   this_.closeForm();
                 });
@@ -783,7 +784,7 @@ export default {
                   cancelButtonText: "取消",
                   type: "warning"
                 }).then(function () {
-                  confirmThesis(this_.form).then(response => {
+                  confirmPrize(this_.form).then(response => {
                     this_.msgSuccess("审核完成");
                     this_.closeForm();
                   });
