@@ -582,6 +582,14 @@ export default {
           this.form.prizerank = undefined;
         }
       }
+      else if (dict.type === this.DictTypeNameOurunitOrder) {
+        console.log("changeFormDictType is ", dict);
+        if (dict) {
+          this.form.ourunitorder = dict.id;
+        } else {
+          this.form.ourunitorder = undefined;
+        }
+      }
       else {
         console.error("changeFormDictType  意外 is ", dict);
       }
@@ -625,15 +633,20 @@ export default {
     },
 
 
-    /* 获奖全文 */
+    /* 获奖证书 */
+
+    // basDocPrizeZhengshu: {relatedid: -2, attachtotype: "获奖成果", doctype: "获奖证书"},
+    // basDocPrizeShenbao: {relatedid: -2, attachtotype: "获奖成果", doctype: "申报材料"},
+    // basDocPrizeQita: {relatedid: -2, attachtotype: "获奖成果", doctype: "其它附件"},
+
 
     changeBasicfileList1(filelist) {
       if (this.form.docList == null) {
         this.form.docList = [];
       }
-      console.log("获奖全文 is ", filelist.length, this.form.docList.length);
+      console.log("获奖证书 is ", filelist.length, this.form.docList.length);
 
-      let doctype = "获奖全文";
+      let doctype = "获奖证书";
 
       changeDocList(filelist, doctype, this.form.docList);
 
@@ -643,9 +656,9 @@ export default {
       if (this.form.docList == null) {
         this.form.docList = [];
       }
-      console.log("获奖全文 is ", filelist.length, this.form.docList.length);
+      console.log("申报材料 is ", filelist.length, this.form.docList.length);
 
-      let doctype = "获奖全文";
+      let doctype = "申报材料";
 
       changeDocList(filelist, doctype, this.form.docList);
 
@@ -655,9 +668,9 @@ export default {
       if (this.form.docList == null) {
         this.form.docList = [];
       }
-      console.log("获奖全文 is ", filelist.length, this.form.docList.length);
+      console.log("其它附件 is ", filelist.length, this.form.docList.length);
 
-      let doctype = "获奖全文";
+      let doctype = "其它附件";
 
       changeDocList(filelist, doctype, this.form.docList);
 
@@ -710,7 +723,7 @@ export default {
           }
 
           if (this_.form.docList === undefined || this_.form.docList.length === 0) {
-            this.msgError("请上传获奖全文");
+            this.msgError("请上传获奖证书等");
             return;
           }
 

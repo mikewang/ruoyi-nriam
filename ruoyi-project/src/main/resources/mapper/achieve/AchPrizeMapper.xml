@@ -74,7 +74,7 @@
     where a.PrizeID = #{prizeid,jdbcType=INTEGER}
   </select>
 
-  <insert id="insert" parameterType="com.ruoyi.achieve.domain.AchPrize" useGeneratedKeys="true"
+  <insert id="insertAchPrize" parameterType="com.ruoyi.achieve.domain.AchPrize" useGeneratedKeys="true"
           keyProperty="prizeid">
     insert into ACH_Prize ( PrizeName, PrizeType,
                            PrizeLevel, PrizeRank, PrizeYear,
