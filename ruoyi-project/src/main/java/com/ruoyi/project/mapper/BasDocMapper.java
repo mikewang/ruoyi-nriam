@@ -13,6 +13,6 @@ public interface BasDocMapper {
     List<BasDoc> selectBasDocListByIds(List ids);
     List<BasDoc> selectBasDocList(BasDoc record);
     BasDoc selectBasDocById(Integer id);
-    int updateBasDocAttachTo(BasDoc record);
+//    int updateBasDocAttachTo(BasDoc record);
     List<BasDoc> selectAll();
 }

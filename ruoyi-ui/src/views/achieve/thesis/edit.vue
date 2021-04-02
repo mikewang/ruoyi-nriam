@@ -644,7 +644,7 @@ export default {
       for (let j=0; j < filelist.length; j++) {
         let file = filelist[j];
         let doc = {docid: file.url, doctype: doctype};
-        console.log("this docList push is ",this.docList, file, doc);
+        console.log("this docList push is ",this.form.docList, file, doc);
 
         this.form.docList.push(doc);
       }

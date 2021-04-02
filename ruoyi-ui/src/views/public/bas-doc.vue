@@ -52,9 +52,13 @@ export default {
               let file = {name:item.docname, url:item.docid};
               this.fileList.push(file);
             }
+            if (data.length > 0) {
+              console.log("load filelist is ", this.fileList);
+              this.$emit('changeFileList',this.fileList);
+            }
           }
 
-          this.$emit('changeFileList',this.fileList);
+
           this.loading = false;
         });
       }
@@ -101,6 +105,7 @@ export default {
       if (index !== -1) {
         this.fileList.splice(index, 1);
         this.$emit('changeFileList',this.fileList);
+        console.log("remove filelist is ", this.fileList);
       }
 
     },

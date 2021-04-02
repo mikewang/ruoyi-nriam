@@ -90,8 +90,6 @@ public class BasDocController extends BaseController {
     public AjaxResult remove(@PathVariable Integer[] ids) {
 
         return AjaxResult.success("");
-
-
     }
 
     /**

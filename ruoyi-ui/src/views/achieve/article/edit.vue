@@ -5,40 +5,40 @@
       <el-form v-loading="loading" ref="form" :model="form" :rules="rules" label-width="160px" :key="timer"
       >
         <template>
-          <el-tag size="medium" type="info">专利信息</el-tag>
+          <el-tag size="medium" type="info">著作信息</el-tag>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="专利名称" prop="patentname">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.patentname" placeholder="请输入专利名称"
+              <el-form-item label="著作名称" prop="articlename">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.articlename" placeholder="请输入著作名称"
                           :show-overflow-tooltip="true"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="专利号" prop="patentcode">
-                <el-input v-bind:readonly="readonly.basic" v-model="form.patentcode" placeholder="请输入专利号"/>
+              <el-form-item label="著作类别" prop="articletype">
+                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameArticleType"
+                           :selected-dict-value="form.articletype" :data-options="undefined"
+                           @changeDictValue="changeFormDictType" :key="timer"></dict-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="专利类型" prop="patenttype">
-                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNamePatentType"
-                           :selected-dict-value="form.patenttype" :data-options="patenttypeOptions"
-                           @changeDictValue="changeFormDictType" :key="timer"></dict-data>
+              <el-form-item label="出版书号" prop="publishnumber">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.publishnumber" placeholder="请输入出版书号"
+                          :show-overflow-tooltip="true"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="授权日期" prop="passtime">
-                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.passtime" type="date" placeholder="请选择日期"
-                                value-format="yyyy-MM-dd"
+              <el-form-item label="出版年度" prop="publishyear">
+                <el-date-picker v-bind:readonly="readonly.basic" v-model="form.publishyear" type="year" placeholder="请选择日期"
+                                value-format="yyyy"
                                 style="display:block;"></el-date-picker>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="本所排名" prop="ourunitorder">
-                <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameOurunitOrder"
-                           :selected-dict-value="form.ourunitorder" :data-options="ourunitorderOptions"
-                           @changeDictValue="changeFormDictType"></dict-data>
+              <el-form-item label="出版社" prop="publishunit">
+                <el-input v-bind:readonly="readonly.basic" v-model="form.publishunit" placeholder="请输入出版社"
+                          :show-overflow-tooltip="true"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -51,7 +51,7 @@
 
           <el-row>
             <el-col :span="24">
-              <el-form-item label="专利人" prop="authorList">
+              <el-form-item label="作者列表" prop="authorList">
                 <el-row :gutter="10" class="mb8" v-bind:hidden="readonly.basic">
                   <el-col :span="1.5">
                     <el-button plain
@@ -59,7 +59,7 @@
                                icon="el-icon-plus"
                                size="mini"
                                @click="handleAuthorAdd"
-                               v-hasPermi="['achieve:patent:list']"
+                               v-hasPermi="['achieve:article:list']"
                     >新增
                     </el-button>
                   </el-col>
@@ -71,7 +71,7 @@
                                size="mini"
                                :disabled="multiple"
                                @click="handleAuthorDelete"
-                               v-hasPermi="['achieve:patent:list']"
+                               v-hasPermi="['achieve:article:list']"
                     >删除
                     </el-button>
                   </el-col>
@@ -102,7 +102,7 @@
                         type="text"
                         icon="el-icon-edit"
                         @click="handleAuthorUpdate(scope.row)"
-                        v-hasPermi="['achieve:patent:list']"
+                        v-hasPermi="['achieve:article:list']"
 
                       >编辑
                       </el-button>
@@ -111,7 +111,7 @@
                         type="text"
                         icon="el-icon-delete"
                         @click="handleAuthorDelete(scope.row)"
-                        v-hasPermi="['achieve:patent:list']"
+                        v-hasPermi="['achieve:article:list']"
                       >删除
                       </el-button>
                     </template>
@@ -124,8 +124,8 @@
           <el-row>
 
             <el-col :span="16">
-              <el-form-item label="专利证书" prop="basicfileList1">
-                <bas-doc :basdoc="basDocPatentZhengshu" :readonly="readonly.basic" @changeFileList="changeBasicfileList1" :key="basDocPatentZhengshu.relatedid" ></bas-doc>
+              <el-form-item label="著作封面页及编写人员名单页" prop="basicfileList1">
+                <bas-doc :basdoc="basDocArticleZhengshu" :readonly="readonly.basic" @changeFileList="changeBasicfileList1" :key="basDocArticleZhengshu.relatedid" ></bas-doc>
               </el-form-item>
             </el-col>
           </el-row>
@@ -133,7 +133,7 @@
           <el-row>
             <el-col :span="16">
               <el-form-item label="其他附件" prop="basicfileList2">
-                <bas-doc :basdoc="basDocPatentQita" :readonly="readonly.basic" @changeFileList="changeBasicfileList2" :key="basDocPatentQita.relatedid" ></bas-doc>
+                <bas-doc :basdoc="basDocArticleQita" :readonly="readonly.basic" @changeFileList="changeBasicfileList2" :key="basDocArticleQita.relatedid" ></bas-doc>
               </el-form-item>
             </el-col>
 
@@ -241,17 +241,16 @@
 </template>
 
 <script>
-import {listTeam, listTeamMember} from "@/api/project/team";
-import {listUser} from "@/api/system/user";
-import {getPatent, addPatent, updatePatent, deletePatent, confirmPatent, uniquePatent,getPatentConfirm} from "@/api/achieve/patent";
-import {listBasDoc,requestUpload, beforeRemove, beforeUpload, handleUploadRemove, handleUploadReview} from "@/api/achieve/basdoc";
+import {listTeamMember} from "@/api/project/team";
+import {getArticle, addArticle, updateArticle, deleteArticle, confirmArticle, uniqueArticle,getArticleConfirm} from "@/api/achieve/article";
+
 import TeamData from "@/views/public/team-data";
 import DictData from "@/views/public/dict-data";
 import UserData from "@/views/public/user-data";
 import BasDoc from "@/views/public/bas-doc";
 
 export default {
-  name: "achieve_patent_edit",
+  name: "achieve_article_edit",
   components: {"team-data": TeamData, "dict-data": DictData, "user-data": UserData, "bas-doc": BasDoc},
   data() {
     return {
@@ -270,22 +269,18 @@ export default {
       multiple: true,
       // 弹出层标题
       title: "",
-      DictTypeNamePatentType: "专利类型",
-      // 数据字典  专利类型
-      patenttypeOptions: [{dictLabel: "发明", dictValue: "发明"}, {dictLabel: "实用新型", dictValue: "实用新型"}, {dictLabel: "外观设计",dictValue: "外观设计"}, {dictLabel: "国际专利", dictValue: "国际专利"}],
+      DictTypeNameArticleType: "著作类别",
+      // 数据字典  著作类别
 
-      DictTypeNameOurunitOrder: "本所排名",
-      ourunitorderOptions: [{dictLabel: 1, dictValue: 1}, {dictLabel: 2, dictValue: 2}, {dictLabel: 3, dictValue: 3}, {dictLabel: 4,dictValue: 4}, {dictLabel: 5, dictValue: 5}],
-
-      basDocPatentZhengshu: {relatedid: -2, attachtotype: "专利", doctype: "专利证书"},
-      basDocPatentQita: {relatedid: -2, attachtotype: "专利", doctype: "其它附件"},
+      basDocArticleZhengshu: {relatedid: -2, attachtotype: "著作", doctype: "封面及名单页"},
+      basDocArticleQita: {relatedid: -2, attachtotype: "著作", doctype: "其它附件"},
 
       // 数据字典
-      teamOptions: [],
-      teamList: [],
-
-      userOptions: [],
-      userList: [],
+      // teamOptions: [],
+      // teamList: [],
+      //
+      // userOptions: [],
+      // userList: [],
 
       teamMemberList: [],
 
@@ -300,24 +295,24 @@ export default {
       timer: '',
       // 表单校验
       rules: {
-        patentname: [
-          {required: true, message: "专利名称不能为空", trigger: "blur"}
-        ],
-        patentcode: [
-          {required: true, message: "专利号不能为空", trigger: "blur"}, {
+        articlename: [
+          {required: true, message: "著作名称不能为空", trigger: "blur"}, {
             required: true,
             trigger: "change",
-            validator: this.validatePatentcode
+            validator: this.validateArticlename
           }
         ],
-        patenttype: [
-          {required: true, message: "专利类型不能为空", trigger: "blur"}
+        articletype: [
+          {required: true, message: "著作类别不能为空", trigger: "blur"}
         ],
-        passtime: [
-          {required: true, message: "授权日期不能为空", trigger: "blur"}
+        publishnumber: [
+          {required: true, message: "出版书号不能为空", trigger: "blur"}
         ],
-        ourunitorder: [
-          {required: true, message: "本所排名不能为空", trigger: "blur"}
+        publishyear: [
+          {required: true, message: "出版年度不能为空", trigger: "blur"}
+        ],
+        publishunit: [
+          {required: true, message: "出版社不能为空", trigger: "blur"}
         ],
         teamid: [
           {required: true, message: "所属团队不能为空", trigger: "blur"}
@@ -348,7 +343,7 @@ export default {
 
   beforeCreate() {
     console.log(" beforeCreate this.$route.meta is ", this.$route.meta);
-    const patentid = this.$route.params && this.$route.params.patentid;
+    const articleid = this.$route.params && this.$route.params.articleid;
 
   },
   created() {
@@ -356,9 +351,9 @@ export default {
     this.resetTemplateStatus();
     console.log(" created this.$route.params is ", this.$route.params);
 
-    let patentid = this.$route.params && this.$route.params.patentid;
-    if (patentid === undefined || Number(patentid) === 0) {
-      patentid = undefined;
+    let articleid = this.$route.params && this.$route.params.articleid;
+    if (articleid === undefined || Number(articleid) === 0) {
+      articleid = undefined;
     } else {
 
     }
@@ -366,27 +361,29 @@ export default {
     this.opcode = this.$route.meta.opcode;
     this.applyid = this.$route.params.applyid;
 
-    this.getData(patentid);
+    this.getData(articleid);
 
   },
   methods: {
     /** 查询项目信息 */
-    getData(patentid) {
+    getData(articleid) {
 
       const this_ = this;
 
       this.loading = true;
-      console.log("loading is begin, patentid is ", patentid);
+      console.log("loading is begin, articleid is ", articleid);
 
-      if (patentid === undefined) {
+      if (articleid === undefined) {
         this.reset();
         this.configTemplateStatus();
         this.loading = false;
       } else {
-        getPatent(patentid).then(response => {
+        getArticle(articleid).then(response => {
           console.log("getData response is ", response.data);
 
           const data = response.data;
+          data.publishyear = data.publishyear.toString();
+          data.articletype = data.articletype.toString();
 
           this_.form = data;
 
@@ -397,13 +394,13 @@ export default {
 
           this_.configTemplateStatus();
 
-          this_.basDocPatentZhengshu.relatedid = this_.form.patentid;
-          this_.basDocPatentQita.relatedid = this_.form.patentid;
+          this_.basDocArticleZhengshu.relatedid = this_.form.articleid;
+          this_.basDocArticleQita.relatedid = this_.form.articleid;
 
           // 获取 审核结果信息。
           if (this.form.status === this.AchieveStatus.BuTongGuo) {
-            getPatentConfirm(patentid,this.AchieveStatus.BuTongGuo).then(response => {
-              console.log("getPatentConfirm is ", response);
+            getArticleConfirm(articleid,this.AchieveStatus.BuTongGuo).then(response => {
+              console.log("getArticleConfirm is ", response);
               this.form.confirmResult = response.data.applystatus;
               this.form.confirmNote =  response.data.auditopinion;
 
@@ -479,25 +476,25 @@ export default {
       }
     },
 
-    getPatentcode(query) {
+    getArticlename(query) {
       return new Promise((resolve, reject) => {
-        let res = uniquePatent(query);
+        let res = uniqueArticle(query);
         resolve(res);
       });
     },
 
-    async validatePatentcode(rule, value, callback) {
+    async validateArticlename(rule, value, callback) {
       if (!value) {
-        callback(new Error("专利号不能为空"));
+        callback(new Error("著作名称不能为空"));
       } else {
-        if (this.form.patentcode === undefined) {
+        if (this.form.articlename === undefined) {
           callback();
         } else {
-          let query = {patentcode: value, patentid: this.form.patentid};
-          let res = await this.getPatentcode(query);
+          let query = {articlename: value, articleid: this.form.articleid};
+          let res = await this.getArticlename(query);
           console.log(res);
           if (res.data > 0) {
-            callback(new Error("专利号重复"));
+            callback(new Error("著作名称重复"));
           } else {
             callback();
           }
@@ -508,11 +505,11 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        patentid: undefined,
-        patentname: undefined,
-        patentcode: undefined,
+        articleid: undefined,
+        articlename: undefined,
+        articlecode: undefined,
 
-        patenttype: undefined,
+        articletype: undefined,
         passtime: undefined,
         ourunitorder: undefined,
 
@@ -541,12 +538,12 @@ export default {
     // 组件方法
     changeFormDictType(dict) {
 
-      if (dict.type === this.DictTypeNamePatentType) {
+      if (dict.type === this.DictTypeNameArticleType) {
         console.log("changeFormDictType is ",dict);
         if (dict) {
-          this.form.patenttype = dict.id;
+          this.form.articletype = dict.id;
         } else {
-          this.form.patenttype = undefined;
+          this.form.articletype = undefined;
         }
       }
       else if (dict.type === this.DictTypeNameOurunitOrder) {
@@ -595,30 +592,54 @@ export default {
     },
 
 
-    /* 专利证书 */
+    /* 著作证书 */
 
     changeBasicfileList1(filelist) {
-      if (this.form.docList == null) {
+      if (this.form.docList === null) {
         this.form.docList = [];
       }
-      console.log("专利证书 is ", filelist.length, this.form.docList.length);
+      console.log("封面及名单页 is ", filelist, this.form.docList);
 
-      let doctype = "专利证书";
+      let doctype = "封面及名单页";
 
-      for (let i=0; i < this.form.docList.length; i++) {
-        let doc = this.form.docList[i];
-        if (doc.doctype === doctype) {
-          this.form.docList.splice(i,1);
-        }
+      this.changeDocList(filelist, doctype);
+
+    },
+
+    changeDocList(filelist, doctype) {
+
+      this.form.docList.forEach(function(item, index, arr) {
+        console.log("清理前 index=" + index.toString(),"doctype is " , item.doctype, "docid", item.docid);
+      });
+
+      while (this.form.docList.filter(function (item) {
+        return item.doctype === doctype
+      }).length > 0) {
+        this.form.docList.forEach(function(item, index, arr) {
+          if(item.doctype == doctype) {
+            arr.splice(index, 1);
+          }
+        });
+      }
+
+      if (this.form.docList.filter(function (item) {return item.doctype === doctype}).length >0 ) {
+        this.form.docList.forEach(function(item, index, arr) {
+          console.log("清理后 index=" + index.toString(),"doctype is " , item.doctype, "docid", item.docid);
+        });
       }
 
       for (let j=0; j < filelist.length; j++) {
         let file = filelist[j];
         let doc = {docid: file.url, doctype: doctype};
-        console.log("this docList push is ",this.form.docList, file, doc);
+
+        console.log("docList push is ",this.form.docList, file, doc);
 
         this.form.docList.push(doc);
       }
+
+      this.form.docList.filter(function (item) {return item.doctype === doctype}).forEach(function(item, index, arr) {
+        console.log("清理结束，index=" + index.toString(),"doctype is " , item.doctype, "docid", item.docid);
+      });
 
     },
 
@@ -626,27 +647,14 @@ export default {
 
     changeBasicfileList2(filelist) {
 
-      if (this.form.docList == null) {
+      if (this.form.docList === null) {
         this.form.docList = [];
       }
-      console.log("其它附件 is ", filelist, this.form.docList);
+      console.log("其它附件 is ", filelist, this.form.docList, filelist);
 
       let doctype = "其它附件";
 
-      for (let i=0; i < this.form.docList.length; i++) {
-        let doc = this.form.docList[i];
-        if (doc.doctype === doctype) {
-          this.form.docList.splice(i,1);
-        }
-      }
-
-      for (let j=0; j < filelist.length; j++) {
-        let file = filelist[j];
-        let doc = {docid: file.url, doctype: doctype};
-        console.log("this docList push is ",this.form.docList, file, doc);
-
-        this.form.docList.push(doc);
-      }
+      this.changeDocList(filelist, doctype);
 
     },
 
@@ -665,14 +673,14 @@ export default {
     /** 删除按钮 */
     deleteForm() {
 
-      const patentid = this.form.patentid;
+      const articleid = this.form.articleid;
 
-      this.$confirm('是否确认删除"' + this.form.patentname + '"的成果?', "警告", {
+      this.$confirm('是否确认删除"' + this.form.articlename + '"的成果?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deletePatent(patentid);
+        deleteArticle(articleid);
       }).then(() => {
         this.msgSuccess("删除成功");
         this.closeForm();
@@ -692,31 +700,36 @@ export default {
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
           if (this_.form.authorList === undefined || this_.form.authorList.length === 0) {
-            this.msgError("专利人列表为空");
+            this.msgError("著作人列表为空");
             return;
           }
 
           if (this_.form.docList === undefined || this_.form.docList.length === 0) {
-            this.msgError("请上传专利证书");
+            this.msgError("请上传著作封面及名单页");
             return;
+          }
+          else {
+            this_.form.docList.forEach(function(item, index, arr) {
+              console.log("文件列表 index=" + index.toString(),"doctype is " , item.doctype, "docid", item.docid);
+            });
           }
 
           if (this_.opcode === "add") {
-            // 处理掉添加 专利人，为了更新或修改。
+            // 处理掉添加 著作人，为了更新或修改。
             this_.form.authorList.forEach(function (item) {
               if (item.authorid < 0) {
                 item.authorid = undefined;
               }
             });
 
-            if (this_.form.patentid === undefined) {
-              addPatent(this.form).then(response => {
+            if (this_.form.articleid === undefined) {
+              addArticle(this.form).then(response => {
                 if (response.data === 0) {
                   this_.msgError("提交审核失败");
-                  this_.form.patentid = undefined;
+                  this_.form.articleid = undefined;
                 } else {
                   this.msgSuccess("提交审核成功");
-                  this.form.patentid = response.data;
+                  this.form.articleid = response.data;
 
                 }
               }).then(() => {
@@ -724,7 +737,7 @@ export default {
                 this.closeForm();
               });
             } else {
-              updatePatent(this.form).then(response => {
+              updateArticle(this.form).then(response => {
 
               }).then(()=> {
                 this.msgSuccess("提交审核成功");
@@ -745,12 +758,12 @@ export default {
             const result = this_.form.confirmResult;
 
             if (result === 1) {
-              this_.$confirm('是否确认专利审核 通过?', "警告", {
+              this_.$confirm('是否确认著作审核 通过?', "警告", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning"
               }).then(function () {
-                confirmPatent(this_.form).then(response => {
+                confirmArticle(this_.form).then(response => {
                   this_.msgSuccess("审核完成");
                   this_.closeForm();
                 });
@@ -766,12 +779,12 @@ export default {
               const note = this_.form.confirmNote;
               console.log("confirmNote is ", note);
               if (note !== null && note !== undefined && note.trim() !== '' ) {
-                this_.$confirm('是否确认专利审核 不通过?', "警告", {
+                this_.$confirm('是否确认著作审核 不通过?', "警告", {
                   confirmButtonText: "确定",
                   cancelButtonText: "取消",
                   type: "warning"
                 }).then(function () {
-                  confirmPatent(this_.form).then(response => {
+                  confirmArticle(this_.form).then(response => {
                     this_.msgSuccess("审核完成");
                     this_.closeForm();
                   });
@@ -834,7 +847,7 @@ export default {
       this.resetAuthorForm();
 
       this.authorFormOpen = true;
-      this.authorFormTitle = "添加专利人";
+      this.authorFormTitle = "添加著作人";
 
       if (this.form.teamid !== undefined) {
         this.getTeamMember(this.form.teamid);
@@ -846,7 +859,7 @@ export default {
 
     handleAuthorUpdate(row) {
       this.authorFormOpen = true;
-      this.authorFormTitle = "编辑专利人";
+      this.authorFormTitle = "编辑著作人";
       const author = {
         authorid: row.authorid,
         ifourunit: row.ifourunit,
@@ -915,7 +928,7 @@ export default {
               userid : this_.authorForm.userid,
               personname: this_.authorForm.personname
             };
-            console.log("添加专利人", author2);
+            console.log("添加著作人", author2);
             this_.form.authorList.push(author2);
             this_.msgSuccess("添加成功");
           }

@@ -753,7 +753,7 @@ public class AudSheetService {
         doc.setRelatedid(supplier.getSupplierid());
         doc.setDoctype("营业执照");
         doc.setAttachtotype("协作单位");
-        basDocMapper.updateBasDocAttachTo(doc);
+        basDocMapper.updateBasDocAttachToType(doc);
         log.debug("supplier is " + supplier.toString());
 
         if (supplier.getDocList() != null) {
@@ -765,7 +765,7 @@ public class AudSheetService {
                 doc.setRelatedid(supplier.getSupplierid());
                 doc.setDoctype("其它附件");
                 doc.setAttachtotype("协作单位");
-                basDocMapper.updateBasDocAttachTo(doc);
+                basDocMapper.updateBasDocAttachToType(doc);
             }
         }
 
@@ -812,7 +812,7 @@ public class AudSheetService {
         doc.setDoctype("营业执照");
         doc.setDocid(supplier.getOrgImgId());
 
-        result =  basDocMapper.updateBasDocAttachTo(doc);
+        result =  basDocMapper.updateBasDocAttachToType(doc);
 
         if (supplier.getDocList() != null && supplier.getDocList().size() > 0) {
             for (DocFile map : supplier.getDocList()) {
@@ -822,7 +822,7 @@ public class AudSheetService {
                 doc.setRelatedid(supplier.getSupplierid());
                 doc.setDoctype("其它附件");
                 doc.setAttachtotype("协作单位");
-                result = basDocMapper.updateBasDocAttachTo(doc);
+                result = basDocMapper.updateBasDocAttachToType(doc);
             }
         }
 

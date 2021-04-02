@@ -163,14 +163,27 @@ public class AchThesisService {
 
         //保存对应的文档
         // 同步 文件。 使用merge方式。
+        BasDoc recordDoc = new BasDoc();
+        recordDoc.setRelatedid(thesisid);
+
+        List<BasDoc> existedDocList = basDocMapper.selectBasDocList(recordDoc);
+
+        for (BasDoc doc : existedDocList) {
+            doc.setDoctype(null);
+            doc.setRelatedid(null);
+            doc.setAttachtotype(null);
+            basDocMapper.updateBasDocAttachToType(doc);
+        }
+
+
         List<BasDoc> doclist = thesis.getDocList();
         log.debug("thesis.getDocList is " + doclist.toString());
 
         for (BasDoc s : doclist) {
             s.setAttachtotype(ACHIEVETYPE);
             s.setRelatedid(thesisid);
-            log.debug("updateBasDocAttachTo is " + s.toString());
-            basDocMapper.updateBasDocAttachTo(s);
+            log.debug("updateBasDocAttachToType is " + s.toString());
+            basDocMapper.updateBasDocAttachToType(s);
         }
 
         return 1;

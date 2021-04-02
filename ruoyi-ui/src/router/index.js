@@ -176,13 +176,31 @@ export const constantRoutes = [
         path: 'thesis/:thesisid(\\d+)',
         component: (resolve) => require(['@/views/achieve/thesis/edit'], resolve),
         name: 'EditThesis',
-        meta: { title: '专利编辑', icon: '', opcode: 'query',noCache: true }
+        meta: { title: '论文编辑', icon: '', opcode: 'query',noCache: true }
       },
       {
         path: 'thesis/confirm/:thesisid(\\d+)/:applyid(\\d+)',
         component: (resolve) => require(['@/views/achieve/thesis/edit'], resolve),
         name: 'ConfirmThesis',
-        meta: { title: '专利审核', icon: '', opcode: 'confirm',noCache: true,}
+        meta: { title: '论文审核', icon: '', opcode: 'confirm',noCache: true,}
+      },
+      {
+        path: 'article',
+        component: (resolve) => require(['@/views/achieve/article/edit'], resolve),
+        name: 'AddArticle',
+        meta: {title: '著作新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'article/:articleid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/article/edit'], resolve),
+        name: 'EditArticle',
+        meta: { title: '著作编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'article/confirm/:articleid(\\d+)/:applyid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/article/edit'], resolve),
+        name: 'ConfirmArticle',
+        meta: { title: '著作审核', icon: '', opcode: 'confirm',noCache: true,}
       }
     ]
   },

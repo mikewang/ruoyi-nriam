@@ -126,7 +126,7 @@ public class PmProjectacceptanceService {
                 doc.setAttachtotype("验收信息");
                 doc.setDoctype(s.getDoctype());
                 doc.setRelatedid(s.getProjectid());
-                basDocMapper.updateBasDocAttachTo(doc);
+                basDocMapper.updateBasDocAttachToType(doc);
             }
         }
 
