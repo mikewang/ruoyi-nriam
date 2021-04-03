@@ -710,7 +710,6 @@ export default {
     submitForm: function () {
 
       const this_ = this;
-      console.log("submit form is ", this.form);
 
       this.$refs["form"].validate(valid => {
         if (valid) {
@@ -820,6 +819,9 @@ export default {
           }
 
 
+        }
+        else {
+          console.error("submit form error is ", this.form);
         }
       });
     },

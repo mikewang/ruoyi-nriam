@@ -633,7 +633,7 @@ public class TeamPerformanceService {
 
         //审核通过时，团队绩效加分。
         //先删除对应的旧评分记录
-        this.deletePerTeamperformances(AchieveType.ARTICLE.getInfo(),prize.getPrizeid());
+        this.deletePerTeamperformances(AchieveType.PRIZE.getInfo(),prize.getPrizeid());
 
         //获取分数
         PerIndicatorprize indicatorprize = new PerIndicatorprize();
@@ -646,15 +646,15 @@ public class TeamPerformanceService {
         //增加新的记录
         Integer teamid = prize.getTeamid();
         Integer currYear = prize.getPrizeyear();
-        String indicatortype = AchieveType.ARTICLE.getInfo();
+        String indicatortype = AchieveType.PRIZE.getInfo();
         Integer indicatorid = indicatorprize.getIndicatorprizeid();
         Integer achieveid = prize.getPrizeid();
-        String description = AchieveType.ARTICLE.getInfo() + "-" + prize.getPrizetypelinktext() + "-" + indicatorprize.getPoints().toString() + "分";
+        String description = AchieveType.PRIZE.getInfo() + "-" + prize.getPrizetypelinktext() + "-" + indicatorprize.getPoints().toString() + "分";
         BigDecimal points = indicatorprize.getPoints();
 
 
         PerRelation record = new PerRelation();
-        record.setIndicatortype(AchieveType.ARTICLE.getInfo());
+        record.setIndicatortype(AchieveType.PRIZE.getInfo());
         List<PerRelation> relationList = relationMapper.selectPerRelation(record);
         PerRelation relation = relationList.get(0);
 
