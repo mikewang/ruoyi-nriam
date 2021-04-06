@@ -1,6 +1,6 @@
 <template>
 <div>
-  <el-select v-model="filterProjectid" placeholder="" style="display:block;"
+  <el-select  v-if="readonly===false || readonly === undefined"  v-model="filterProjectid" placeholder="" style="display:block;"
              clearable @clear="clearProjectDataValue" @change="changeProjectDataValue"
              filterable :filter-method="filterProjectDataOptions" >
     <el-option
@@ -9,6 +9,7 @@
       :label="item.value"
       :value="item.id"/>
   </el-select>
+  <el-input v-else  v-model="selectedProjectName"  readonly  placeholder=""></el-input>
 </div>
 </template>
 
@@ -18,13 +19,15 @@ import {listProject} from "@/api/project/project";
 export default {
   name: "ProjectData",
   components: {},
-  props:['selectedProjectid'],
+  props:['selectedProjectid', ' ', 'readonly'],
   data() {
     return {
       // 遮罩层
       loading: true,
       // 传入的参数
       filterProjectid: this.selectedProjectid === undefined ? undefined : this.selectedProjectid.toString(),
+      selectedProjectName: undefined,
+      selectedProjectData: {},
       // 数据源
       projectDataOptions: [],
       projectDataList: []
@@ -40,7 +43,13 @@ export default {
     /** 查询列表 */
     getList() {
       this.loading = true;
-      console.log("加载 组件 " + this.selectedProjectData);
+      if (this.filterProjectid !== undefined) {
+        this.selectedProjectData.projectid = this.filterProjectid;
+      }
+      if (this.selectedTeamid !== undefined) {
+        this.selectedProjectData.teamid = this.selectedTeamid;
+      }
+      console.log("加载 项目组件 " , this.selectedProjectData.projectid, this.selectedProjectData.teamid );
       const this_ = this;
 
       listProject(this.selectedProjectData).then(response => {
@@ -54,6 +63,9 @@ export default {
         }).forEach(function (item) {
           const adict = {value: item.projectname, id: item.projectcode};
           listOptions.push(adict);
+          if (item.projectid === this.filterProjectid) {
+            this.selectedProjectName = item.projectname;
+          }
         });
 
         this_.projectDataOptions = listOptions;

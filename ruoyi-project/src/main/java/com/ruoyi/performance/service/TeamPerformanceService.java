@@ -103,6 +103,21 @@ public class TeamPerformanceService {
     PerIndicatorprizeMapper indicatorprizeMapper;
 
     @Resource
+    PerIndicatorstandardMapper indicatorstandardMapper;
+
+    @Resource
+    PerIndicatorsoftwareMapper indicatorsoftwareMapper;
+
+    @Resource
+    PerIndicatorproductMapper indicatorproductMapper;
+
+    @Resource
+    PerIndicatortechMapper indicatortechMapper;
+
+    @Resource
+    PerIndicatorappraisalMapper indicatorappraisalMapper;
+
+    @Resource
     PerRelationMapper relationMapper;
 
     @Resource
@@ -533,9 +548,13 @@ public class TeamPerformanceService {
         Integer authoruserid = orderRate.getUserId();
         Integer authororder = orderRate.getOrder();
 
-        description = description + "-系数" + orderRate.getRate().toString();
+        if (orderRate.getUserId() == -1) {
 
-        points = points.multiply(orderRate.getRate());
+        }
+        else {
+            description = description + "-系数" + orderRate.getRate().toString();
+            points = points.multiply(orderRate.getRate());
+        }
 
         teamperformance.setDescription(description);
 
@@ -663,6 +682,171 @@ public class TeamPerformanceService {
         return result;
     }
 
+
+    public Integer addTeamperformancesForStandard(AchStandard  standard) {
+        Integer result = 1;
+
+        //审核通过时，团队绩效加分。
+        //先删除对应的旧评分记录
+        this.deletePerTeamperformances(AchieveType.STANDARD.getInfo(),standard.getStandardid());
+
+        //获取分数
+        PerIndicatorstandard indicatorstandard = new PerIndicatorstandard();
+        indicatorstandard.setStandardtype(standard.getStandardtype().toString());
+
+        List<PerIndicatorstandard> indicatorstandardList = indicatorstandardMapper.selectPerIndicatorstandard(indicatorstandard);
+        indicatorstandard = indicatorstandardList.get(0);
+
+
+        //增加新的记录
+        Integer teamid = standard.getTeamid();
+        Integer currYear = standard.getPublishyear();
+        String indicatortype = AchieveType.STANDARD.getInfo();
+        Integer indicatorid = indicatorstandard.getIndicatorstandardid();
+        Integer achieveid = standard.getStandardid();
+        String description = AchieveType.STANDARD.getInfo() + "-" + standard.getStandardtypelinktext() + "-" + indicatorstandard.getPoints().toString() + "分";
+        BigDecimal points = indicatorstandard.getPoints();
+
+
+        PerRelation record = new PerRelation();
+        record.setIndicatortype(AchieveType.STANDARD.getInfo());
+        List<PerRelation> relationList = relationMapper.selectPerRelation(record);
+        PerRelation relation = relationList.get(0);
+
+        result = addTeamperformances(teamid,currYear,indicatortype,indicatorid,achieveid,description,points, relation);
+
+        return result;
+    }
+
+    public Integer addTeamperformancesForSoftware(AchSoftware  software) {
+        Integer result = 1;
+
+        //审核通过时，团队绩效加分。
+        //先删除对应的旧评分记录
+        this.deletePerTeamperformances(AchieveType.SOFTWARE.getInfo(),software.getSoftwareid());
+
+        //获取分数
+        PerIndicatorsoftware indicatorsoftware = new PerIndicatorsoftware();
+
+        List<PerIndicatorsoftware> indicatorsoftwareList = indicatorsoftwareMapper.selectPerIndicatorsoftware(indicatorsoftware);
+        indicatorsoftware = indicatorsoftwareList.get(0);
+
+        //增加新的记录
+        Integer teamid = software.getTeamid();
+        Integer currYear = Integer.valueOf(software.getCertifacatedate().substring(0,4));
+        String indicatortype = AchieveType.SOFTWARE.getInfo();
+        Integer indicatorid = indicatorsoftware.getIndicatorsoftwareid();
+        Integer achieveid = software.getSoftwareid();
+        String description = AchieveType.SOFTWARE.getInfo() + "-" + "每项" + indicatorsoftware.getPoints().toString() + "分";
+        BigDecimal points = indicatorsoftware.getPoints();
+
+
+        PerRelation record = new PerRelation();
+        record.setIndicatortype(AchieveType.SOFTWARE.getInfo());
+        List<PerRelation> relationList = relationMapper.selectPerRelation(record);
+        PerRelation relation = relationList.get(0);
+
+        result = addTeamperformances(teamid,currYear,indicatortype,indicatorid,achieveid,description,points, relation);
+
+        return result;
+    }
+
+    public Integer addTeamperformancesForProduct(AchProduct  product) {
+        Integer result = 1;
+
+        //审核通过时，团队绩效加分。
+        //先删除对应的旧评分记录
+        this.deletePerTeamperformances(AchieveType.PRODUCT.getInfo(),product.getProductid());
+
+        //获取分数
+        PerIndicatorproduct indicatorproduct = new PerIndicatorproduct();
+
+        indicatorproduct = indicatorproductMapper.selectPerIndicatorproductById(1);
+
+        //增加新的记录
+        Integer teamid = product.getTeamid();
+        Integer currYear = product.getProductyear();
+        String indicatortype = AchieveType.PRODUCT.getInfo();
+        Integer indicatorid = indicatorproduct.getIndicatorproductid();
+        Integer achieveid = product.getProductid();
+        String description = AchieveType.PRODUCT.getInfo() + "-" + "每项" + indicatorproduct.getPoints().toString() + "分";
+        BigDecimal points = indicatorproduct.getPoints();
+
+
+        PerRelation record = new PerRelation();
+        record.setIndicatortype(AchieveType.PRODUCT.getInfo());
+        List<PerRelation> relationList = relationMapper.selectPerRelation(record);
+        PerRelation relation = relationList.get(0);
+
+        result = addTeamperformances(teamid,currYear,indicatortype,indicatorid,achieveid,description,points, relation);
+
+        return result;
+    }
+
+    public Integer addTeamperformancesForTech(AchTech  tech) {
+        Integer result = 1;
+
+        //审核通过时，团队绩效加分。
+        //先删除对应的旧评分记录
+        this.deletePerTeamperformances(AchieveType.TECH.getInfo(),tech.getTechid());
+
+        //获取分数
+        PerIndicatortech indicatortech = new PerIndicatortech();
+
+        indicatortech = indicatortechMapper.selectPerIndicatortechById(1);
+
+        //增加新的记录
+        Integer teamid = tech.getTeamid();
+        Integer currYear = tech.getTechyear();
+        String indicatortype = AchieveType.TECH.getInfo();
+        Integer indicatorid = indicatortech.getIndicatortechid();
+        Integer achieveid = tech.getTechid();
+        String description = AchieveType.TECH.getInfo() + "-" + "每项" + indicatortech.getPoints().toString() + "分";
+        BigDecimal points = indicatortech.getPoints();
+
+
+        PerRelation record = new PerRelation();
+        record.setIndicatortype(AchieveType.TECH.getInfo());
+        List<PerRelation> relationList = relationMapper.selectPerRelation(record);
+        PerRelation relation = relationList.get(0);
+
+        result = addTeamperformances(teamid,currYear,indicatortype,indicatorid,achieveid,description,points, relation);
+
+        return result;
+    }
+
+
+    public Integer addTeamperformancesForAppraisal(AchAppraisal  appraisal) {
+        Integer result = 1;
+
+        //审核通过时，团队绩效加分。
+        //先删除对应的旧评分记录
+        this.deletePerTeamperformances(AchieveType.APPRAISAL.getInfo(),appraisal.getAppraisalid());
+
+        //获取分数
+        PerIndicatorappraisal indicatorappraisal = new PerIndicatorappraisal();
+
+        indicatorappraisal = indicatorappraisalMapper.selectPerIndicatorappraisalById(1);
+
+        //增加新的记录
+        Integer teamid = appraisal.getTeamid();
+        Integer currYear = appraisal.getPublishyear();
+        String indicatortype = AchieveType.APPRAISAL.getInfo();
+        Integer indicatorid = indicatorappraisal.getIndicatorappraisalid();
+        Integer achieveid = appraisal.getAppraisalid();
+        String description = AchieveType.APPRAISAL.getInfo() + "-" + "每项" + indicatorappraisal.getPoints().toString() + "分";
+        BigDecimal points = indicatorappraisal.getPoints();
+
+
+        PerRelation record = new PerRelation();
+        record.setIndicatortype(AchieveType.APPRAISAL.getInfo());
+        List<PerRelation> relationList = relationMapper.selectPerRelation(record);
+        PerRelation relation = relationList.get(0);
+
+        result = addTeamperformances(teamid,currYear,indicatortype,indicatorid,achieveid,description,points, relation);
+
+        return result;
+    }
 
 
 

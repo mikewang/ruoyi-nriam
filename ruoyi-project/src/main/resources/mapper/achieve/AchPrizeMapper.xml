@@ -55,6 +55,9 @@
     <if test="prizerank != null ">
       and a.prizerank = #{prizerank,jdbcType=INTEGER}
     </if>
+      <if test="teamid != null and teamid != 0 ">
+          and a.teamid = #{teamid, jdbcType=INTEGER}
+      </if>
 
     order by a.PrizeID desc
   </select>

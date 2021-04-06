@@ -3,12 +3,12 @@
     <el-row :gutter="20">
       <!--查询数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="年份" prop="prizeyear">
+        <el-form-item label="年份" prop="publishyear">
           <el-date-picker
             type="year"
             format="yyyy"
             value-format="yyyy"
-            v-model="queryParams.prizeyear"
+            v-model="queryParams.publishyear"
             placeholder="请输入"
             clearable
             size="small"
@@ -33,7 +33,7 @@
             icon="el-icon-plus"
             size="mini"
             @click="handleAdd"
-            v-hasPermi="['achieve:prize:list']"
+            v-hasPermi="['achieve:appraisal:list']"
           >新增
           </el-button>
         </el-col>
@@ -42,17 +42,14 @@
 
       <el-table v-loading="loading" :data="achieveList" @selection-change="handleSelectionChange">
         <el-table-column type="index" width="50" align="center"  :index="indexMethod"/>
-        <el-table-column label="成果名称" align="center" prop="prizename" :show-overflow-tooltip="true">
+        <el-table-column label="成果名称" align="center" prop="appraisalname" :show-overflow-tooltip="true">
         </el-table-column>
-        <el-table-column label="奖励级别" align="center" prop="prizelevellinktext" width="200"/>
-
-        <el-table-column label="奖励类别" align="center" prop="prizetypelinktext" width="100"/>
-        <el-table-column label="奖励等级" align="center" prop="prizeranklinktext" width="60"/>
-
-        <el-table-column label="获奖人员" align="center" prop="authors" width="160"/>
-
-        <el-table-column label="获奖年度" align="center" prop="prizeyear" width="60"/>
+        <el-table-column label="证书号" align="center" prop="bookcode" />
+        <el-table-column label="授权或批准部门" align="center" prop="certificateunit" />
+        <el-table-column label="鉴定年度" align="center" prop="publishyear" width="160"/>
         <el-table-column label="所属团队" align="center" prop="teamidlinktext" width="100"/>
+        <el-table-column label="所属项目" align="center" prop="projectidlinktext" width="100"/>
+
         <el-table-column label="状态" align="center" prop="statuslinktext" width="100">
           <template slot-scope="scope">
             <span v-if="scope.row.statusColor === -1" style="color:red"
@@ -74,7 +71,7 @@
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
-              v-hasPermi="['achieve:prize:list']"
+              v-hasPermi="['achieve:appraisal:list']"
             >查看
             </el-button>
           </template>
@@ -94,12 +91,12 @@
 </template>
 
 <script>
-import {listPrize} from "@/api/achieve/prize";
+import {listAppraisal} from "@/api/achieve/appraisal";
 import TeamData from "@/views/public/team-data";
 
 export default {
-  // 专利
-  name: "achieve_prize_index",
+  // 标准
+  name: "achieve_appraisal_index",
   components: {"team-data": TeamData},
   data() {
     return {
@@ -154,7 +151,7 @@ export default {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      listPrize(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      listAppraisal(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
           this.achieveList = response.rows;
           this.total = response.total;
@@ -186,7 +183,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.prizeid);
+      this.ids = selection.map(item => item.appraisalid);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
@@ -195,13 +192,13 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.$router.push({path: '/achieve/prize'});
+      this.$router.push({path: '/achieve/appraisal'});
     },
 
     handleUpdate(row) {
-      const prizeid = row.prizeid
-      console.log("edit prize id is ", prizeid);
-      this.$router.push({path: '/achieve/prize/' + prizeid});
+      const appraisalid = row.appraisalid
+      console.log("edit appraisal id is ", appraisalid);
+      this.$router.push({path: '/achieve/appraisal/' + appraisalid});
     },
 
     // 组件方法

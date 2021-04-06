@@ -1,5 +1,9 @@
 package com.ruoyi.achieve.domain;
 
+import com.ruoyi.common.core.domain.model.BasDoc;
+
+import java.util.List;
+
 public class AchAppraisal {
 
     private Integer appraisalid;
@@ -38,6 +42,19 @@ public class AchAppraisal {
     private String teamidlinktext;
     private String createuseridlinktext;
     private String statuslinktext;
+
+    private List<AchAuthor> authorList;
+    private String authors;
+
+    private List<BasDoc> docList;
+
+    private Integer statusColor = 0;
+
+    private Integer confirmResult;
+    private String confirmNote;
+    private Integer confirmUserid;
+    private Integer applyid;
+
 
     public Integer getAppraisalid() {
         return appraisalid;
@@ -167,6 +184,71 @@ public class AchAppraisal {
         this.statuslinktext = statuslinktext;
     }
 
+
+    public List<AchAuthor> getAuthorList() {
+        return authorList;
+    }
+
+    public void setAuthorList(List<AchAuthor> authorList) {
+        this.authorList = authorList;
+    }
+
+    public String getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(String authors) {
+        this.authors = authors;
+    }
+
+    public List<BasDoc> getDocList() {
+        return docList;
+    }
+
+    public void setDocList(List<BasDoc> docList) {
+        this.docList = docList;
+    }
+
+    public Integer getStatusColor() {
+        return statusColor;
+    }
+
+    public void setStatusColor(Integer statusColor) {
+        this.statusColor = statusColor;
+    }
+
+    public Integer getConfirmResult() {
+        return confirmResult;
+    }
+
+    public void setConfirmResult(Integer confirmResult) {
+        this.confirmResult = confirmResult;
+    }
+
+    public String getConfirmNote() {
+        return confirmNote;
+    }
+
+    public void setConfirmNote(String confirmNote) {
+        this.confirmNote = confirmNote;
+    }
+
+    public Integer getConfirmUserid() {
+        return confirmUserid;
+    }
+
+    public void setConfirmUserid(Integer confirmUserid) {
+        this.confirmUserid = confirmUserid;
+    }
+
+    public Integer getApplyid() {
+        return applyid;
+    }
+
+    public void setApplyid(Integer applyid) {
+        this.applyid = applyid;
+    }
+
     @Override
     public String toString() {
         return "AchAppraisal{" +
@@ -186,6 +268,14 @@ public class AchAppraisal {
                 ", teamidlinktext='" + teamidlinktext + '\'' +
                 ", createuseridlinktext='" + createuseridlinktext + '\'' +
                 ", statuslinktext='" + statuslinktext + '\'' +
+                ", authorList=" + authorList +
+                ", authors='" + authors + '\'' +
+                ", docList=" + docList +
+                ", statusColor=" + statusColor +
+                ", confirmResult=" + confirmResult +
+                ", confirmNote='" + confirmNote + '\'' +
+                ", confirmUserid=" + confirmUserid +
+                ", applyid=" + applyid +
                 '}';
     }
 }

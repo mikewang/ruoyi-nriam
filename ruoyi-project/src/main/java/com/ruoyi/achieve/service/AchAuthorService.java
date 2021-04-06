@@ -73,6 +73,11 @@ public class AchAuthorService {
         orderRate.setUserId(-1);
 
         List<AchAuthor> authorList = authorMapper.selectAchAuthorList(author);
+
+        if (authorList.size() == 0) {
+            return  orderRate;
+        }
+
         log.debug("authorList is " + authorList.toString());
 
         Collections.sort(authorList, new Comparator<AchAuthor>() {

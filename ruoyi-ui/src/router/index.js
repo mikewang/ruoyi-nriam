@@ -221,6 +221,97 @@ export const constantRoutes = [
         name: 'ConfirmPrize',
         meta: { title: '获奖审核', icon: '', opcode: 'confirm',noCache: true,}
       }
+      ,
+      {
+        path: 'standard',
+        component: (resolve) => require(['@/views/achieve/standard/edit'], resolve),
+        name: 'AddStandard',
+        meta: {title: '标准新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'standard/:standardid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/standard/edit'], resolve),
+        name: 'EditStandard',
+        meta: { title: '标准编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'standard/confirm/:standardid(\\d+)/:applyid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/standard/edit'], resolve),
+        name: 'ConfirmStandard',
+        meta: { title: '标准审核', icon: '', opcode: 'confirm',noCache: true,}
+      },
+      {
+        path: 'software',
+        component: (resolve) => require(['@/views/achieve/software/edit'], resolve),
+        name: 'AddSoftware',
+        meta: {title: '软件著作权新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'software/:softwareid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/software/edit'], resolve),
+        name: 'EditSoftware',
+        meta: { title: '软件著作权编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'software/confirm/:softwareid(\\d+)/:applyid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/software/edit'], resolve),
+        name: 'ConfirmSoftware',
+        meta: { title: '软件著作权审核', icon: '', opcode: 'confirm',noCache: true,}
+      },
+      {
+        path: 'product',
+        component: (resolve) => require(['@/views/achieve/product/edit'], resolve),
+        name: 'AddProduct',
+        meta: {title: '农机新产品新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'product/:productid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/product/edit'], resolve),
+        name: 'EditProduct',
+        meta: { title: '农机新产品编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'product/confirm/:productid(\\d+)/:applyid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/product/edit'], resolve),
+        name: 'ConfirmProduct',
+        meta: { title: '农机新产品审核', icon: '', opcode: 'confirm',noCache: true,}
+      },
+      {
+        path: 'tech',
+        component: (resolve) => require(['@/views/achieve/tech/edit'], resolve),
+        name: 'AddTech',
+        meta: {title: '农业部主推技术新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'tech/:techid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/tech/edit'], resolve),
+        name: 'EditTech',
+        meta: { title: '农业部主推技术编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'tech/confirm/:techid(\\d+)/:applyid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/tech/edit'], resolve),
+        name: 'ConfirmTech',
+        meta: { title: '农业部主推技术审核', icon: '', opcode: 'confirm',noCache: true,}
+      },
+      {
+        path: 'appraisal',
+        component: (resolve) => require(['@/views/achieve/appraisal/edit'], resolve),
+        name: 'AddAppraisal',
+        meta: {title: '鉴定（评价）成果新建', icon: '', opcode: 'add', noCache: true}
+      },
+      {
+        path: 'appraisal/:appraisalid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/appraisal/edit'], resolve),
+        name: 'EditAppraisal',
+        meta: { title: '鉴定（评价）成果编辑', icon: '', opcode: 'query',noCache: true }
+      },
+      {
+        path: 'appraisal/confirm/:appraisalid(\\d+)/:applyid(\\d+)',
+        component: (resolve) => require(['@/views/achieve/appraisal/edit'], resolve),
+        name: 'ConfirmAppraisal',
+        meta: { title: '鉴定（评价）成果审核', icon: '', opcode: 'confirm',noCache: true,}
+      }
     ]
   },
   {

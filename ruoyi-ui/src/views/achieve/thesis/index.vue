@@ -3,12 +3,12 @@
     <el-row :gutter="20">
       <!--查询数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="年份" prop="year">
+        <el-form-item label="年份" prop="publishyear">
           <el-date-picker
             type="year"
             format="yyyy"
             value-format="yyyy"
-            v-model="queryParams.year"
+            v-model="queryParams.publishyear"
             placeholder="请输入"
             clearable
             size="small"

@@ -1,123 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.achieve.mapper.AchStandardMapper">
-  <resultMap id="BaseResultMap" type="com.ruoyi.achieve.domain.AchStandard">
-    <id column="StandardID" jdbcType="INTEGER" property="standardid" />
-    <result column="StandardName" jdbcType="VARCHAR" property="standardname" />
-    <result column="StandardType" jdbcType="INTEGER" property="standardtype" />
-    <result column="StandardCode" jdbcType="VARCHAR" property="standardcode" />
-    <result column="PublishYear" jdbcType="INTEGER" property="publishyear" />
-    <result column="PublishOrganization" jdbcType="VARCHAR" property="publishorganization" />
-    <result column="Memo" jdbcType="VARCHAR" property="memo" />
-    <result column="ProjectID" jdbcType="INTEGER" property="projectid" />
-    <result column="TeamID" jdbcType="INTEGER" property="teamid" />
-    <result column="CreateUserID" jdbcType="INTEGER" property="createuserid" />
-    <result column="CreateTime" jdbcType="VARCHAR" property="createtime" />
-    <result column="Status" jdbcType="INTEGER" property="status" />
-    <result column="StandardTypeLinkText" jdbcType="VARCHAR" property="standardtypelinktext"/>
-    <result column="projectidlinktext" jdbcType="VARCHAR" property="projectidlinktext"/>
-    <result column="teamname" jdbcType="VARCHAR" property="teamidlinktext"/>
-    <result column="createuseridlinktext" jdbcType="VARCHAR" property="createuseridlinktext"/>
-    <result column="statuslinktext" jdbcType="VARCHAR" property="statuslinktext"/>
-  </resultMap>
+    <resultMap id="BaseResultMap" type="com.ruoyi.achieve.domain.AchStandard">
+        <id column="StandardID" jdbcType="INTEGER" property="standardid"/>
+        <result column="StandardName" jdbcType="VARCHAR" property="standardname"/>
+        <result column="StandardType" jdbcType="INTEGER" property="standardtype"/>
+        <result column="StandardCode" jdbcType="VARCHAR" property="standardcode"/>
+        <result column="PublishYear" jdbcType="INTEGER" property="publishyear"/>
+        <result column="PublishOrganization" jdbcType="VARCHAR" property="publishorganization"/>
+        <result column="Memo" jdbcType="VARCHAR" property="memo"/>
+        <result column="ProjectID" jdbcType="INTEGER" property="projectid"/>
+        <result column="TeamID" jdbcType="INTEGER" property="teamid"/>
+        <result column="CreateUserID" jdbcType="INTEGER" property="createuserid"/>
+        <result column="CreateTime" jdbcType="VARCHAR" property="createtime"/>
+        <result column="Status" jdbcType="INTEGER" property="status"/>
+        <result column="StandardTypeLinkText" jdbcType="VARCHAR" property="standardtypelinktext"/>
+        <result column="projectidlinktext" jdbcType="VARCHAR" property="projectidlinktext"/>
+        <result column="teamidlinktext" jdbcType="VARCHAR" property="teamidlinktext"/>
+        <result column="createuseridlinktext" jdbcType="VARCHAR" property="createuseridlinktext"/>
+        <result column="statuslinktext" jdbcType="VARCHAR" property="statuslinktext"/>
+    </resultMap>
 
-  <select id="selectAchStandard"  parameterType="com.ruoyi.achieve.domain.AchStandard" resultMap="BaseResultMap">
-    select a.* , t1.dict_label as StandardTypeLinkText,
-           t2.ProjectName as ProjectIDLinkText,
-           t5.TeamName as TeamIDLinkText,
-           t6.real_name as CreateUserIDLinkText,
-           t7.dict_label as StatusLinkText
-    from ach_standard a  left join (select * from sys_dict_data where dict_type='标准类别') t1   on a.StandardType = t1.dict_value
-                         left join Aud_Project t2   on a.ProjectID = t2.ProjectID
-                         left join PM_Team t5   on a.TeamID = t5.TeamID
-                         join sys_user t6 on a.CreateUserID = t6.user_id
-                         left join (select * from sys_dict_data where dict_type='科技成果状态') t7 on a.Status = t7.dict_value
-    where  0=0
-    <if test="status != null ">
-      and a.Status = #{status,jdbcType=INTEGER}
-    </if>
-    <if test="publishyear != null ">
-      and a.publishyear = #{publishyear,jdbcType=INTEGER}
-    </if>
-    <if test="standardtype != null ">
-      and a.standardtype = #{standardtype,jdbcType=INTEGER}
-    </if>
+    <select id="selectAchStandard" parameterType="com.ruoyi.achieve.domain.AchStandard" resultMap="BaseResultMap">
+        select a.* , t1.dict_label as StandardTypeLinkText,
+        t2.ProjectName as ProjectIDLinkText,
+        t5.TeamName as TeamIDLinkText,
+        t6.real_name as CreateUserIDLinkText,
+        t7.dict_label as StatusLinkText
+        from ach_standard a left join (select * from sys_dict_data where dict_type='标准类别') t1 on a.StandardType =
+        t1.dict_value
+        left join Aud_Project t2 on a.ProjectID = t2.ProjectID
+        left join PM_Team t5 on a.TeamID = t5.TeamID
+        join sys_user t6 on a.CreateUserID = t6.user_id
+        left join (select * from sys_dict_data where dict_type='科技成果状态') t7 on a.Status = t7.dict_value
+        where 0=0
+        <if test="status != null ">
+            and a.Status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="publishyear != null ">
+            and a.publishyear = #{publishyear,jdbcType=INTEGER}
+        </if>
+        <if test="standardtype != null ">
+            and a.standardtype = #{standardtype,jdbcType=INTEGER}
+        </if>
+        <if test="teamid != null and teamid != 0 ">
+            and a.teamid = #{teamid, jdbcType=INTEGER}
+        </if>
+        order by a.StandardID desc
 
-  </select>
-  <select id="selectAchStandardById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select a.* , t1.dict_label as StandardTypeLinkText,
-           t2.ProjectName as ProjectIDLinkText,
-           t5.TeamName as TeamIDLinkText,
-           t6.real_name as CreateUserIDLinkText,
-           t7.dict_label as StatusLinkText
-    from ach_standard a  left join (select * from sys_dict_data where dict_type='标准类别') t1   on a.StandardType = t1.dict_value
-                         left join Aud_Project t2   on a.ProjectID = t2.ProjectID
-                         left join PM_Team t5   on a.TeamID = t5.TeamID
-                         join sys_user t6 on a.CreateUserID = t6.user_id
-                         left join (select * from sys_dict_data where dict_type='科技成果状态') t7 on a.Status = t7.dict_value
-    where a.StandardID = #{standardid,jdbcType=INTEGER}
-  </select>
+    </select>
+    <select id="selectAchStandardById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select a.*,
+               t1.dict_label  as StandardTypeLinkText,
+               t2.ProjectName as ProjectIDLinkText,
+               t5.TeamName    as TeamIDLinkText,
+               t6.real_name   as CreateUserIDLinkText,
+               t7.dict_label  as StatusLinkText
+        from ach_standard a
+                 left join (select * from sys_dict_data where dict_type = '标准类别') t1 on a.StandardType = t1.dict_value
+                 left join Aud_Project t2 on a.ProjectID = t2.ProjectID
+                 left join PM_Team t5 on a.TeamID = t5.TeamID
+                 join sys_user t6 on a.CreateUserID = t6.user_id
+                 left join (select * from sys_dict_data where dict_type = '科技成果状态') t7 on a.Status = t7.dict_value
+        where a.StandardID = #{standardid,jdbcType=INTEGER}
+    </select>
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Mar 15 12:19:38 CST 2021.
-    -->
-    delete from ACH_Standard
-    where StandardID = #{standardid,jdbcType=INTEGER}
-  </delete>
-  <insert id="insert" parameterType="com.ruoyi.achieve.domain.AchStandard">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Mar 15 12:19:38 CST 2021.
-    -->
-    insert into ACH_Standard (StandardID, StandardName, StandardType, 
-      StandardCode, PublishYear, PublishOrganization, 
-      Memo, ProjectID, TeamID, 
-      CreateUserID, CreateTime, Status
-      )
-    values (#{standardid,jdbcType=INTEGER}, #{standardname,jdbcType=VARCHAR}, #{standardtype,jdbcType=INTEGER}, 
-      #{standardcode,jdbcType=VARCHAR}, #{publishyear,jdbcType=INTEGER}, #{publishorganization,jdbcType=VARCHAR}, 
-      #{memo,jdbcType=VARCHAR}, #{projectid,jdbcType=INTEGER}, #{teamid,jdbcType=INTEGER}, 
-      #{createuserid,jdbcType=INTEGER}, #{createtime,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}
-      )
-  </insert>
-  <update id="updateByPrimaryKey" parameterType="com.ruoyi.achieve.domain.AchStandard">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Mar 15 12:19:38 CST 2021.
-    -->
-    update ACH_Standard
-    set StandardName = #{standardname,jdbcType=VARCHAR},
-      StandardType = #{standardtype,jdbcType=INTEGER},
-      StandardCode = #{standardcode,jdbcType=VARCHAR},
-      PublishYear = #{publishyear,jdbcType=INTEGER},
-      PublishOrganization = #{publishorganization,jdbcType=VARCHAR},
-      Memo = #{memo,jdbcType=VARCHAR},
-      ProjectID = #{projectid,jdbcType=INTEGER},
-      TeamID = #{teamid,jdbcType=INTEGER},
-      CreateUserID = #{createuserid,jdbcType=INTEGER},
-      CreateTime = #{createtime,jdbcType=VARCHAR},
-      Status = #{status,jdbcType=INTEGER}
-    where StandardID = #{standardid,jdbcType=INTEGER}
-  </update>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    <!--
-      WARNING - @mbg.generated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Mar 15 12:19:38 CST 2021.
-    -->
-    select StandardID, StandardName, StandardType, StandardCode, PublishYear, PublishOrganization, 
-    Memo, ProjectID, TeamID, CreateUserID, CreateTime, Status
-    from ACH_Standard
-    where StandardID = #{standardid,jdbcType=INTEGER}
-  </select>
-  <select id="selectAll" resultMap="BaseResultMap">
-    select StandardID, StandardName, StandardType, StandardCode, PublishYear, PublishOrganization,
-    Memo, ProjectID, TeamID, CreateUserID, CreateTime, Status
-    from ACH_Standard
-  </select>
+    <insert id="insertAchStandard" parameterType="com.ruoyi.achieve.domain.AchStandard" useGeneratedKeys="true"
+            keyProperty="standardid">
+        insert into ACH_Standard (StandardName, StandardType,
+                                  StandardCode, PublishYear, PublishOrganization,
+                                  Memo, ProjectID, TeamID,
+                                  CreateUserID, CreateTime, Status)
+        values (#{standardname,jdbcType=VARCHAR}, #{standardtype,jdbcType=INTEGER},
+                #{standardcode,jdbcType=VARCHAR}, #{publishyear,jdbcType=INTEGER},
+                #{publishorganization,jdbcType=VARCHAR},
+                #{memo,jdbcType=VARCHAR}, #{projectid,jdbcType=INTEGER}, #{teamid,jdbcType=INTEGER},
+                #{createuserid,jdbcType=INTEGER}, #{createtime,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER})
+    </insert>
+    <update id="updateAchStandard" parameterType="com.ruoyi.achieve.domain.AchStandard">
+        update ACH_Standard
+        set StandardName        = #{standardname,jdbcType=VARCHAR},
+            StandardType        = #{standardtype,jdbcType=INTEGER},
+            StandardCode        = #{standardcode,jdbcType=VARCHAR},
+            PublishYear         = #{publishyear,jdbcType=INTEGER},
+            PublishOrganization = #{publishorganization,jdbcType=VARCHAR},
+            Memo                = #{memo,jdbcType=VARCHAR},
+            ProjectID           = #{projectid,jdbcType=INTEGER},
+            TeamID              = #{teamid,jdbcType=INTEGER}
+        where StandardID = #{standardid,jdbcType=INTEGER}
+    </update>
+    <update id="updateAchStandardStatus" parameterType="com.ruoyi.achieve.domain.AchStandard">
+        update ACH_Standard
+        set Status = #{status,jdbcType=INTEGER}
+        where StandardID = #{standardid,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Mon Mar 15 12:19:38 CST 2021.
+        -->
+        delete from ACH_Standard
+        where StandardID = #{standardid,jdbcType=INTEGER}
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--
+          WARNING - @mbg.generated
+          This element is automatically generated by MyBatis Generator, do not modify.
+          This element was generated on Mon Mar 15 12:19:38 CST 2021.
+        -->
+        select StandardID, StandardName, StandardType, StandardCode, PublishYear, PublishOrganization,
+        Memo, ProjectID, TeamID, CreateUserID, CreateTime, Status
+        from ACH_Standard
+        where StandardID = #{standardid,jdbcType=INTEGER}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select StandardID,
+               StandardName,
+               StandardType,
+               StandardCode,
+               PublishYear,
+               PublishOrganization,
+               Memo,
+               ProjectID,
+               TeamID,
+               CreateUserID,
+               CreateTime,
+               Status
+        from ACH_Standard
+    </select>
 </mapper>

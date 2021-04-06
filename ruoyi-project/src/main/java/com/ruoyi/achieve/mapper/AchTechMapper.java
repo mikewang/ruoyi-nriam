@@ -2,12 +2,18 @@ package com.ruoyi.achieve.mapper;
 
 import com.ruoyi.achieve.domain.AchAppraisal;
 import com.ruoyi.achieve.domain.AchTech;
+import com.ruoyi.achieve.domain.AchTech;
 import java.util.List;
 
 public interface AchTechMapper {
     List<AchTech> selectAchTech(AchTech record);
     AchTech selectAchTechById(Integer techid);
 
+    int insertAchTech(AchTech record);
+
+    int updateAchTech(AchTech record);
+
+    int updateAchTechStatus(AchTech record);
     
     int deleteByPrimaryKey(Integer techid);
 

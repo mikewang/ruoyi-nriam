@@ -1,16 +1,22 @@
 package com.ruoyi.achieve.mapper;
 
 import com.ruoyi.achieve.domain.AchSoftware;
+import com.ruoyi.achieve.domain.AchSoftware;
+
 import java.util.List;
 
 public interface AchSoftwareMapper {
 
     List<AchSoftware> selectAchSoftware(AchSoftware record);
 
+    AchSoftware selectAchSoftwareById(Integer softwareid);
+    int insertAchSoftware(AchSoftware record);
+    int updateAchSoftware(AchSoftware record);
+    int updateAchSoftwareStatus(AchSoftware record);
+
     int deleteByPrimaryKey(Integer softwareid);
 
 
-    AchSoftware selectAchSoftwareById(Integer softwareid);
 
 
     /**
