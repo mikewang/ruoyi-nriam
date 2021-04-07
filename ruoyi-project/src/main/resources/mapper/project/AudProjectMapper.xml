@@ -75,6 +75,7 @@
     <select id="selectAudProjectList" parameterType="com.ruoyi.project.domain.AudProject" resultMap="BaseResultMap">
         <include refid="selectAudProject"/>
         where 0=0
+            and status != 43
         <if test="statusList != null">
             and Status in
             <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
@@ -86,7 +87,7 @@
             and #{projectyear,jdbcType=VARCHAR} &gt;= SUBSTRING(ProjectBeginDate,1,4)
             and #{projectyear,jdbcType=VARCHAR} &lt;= SUBSTRING(ProjectEndDate,1,4)
         </if>
-        <if test="teamid != null and teamid != 0 ">
+        <if test="teamid != null ">
             and teamid = #{teamid, jdbcType=INTEGER}
         </if>
         <if test="projectname != null and projectname != '' ">
@@ -97,6 +98,9 @@
         </if>
         <if test="ifacceptancefull != null">
             and IfAcceptanceFull = #{ifacceptancefull, jdbcType=BIT}
+        </if>
+        <if test="projectid != null ">
+            and projectid = #{projectid,jdbcType=INTEGER}
         </if>
         ORDER BY DictionaryOrderNum, ProjectTypeLinkText, ProjectName
     </select>

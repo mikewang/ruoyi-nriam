@@ -14,20 +14,19 @@
 </template>
 
 <script>
-import {listProject} from "@/api/project/project";
+import {listNormalProject} from "@/api/project/project";
 
 export default {
   name: "ProjectData",
   components: {},
-  props:['selectedProjectid', ' ', 'readonly'],
+  props:['selectedProjectData', 'readonly'],
   data() {
     return {
       // 遮罩层
       loading: true,
       // 传入的参数
-      filterProjectid: this.selectedProjectid === undefined ? undefined : this.selectedProjectid.toString(),
+      filterProjectid: this.selectedProjectData === undefined ? undefined :this.selectedProjectData.projectid,
       selectedProjectName: undefined,
-      selectedProjectData: {},
       // 数据源
       projectDataOptions: [],
       projectDataList: []
@@ -43,34 +42,57 @@ export default {
     /** 查询列表 */
     getList() {
       this.loading = true;
+
+      this.projectDataOptions = [];
+      this.projectDataList = [];
+
       if (this.filterProjectid !== undefined) {
-        this.selectedProjectData.projectid = this.filterProjectid;
+
       }
-      if (this.selectedTeamid !== undefined) {
-        this.selectedProjectData.teamid = this.selectedTeamid;
-      }
-      console.log("加载 项目组件 " , this.selectedProjectData.projectid, this.selectedProjectData.teamid );
+      console.log("加载 项目组件 begin ");
+      console.log("加载 项目组件 " , this.selectedProjectData);
       const this_ = this;
 
-      listProject(this.selectedProjectData).then(response => {
-        console.log(response.rows);
-
-        this_.projectDataList = response.rows;
-
+      listNormalProject(this.selectedProjectData).then(response => {
+        console.log(" 项目组件  is ",this.selectedProjectData, response.data);
+        this_.projectDataList = response.data;
         const listOptions = [];
         this_.projectDataList.sort(function (a, b) {
           return b.projectname.charCodeAt(0) - a.projectname.charCodeAt(0)
         }).forEach(function (item) {
-          const adict = {value: item.projectname, id: item.projectcode};
+          const adict = {value: item.projectname, id: item.projectid};
           listOptions.push(adict);
-          if (item.projectid === this.filterProjectid) {
-            this.selectedProjectName = item.projectname;
+          if (item.projectid === this_.filterProjectid) {
+
+            this_.selectedProjectName = item.projectname;
+            this_.$emit('changeProjectData',item);
+
+            console.log("当前项目名称 $emit is ", item.projectid, item.projectname);
           }
         });
-
         this_.projectDataOptions = listOptions;
 
-        this_.loading = false;
+        if (this_.selectedProjectName === undefined) {
+          listNormalProject({}).then(response => {
+            console.log(" 项目组件  is full ", response.data);
+            response.data.sort(function (a, b) {
+               return b.projectid - a.projectid
+            }).forEach( function (item) {
+              // console.log(" 项目 projectid is ",this_.filterProjectid, item.projectid, item.projectname);
+
+              if (item.projectid === this_.filterProjectid) {
+                console.log("当前项目名称  is ", item.projectid, item.projectname);
+                this_.selectedProjectName = item.projectname;
+                this_.$emit('changeProjectData',item);
+              }
+            });
+            this_.loading = false;
+          });
+        }
+        else {
+          this_.loading = false;
+        }
+
       });
 
     },

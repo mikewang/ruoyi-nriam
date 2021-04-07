@@ -233,7 +233,6 @@ public class AchAppraisalService {
     @Transactional
     public Integer insertAchAppraisal(AchAppraisal appraisal) {
         appraisal.setCreatetime(DateUtils.dateTimeNow());
-        appraisal.setAppraisalid(-1);
         Integer rows = appraisalMapper.insertAchAppraisal(appraisal);
         updateAppraisalDetail(appraisal);
         //发申请和通知

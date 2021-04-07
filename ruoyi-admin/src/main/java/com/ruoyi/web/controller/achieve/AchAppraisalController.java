@@ -85,9 +85,7 @@ public class AchAppraisalController extends BaseController {
     public AjaxResult add(@Validated @RequestBody AchAppraisal appraisal) {
 
         Long userId = getCurrentLoginUserId();
-
         appraisal.setCreateuserid(userId.intValue());
-        appraisal.setProjectid(-1);
 
         Integer status = appraisal.getStatus();
         logger.debug("AchAppraisal .getStatus is " + status.toString());
@@ -118,7 +116,7 @@ public class AchAppraisalController extends BaseController {
 
         Integer status = appraisal.getStatus();
         logger.debug("appraisal.getStatus is " + status.toString());
-
+        logger.debug("updateAchAppraisal.  is " + appraisal.toString());
         Integer res = appraisalService.updateAchAppraisal(appraisal);
 
         AjaxResult ajax = AjaxResult.success();

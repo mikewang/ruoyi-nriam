@@ -126,8 +126,6 @@ public class AudProjectService {
         project.setStatusList(statusList);
 
         return selectProjectList(project);
-
-
     }
 
 
@@ -200,6 +198,16 @@ public class AudProjectService {
 
         return projectList;
     }
+
+
+    // 查询模块使用， 所有非 已删除的 项目
+    public List<AudProject> selectNormalProjectList(AudProject project) {
+
+        List<AudProject> projectList = audProjectMapper.selectAudProjectList(project);
+
+        return projectList;
+    }
+
 
     public AudProject selectProjectById(Integer projectId) {
         // 项目详细信息。

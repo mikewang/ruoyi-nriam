@@ -112,7 +112,7 @@ public class AudProjectController extends BaseController {
                 long days = (ended.getTime() - DateUtils.getNowDate().getTime()) / (1000 * 24 * 60 * 60);
 
 
-                logger.debug(" days is " + Long.valueOf(days).toString());
+               // logger.debug(" days is " + Long.valueOf(days).toString());
 
                 if (days < 0) {
 
@@ -347,6 +347,21 @@ public class AudProjectController extends BaseController {
 
     }
 
+
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping("/normal/list")
+    public AjaxResult normalList(AudProject project) {
+
+        logger.debug("query parameters is " + project.getProjectyear());
+
+        AjaxResult ajax = AjaxResult.success();
+
+        List<AudProject> list = projectService.selectProjectNewList(project);
+
+        ajax.put(AjaxResult.DATA_TAG, list);
+
+        return ajax;
+    }
 
     /**
      * 删除

@@ -40,16 +40,40 @@
             <el-col :span="8">
               <el-form-item label="所属团队" prop="teamid">
                 <!-- 所属团队组件-->
-                <team-data :readonly="readonly.basic" :selected-team-id="form.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
+                <team-data :readonly="readonly.basic" :selected-team-id="form.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId" :key="form.teamid"></team-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="所属项目" prop="projectid">
                 <!-- 所属项目组件-->
-                <project-data :readonly="readonly.basic" :selected-projectid="form.projectid" :selected-teamid="form.teamid" @changeProjectData="selectProjectData"></project-data>
+                <project-data :readonly="readonly.basic" :selected-project-data="form.project" @changeProjectData="selectProjectData" :key="form.teamid"></project-data>
               </el-form-item>
             </el-col>
 
+          </el-row>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="项目类型" prop="projecttype">
+                <el-input readonly v-model="form.projecttypelinktext"  :show-overflow-tooltip="true"  :key="form.projectid"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="项目总经费" prop="projectfunds">
+                <el-input readonly v-model="form.projectfunds"  :show-overflow-tooltip="true" :key="form.projectid"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="项目起止时间" prop="projectDateRange">
+                <el-input readonly v-model="form.projectDateRange"  :show-overflow-tooltip="true" :key="form.projectid"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="项目负责人" prop="projectmanageridlinktext">
+                <el-input readonly v-model="form.projectmanageridlinktext"  :show-overflow-tooltip="true" :key="form.projectid"/>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-row>
             <el-col :span="24">
@@ -317,7 +341,7 @@ export default {
       // 日期范围
       // 查询参数
       // 表单参数
-      form: {docList:[], authorList:[]},
+      form: {teamid:-1, project: {projectid:undefined,teamid:-1}, docList:[], authorList:[]},
       timer: '',
       // 表单校验
       rules: {
@@ -407,6 +431,7 @@ export default {
           console.log("getData response is ", response.data);
           const data = response.data;
           data.publishyear = data.publishyear.toString();
+          data.project = {projectid:data.projectid, teamid:data.teamid};
           this_.form = data;
 
           if (this.applyid !== undefined) {
@@ -513,7 +538,7 @@ export default {
         passtime: undefined,
         ourunitorder: undefined,
 
-        teamid: undefined,
+        project: {projectid:undefined, teamid:undefined},
 
         authorList: [],
         docList: [],
@@ -537,18 +562,34 @@ export default {
       console.log("handleSelectTeam is ", value);
       if (value) {
         this.form.teamid = value.id;
+        this.form.projectid = undefined;
+        this.form.project = {projectid:undefined, teamid: value.id};
       } else {
-        this.form.teamid = undefined;
+        this.form.teamid = -1;
+        this.form.projectid = undefined;
+        this.form.project = {projectid:undefined,  teamid: undefined};
       }
     },
 
     selectProjectData(value) {
       console.log("selectProjectData is ", value);
+      this.form.projectid = undefined;
+      this.form.project =  {projectid:undefined};
+
       if (value) {
-        this.form.projectid = value.id;
+        this.form.projectid = value.projectid;
+
+        this.form.project = value;
+        this.form.projecttypelinktext = value.projecttypelinktext;
+        this.form.projectfunds = value.projectfunds;
+        this.form.projectDateRange = value.projectDateRange;
+        this.form.projectmanageridlinktext = value.projectmanageridlinktext;
+
       } else {
         this.form.projectid = undefined;
+        this.form.project =  {projectid:undefined};
       }
+
     },
 
     changeAuthorIfourunit() {
