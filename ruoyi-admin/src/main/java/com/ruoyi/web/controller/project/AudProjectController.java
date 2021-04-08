@@ -350,13 +350,26 @@ public class AudProjectController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('project:project:list')")
     @GetMapping("/normal/list")
-    public AjaxResult normalList(AudProject project) {
+    public TableDataInfo normalList(AudProject project) {
+
+        logger.debug("query parameters is " + project.toString());
+
+        startPage();
+
+        List<AudProject> list = projectService.selectProjectList(project);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping("/normal/query")
+    public AjaxResult queryNormal(AudProject project) {
 
         logger.debug("query parameters is " + project.getProjectyear());
 
         AjaxResult ajax = AjaxResult.success();
 
-        List<AudProject> list = projectService.selectProjectNewList(project);
+        List<AudProject> list = projectService.selectProjectList(project);
 
         ajax.put(AjaxResult.DATA_TAG, list);
 

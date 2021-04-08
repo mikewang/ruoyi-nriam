@@ -57,7 +57,7 @@
                       , t6.Real_Name  AS ProjectManagerIDLinkText
                       , b.dept_name   AS OrganizationIDLinkText
                       , c.dict_label  AS StatusLinkText
-                      , d.TeamName as TeamIDLinkText
+                      , d.TeamName    as TeamIDLinkText
                       , e.Real_Name   as CreateUserIDLinkText
                  FROM Aud_Project a
                           join (select * from sys_dict_data where dict_type = '项目类型') t5
@@ -66,7 +66,7 @@
                           join sys_dept b on a.OrganizationID = b.dept_id
                           join (select * from sys_dict_data where dict_type = '项目状态') c on a.Status = c.dict_value
                           join PM_Team d on a.teamID = d.TeamID
-                         left join sys_user e on a.CreateUserID = e.User_ID
+                          left join sys_user e on a.CreateUserID = e.User_ID
              ) as v1
 
     </sql>
@@ -75,7 +75,14 @@
     <select id="selectAudProjectList" parameterType="com.ruoyi.project.domain.AudProject" resultMap="BaseResultMap">
         <include refid="selectAudProject"/>
         where 0=0
-            and status != 43
+        <choose>
+            <when test="status != null ">
+                and status = #{status, jdbcType=INTEGER}
+            </when>
+            <when test="status == null ">
+                and status != 43
+            </when>
+        </choose>
         <if test="statusList != null">
             and Status in
             <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
@@ -93,9 +100,25 @@
         <if test="projectname != null and projectname != '' ">
             and ProjectName like concat('%', #{projectname,jdbcType=VARCHAR}, '%')
         </if>
+        <if test="projectcode != null and projectcode != '' ">
+            and projectcode like concat('%', #{projectcode,jdbcType=VARCHAR}, '%')
+        </if>
         <if test="subjectcode != null and subjectcode != '' ">
             and subjectcode like concat('%', #{subjectcode,jdbcType=VARCHAR}, '%')
         </if>
+        <if test="projecttype != null ">
+            and projecttype = #{projecttype,jdbcType=INTEGER}
+        </if>
+        <if test="organizationid != null ">
+            and organizationid = #{organizationid,jdbcType=INTEGER}
+        </if>
+        <if test="projectmanagerid != null ">
+            and projectmanagerid = #{projectmanagerid,jdbcType=INTEGER}
+        </if>
+        <if test="jointype != null ">
+            and jointype = #{jointype,jdbcType=INTEGER}
+        </if>
+
         <if test="ifacceptancefull != null">
             and IfAcceptanceFull = #{ifacceptancefull, jdbcType=BIT}
         </if>
@@ -163,7 +186,7 @@
         update Aud_Project
         set Status = #{status,jdbcType=INTEGER}
         <if test="subjectcode != null and subjectcode != '' ">
-            ,SubjectCode      = #{subjectcode,jdbcType=VARCHAR}
+            ,SubjectCode = #{subjectcode,jdbcType=VARCHAR}
         </if>
         where ProjectID = #{projectid,jdbcType=INTEGER}
     </update>
@@ -174,11 +197,6 @@
         set IfAcceptanceFull = #{ifacceptancefull, jdbcType=BIT}
         where ProjectID = #{projectid,jdbcType=INTEGER}
     </update>
-
-
-
-
-
 
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

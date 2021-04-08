@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import {listNormalProject} from "@/api/project/project";
+import {queryNormalProject} from "@/api/project/project";
 
 export default {
   name: "ProjectData",
@@ -53,7 +53,7 @@ export default {
       console.log("加载 项目组件 " , this.selectedProjectData);
       const this_ = this;
 
-      listNormalProject(this.selectedProjectData).then(response => {
+      queryNormalProject(this.selectedProjectData).then(response => {
         console.log(" 项目组件  is ",this.selectedProjectData, response.data);
         this_.projectDataList = response.data;
         const listOptions = [];

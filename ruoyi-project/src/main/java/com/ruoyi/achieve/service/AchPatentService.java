@@ -67,8 +67,10 @@ public class AchPatentService {
 
     private String ACHIEVETYPE = AchieveType.PATENT.getInfo();
 
-    public List<AchPatent> selectAchPatentList(AchPatent patent) {
+    public List<AchPatent>  selectAchPatentList(AchPatent patent) {
         List<AchPatent> patentList = patentMapper.selectAchPatentList(patent);
+
+        List<AchPatent> resultList = new ArrayList<>();
 
         for (AchPatent p : patentList) {
             Integer patentid = p.getPatentid();
@@ -83,6 +85,16 @@ public class AchPatentService {
             }
             String authors = StringUtils.joinWith(",", personnames);
 
+            if (patent.getAuthors() == null) {
+                resultList.add(p);
+            }
+            else {
+                if (authors.contains(patent.getAuthors()) == true) {
+                    resultList.add(p);
+                }
+
+            }
+
             p.setAuthorList(achAuthorList);
             p.setAuthors(authors);
 
@@ -96,10 +108,10 @@ public class AchPatentService {
             else {
                 p.setStatusColor(0);
             }
-
         }
+
         log.debug("AchPatent list is request.");
-        return patentList;
+        return resultList;
     }
 
     public AchPatent selectAchPatentById(Integer patentid) {

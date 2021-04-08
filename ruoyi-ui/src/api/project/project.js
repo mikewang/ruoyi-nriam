@@ -67,6 +67,13 @@ export function listNormalProject(query) {
   })
 }
 
+export function queryNormalProject(query) {
+  return request({
+    url: '/project/normal/query',
+    method: 'get',
+    params: query
+  })
+}
 
 // 查询项目详细
 export function getProject(projectId) {

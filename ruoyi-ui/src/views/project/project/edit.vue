@@ -96,8 +96,7 @@
 
               <el-form-item label="主持/参与" prop="jointype">
                 <dict-data :readonly="readonly.basic" :dict-type-name="DictTypeNameJoinType"
-                           :selected-dict-value="form.jointype" @changeDictValue="changeJoinTypeValue"></dict-data>
-                <!--              <el-button type="primary" @click="changeJoinTypeValue2">主持/参与</el-button>-->
+                           :selected-dict-value="form.jointype" @changeDictValue="changeJoinTypeValue" :key="form.projectid"></dict-data>
               </el-form-item>
             </el-col>
             <el-col :span="16">
@@ -712,6 +711,9 @@ export default {
           console.log("getProject this.form is ", response.data);
 
           const data = response.data;
+
+          data.projecttype = data.projecttype.toString();
+          data.jointype = data.jointype.toString();
 
           data.uplevelproject = {"subjectname": null};
           data.acceptance = {projectid: projectid, opinion: null, memo: null};

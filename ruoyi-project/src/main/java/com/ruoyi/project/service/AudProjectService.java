@@ -54,7 +54,7 @@ public class AudProjectService {
     private AudMessageMapper messageMapper;
 
 
-    private List<AudProject> selectProjectList(AudProject statusProject) {
+    public List<AudProject> selectProjectList(AudProject statusProject) {
 
         List<AudProject> projectList = audProjectMapper.selectAudProjectList(statusProject);
 

@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row :gutter="20">
       <!--用户数据-->
-      <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="168px">
         <el-form-item label="项目名称" prop="projectname">
           <el-input v-model="queryParams.projectname" clearable/>
         </el-form-item>
@@ -26,7 +26,6 @@
             placeholder="请输入"
             clearable
             size="small"
-            style="width: 240px"
           />
         </el-form-item>
         <el-form-item label="项目所属部门" prop="organizationid">
@@ -35,7 +34,8 @@
         </el-form-item>
         <el-form-item label="所属团队" prop="teamid">
           <!-- 所属团队组件-->
-          <team-data :selected-team-id="queryParams.teamid" :join-team-user-id="undefined" @changeTeamId="selectTeamId"></team-data>
+          <team-data :selected-team-id="queryParams.teamid" :join-team-user-id="undefined"
+                     @changeTeamId="selectTeamId"></team-data>
         </el-form-item>
         <el-form-item label="项目负责人" prop="projectmanagerid">
           <user-data :selected-user-id="queryParams.projectmanagerid"
@@ -59,22 +59,11 @@
       </el-form>
 
       <el-row :gutter="10" class="mb8">
-        <el-col :span="1.5">
-          <el-button
-            type="primary"
-            icon="el-icon-plus"
-            size="mini"
-            @click="handleAdd"
-            v-hasPermi="['project:project:list']"
-          >新增
-          </el-button>
-        </el-col>
-
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
       <el-table v-loading="loading" :data="projectList" @selection-change="handleSelectionChange">
-        <el-table-column type="index" width="50" align="center"/>
+        <el-table-column type="index" width="50" align="center" :index="indexMethod"/>
         <el-table-column label="项目名称" align="center" prop="projectname" :show-overflow-tooltip="true">
           <template slot-scope="scope">
             <span v-if="scope.row.projectColor === -1" style="color:red">{{ scope.row.projectname }}</span>
@@ -83,26 +72,12 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="项目编号" align="center" prop="projectcode" width="120"/>
-        <el-table-column label="项目起止日期" align="center" prop="projectDateRange" width="250">
-          <template slot-scope="scope">
-            <span v-if="scope.row.projectDateRangeColor === -1" style="color:red"
-                  :key="Math.random()">{{ scope.row.projectDateRange }}</span>
-            <span v-else-if="scope.row.projectDateRangeColor === 1" style="color:green"
-                  :key="Math.random()">{{ scope.row.projectDateRange }}</span>
-            <span v-else :key="Math.random()">{{ scope.row.projectDateRange }}</span>
-          </template>
+        <el-table-column label="项目编号" align="center" prop="projectcode" width="120" sortable/>
+        <el-table-column label="项目起止日期" align="center" prop="projectDateRange" width="250" sortable>
         </el-table-column>
-        <el-table-column label="项目类型" align="center" prop="projecttypelinktext" width="300"/>
-        <el-table-column label="负责人" align="center" prop="projectmanageridlinktext" width="100"/>
-        <el-table-column label="项目状态" align="center" prop="statuslinktext" width="100">
-          <template slot-scope="scope">
-            <span v-if="scope.row.projectColor === -1" style="color:red"
-                  :key="Math.random()">{{ scope.row.statuslinktext }}</span>
-            <span v-else-if="scope.row.projectColor === 1" style="color:green"
-                  :key="Math.random()">{{ scope.row.statuslinktext }}</span>
-            <span v-else :key="Math.random()">{{ scope.row.statuslinktext }}</span>
-          </template>
+        <el-table-column label="项目类型" align="center" prop="projecttypelinktext" width="300" sortable/>
+        <el-table-column label="负责人" align="center" prop="projectmanageridlinktext" width="100" sortable/>
+        <el-table-column label="项目状态" align="center" prop="statuslinktext" width="100" sortable>
         </el-table-column>
         <el-table-column
           label="操作"
@@ -115,18 +90,9 @@
               size="mini"
               type="text"
               icon="el-icon-edit"
-              @click="handleUpdate(scope.row)"
+              @click="handleView(scope.row)"
               v-hasPermi="['project:project:list']"
             >查看
-            </el-button>
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-check"
-              @click="handleToAccept(scope.row)"
-              v-hasPermi="['project:project:list']"
-              v-if="!scope.row.FinishBtnHidden"
-            >申请验收
             </el-button>
           </template>
         </el-table-column>
@@ -145,12 +111,15 @@
 </template>
 
 <script>
-import {listProject} from "@/api/project/project";
+import {listNormalProject} from "@/api/project/project";
 import TeamData from "@/views/public/team-data";
+import DeptData from "@/views/public/dept-data";
+import DictData from "@/views/public/dict-data";
+import UserData from "@/views/public/user-data";
 
 export default {
-  name: "project_zaiyan_index",
-  components: {"team-data": TeamData},
+  name: "project_query_index",
+  components: {"team-data": TeamData, UserData, "dept-data": DeptData, "dict-data": DictData},
   data() {
     return {
       // 遮罩层
@@ -199,16 +168,16 @@ export default {
       timer: '',
       // 数据字典
       DictTypeNameProjectType: "项目类型",
+      // 数据字典
+      DictTypeNameJoinType: "主持参与",
+
       DictTypeNameProjectStatus: "项目状态",
 
       // 表单校验
       rules: {}
     };
   },
-  watch: {
-
-
-  },
+  watch: {},
   created() {
     this.getList();
   },
@@ -216,22 +185,7 @@ export default {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      listProject(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-
-          let currentUserId = this.$store.getters.userId;
-
-          for (let i = 0; i < response.rows.length; i++) {
-            let project = response.rows[i];
-            if (project.projectmanagerid === currentUserId || project.createuserid === currentUserId || project.createuserid === 2) {
-              if (project.status == this.ProjectStatus.ZaiYan) {
-                project.FinishBtnHidden = false;
-              } else {
-                project.FinishBtnHidden = true;
-              }
-            } else {
-              project.FinishBtnHidden = true;
-            }
-          }
+      listNormalProject(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           this.projectList = response.rows;
           console.log(this.projectList);
           this.total = response.total;
@@ -268,30 +222,62 @@ export default {
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
-
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.$router.push({path: '/project/project'});
+    indexMethod(index) {
+      return (index + 1) + this.queryParams.pageSize*(this.queryParams.pageNum-1);
     },
+    /** 新增按钮操作 */
 
-    handleUpdate(row) {
+    handleView(row) {
       const projectid = row.projectid
       console.log("edit project id is ", projectid);
       this.$router.push({path: '/project/project/' + projectid});
     },
 
-    handleToAccept(row) {
-      const projectid = row.projectid
-      console.log("toaccept project id is ", projectid);
-      this.$router.push({path: '/project/toaccept/' + projectid});
-    },
 
     // 组件方法
     selectTeamId(value) {
-      console.log("handleSelectTeam is " , value);
+      console.log("handleSelectTeam is ", value);
       this.queryParams.teamid = value.id;
       this.queryParams.teamidlinktext = value.value;
       this.getList();
+    },
+
+    changeFormManagerValue(value) {
+
+      if (value) {
+        this.queryParams.projectmanagerid = value.userId;
+      } else {
+        this.queryParams.projectmanagerid = undefined;
+      }
+
+    },
+
+    changeJoinTypeValue(value) {
+
+      if (value === undefined) {
+        this.queryParams.jointype = undefined;
+      } else {
+        if (value.id === "1") {
+          this.queryParams.jointype = 1;
+        } else if (value.id === "2") {
+          this.queryParams.jointype = 2;
+        } else {
+
+          console.error("changeJoinTypeValue is 意外 ", value);
+        }
+
+      }
+
+      console.log("changeJoinTypeValue value is ", value.id, "this.form.jointype is ", this.queryParams.jointype);
+
+      return;
+    },
+
+    changeFormProjectStatusValue(value) {
+
+      this.queryParams.status = value.id;
+
+      console.error("changeFormProjectStatusValue is 意外 ", value);
     },
 
     changeFormProjectTypeValue(value) {
