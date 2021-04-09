@@ -28,16 +28,6 @@
       <!--用户数据-->
       <el-col :span="18" :xs="24">
         <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-          <el-form-item label="用户名" prop="userName">
-            <el-input
-              v-model="queryParams.userName"
-              placeholder="请输入用户名"
-              clearable
-              size="small"
-              style="width: 240px"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
           <el-form-item label="真实姓名" prop="realName">
             <el-input
               v-model="queryParams.realName"
@@ -48,32 +38,6 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="手机号码" prop="phonenumber">
-            <el-input
-              v-model="queryParams.phonenumber"
-              placeholder="请输入手机号码"
-              clearable
-              size="small"
-              style="width: 240px"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-select
-              v-model="queryParams.status"
-              placeholder="用户状态"
-              clearable
-              size="small"
-              style="width: 240px"
-            >
-              <el-option
-                v-for="dict in statusOptions"
-                :key="dict.dictValue"
-                :label="dict.dictLabel"
-                :value="dict.dictValue"
-              />
-            </el-select>
-          </el-form-item>
           <el-form-item>
             <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -81,59 +45,12 @@
         </el-form>
 
         <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-              v-hasPermi="['system:user:list']"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-              v-hasPermi="['system:user:list']"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-              v-hasPermi="['system:user:list']"
-            >删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="info"
-              icon="el-icon-upload2"
-              size="mini"
-              @click="handleImport"
-              v-hasPermi="['system:user:list']"
-            >导入</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-              v-hasPermi="['system:user:list']"
-            >导出</el-button>
-          </el-col>
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
 
         <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="50" align="center" />
-          <el-table-column label="用户名" align="center" prop="userName" width="120" />
+<!--          <el-table-column label="用户名" align="center" prop="userName" width="120" />-->
           <el-table-column label="真实姓名" align="center" prop="realName" width="120" />
           <el-table-column label="联系电话" align="center" prop="phonenumber" width="120" />
           <el-table-column label="电子邮件" align="center" prop="email" width="120" />
@@ -151,22 +68,8 @@
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
                 v-hasPermi="['system:user:list']"
-              >修改</el-button>
-              <el-button
-                v-if="scope.row.userId !== 1"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-                v-hasPermi="['system:user:list']"
-              >删除</el-button>
-              <el-button
-                size="mini"
-                type="text"
-                icon="el-icon-key"
-                @click="handleResetPwd(scope.row)"
-                v-hasPermi="['system:user:list']"
-              >重置</el-button>
+              >查看</el-button>
+
             </template>
           </el-table-column>
         </el-table>

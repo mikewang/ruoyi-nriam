@@ -6,10 +6,9 @@ public class PmTeamMember extends BaseEntity {
 
     private Integer teamid;
 
-
     private Integer teamrole;
 
-    private String teamroleName;
+    private String  teamroleName;
 
     private Integer userId;
     private String realName;

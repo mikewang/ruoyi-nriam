@@ -64,7 +64,7 @@ public class PmTeamController extends BaseController {
     public AjaxResult add(@Validated @RequestBody PmTeam team) {
 
         if (StringUtils.isNotEmpty(team.getTeamname())) {
-            return AjaxResult.error("新增团队'" + team.getCreateUserRealName() + "'失败，团队名称为空");
+            return AjaxResult.error("新增团队'" + team.getCreateuseridlinktext() + "'失败，团队名称为空");
         }
         return toAjax(pmTeamService.addTeam(team));
     }

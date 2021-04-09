@@ -23,15 +23,19 @@
       </el-col>
     </el-row>
   </div>
-
-
 </template>
 
 <script>
 
+import Article from "./article";
 import Patent from "./patent";
-
-
+import Thesis from "./thesis";
+import Prize from "./prize";
+import Standard from "./standard";
+import Software from "./software";
+import Product from "./product";
+import Tech from "./tech";
+import Appraisal from "./appraisal";
 
 export default {
   name: "index",
@@ -49,14 +53,22 @@ export default {
         children: "children",
         label: "label"
       },
-      showComponent : "patent"
+      showComponent : "achieve-patent"
 
     };
   },
   components: {
-    "patent": Patent,
-
+    "achieve-patent": Patent,
+    "achieve-thesis": Thesis,
+    "achieve-prize": Prize,
+    "achieve-article": Article,
+    "achieve-standard": Standard,
+    "achieve-software": Software,
+    "achieve-product": Product,
+    "achieve-tech": Tech,
+    "achieve-appraisal": Appraisal
   },
+
   created() {
 
   },
@@ -66,47 +78,33 @@ export default {
     handleNodeClick(data) {
       console.log("data is ", data);
       if (data.label === "专利") {
-        this.showComponent = "patent";
-      }
-      else if (data.label === "科研项目") {
-        this.showComponent = "indicator-project";
-      }
-      else if (data.label === "科研经费") {
-        this.showComponent = "indicator-fund";
+        this.showComponent = "achieve-patent";
       }
       else if (data.label === "获奖") {
-        this.showComponent = "indicator-prize";
+        this.showComponent = "achieve-prize";
       }
 
       else if (data.label === "论文") {
-        this.showComponent = "indicator-thesis";
+        this.showComponent = "achieve-thesis";
       }
       else if (data.label === "标准") {
-        this.showComponent = "indicator-standard";
+        this.showComponent = "achieve-standard";
       }
       else if (data.label === "著作") {
-        this.showComponent = "indicator-article";
+
+        this.showComponent = "achieve-article";
       }
       else if (data.label === "软件著作权") {
-        this.showComponent = "indicator-software";
+        this.showComponent = "achieve-software";
       }
       else if (data.label === "农机新产品") {
-        this.showComponent = "indicator-product";
+        this.showComponent = "achieve-product";
       }
       else if (data.label === "鉴定（评价）成果") {
-        this.showComponent = "indicator-appraisal";
-      }
-      else if (data.label === "完成人排序系数") {
-        this.showComponent = "indicator-orderrate";
+        this.showComponent = "achieve-appraisal";
       }
       else if (data.label === "农业部主推技术") {
-        this.showComponent = "indicator-tech";
-      }
-      else if (data.label === "科技产业开发收入") {
-        this.showComponent = "indicator-incomedevelop";
-      }
-      else if (data.label === "科技转让收入") {
-        this.showComponent = "indicator-incometransfer";
+        this.showComponent = "achieve-tech";
       }
       else {
         this.showComponent = "";

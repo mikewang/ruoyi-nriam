@@ -28,8 +28,8 @@ public class PmTeam extends BaseEntity {
 
     private Boolean ifdeleted;
 
-    private String teamLeaderRealName;
-    private String createUserRealName;
+    private String teamleaderidlinktext;
+    private String createuseridlinktext;
 
     private String members;
 
@@ -122,28 +122,20 @@ public class PmTeam extends BaseEntity {
         this.ifdeleted = ifdeleted;
     }
 
-    public String getTeamLeaderRealName() {
-        return teamLeaderRealName;
+    public String getTeamleaderidlinktext() {
+        return teamleaderidlinktext;
     }
 
-    public void setTeamLeaderRealName(String teamLeaderRealName) {
-        this.teamLeaderRealName = teamLeaderRealName;
+    public void setTeamleaderidlinktext(String teamleaderidlinktext) {
+        this.teamleaderidlinktext = teamleaderidlinktext;
     }
 
-    public String getCreateUserRealName() {
-        return createUserRealName;
+    public String getCreateuseridlinktext() {
+        return createuseridlinktext;
     }
 
-    public void setCreateUserRealName(String createUserRealName) {
-        this.createUserRealName = createUserRealName;
-    }
-
-    public List<ArrayList<Integer>> getCheckedIdList() {
-        return checkedIdList;
-    }
-
-    public void setCheckedIdList(List<ArrayList<Integer>> checkedIdList) {
-        this.checkedIdList = checkedIdList;
+    public void setCreateuseridlinktext(String createuseridlinktext) {
+        this.createuseridlinktext = createuseridlinktext;
     }
 
     @Override
@@ -156,8 +148,20 @@ public class PmTeam extends BaseEntity {
                 ", createuserid=" + createuserid +
                 ", createtime='" + createtime + '\'' +
                 ", ifdeleted=" + ifdeleted +
-                ", teamLeaderRealName='" + teamLeaderRealName + '\'' +
-                ", createUserRealName='" + createUserRealName + '\'' +
+                ", teamleaderidlinktext='" + teamleaderidlinktext + '\'' +
+                ", createuseridlinktext='" + createuseridlinktext + '\'' +
+                ", members='" + members + '\'' +
+                ", memberList=" + memberList +
+                ", checkedIdList=" + checkedIdList +
                 '}';
     }
+
+    public List<ArrayList<Integer>> getCheckedIdList() {
+        return checkedIdList;
+    }
+
+    public void setCheckedIdList(List<ArrayList<Integer>> checkedIdList) {
+        this.checkedIdList = checkedIdList;
+    }
+
 }

@@ -9,8 +9,8 @@
     <result column="CreateUserID" jdbcType="INTEGER" property="createuserid" />
     <result column="CreateTime" jdbcType="VARCHAR" property="createtime" />
     <result column="IfDeleted" jdbcType="BIT" property="ifdeleted" />
-    <result column="TeamLeaderIDLinkText" jdbcType="VARCHAR" property="teamLeaderRealName" />
-    <result column="CreateUserIDLinkText" jdbcType="VARCHAR" property="createUserRealName" />
+    <result column="TeamLeaderIDLinkText" jdbcType="VARCHAR" property="teamleaderidlinktext" />
+    <result column="CreateUserIDLinkText" jdbcType="VARCHAR" property="createuseridlinktext" />
   </resultMap>
 
   <select id="selectTeamById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
