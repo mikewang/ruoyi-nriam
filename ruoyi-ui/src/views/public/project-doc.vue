@@ -2,10 +2,9 @@
 <div>
   <el-upload action="#" :http-request="requestUpload" :before-remove="beforeRemove"
              :on-remove="handleOnRemove" :on-preview="handleOnPreview"
-             :file-list="fileList" :before-upload="beforeUpload">
+             v-bind:file-list="fileList" :before-upload="beforeUpload">
     <el-button v-if="readonly === false" size="small">上传文件<i class="el-icon-upload el-icon--right"></i></el-button>
   </el-upload>
-
 </div>
 </template>
 
@@ -21,9 +20,9 @@ export default {
 // 遮罩层
       loading: true,
 // 传入的参数
-
 // 数据源
-      fileList: []
+      fileList: [],
+      timer:''
     };
   },
   created() {
@@ -39,6 +38,8 @@ export default {
         let item = this.docList[i];
         this.fileList.push({name:item.docname, url:item.docid});
       }
+      console.log("加载文件组件, 显示" , this.fileList);
+
       this.$emit('changeFileList',this.fileList, this.docType, undefined,undefined);
     },
 
@@ -56,7 +57,6 @@ export default {
         this.fileList.push({name:response.name, url:response.url});
 
         this.$emit('changeFileList',this.fileList, this.docType,"add",response.url);
-
 
       });
 
@@ -91,8 +91,8 @@ export default {
       }).then(function () {
         downloadBasDoc({file: file.url}).then((response) => {
           this_.msgSuccess("下载开始");
-          var fileURL = window.URL.createObjectURL(new Blob([response]));
-          var fileLink = document.createElement('a');
+          const fileURL = window.URL.createObjectURL(new Blob([response]));
+          const fileLink = document.createElement('a');
 
           console.log("response.data is ", response);
 

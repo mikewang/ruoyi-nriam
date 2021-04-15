@@ -188,6 +188,8 @@ public class AudContractService {
     public AudContract selectContractById(Integer contractid) {
 
         AudContract contract = audContractMapper.selectContractById(contractid);
+        contract.setProjectinfo(projectMapper.selectProjectById(contract.getProjectid()));
+        contract.setSupplierinfo(supplierinfoMapper.selectSupplierInfoById(contract.getSupplierid()));
 
         AudContractpay record = new AudContractpay();
         record.setContractid(contractid);
@@ -199,8 +201,6 @@ public class AudContractService {
         List<AudContractdoc> contractdocList = contractdocMapper.selectAudContractdocList(doc);
         contract.setContractdocList(contractdocList);
 
-        contract.setProjectinfo(projectMapper.selectProjectById(contract.getProjectid()));
-        contract.setSupplierinfo(supplierinfoMapper.selectSupplierInfoById(contract.getSupplierid()));
         return contract;
     }
 

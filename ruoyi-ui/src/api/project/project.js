@@ -58,6 +58,14 @@ export function listAftersetup(query) {
   })
 }
 
+export function queryAftersetup(query) {
+  return request({
+    url: '/project/aftersetup/query',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询正常项目列表
 export function listNormalProject(query) {
   return request({

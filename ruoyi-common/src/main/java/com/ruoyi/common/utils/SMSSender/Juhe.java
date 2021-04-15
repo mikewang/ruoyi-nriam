@@ -22,35 +22,42 @@ public class Juhe {
     public static final int DEF_READ_TIMEOUT = 30000;
     public static String userAgent =  "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36";
 
-
-    public static void sendSMS_ToAudit(String mobile, String message, String url , String key){
-        String templateId = "22685";
-        mobileQuery(mobile,message,templateId,url,key);
-    }
-
-
     public static void sendSMS_AuditContractPay(String mobile, String message, String url , String key){
-        String templateId = "22722";
+        String templateId = "210780";
         mobileQuery(mobile,message,templateId,url,key);
     }
-
 
     public static void sendSMS_Audited(String mobile, String message, String url , String key){
-        String templateId = "25694";
+        String templateId = "210781";
         mobileQuery(mobile,message,templateId,url,key);
     }
+
 
 
     public static void sendSMS_Audited_ToSheetUser(String mobile, String message, String url , String key){
-        String templateId = "25695";
+        String templateId = "210782";
         mobileQuery(mobile,message,templateId,url,key);
     }
+
 
 
     public static void sendSMS_CodeFourTech(String mobile, String message, String url , String key){
-        String templateId = "31606";
+        String templateId = "210783";
         mobileQuery(mobile,message,templateId,url,key);
     }
+
+
+
+    public static void sendSMS_ToAudit(String mobile, String message, String url , String key){
+        String templateId = "210779";
+
+        mobileQuery(mobile,message,templateId,url,key);
+    }
+
+
+
+
+
 
     public static void mobileQuery(String mobile, String message,  String templateId, String url , String key){
         String result =null;
@@ -75,7 +82,6 @@ public class Juhe {
     }
 
     public static void main(String[] args) {
-
 
 
     }

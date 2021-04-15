@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import {listTijiaorenContract} from "@/api/sheet/contract";
+import {listTijiaorenContract} from "@/api/audit/contract";
 
 
 export default {
@@ -279,6 +279,8 @@ export default {
 
                   paySheetItems.push(paysheetItem);
                 }
+
+
                 else {
                   let lab_yishen_visible = false;
                   let lbtn_daishen_visible = true;

@@ -315,49 +315,49 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/sheet',
+    path: '/audit',
     component: Layout,
     hidden: true,
     children: [
       {
         path: 'tijiaoren',
-        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/tijiaoren/edit'], resolve),
         name: 'AddSheet',
         meta: {title: '拨付单新建', icon: '', opcode: 'add', noCache: true}
       },
       {
         path: 'tijiaoren/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/tijiaoren/edit'], resolve),
         name: 'querySheet',
         meta: { title: '拨付单查看', icon: '', opcode: 'query',noCache: true }
       },
       {
         path: 'audit3/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/tijiaoren/edit'], resolve),
         name: 'Audit3Sheet',
         meta: { title: '拨付单审核', icon: '', opcode: 'audit3',noCache: true }
       },
       {
         path: 'audit4/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/tijiaoren/edit'], resolve),
         name: 'Audit4Sheet',
         meta: { title: '拨付单审核', icon: '', opcode: 'audit4',noCache: true }
       },
       {
         path: 'audit5/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/tijiaoren/edit'], resolve),
         name: 'Audit5Sheet',
         meta: { title: '拨付单审核', icon: '', opcode: 'audit5',noCache: true }
       },
       {
         path: 'audit6/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/tijiaoren/edit'], resolve),
         name: 'Audit6Sheet',
         meta: { title: '拨付单审核', icon: '', opcode: 'audit6',noCache: true }
       },
       {
         path: 'audit7/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/tijiaoren/edit'], resolve),
         name: 'Audit7Sheet',
         meta: { title: '拨付单审核', icon: '', opcode: 'audit7',noCache: true }
       }
@@ -371,49 +371,49 @@ export const constantRoutes = [
     children: [
       {
         path: 'tijiaoren',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
         name: 'AddContract',
         meta: {title: '合同新增', icon: '', opcode: 'add', noCache: true}
       },
       {
         path: 'tijiaoren/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
         name: 'queryContract',
         meta: { title: '合同查看', icon: '', opcode: 'query',noCache: true }
       },
       {
         path: 'paysheet/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/paysheet'], resolve),
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/paysheet'], resolve),
         name: 'queryPaysheet',
         meta: { title: '合同拨付单', icon: '', opcode: 'query',noCache: true }
       },
       {
         path: 'audit3/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
         name: 'Audit3Contract',
         meta: { title: '合同审批', icon: '', opcode: 'audit3',noCache: true }
       },
       {
         path: 'audit4/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
         name: 'Audit4Contract',
         meta: { title: '合同审批', icon: '', opcode: 'audit4',noCache: true }
       },
       {
         path: 'audit5/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
         name: 'Audit5Contract',
         meta: { title: '合同审批', icon: '', opcode: 'audit5',noCache: true }
       },
       {
         path: 'audit6/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
         name: 'Audit6Contract',
         meta: { title: '合同审批', icon: '', opcode: 'audit6',noCache: true }
       },
       {
         path: 'audit7/:sheetid(\\d+)',
-        component: (resolve) => require(['@/views/sheet/contract_tijiaoren/edit'], resolve),
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
         name: 'Audit7Contract',
         meta: { title: '合同审批', icon: '', opcode: 'audit7',noCache: true }
       }

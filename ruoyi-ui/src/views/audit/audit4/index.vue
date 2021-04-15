@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <el-tag>待审批的“参加单位拨付申请”列表 </el-tag>
+      <el-divider>待审批的“参加单位拨付申请”列表 </el-divider>
     </el-row>
     <el-row :gutter="20">
 
@@ -30,7 +30,7 @@
               type="text"
               icon="el-icon-edit"
               @click="handleAuditSheet(scope.row)"
-              v-hasPermi="['sheet:audit7:list']"
+              v-hasPermi="['audit:audit4:list']"
             >审批
             </el-button>
           </template>
@@ -46,7 +46,7 @@
     </el-row>
 
     <el-row :gutter="20">
-    <el-tag>待审批的“合作单位拨付申请”列表  </el-tag>
+    <el-divider>待审批的“合作单位拨付申请”列表  </el-divider>
     </el-row>
     <el-row :gutter="20">
 
@@ -77,7 +77,7 @@
               type="text"
               icon="el-icon-edit"
               @click="handleAuditContract(scope.row)"
-              v-hasPermi="['sheet:audit7:list']"
+              v-hasPermi="['audit:audit4:list']"
             >审批
             </el-button>
           </template>
@@ -117,11 +117,11 @@
 </template>
 
 <script>
-import {listAudit7Sheet} from "@/api/sheet/sheet";
-import {listAudit7Contract} from "@/api/sheet/contract";
+import {listAudit4Sheet} from "@/api/audit/audit";
+import {listAudit4Contract} from "@/api/audit/contract";
 
 export default {
-  name: "sheet_audit7_index",
+  name: "sheet_audit4_index",
   data() {
     return {
       // 遮罩层
@@ -192,7 +192,7 @@ export default {
     getSheetList() {
       this.loading = true;
       console.log("queryParams is ", this.queryParams);
-      listAudit7Sheet(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      listAudit4Sheet(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
           let sheetList = response.rows;
           this.sheetList = sheetList;
@@ -205,7 +205,7 @@ export default {
     getContractList() {
       this.loading = true;
       console.log("queryParams2 is ", this.queryParams2);
-      listAudit7Contract(this.addDateRange(this.queryParams2, this.dateRange)).then(response => {
+      listAudit4Contract(this.addDateRange(this.queryParams2, this.dateRange)).then(response => {
           console.log("response2 is ", response);
         //处理合同的列表。对于状态是已经完成的合同，要查询其所有下属拨付单的列表
         //对于待审的合同，"待审拨付单"单元格为空
@@ -270,13 +270,13 @@ export default {
 
     handleAuditSheet(row) {
       console.log("update row is  ", row);
-      const path = '/sheet/audit7/' + row.sheetid;
+      const path = '/audit/audit4/' + row.sheetid;
       console.log("path is " + path);
       this.$router.push({path: path});
     },
     handleAuditContract(row) {
       console.log("update row is  ", row);
-      const path = '/contract/audit7/' + row.contractid;
+      const path = '/contract/audit4/' + row.contractid;
       console.log("path is " + path);
       this.$router.push({path: path});
     }

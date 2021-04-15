@@ -1,6 +1,7 @@
 package com.ruoyi.sheet.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.project.domain.AudProject;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,12 +34,9 @@ public class AudSheet extends BaseEntity {
 
     private BigDecimal hejiYiqian;
 
-
     private BigDecimal hejiBennian;
 
-
     private BigDecimal hejiBenci;
-
 
     private String daxie;
 
@@ -46,22 +44,23 @@ public class AudSheet extends BaseEntity {
 
     private String reason;
 
-
     private String payconfirmtime;
 
-
     private Integer payconfirmuserid;
-
 
     private Integer sheetstatus;
 
     private String sheetuseridlinktext;
-    private String projectname;
+    private String projectidlinktext;
     private String organizationidlinktext;
     private String sheetstatuslinktext;
     private String payconfirmuseridlinktext;
 
     private Integer projectmanagerid;
+
+    private AudProject projectinfo;
+
+
 
     private List<AudBudgetpay> budgetpayList;
 
@@ -241,12 +240,12 @@ public class AudSheet extends BaseEntity {
         this.sheetuseridlinktext = sheetuseridlinktext;
     }
 
-    public String getProjectname() {
-        return projectname;
+    public String getProjectidlinktext() {
+        return projectidlinktext;
     }
 
-    public void setProjectname(String projectname) {
-        this.projectname = projectname;
+    public void setProjectidlinktext(String projectidlinktext) {
+        this.projectidlinktext = projectidlinktext;
     }
 
     public String getOrganizationidlinktext() {
@@ -337,6 +336,13 @@ public class AudSheet extends BaseEntity {
         this.sheetAuditRecordList = sheetAuditRecordList;
     }
 
+    public AudProject getProjectinfo() {
+        return projectinfo;
+    }
+
+    public void setProjectinfo(AudProject projectinfo) {
+        this.projectinfo = projectinfo;
+    }
 
     @Override
     public String toString() {
@@ -362,10 +368,12 @@ public class AudSheet extends BaseEntity {
                 ", payconfirmuserid=" + payconfirmuserid +
                 ", sheetstatus=" + sheetstatus +
                 ", sheetuseridlinktext='" + sheetuseridlinktext + '\'' +
-                ", projectname='" + projectname + '\'' +
+                ", projectidlinktext='" + projectidlinktext + '\'' +
                 ", organizationidlinktext='" + organizationidlinktext + '\'' +
                 ", sheetstatuslinktext='" + sheetstatuslinktext + '\'' +
                 ", payconfirmuseridlinktext='" + payconfirmuseridlinktext + '\'' +
+                ", projectmanagerid=" + projectmanagerid +
+                ", projectinfo=" + projectinfo +
                 ", budgetpayList=" + budgetpayList +
                 ", operateCode=" + operateCode +
                 ", confirmResult=" + confirmResult +

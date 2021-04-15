@@ -1,4 +1,4 @@
-package com.ruoyi.web.controller.sheet;
+package com.ruoyi.web.controller.audit;
 
 import com.ruoyi.api.service.AppClientinfoService;
 import com.ruoyi.audit.domain.AudSignpic;
@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/sheet")
+@RequestMapping("/audit")
 public class AudSheetController extends BaseController {
     @Resource
     private AudSheetService sheetService;
@@ -66,7 +66,7 @@ public class AudSheetController extends BaseController {
         return userId.intValue();
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
+    @PreAuthorize("@ss.hasPermi('audit:tijiaoren:list')")
     @GetMapping("/tijiaoren/list")
     public TableDataInfo tijiaorenList(AudSheet query) {
 
@@ -84,7 +84,7 @@ public class AudSheetController extends BaseController {
     /**
      * 根据编号获取详细信息
      */
-    @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
+    @PreAuthorize("@ss.hasPermi('audit:tijiaoren:list')")
     @GetMapping(value = {"/{sheetid}"})
     public AjaxResult getSheet(@PathVariable(value = "sheetid", required = false) Integer sheetid) {
         AjaxResult ajax = AjaxResult.success();
@@ -105,7 +105,7 @@ public class AudSheetController extends BaseController {
     /**
      * 根据编号,获取 明细 详细信息
      */
-    @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
+    @PreAuthorize("@ss.hasPermi('audit:tijiaoren:list')")
     @GetMapping(value = {"/budgetpay/{sheetid}"})
     public AjaxResult getSheetDetail(@PathVariable(value = "sheetid", required = false) Integer sheetid) {
         AjaxResult ajax = AjaxResult.success();
@@ -126,7 +126,7 @@ public class AudSheetController extends BaseController {
     /**
      * 根据编号 删除信息
      */
-    @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
+    @PreAuthorize("@ss.hasPermi('audit:tijiaoren:list')")
     @DeleteMapping(value = {"/{sheetid}"})
     public AjaxResult deleteSheet(@PathVariable(value = "sheetid", required = false) Integer sheetid) {
         AjaxResult ajax = AjaxResult.success();
@@ -155,7 +155,7 @@ public class AudSheetController extends BaseController {
     /**
      * 根据项目号，供应商号，获取 历史记录
      */
-    @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
+    @PreAuthorize("@ss.hasPermi('audit:tijiaoren:list')")
     @GetMapping(value = {"/budgetpay/record"})
     public TableDataInfo getSheetBudgetpayRecord(AudBudgetpayRecordQuery query) {
         startPage();
@@ -184,7 +184,7 @@ public class AudSheetController extends BaseController {
     /**
      * 根据项目号，供应商号，获取 历史记录
      */
-    @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
+    @PreAuthorize("@ss.hasPermi('audit:tijiaoren:list')")
     @GetMapping(value = {"/audit/record"})
     public AjaxResult getSheetAuditRecord(AudSheetauditrecord record) {
         AjaxResult ajax = AjaxResult.success();
@@ -200,7 +200,7 @@ public class AudSheetController extends BaseController {
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:tijiaoren:list')")
+    @PreAuthorize("@ss.hasPermi('audit:tijiaoren:list')")
     @Log(title = "拨付单管理", businessType = BusinessType.INSERT)
     @PostMapping("/tijiaoren")
     public AjaxResult add(@Validated @RequestBody AudSheet sheet) {
@@ -218,6 +218,7 @@ public class AudSheetController extends BaseController {
         sheet.setSheettype("拨付单");
         sheet.setRelatedcontractid(-1);
         sheet.setThispaytimes("");
+        sheet.setOrganizationid(sheet.getProjectinfo().getOrganizationid());
 
         Integer result = sheetService.addSheetTijiaoren(sheet);
 
@@ -298,7 +299,7 @@ public class AudSheetController extends BaseController {
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit3:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit3:list')")
     @GetMapping("/audit3/list")
     public TableDataInfo audit3List() {
         Integer userid = getCurrentLoginUserid();
@@ -307,7 +308,7 @@ public class AudSheetController extends BaseController {
         return getDataTable(list);
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit3:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit3:list')")
     @Log(title = "外拨款项目负责人审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit3")
     public AjaxResult audit3Confirm(@Validated @RequestBody AudSheet sheet) {
@@ -319,7 +320,7 @@ public class AudSheetController extends BaseController {
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit4:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit4:list')")
     @GetMapping("/audit4/list")
     public TableDataInfo audit4List() {
         Integer userid = getCurrentLoginUserid();
@@ -328,7 +329,7 @@ public class AudSheetController extends BaseController {
         return getDataTable(list);
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit4:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit4:list')")
     @Log(title = "外拨款部门负责人审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit4")
     public AjaxResult audit4Confirm(@Validated @RequestBody AudSheet sheet) {
@@ -338,7 +339,7 @@ public class AudSheetController extends BaseController {
     }
 
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit5:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit5:list')")
     @GetMapping("/audit5/list")
     public TableDataInfo audit5List() {
         Integer userid = getCurrentLoginUserid();
@@ -348,7 +349,7 @@ public class AudSheetController extends BaseController {
     }
 
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit5:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit5:list')")
     @Log(title = "外拨款分管处的负责人审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit5")
     public AjaxResult audit5Confirm(@Validated @RequestBody AudSheet sheet) {
@@ -358,7 +359,7 @@ public class AudSheetController extends BaseController {
     }
 
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit6:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit6:list')")
     @GetMapping("/audit6/list")
     public TableDataInfo audit6List() {
         Integer userid = getCurrentLoginUserid();
@@ -367,7 +368,7 @@ public class AudSheetController extends BaseController {
         return getDataTable(list);
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit6:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit6:list')")
     @Log(title = "外拨款分管所长审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit6")
     public AjaxResult audit6Confirm(@Validated @RequestBody AudSheet sheet) {
@@ -376,7 +377,7 @@ public class AudSheetController extends BaseController {
         return ajax;
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit7:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit7:list')")
     @GetMapping("/audit7/list")
     public TableDataInfo audit7List() {
         Integer userid = getCurrentLoginUserid();
@@ -385,7 +386,7 @@ public class AudSheetController extends BaseController {
         return getDataTable(list);
     }
 
-    @PreAuthorize("@ss.hasPermi('sheet:audit7:list')")
+    @PreAuthorize("@ss.hasPermi('audit:audit7:list')")
     @Log(title = "外拨款所长审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit7")
     public AjaxResult audit7Confirm(@Validated @RequestBody AudSheet sheet) {

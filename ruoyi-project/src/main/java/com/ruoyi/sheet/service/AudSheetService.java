@@ -14,8 +14,12 @@ import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SMSSender.Juhe;
 import com.ruoyi.common.utils.push.PushMessageToApp;
+import com.ruoyi.project.domain.AudProject;
+import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.project.domain.DocFile;
 import com.ruoyi.project.mapper.BasDocMapper;
+import com.ruoyi.project.service.AudProjectService;
+import com.ruoyi.project.service.AudProjectdocService;
 import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.mapper.*;
@@ -72,6 +76,12 @@ public class AudSheetService {
     @Resource
     private BasDocMapper basDocMapper;
 
+    @Resource
+    private AudProjectdocService projectdocService;
+
+    @Resource
+    private AudProjectService projectService;
+
 
     public List<AudSheet> selectSheetTijiaoren(AudSheet sheet) {
 
@@ -95,6 +105,21 @@ public class AudSheetService {
     public AudSheet selectSheetTijiaorenById(Integer sheetid) {
 
         AudSheet sheet = audSheetMapper.selectSheetById(sheetid);
+
+        if (sheet != null) {
+            Integer projectid = sheet.getProjectid();
+
+            AudProject project = projectService.selectProjectById(projectid);
+
+            AudProjectdoc query = new AudProjectdoc();
+            query.setProjectid(projectid);
+//
+//            List<AudProjectdoc> list = projectdocService.selectProjectdocList(query);
+//
+//            project.setProjectdocList(list);
+
+            sheet.setProjectinfo(project);
+        }
 
         return sheet;
     }
@@ -254,7 +279,7 @@ public class AudSheetService {
 
         //发送短信
         String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
-        // 暂时 关闭，调试中。
+        log.debug("msg is " + msg + " url is " + url + " key is " + key);
         Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
 
         return result;

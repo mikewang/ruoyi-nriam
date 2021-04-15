@@ -24,7 +24,7 @@
     <result column="PayConfirmUserID" jdbcType="INTEGER" property="payconfirmuserid" />
     <result column="SheetStatus" jdbcType="INTEGER" property="sheetstatus" />
     <result column="SheetUserIDLinkText" jdbcType="VARCHAR" property="sheetuseridlinktext" />
-    <result column="projectname" jdbcType="VARCHAR" property="projectname" />
+    <result column="projectname" jdbcType="VARCHAR" property="projectidlinktext" />
     <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationidlinktext" />
     <result column="SheetStatusLinkText" jdbcType="VARCHAR" property="sheetstatuslinktext" />
     <result column="PayConfirmUserIDLinkText" jdbcType="VARCHAR" property="payconfirmuseridlinktext" />
@@ -63,7 +63,7 @@
     <include refid="selectSheet"/>
     WHERE a.SheetType = '拨付单'
     and a.SheetUserID = #{sheetuserid,jdbcType=INTEGER}
-    and t5.ProjectName like concat('%', #{projectname,jdbcType=VARCHAR}, '%')
+    and t5.ProjectName like concat('%', #{projectidlinktext,jdbcType=VARCHAR}, '%')
     order by a.SheetTime desc
   </select>
 

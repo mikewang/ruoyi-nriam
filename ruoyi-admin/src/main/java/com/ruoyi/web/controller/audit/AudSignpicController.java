@@ -38,7 +38,7 @@ public class AudSignpicController extends BaseController {
     @Resource
     private ServerConfig serverConfig;
 
-    @PreAuthorize("@ss.hasPermi('audit:signpic:list')")
+    @PreAuthorize("@ss.hasPermi('system:signpic:list')")
     @GetMapping("/list")
     public TableDataInfo list(AudSignpic audSignpic) {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
@@ -72,7 +72,7 @@ public class AudSignpicController extends BaseController {
         return getDataTable(list);
     }
 
-    @PreAuthorize("@ss.hasPermi('audit:signpic:list')")
+    @PreAuthorize("@ss.hasPermi('system:signpic:list')")
     @GetMapping(value = { "/{userId}" })
     public AjaxResult getSignpic(@PathVariable(value = "userId", required = true) Integer userId) {
 
@@ -116,7 +116,7 @@ public class AudSignpicController extends BaseController {
     /**
      * 签名图片上传
      */
-    @PreAuthorize("@ss.hasPermi('audit:signpic:add')")
+    @PreAuthorize("@ss.hasPermi('system:signpic:list')")
     @Log(title = "签名图片上传", businessType = BusinessType.UPDATE)
     @PostMapping("/upload")
     public AjaxResult upload(MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
@@ -155,7 +155,7 @@ public class AudSignpicController extends BaseController {
     /**
      * 消息已读设置 更新操作
      */
-    @PreAuthorize("@ss.hasPermi('audit:signpic:remove')")
+    @PreAuthorize("@ss.hasPermi('system:signpic:list')")
     @Log(title = "签名图片删除", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userIds}")
     public AjaxResult remove(@PathVariable List<Long> userIds) {

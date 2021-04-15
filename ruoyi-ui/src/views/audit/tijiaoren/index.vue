@@ -3,8 +3,8 @@
     <el-row :gutter="20">
       <!--查询数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="项目名称" prop="projectname">
-          <el-input v-model="queryParams.projectname" clearable/>
+        <el-form-item label="项目名称" prop="projectidlinktext">
+          <el-input v-model="queryParams.projectidlinktext" clearable/>
         </el-form-item>
         <el-form-item>
           <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -19,7 +19,7 @@
             icon="el-icon-plus"
             size="mini"
             @click="handleAdd"
-            v-hasPermi="['sheet:tijiaoren:list']"
+            v-hasPermi="['audit:tijiaoren:list']"
           >新增
           </el-button>
         </el-col>
@@ -33,7 +33,7 @@
         <el-table-column label="提交时间" align="center" prop="sheettime" width="200"/>
 
         <el-table-column label="提交人" align="center" prop="sheetuseridlinktext"/>
-        <el-table-column label="项目名称" align="center" prop="projectname" width="180"/>
+        <el-table-column label="项目名称" align="center" prop="projectidlinktext" width="180"/>
 
         <el-table-column label="部门" align="center" prop="organizationidlinktext" width="100"/>
           <el-table-column label="本次拨付金额" align="center" prop="hejiBenci" width="100"/>
@@ -51,7 +51,7 @@
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
-              v-hasPermi="['sheet:tijiaoren:list']"
+              v-hasPermi="['audit:tijiaoren:list']"
             >查看
             </el-button>
           </template>
@@ -71,11 +71,11 @@
 </template>
 
 <script>
-import {listTijiaorenSheet} from "@/api/sheet/sheet";
+import {listAuditTijiaoren} from "@/api/audit/audit";
 
 
 export default {
-  name: "sheet_tijiaoren_index",
+  name: "audit_tijiaoren_index",
   // components: {  },
   data() {
     return {
@@ -128,7 +128,7 @@ export default {
     getList() {
       this.loading = true;
       console.log("queryParams is ", this.queryParams);
-      listTijiaorenSheet(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      listAuditTijiaoren(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
           this.sheetList = response.rows;
           this.total = response.total;
@@ -166,13 +166,13 @@ export default {
 
     /** 新增按钮操作 */
     handleAdd() {
-      this.$router.push({path: '/sheet/tijiaoren'});
+      this.$router.push({path: '/audit/tijiaoren'});
     },
 
     handleUpdate(row) {
       console.log("update row is  ", row);
 
-      const path = '/sheet/tijiaoren/' + row.sheetid;
+      const path = '/audit/tijiaoren/' + row.sheetid;
       console.log("path is " + path);
       this.$router.push({path: path});
     }

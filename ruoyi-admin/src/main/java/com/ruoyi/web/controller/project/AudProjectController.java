@@ -215,7 +215,24 @@ public class AudProjectController extends BaseController {
     //外拨款管理模块使用
     @PreAuthorize("@ss.hasPermi('project:project:list')")
     @GetMapping("/aftersetup/list")
-    public AjaxResult aftersetupList(AudProject project) {
+    public TableDataInfo aftersetupList(AudProject project) {
+
+        if (project.getProjectname() == "") {
+            project.setProjectname("%");
+        }
+
+        logger.debug("query parameters is " + project.getProjectyear());
+
+        startPage();
+
+        List<AudProject> list = projectService.selectProjectAfterSetup(project);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('project:project:list')")
+    @GetMapping("/aftersetup/query")
+    public AjaxResult queryAftersetup(AudProject project) {
         AjaxResult ajax = AjaxResult.success();
 
         if (project.getProjectname() == "") {

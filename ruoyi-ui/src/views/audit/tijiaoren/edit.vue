@@ -23,46 +23,36 @@
           </el-row>
           <el-row>
             <el-col :span="8">
-              <el-form-item v-if="readonly.basic == false" label="项目名称" prop="projectname">
-                <el-select v-model="form.projectname" placeholder="请选择"
-                           style="display:block;" clearable @clear="clearProjectid" @change="changeProjectid"
-                           filterable :filter-method="filterProjectOptions" :show-overflow-tooltip="true">
-                  <el-option
-                    v-for="item in projectOptions"
-                    :key="item.projectid"
-                    :label="item.projectname"
-                    :value="item.projectid"/>
-                </el-select>
-              </el-form-item>
-              <el-form-item v-else label="项目名称" prop="projectname">
-                <el-input readonly v-model="form.projectname"/>
+              <el-form-item label="项目名称" prop="projectid">
+                <!-- 所属项目组件-->
+                <project-data :readonly="readonly.basic" :selected-project-data="form.projectinfo" @changeProjectData="selectProjectData" :selected-option="projectSelectedOption" :key="projectid" ></project-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目周期" prop="projectDateRange">
-                <el-input readonly v-model="form.projectDateRange"/>
+                <el-input readonly v-model="form.projectinfo.projectDateRange"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="课题编号" prop="subjectcode">
-                <el-input readonly v-model="form.subjectcode"/>
+                <el-input readonly v-model="form.projectinfo.subjectcode"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="项目类型" prop="projectTypeLinkText">
-                <el-input readonly v-model="form.projectTypeLinkText"/>
+              <el-form-item label="项目类型" prop="projecttypelinktext">
+                <el-input readonly v-model="form.projectinfo.projecttypelinktext"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="项目负责人" prop="projectManagerIDLinkText">
-                <el-input readonly v-model="form.projectManagerIDLinkText"/>
+              <el-form-item label="项目负责人" prop="projectmanageridlinktext">
+                <el-input readonly v-model="form.projectinfo.projectmanageridlinktext"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="所属部门" prop="organizationIDLinkText">
-                <el-input readonly v-model="form.organizationIDLinkText" :show-overflow-tooltip="true"/>
+              <el-form-item label="所属部门" prop="organizationidlinktext">
+                <el-input readonly v-model="form.projectinfo.organizationidlinktext" :show-overflow-tooltip="true" :key="form.projectid"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -70,20 +60,17 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目申报书" prop="basicfileList1">
-                <el-upload action="#" :before-remove="beforeRemove1" :on-preview="handleReview"
-                           :file-list="basicfileList1"/>
+                <project-doc  :doc-type="DocTypeXiangmuShenbaoShu" @changeFileList="changeBasicDocList" :doc-list="basicfileList1" :readonly="true" :key="basicfileList1Key"></project-doc>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目合同" prop="basicfileList2">
-                <el-upload action="#" :before-remove="beforeRemove2" :on-preview="handleReview"
-                           :file-list="basicfileList2"/>
+                <project-doc  :doc-type="DocTypeXiangmuHetong" @changeFileList="changeBasicDocList" :doc-list="basicfileList2" :readonly="true"></project-doc>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="实施方案" prop="basicfileList3">
-                <el-upload action="#" :before-remove="beforeRemove3" :on-preview="handleReview"
-                           :file-list="basicfileList3"/>
+                <project-doc  :doc-type="DocTypeShishiFangan" @changeFileList="changeBasicDocList"  :doc-list="basicfileList3" :readonly="true"></project-doc>
               </el-form-item>
             </el-col>
 
@@ -122,7 +109,7 @@
                                icon="el-icon-plus"
                                size="mini"
                                @click="handleBudgetpayAdd"
-                               v-hasPermi="['sheet:tijiaoren:list']"
+                               v-hasPermi="['audit:tijiaoren:list']"
                     >新增
                     </el-button>
                   </el-col>
@@ -147,13 +134,13 @@
                         width="160"
                         class-name="small-padding fixed-width"
                       >
-                        <template slot-scope="scope">
+                        <template slot-scope="scope" v-if="readonly.basic === false">
                           <el-button
                             size="mini"
                             type="text"
                             icon="el-icon-edit"
                             @click="handleBudgetpayUpdate(scope.row)"
-                            v-hasPermi="['sheet:tijiaoren:list']"
+                            v-hasPermi="['audit:tijiaoren:list']"
                           >编辑
                           </el-button>
                           <el-button
@@ -161,7 +148,7 @@
                             type="text"
                             icon="el-icon-delete"
                             @click="handleBudgetpayDelete(scope.row)"
-                            v-hasPermi="['sheet:tijiaoren:list']"
+                            v-hasPermi="['audit:tijiaoren:list']"
                           >删除
                           </el-button>
                         </template>
@@ -322,17 +309,17 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="实际拨付经费.小计（元）" prop="xiaoji">
-              <el-input readonly v-model="budgetpayForm.xiaoji" placeholder="请输入"/>
+              <el-input readonly v-model="budgetpayForm.xiaoji" placeholder=""/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="实际拨付经费.以前年度已拨（元）" prop="yiqian">
-              <el-input readonly v-model="budgetpayForm.yiqian" placeholder="请输入"/>
+              <el-input readonly v-model="budgetpayForm.yiqian" placeholder=""/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="实际拨付经费.本年已拨（元）" prop="bennian">
-              <el-input readonly v-model="budgetpayForm.bennian" placeholder="请输入"/>
+              <el-input readonly v-model="budgetpayForm.bennian" placeholder=""/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -353,7 +340,7 @@
 </template>
 
 <script>
-import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
+import {listProjectdoc} from "@/api/project/project";
 import {
   addSheet,
   deleteSheet,
@@ -364,12 +351,15 @@ import {
   getSheetSupplier,
   updateSheet,
   confirmAuditSheet
-} from "@/api/sheet/sheet";
-import {handleUploadReview} from "@/api/achieve/basdoc";
+} from "@/api/audit/audit";
+
 import {getSignpic} from "@/api/audit/signpic";
+import ProjectData from "@/views/public/project-data";
+import ProjectDoc from "@/views/public/project-doc";
 
 export default {
-  name: "sheet_tijiaoren_edit",
+  name: "audit_tijiaoren_edit",
+  components: {ProjectData,ProjectDoc},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -390,18 +380,23 @@ export default {
       // 是否显示弹出层
       open: false,
 
-      // 数据字典  专利类型
+      // 数据字典  项目类型
+      projectSelectedOption: "aftersetup",
 
-      projectOptions: [],
-      projectList: [],
+      // 数据字典
+      DocTypeXiangmuShenbaoShu: "项目申报书",
+      DocTypeXiangmuHetong: "项目合同",
+      DocTypeShishiFangan: "实施方案",
 
+      projectid:0,
       supplierOptions: [],
       supplierList: [],
-
 
       basicfileList1: [],
       basicfileList2: [],
       basicfileList3: [],
+
+      basicfileList1Key: '',
 
       SheetStatus: {
         NoPass: 2,
@@ -421,7 +416,7 @@ export default {
       // 日期范围
       // 查询参数
       // 表单参数
-      form: {},
+      form: undefined,
       timer: '',
       // 表单校验
       rules: {
@@ -434,6 +429,9 @@ export default {
       budgetpayFormOpen: false,
       budgetpayForm: {},
       budgetpayRules: {
+        zong: [
+          {required: true, message: "预算总拨付经费不能为空", trigger: "blur"}
+        ],
         benci: [
           {required: true, message: "本次拨付不能为空", trigger: "blur"}
         ]
@@ -458,15 +456,13 @@ export default {
 
   beforeCreate() {
     console.log(" beforeCreate this.$route.meta is ", this.$route.meta);
-    const sheetid = this.$route.params && this.$route.params.sheetid;
 
   },
   created() {
     console.log(" created this.$route.meta is ", this.$route.meta);
-    this.resetTemplateStatus();
     console.log(" created this.$route.params is ", this.$route.params);
 
-    var sheetid = this.$route.params && this.$route.params.sheetid;
+    let sheetid = this.$route.params && this.$route.params.sheetid;
     if (sheetid === undefined || Number(sheetid) === 0) {
       sheetid = undefined;
     } else {
@@ -481,91 +477,65 @@ export default {
   methods: {
     /** 查询信息 */
     getData(sheetid) {
-
       this.loading = true;
-      console.log("loading is begin, sheetid is ", sheetid);
+      this.reset();
 
       if (sheetid === undefined) {
-        this.reset();
         this.configTemplateStatus();
-        this.loadProjectOptions("");
         this.loading = false;
-
       } else {
         const this_ = this;
-
+        console.log("loading is begin, sheetid is ", sheetid);
         getSheet(sheetid).then(response => {
 
           console.log("getSheet response data is ", response.data);
 
           const sheet = response.data;
 
-          this_.form = sheet;
+          console.log("projectDateRange is " ,sheet.projectinfo.projectDateRange);
 
           console.log("getSheet sheet.projectid is ", sheet.projectid);
 
-          getProject(sheet.projectid).then(response2 => {
-            const project = response2.data;
-            console.log("getProject response2 data is ", response2.data);
+          getSheetBudgetpay(sheetid).then(response3 => {
+            console.log("getSheetBudgetpay response is ", response3.data);
+            sheet.budgetpayList = response3.data;
 
-            this_.form.projectid = project.projectid;
-            this_.form.projectname = project.projectname;
-            this_.form.projectDateRange = project.projectDateRange;
-            this_.form.subjectcode = project.subjectcode;
-            this_.form.projectTypeLinkText = project.projectTypeLinkText;
-            this_.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
-            this_.form.organizationIDLinkText = project.organizationIDLinkText;
-            this_.form.projectmanagerid = project.projectmanagerid;
+            //显示历史付款记录(列表里选择的供应商付款记录都要列出来)
 
-            listProjectdoc({projectid: this_.form.projectid}).then(response => {
+            this_.queryRecordParams.projectid = sheet.projectid;
 
-              let rows = response.data;
-              console.log("listProjectdoc is ", rows);
-              this_.form.projectdocList = rows;
-              this_.basicfileList1 = this_.filterProjectdoc("项目申报书");
-              console.log("项目申报书 is ", this_.basicfileList1);
-              this_.basicfileList2 = this_.filterProjectdoc("项目合同");
-              console.log("项目合同 is ", this_.basicfileList2);
-              this_.basicfileList3 = this_.filterProjectdoc("实施方案");
-              console.log("实施方案 is ", this_.basicfileList3);
-            });
+            let ids = new Array();
+            for (let k = 0; k < sheet.budgetpayList.length; k++) {
+              let item = sheet.budgetpayList[k];
+              ids.push(item.supplierid);
+            }
+            this_.queryRecordParams.supplieridList = ids;
 
-            getSheetBudgetpay(sheetid).then(response3 => {
-              console.log("getSheetBudgetpay response is ", response3.data);
-              this_.form.budgetpayList = response3.data;
+            console.log("getSheetBudgetpay record is ", this_.queryRecordParams);
+            this_.getSheetBudgetpayRecordList(sheet);
 
-              //显示历史付款记录(列表里选择的供应商付款记录都要列出来)
-
-              this_.queryRecordParams.projectid = this_.form.projectid;
-
-              let ids = new Array();
-              for (let k = 0; k < this_.form.budgetpayList.length; k++) {
-                let item = this_.form.budgetpayList[k];
-                ids.push(item.supplierid);
-              }
-              this_.queryRecordParams.supplieridList = ids;
-
-              console.log("getSheetBudgetpay record is ", this_.queryRecordParams);
-              this_.getSheetBudgetpayRecordList();
-
-            });
-
-            getSignpic(this_.form.sheetuserid).then(response => {
+            getSignpic(sheet.sheetuserid).then(response => {
               console.log("response is ", response);
-              this_.form.sheetuseridImage = response.data.signpicName;
+              sheet.sheetuseridImage = response.data.signpicName;
+
+              getSheetAuditRecord({"sheettype": "拨付单", "sheetid": sheet.sheetid}).then(response => {
+                console.log("getSheetAuditRecord response is ", response.data);
+                sheet.sheetAuditRecordList = response.data;
+
+                this_.form = sheet;
+                this_.projectid = sheet.projectid;
+                this_.time= Date.now().toString();
+
+                this_.configTemplateStatus();
+
+                this_.loading = false;
+
+                console.log("this.form is ", this_.form);
+
+
+
+              });
             });
-
-            getSheetAuditRecord({"sheettype": "拨付单", "sheetid": this_.form.sheetid}).then(response => {
-              console.log("getSheetAuditRecord response is ", response.data);
-              this_.form.sheetAuditRecordList = response.data;
-
-            });
-
-            console.log("this.form is ", this_.form);
-
-            this_.configTemplateStatus();
-
-            this_.loading = false;
 
           });
 
@@ -574,10 +544,13 @@ export default {
 
     },
 
-    getSheetBudgetpayRecordList() {
+    getSheetBudgetpayRecordList(sheet) {
 
+      if (sheet === undefined) {
+        sheet = this.form;
+      }
       getSheetBudgetpayRecord(this.queryRecordParams).then(response => {
-        this.form.budgetpayRecordList = response.rows;
+        sheet.budgetpayRecordList = response.rows;
         this.queryRecordTotal = response.total;
         console.log("getSheetBudgetpayRecord response is", response.rows);
 
@@ -711,16 +684,8 @@ export default {
         sheetcode: undefined,
         sheettype: undefined,
 
-        projectid: undefined,
-        projectname: undefined,
-        projectDateRange: undefined,
-        subjectcode: undefined,
-        projectmanagerid: undefined,
-        projectManagerIDLinkText: undefined,
-        organizationid: undefined,
-        organizationIDLinkText: undefined,
-        projecttype: undefined,
-        projectTypeLinkText: undefined,
+        projectid: 0,
+        projectinfo : {projectDateRange:undefined},
 
         reason: undefined,
 
@@ -743,114 +708,68 @@ export default {
       this.resetForm("form");
     },
 
+    // 组件方法
+    selectProjectData(project) {
+      console.log("selectProjectData is ", project);
+      this.form.projectid = undefined;
+      this.form.projectinfo =  {projectid:undefined};
 
-    createFilter(v) {
-      return (item) => {
-        const queryString = v.toLowerCase();
+      const this_ = this;
 
-        let x = false;
+      if (project) {
+        this_.form.projectid = project.projectid;
+        this_.form.projectinfo =  project;
+        this_.projectid = project.projectid;
 
-        const keys = Object.keys(item);
-        for (let i = 0; i < keys.length; i++) {
-          let key = keys[i];
-          let value = item[key];
-          let pp = -1;
-          if (value !== undefined && value !== null) {
-            pp = value.toString().indexOf(queryString);
-          }
-          if (pp != -1) {
-            x = true;
-            break;
-          }
-        }
-        return x;
-      };
-    },
+        listProjectdoc({projectid: project.projectid}).then(response => {
 
+          let rows = response.data;
+          console.log("listProjectdoc is ", rows);
+          this_.form.projectdocList = rows;
 
-    clearProjectid() {
+          this_.basicfileList1 = this_.form.projectdocList.filter(function (item) {
+            return item.doctype === "项目申报书"
+          });
+          console.log("项目申报书 is ", this_.basicfileList1);
 
-    },
-    changeProjectid(value) {
-      console.log("changeProjectid value is " + value);
-      if (value) {
-        this.form.projectid = value;
-        for (let i = 0; i < this.projectOptions.length; i++) {
-          let project = this.projectOptions[i];
-          if (project.projectid === value) {
-            this.form.projectname = project.projectname;
-            this.form.projectDateRange = project.projectDateRange;
-            this.form.subjectcode = project.subjectcode;
-            this.form.projectTypeLinkText = project.projectTypeLinkText;
-            this.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
-            this.form.organizationIDLinkText = project.organizationIDLinkText;
-            this.form.organizationid = project.organizationid;
-            this.form.projectmanagerid = project.projectmanagerid;
+          this_.basicfileList2 = this_.form.projectdocList.filter(function (item) {
+            return item.doctype === "项目合同"
+          });
+          console.log("项目合同 is ", this_.basicfileList2);
 
-            listProjectdoc({projectid: this.form.projectid}).then(response => {
-              const this_ = this;
-              let rows = response.data;
-              console.log("listProjectdoc is ", rows);
-              this.form.projectdocList = rows;
-              this.basicfileList1 = this.filterProjectdoc("项目申报书");
-              console.log("项目申报书 is ", this.basicfileList1);
-              this.basicfileList2 = this.filterProjectdoc("项目合同");
-              console.log("项目合同 is ", this.basicfileList2);
-              this.basicfileList3 = this.filterProjectdoc("实施方案");
-              console.log("实施方案 is ", this.basicfileList3);
+          this_.basicfileList3 = this_.form.projectdocList.filter(function (item) {
+            return item.doctype === "实施方案"
+          });
+          console.log("实施方案 is ", this_.basicfileList3);
 
-            });
-            break;
-          }
-        }
+          this.basicfileList1Key = project.projectid;
 
+        });
       } else {
         this.form.projectid = undefined;
-        this.form.projectname = undefined;
+        this.form.projectinfo =  {projectid:undefined};
       }
+
     },
 
-    loadProjectOptions(queryString) {
-      // 在线查询。
-      const queryParams = {
-        pageNum: 1,
-        pageSize: 30,
-        projectname: queryString
-      };
-      listAftersetup(queryParams).then(response => {
-          const projectOptions = [];
-          const projectList = response.data;
-          console.log("response is ", response)
-          for (let i = 0; i < projectList.length; i++) {
-            let project = projectList[i];
+    changeBasicDocList(fileList, docType, operate, docid) {
 
-            const keys = Object.keys(project);
-            for (let j = 0; j < keys.length; j++) {
-              let key = keys[j];
-              let vv = project[key];
-              //  console.log("project."+ key + " = " , vv);
-            }
+      console.log("changeBasicDocList is ", docType, "fileList is ", fileList);
+      /* 项目申报书 */
+      if (docType === this.DocTypeXiangmuShenbaoShu) {
+        this.basicdocList1 = fileList;
+      }
 
-            // console.log("project is ", project);
-            //  const item = {"projectid": project.projectid, "projectname": project.projectname};
-            projectOptions.push(project);
-          }
-          this.projectOptions = projectOptions;
-        }
-      );
-    },
+      /* 项目合同 */
 
-    filterProjectOptions(queryString) {
-      console.log("filter value is " + queryString);
-      console.log("projectList is ", this.projectList);
+      if (docType === this.DocTypeXiangmuShenbaoShu) {
+        this.basicdocList2 = fileList;
+      }
 
-      let options = [];
-      if (this.projectList.length > 10000) {
-        options = this.projectList;
-        this.projectOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
-      } else {
-        // 在线查询。
-        this.loadProjectOptions(queryString);
+      /* 实施方案 */
+
+      if (docType === this.DocTypeShishiFangan) {
+        this.basicdocList3 = fileList;
       }
     },
 
@@ -970,59 +889,6 @@ export default {
     },
 
 
-    filterProjectdoc(doctype) {
-      const doclist = [];
-
-      if (doctype !== "") {
-        for (let i = 0; i < this.form.projectdocList.length; i++) {
-          let item = this.form.projectdocList[i];
-          if (item.doctype === doctype) {
-            doclist.push({"name": item.docname, "url": item.docid});
-          }
-        }
-      }
-      return doclist;
-    },
-
-    /* 项目申报书 */
-    beforeRemove1(file, fileList) {
-      let index = fileList.indexOf(file);
-      console.log("beforeRemove1 index=" + index, file.name);
-      return false;
-      //  return this.$confirm(`确定移除 ${ file.name }？`);
-    },
-
-    handleReview(file) {
-      this.$confirm('是否确认下载"' + file.name + '"的文件?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-
-        handleUploadReview(file);
-
-      }).then(() => {
-        this.msgSuccess("下载开始");
-      })
-
-    },
-
-    /* 项目合同 */
-    beforeRemove2(file, fileList) {
-      let index = fileList.indexOf(file);
-      console.log("beforeRemove2 index=" + index, file.name);
-      return false;
-      //  return this.$confirm(`确定移除 ${ file.name }？`);
-    },
-
-    /* 实施方案 */
-    beforeRemove3(file, fileList) {
-      let index = fileList.indexOf(file);
-      console.log("beforeRemove2 index=" + index, file.name);
-      return false;
-      //  return this.$confirm(`确定移除 ${ file.name }？`);
-    },
-
 
     /** 关闭按钮 */
     closeForm() {
@@ -1077,15 +943,15 @@ export default {
                   this_.msgError("提交审核失败");
                   this_.form.sheetid = undefined;
                 } else {
-                  this.msgSuccess("提交审核成功");
-                  this.form.sheetid = response.data;
+                  this_.msgSuccess("提交审核成功");
+                  this_.form.sheetid = response.data;
                 }
-                this.closeForm();
+                this_.closeForm();
               });
             } else {
-              updateSheet(this.form).then(result => {
-                this.msgSuccess("提交审核成功");
-                this.closeForm();
+              updateSheet(this_.form).then(result => {
+                this_.msgSuccess("提交审核成功");
+                this_.closeForm();
               });
 
             }
@@ -1302,7 +1168,7 @@ export default {
             this_.queryRecordParams.supplieridList = ids;
 
             console.log("getSheetBudgetpay record is ", this_.queryRecordParams);
-            this_.getSheetBudgetpayRecordList();
+            this_.getSheetBudgetpayRecordList(this_.form);
           } else {
             let payid = 0;
             this_.form.budgetpayList.forEach(function (item) {
@@ -1335,7 +1201,7 @@ export default {
             this_.queryRecordParams.supplieridList = ids;
 
             console.log("getSheetBudgetpay record is ", this_.queryRecordParams);
-            this_.getSheetBudgetpayRecordList();
+            this_.getSheetBudgetpayRecordList(this_.form);
           }
           console.log("submit budgetpayForm is ", this.budgetpayForm);
           this_.budgetpayFormOpen = false;

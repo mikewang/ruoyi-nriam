@@ -14,12 +14,12 @@
 </template>
 
 <script>
-import {queryNormalProject} from "@/api/project/project";
+import {queryNormalProject, queryAftersetup} from "@/api/project/project";
 
 export default {
   name: "ProjectData",
   components: {},
-  props:['selectedProjectData', 'readonly'],
+  props:['selectedProjectData', 'readonly', 'selectedOption'],
   data() {
     return {
       // 遮罩层
@@ -53,47 +53,76 @@ export default {
       console.log("加载 项目组件 " , this.selectedProjectData);
       const this_ = this;
 
-      queryNormalProject(this.selectedProjectData).then(response => {
-        console.log(" 项目组件  is ",this.selectedProjectData, response.data);
-        this_.projectDataList = response.data;
-        const listOptions = [];
-        this_.projectDataList.sort(function (a, b) {
-          return b.projectname.charCodeAt(0) - a.projectname.charCodeAt(0)
-        }).forEach(function (item) {
-          const adict = {value: item.projectname, id: item.projectid};
-          listOptions.push(adict);
-          if (item.projectid === this_.filterProjectid) {
+      if (this.selectedOption === undefined || this.selectedOption === "normal") {
+        queryNormalProject(this.selectedProjectData).then(response => {
+          console.log(" 项目组件  is ",this.selectedProjectData, response.data);
+          this_.projectDataList = response.data;
+          const listOptions = [];
+          this_.projectDataList.sort(function (a, b) {
+            return b.projectname.charCodeAt(0) - a.projectname.charCodeAt(0)
+          }).forEach(function (item) {
+            const adict = {value: item.projectname, id: item.projectid};
+            listOptions.push(adict);
+            if (item.projectid === this_.filterProjectid) {
 
-            this_.selectedProjectName = item.projectname;
-            this_.$emit('changeProjectData',item);
+              this_.selectedProjectName = item.projectname;
+              this_.$emit('changeProjectData',item);
 
-            console.log("当前项目名称 $emit is ", item.projectid, item.projectname);
-          }
-        });
-        this_.projectDataOptions = listOptions;
-
-        if (this_.selectedProjectName === undefined) {
-          listNormalProject({}).then(response => {
-            console.log(" 项目组件  is full ", response.data);
-            response.data.sort(function (a, b) {
-               return b.projectid - a.projectid
-            }).forEach( function (item) {
-              // console.log(" 项目 projectid is ",this_.filterProjectid, item.projectid, item.projectname);
-
-              if (item.projectid === this_.filterProjectid) {
-                console.log("当前项目名称  is ", item.projectid, item.projectname);
-                this_.selectedProjectName = item.projectname;
-                this_.$emit('changeProjectData',item);
-              }
-            });
-            this_.loading = false;
+              console.log("当前项目名称 $emit is ", item.projectid, item.projectname);
+            }
           });
-        }
-        else {
-          this_.loading = false;
-        }
+          this_.projectDataOptions = listOptions;
 
-      });
+          if (this_.selectedProjectName === undefined) {
+            queryNormalProject({}).then(response => {
+              console.log(" 项目组件  is full ", response.data);
+              response.data.sort(function (a, b) {
+                return b.projectid - a.projectid
+              }).forEach( function (item) {
+                // console.log(" 项目 projectid is ",this_.filterProjectid, item.projectid, item.projectname);
+
+                if (item.projectid === this_.filterProjectid) {
+                  console.log("当前项目名称  is ", item.projectid, item.projectname);
+                  this_.selectedProjectName = item.projectname;
+                  this_.$emit('changeProjectData',item);
+                }
+              });
+              this_.loading = false;
+            });
+          }
+          else {
+            this_.loading = false;
+          }
+
+        });
+      }
+      else if (this.selectedOption === "aftersetup") {
+        queryAftersetup(this.selectedProjectData).then(response => {
+          console.log(" 项目组件 aftersetup  is ",this.selectedProjectData, response.data);
+          this_.projectDataList = response.data;
+          const listOptions = [];
+          this_.projectDataList.sort(function (a, b) {
+            return b.projectname.charCodeAt(0) - a.projectname.charCodeAt(0)
+          }).forEach(function (item) {
+            const adict = {value: item.projectname, id: item.projectid};
+            listOptions.push(adict);
+            if (item.projectid === this_.filterProjectid) {
+
+              this_.selectedProjectName = item.projectname;
+
+              this_.$emit('changeProjectData',item);
+
+              console.log("当前项目名称 aftersetup $emit is ", item.projectid, item.projectname);
+            }
+          });
+          this_.projectDataOptions = listOptions;
+
+          this_.loading = false;
+
+        });
+
+      }
+
 
     },
 
@@ -103,6 +132,7 @@ export default {
 
     changeProjectDataValue(value) {
 
+      console.log("changeProjectDataValue is " , value);
       if (value) {
 
         let projectData = undefined;
@@ -146,7 +176,7 @@ export default {
       rows.sort(function (a, b) {
         return b.projectname.charCodeAt(0) - a.projectname.charCodeAt(0)
       }).forEach(function (item) {
-        const adict = {value: item.projectname, id: item.projectcode};
+        const adict = {value: item.projectname, id: item.projectid};
         listOptions.push(adict);
       });
       this.projectDataOptions = listOptions;
