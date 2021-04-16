@@ -17,12 +17,9 @@
     where 1=1
     AND a.sheettype = #{sheettype,jdbcType=VARCHAR}
     AND a.sheetid = #{sheetid,jdbcType=INTEGER}
-<!--    <if test="sheettype != null and sheettype != '' ">-->
-
-<!--    </if>-->
-<!--    <if test="sheetid != null and sheetid != 0 ">-->
-<!--    -->
-<!--    </if>-->
+    <if test="audittype != null and audittype != '' ">
+      AND a.AuditType = #{audittype,jdbcType=VARCHAR}
+    </if>
     order by a.AuditType
   </select>
   <insert id="insertAudSheetauditrecord" parameterType="com.ruoyi.sheet.domain.AudSheetauditrecord"  useGeneratedKeys="true"

@@ -205,6 +205,14 @@ public class AudSheetController extends BaseController {
     @PostMapping("/tijiaoren")
     public AjaxResult add(@Validated @RequestBody AudSheet sheet) {
 
+        if (sheet.getProjectid() == null) {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+        if (sheet.getBudgetpayList().size() == 0) {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
         Integer userid = getCurrentLoginUserid();
 
         sheet.setSheetuserid(userid);
@@ -260,11 +268,18 @@ public class AudSheetController extends BaseController {
         record.setAudittime(DateUtils.dateTimeNow());
         record.setAudituserid(userid);
 
+        List<AudSheetauditrecord> auditrecordList = sheetService.selectSheetauditRecord(record);
+
+        if (auditrecordList.size() > 0) {
+            return AjaxResult.error("审批'" + sheet.getSheetcode() + "'失败，已审批");
+        }
+
         if (sheet.getConfirmResult() == 1) {
             record.setAuditresult(true);
             if (audittype == 3) {
                 sheet.setAudittype(audittype.toString());
                 sheet.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
+
             } else if (audittype == 4) {
                 sheet.setAudittype(audittype.toString());
                 sheet.setSheetstatus(SheetStatus.ChuShenPi.getCode());

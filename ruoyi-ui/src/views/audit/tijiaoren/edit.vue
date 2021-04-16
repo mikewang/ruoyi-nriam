@@ -25,7 +25,9 @@
             <el-col :span="8">
               <el-form-item label="项目名称" prop="projectid">
                 <!-- 所属项目组件-->
-                <project-data :readonly="readonly.basic" :selected-project-data="form.projectinfo" @changeProjectData="selectProjectData" :selected-option="projectSelectedOption" :key="projectid" ></project-data>
+                <project-data :readonly="readonly.basic" :selected-project-data="form.projectinfo"
+                              @changeProjectData="selectProjectData" :selected-option="projectSelectedOption"
+                              :key="projectid"></project-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -52,7 +54,8 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="所属部门" prop="organizationidlinktext">
-                <el-input readonly v-model="form.projectinfo.organizationidlinktext" :show-overflow-tooltip="true" :key="form.projectid"/>
+                <el-input readonly v-model="form.projectinfo.organizationidlinktext" :show-overflow-tooltip="true"
+                          :key="form.projectid"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -60,17 +63,20 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目申报书" prop="basicfileList1">
-                <project-doc  :doc-type="DocTypeXiangmuShenbaoShu" @changeFileList="changeBasicDocList" :doc-list="basicfileList1" :readonly="true" :key="basicfileList1Key"></project-doc>
+                <project-doc :doc-type="DocTypeXiangmuShenbaoShu" @changeFileList="changeBasicDocList"
+                             :doc-list="basicfileList1" :readonly="true" :key="basicfileList1Key"></project-doc>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目合同" prop="basicfileList2">
-                <project-doc  :doc-type="DocTypeXiangmuHetong" @changeFileList="changeBasicDocList" :doc-list="basicfileList2" :readonly="true"></project-doc>
+                <project-doc :doc-type="DocTypeXiangmuHetong" @changeFileList="changeBasicDocList"
+                             :doc-list="basicfileList2" :readonly="true"></project-doc>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="实施方案" prop="basicfileList3">
-                <project-doc  :doc-type="DocTypeShishiFangan" @changeFileList="changeBasicDocList"  :doc-list="basicfileList3" :readonly="true"></project-doc>
+                <project-doc :doc-type="DocTypeShishiFangan" @changeFileList="changeBasicDocList"
+                             :doc-list="basicfileList3" :readonly="true"></project-doc>
               </el-form-item>
             </el-col>
 
@@ -116,7 +122,7 @@
                 </el-row>
                 <el-table :data="form.budgetpayList"
                           @selection-change="handleBudgetpaySelectionChange"
-                          style="display:block;"  show-summary>
+                          style="display:block;" show-summary>
                   <el-table-column type="index" width="100px" align="center"/>
                   <el-table-column label="项目协作单位名称" align="center" prop="suppliername"
                                    :show-overflow-tooltip="true" width="300px">
@@ -270,35 +276,28 @@
 
 
     <!-- 添加或修改菜单对话框 -->
-    <el-dialog :title="budgetpayFormTitle" :visible.sync="budgetpayFormOpen" width="600px" append-to-body>
+    <el-dialog v-if="budgetpayFormOpen" :title="budgetpayFormTitle" :visible.sync="budgetpayFormOpen" width="600px" append-to-body>
       <el-form ref="budgetpayForm" :model="budgetpayForm" :rules="budgetpayRules" label-width="250px" :key="timer">
         <el-row>
           <el-col :span="24">
             <el-form-item label="项目协作单位名称" prop="supplierid" label-width="150px">
-              <el-select v-model="budgetpayForm.supplierid" placeholder="请选择"
-                         style="display:block;" clearable @clear="clearSupplierid" @change="changeSupplierid"
-                         filterable :filter-method="filterSupplierOptions" :show-overflow-tooltip="true">
-                <el-option
-                  v-for="item in supplierOptions"
-                  :key="item.supplierid"
-                  :label="item.suppliername"
-                  :value="item.supplierid"/>
-              </el-select>
+              <supplier-data :selected-supplier-data="budgetpayForm.supplierinfo"
+                             @changeSupplierData="selectSupplierData"></supplier-data>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="联系人" prop="person1name">
-              <el-input v-model="budgetpayForm.person1name"   readonly/>
+              <el-input v-model="budgetpayForm.person1name" readonly/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="开户行" prop="bankname">
-              <el-input v-model="budgetpayForm.bankname"  readonly/>
+              <el-input v-model="budgetpayForm.bankname" readonly/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="银行账号" prop="banknumber">
-              <el-input v-model="budgetpayForm.banknumber"  readonly/>
+              <el-input v-model="budgetpayForm.banknumber" readonly/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -343,23 +342,24 @@
 import {listProjectdoc} from "@/api/project/project";
 import {
   addSheet,
+  confirmAuditSheet,
   deleteSheet,
   getSheet,
   getSheetAuditRecord,
   getSheetBudgetpay,
   getSheetBudgetpayRecord,
   getSheetSupplier,
-  updateSheet,
-  confirmAuditSheet
+  updateSheet
 } from "@/api/audit/audit";
 
 import {getSignpic} from "@/api/audit/signpic";
 import ProjectData from "@/views/public/project-data";
 import ProjectDoc from "@/views/public/project-doc";
+import SupplierData from "@/views/public/supplier-data";
 
 export default {
   name: "audit_tijiaoren_edit",
-  components: {ProjectData,ProjectDoc},
+  components: {ProjectData, ProjectDoc, SupplierData},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -388,7 +388,7 @@ export default {
       DocTypeXiangmuHetong: "项目合同",
       DocTypeShishiFangan: "实施方案",
 
-      projectid:0,
+      projectid: undefined,
       supplierOptions: [],
       supplierList: [],
 
@@ -420,7 +420,7 @@ export default {
       timer: '',
       // 表单校验
       rules: {
-        projectname: [
+        projectid: [
           {required: true, message: "项目名称不能为空", trigger: "blur"}
         ]
       },
@@ -492,7 +492,7 @@ export default {
 
           const sheet = response.data;
 
-          console.log("projectDateRange is " ,sheet.projectinfo.projectDateRange);
+          console.log("projectDateRange is ", sheet.projectinfo.projectDateRange);
 
           console.log("getSheet sheet.projectid is ", sheet.projectid);
 
@@ -524,14 +524,13 @@ export default {
 
                 this_.form = sheet;
                 this_.projectid = sheet.projectid;
-                this_.time= Date.now().toString();
+                this_.time = Date.now().toString();
 
                 this_.configTemplateStatus();
 
                 this_.loading = false;
 
                 console.log("this.form is ", this_.form);
-
 
 
               });
@@ -583,8 +582,7 @@ export default {
         if (this.opcode.indexOf("add") !== -1) {
           this.readonly.basic = false;
           this.hidden.submitBtn = false;
-        }
-        else if (this.opcode.indexOf("query") !== -1) {
+        } else if (this.opcode.indexOf("query") !== -1) {
           this.hidden.changeBtn = false;
           this.hidden.deleteBtn = false;
           this.hidden.acceptance = false;
@@ -593,8 +591,7 @@ export default {
           this.hidden.confirm = false;
           this.hidden.submitBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.XiangMuShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.XiangMuShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -604,8 +601,7 @@ export default {
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.BuMenShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.BuMenShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -615,8 +611,7 @@ export default {
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.ChuShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.ChuShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -626,8 +621,7 @@ export default {
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.FenGuanSuoShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.FenGuanSuoShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -637,32 +631,27 @@ export default {
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.SuoZhangShenPi) {
+      } else if (this.form.sheetstatus === this.SheetStatus.SuoZhangShenPi) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
-        }
-        else if (this.opcode.indexOf("audit") !== -1) {
+        } else if (this.opcode.indexOf("audit") !== -1) {
           this.hidden.acceptance = false;
           this.hidden.confirm = false;
           this.readonly.confirm = false;
           this.hidden.confirmBtn = false;
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.ShenPiWanCheng) {
+      } else if (this.form.sheetstatus === this.SheetStatus.ShenPiWanCheng) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.YiZuoFei) {
+      } else if (this.form.sheetstatus === this.SheetStatus.YiZuoFei) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
         }
-      }
-      else if (this.form.sheetstatus === this.SheetStatus.NoPass) {
+      } else if (this.form.sheetstatus === this.SheetStatus.NoPass) {
         console.log("this.opcode is ", this.opcode);
         if (this.opcode.indexOf("query") !== -1) {
 
@@ -684,8 +673,8 @@ export default {
         sheetcode: undefined,
         sheettype: undefined,
 
-        projectid: 0,
-        projectinfo : {projectDateRange:undefined},
+        projectid: undefined,
+        projectinfo: {projectDateRange: undefined},
 
         reason: undefined,
 
@@ -712,13 +701,13 @@ export default {
     selectProjectData(project) {
       console.log("selectProjectData is ", project);
       this.form.projectid = undefined;
-      this.form.projectinfo =  {projectid:undefined};
+      this.form.projectinfo = {projectid: undefined};
 
       const this_ = this;
 
       if (project) {
         this_.form.projectid = project.projectid;
-        this_.form.projectinfo =  project;
+        this_.form.projectinfo = project;
         this_.projectid = project.projectid;
 
         listProjectdoc({projectid: project.projectid}).then(response => {
@@ -747,7 +736,7 @@ export default {
         });
       } else {
         this.form.projectid = undefined;
-        this.form.projectinfo =  {projectid:undefined};
+        this.form.projectinfo = {projectid: undefined};
       }
 
     },
@@ -761,130 +750,81 @@ export default {
       }
 
       /* 项目合同 */
-
       if (docType === this.DocTypeXiangmuShenbaoShu) {
         this.basicdocList2 = fileList;
       }
 
       /* 实施方案 */
-
       if (docType === this.DocTypeShishiFangan) {
         this.basicdocList3 = fileList;
       }
     },
 
-    loadSupplierOptions(queryString) {
-      // 在线查询。
-      const queryParams = {
-        pageNum: 1,
-        pageSize: 30,
-        suppliername: queryString
-      };
+    // 组件方法
+    selectSupplierData(supplier) {
+      console.log("selectSupplierData is ", supplier);
+      this.budgetpayForm.supplierid = undefined;
+      this.budgetpayForm.supplierinfo = {supplierid: undefined};
 
-      getSheetSupplier(queryParams).then(response => {
-          const supplierOptions = [];
-          const supplierList = response.data;
-          // console.log("response.data is ", response.data)
-          for (let i = 0; i < supplierList.length; i++) {
-            let supplier = supplierList[i];
+      if (supplier) {
+        this.budgetpayForm.suppliername = supplier.suppliername;
+        this.budgetpayForm.person1name = supplier.person1name;
+        this.budgetpayForm.bankname = supplier.bankname;
+        this.budgetpayForm.banknumber = supplier.banknumber;
 
-            const keys = Object.keys(supplier);
-            for (let j = 0; j < keys.length; j++) {
-              let key = keys[j];
-              let vv = supplier[key];
-            }
+        const this_ = this;
+        let queryParams = {
+          pageNum: 1,
+          pageSize: 10,
+          sheettype: "拨付单",
+          projectid: this.form.projectid,
+          supplieridList: [supplier.supplierid]
+        };
+        getSheetBudgetpayRecord(queryParams).then(response => {
+          const budgetpay = {
+            payid: undefined,
+            supplierid: supplier.supplierid,
+            supplierinfo:{supplierid: supplier.supplierid},
+            suppliername: supplier.suppliername,
+            person1name: supplier.person1name,
+            bankname: supplier.bankname,
+            banknumber: supplier.banknumber,
+            zong: this_.budgetpayForm.zong,
+            xiaoji: this_.budgetpayForm.xiaoji,
+            yiqian: this_.budgetpayForm.yiqian,
+            bennian: this_.budgetpayForm.bennian,
+            benci: this_.budgetpayForm.benci,
+            getIfFirstPayed: false
+          };
 
-            console.log("supplier is ", supplier);
-            supplierOptions.push(supplier);
-          }
-          this.supplierOptions = supplierOptions;
-        }
-      );
-    },
+          console.log("getSheetBudgetpayRecord is ", response.rows);
+          const budgetpayRecordList = response.rows;
+          if (budgetpayRecordList.length > 0) {
+            budgetpay.yiqian = 0.0;
+            budgetpay.bennian = 0.0;
+            budgetpay.xiaoji = 0.0;
 
-    clearSupplierid() {
-
-    },
-
-    changeSupplierid(value) {
-      if (value) {
-        this.resetBudgetpayForm();
-        this.budgetpayForm.supplierid = value;
-        for (let i = 0; i < this.supplierOptions.length; i++) {
-          let supplier = this.supplierOptions[i];
-          if (supplier.supplierid === value) {
-            this.budgetpayForm.suppliername = supplier.suppliername;
-            this.budgetpayForm.person1name = supplier.person1name;
-            this.budgetpayForm.bankname = supplier.bankname;
-            this.budgetpayForm.banknumber = supplier.banknumber;
-            let queryParams = {
-              pageNum: 1,
-              pageSize: 10,
-              sheettype: "拨付单",
-              projectid: this.form.projectid,
-              supplieridList: [value]
-            };
-            getSheetBudgetpayRecord(queryParams).then(response => {
-              const budgetpay = {
-                payid: undefined,
-                supplierid: value,
-                suppliername: supplier.suppliername,
-                person1name : supplier.person1name,
-                bankname : supplier.bankname,
-                banknumber : supplier.banknumber,
-                zong: 0.0,
-                xiaoji: 0.0,
-                yiqian: 0.0,
-                bennian: 0.0,
-                benci: 0.0,
-                getIfFirstPayed: false
-              };
-
-              console.log("getSheetBudgetpayRecord is ", response.rows);
-              const budgetpayRecordList = response.rows;
-              if (budgetpayRecordList.length > 0) {
-                budgetpay.getIfFirstPayed = true;
-                let currDate = new Date();
-                let currYear = currDate.getFullYear();
-                for (let i = 0; i < budgetpayRecordList.length; i++) {
-                  let item = budgetpayRecordList[i];
-                  let audityear = parseInt(item.audittime.substr(1, 4));
-                  if (audityear < currYear) {
-                    budgetpay.yiqian = budgetpay.yiqian + item.benci;
-                  } else {
-                    budgetpay.bennian = budgetpay.bennian + item.benci;
-                  }
-                  budgetpay.xiaoji = budgetpay.xiaoji + item.benci;
-                  budgetpay.zong = item.zong;
-                }
+            budgetpay.getIfFirstPayed = true;
+            let currDate = new Date();
+            let currYear = currDate.getFullYear();
+            for (let i = 0; i < budgetpayRecordList.length; i++) {
+              let item = budgetpayRecordList[i];
+              let audityear = parseInt(item.audittime.substr(1, 4));
+              if (audityear < currYear) {
+                budgetpay.yiqian = budgetpay.yiqian + item.benci;
               } else {
-                budgetpay.getIfFirstPayed = false;
+                budgetpay.bennian = budgetpay.bennian + item.benci;
               }
-
-              this.budgetpayForm = budgetpay;
-              console.log("change supplier when this.budgetpayForm is ", this.budgetpayForm);
-            });
-
-            break;
+              budgetpay.xiaoji = budgetpay.xiaoji + item.benci;
+              budgetpay.zong = item.zong;
+            }
+          } else {
+            budgetpay.getIfFirstPayed = false;
           }
-        }
-      } else {
-        this.resetBudgetpayForm();
-      }
-    },
 
-    filterSupplierOptions(queryString) {
-      console.log("filter value is " + queryString);
-      console.log("projectList is ", this.supplierOptions);
-
-      let options = [];
-      if (this.supplierList.length > 10000) {
-        options = this.supplierList;
-        this.supplierOptions = queryString ? options.filter(this.createFilter(queryString)) : options;
-      } else {
-        // 在线查询。
-        this.loadSupplierOptions(queryString);
-
+          this_.budgetpayForm = budgetpay;
+          console.log("change supplier when this.budgetpayForm is ", this_.budgetpayForm);
+        });
       }
     },
 
@@ -929,6 +869,11 @@ export default {
           console.log("submit form is ", this.form);
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
+          if (this.form.budgetpayList.length === 0) {
+            this.msgError("未选择项目协作单位");
+            return;
+          }
+
           if (this_.opcode === "add") {
             // 处理掉添加， 为了更新或修改。
             this_.form.budgetpayList.forEach(function (item) {
@@ -968,8 +913,8 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        deleteSheet(sheetid).then((result ) => {
-          console.log("result is " , result);
+        deleteSheet(sheetid).then((result) => {
+          console.log("result is ", result);
           this.form.sheetstatus = this.SheetStatus.XinJianZhong;
           this.form.sheetstatuslinktext = "新建中";
           this.form.sheetid = undefined;
@@ -999,12 +944,11 @@ export default {
           console.log("audit opcode is " + this_.opcode);
           this_.loading = true;
           confirmAuditSheet(this_.form, this_.opcode).then(result => {
-            console.log("audit opcode is " + this_.opcode + " result is " , result);
+            console.log("audit opcode is " + this_.opcode + " result is ", result);
             if (result.code === 200) {
               this_.closeForm();
               this_.msgSuccess(result.msg);
-            }
-            else {
+            } else {
               this_.msgSuccess(result.msg);
             }
             this_.loading = false;
@@ -1012,25 +956,23 @@ export default {
           });
 
         });
-      }
-      else if (result === 2) {
+      } else if (result === 2) {
 
         const note = this_.form.confirmNote;
         console.log("confirmNote is ", note);
-        if (note !== null && note !== undefined && note.trim() !== '' ) {
+        if (note !== null && note !== undefined && note.trim() !== '') {
           this_.$confirm('是否确认审批 不通过?', "警告", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning"
           }).then(function () {
 
-             confirmAuditSheet(this_.form, this_.opcode).then(result => {
-               this_.closeForm();
-               this_.msgSuccess("审批不通过 完成");
-             });
+            confirmAuditSheet(this_.form, this_.opcode).then(result => {
+              this_.closeForm();
+              this_.msgSuccess("审批不通过 完成");
+            });
           });
-        }
-        else {
+        } else {
           this_.$confirm('您选择的结果为 “不通过”, 请输入意见！', "警告", {
             confirmButtonText: "确定",
             type: "warning"
@@ -1039,7 +981,6 @@ export default {
           });
         }
       }
-
 
 
     },
@@ -1061,7 +1002,6 @@ export default {
       this.budgetpayFormOpen = true;
       this.budgetpayFormTitle = "添加项目协作单位";
       this.resetBudgetpayForm();
-      this.loadSupplierOptions("");
     },
 
     handleBudgetpayUpdate(row) {
@@ -1070,6 +1010,7 @@ export default {
       const budgetpay = {
         payid: row.payid,
         supplierid: row.supplierid,
+        supplierinfo: {supplierid: row.supplierid},
         zong: parseFloat(row.zong),
         xiaoji: parseFloat(row.xiaoji),
         yiqian: parseFloat(row.yiqian),
@@ -1079,8 +1020,6 @@ export default {
       };
 
       this.budgetpayForm = budgetpay;
-
-      this.loadSupplierOptions("");
 
     },
 
@@ -1215,6 +1154,7 @@ export default {
       this.budgetpayForm = {
         payid: undefined,
         supplierid: undefined,
+        supplierinfo: {supplierid: undefined},
         zong: 0.0,
         xiaoji: 0.0,
         yiqian: 0.0,

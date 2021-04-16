@@ -8,6 +8,7 @@ import com.ruoyi.audit.mapper.AudMessageMapper;
 import com.ruoyi.audit.service.AudApplyService;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysDictData;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.ConvertUpMoney;
@@ -26,6 +27,7 @@ import com.ruoyi.sheet.mapper.*;
 import com.ruoyi.system.domain.SysUserRole;
 import com.ruoyi.system.mapper.SysDeptMapper;
 import com.ruoyi.system.mapper.SysDictDataMapper;
+import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
 import org.apache.poi.hpsf.Decimal;
 import org.slf4j.Logger;
@@ -75,6 +77,10 @@ public class AudSheetService {
 
     @Resource
     private BasDocMapper basDocMapper;
+
+    @Resource
+    private SysUserMapper userMapper;
+
 
     @Resource
     private AudProjectdocService projectdocService;
@@ -405,8 +411,11 @@ public class AudSheetService {
 
             //发送短信
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=不通过";
-            // 暂时 关闭，调试中。
-            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
+            //
+            // 发送给用户。
+            SysUser touser = userMapper.selectUserById(Long.valueOf(sheet.getSheetuserid()));
+
+            Juhe.sendSMS_Audited_ToSheetUser(touser.getPhonenumber(), msg, url, key);
 
             String danwei = "";
             if (sheet.getBudgetpayList().size() > 1) {
@@ -416,7 +425,8 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=不通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+            SysUser confirmUser = userMapper.selectUserById(Long.valueOf(sheet.getConfirmUserid()));
+            Juhe.sendSMS_Audited(confirmUser.getPhonenumber(), msg, url, key);
 
         }
         else if (sheet.getSheetstatus() == SheetStatus.BuMenShenPi.getCode()) {
@@ -479,8 +489,11 @@ public class AudSheetService {
 
             //发送短信
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
-            // 暂时 关闭，调试中。
-            Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+            //
+            // 发送给用户。
+            SysUser touser = userMapper.selectUserById(Long.valueOf(sheet.getSheetuserid()));
+            Juhe.sendSMS_Audited_ToSheetUser(touser.getPhonenumber(), msg, url, key);
+
 
             //发送给当前审核人
             String danwei = "";
@@ -491,9 +504,8 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
-
-
+            SysUser confirmUser = userMapper.selectUserById(Long.valueOf(sheet.getConfirmUserid()));
+            Juhe.sendSMS_Audited(confirmUser.getPhonenumber(), msg, url, key);
         }
         else if (sheet.getSheetstatus() == SheetStatus.ChuShenPi.getCode()) {
             audSheetMapper.updateAudSheetStatus(sheet);
@@ -549,8 +561,10 @@ public class AudSheetService {
                 }
                 //发送短信
                 String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
-                // 暂时 关闭，调试中。
-                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+                // 发送给用户。
+                SysUser touser = userMapper.selectUserById(Long.valueOf(userid));
+
+                Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             }
 
@@ -563,7 +577,10 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+
+            SysUser confirmUser = userMapper.selectUserById(Long.valueOf(sheet.getConfirmUserid()));
+
+            Juhe.sendSMS_Audited(confirmUser.getPhonenumber(), msg, url, key);
 
         }
         else if (sheet.getSheetstatus() == SheetStatus.FenGuanSuoShenPi.getCode()) {
@@ -612,8 +629,10 @@ public class AudSheetService {
                 }
                 //发送短信
                 String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
-                // 暂时 关闭，调试中。
-                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+                //
+                SysUser touser = userMapper.selectUserById(Long.valueOf(userid));
+
+                Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             }
 
@@ -674,8 +693,10 @@ public class AudSheetService {
                 }
                 //发送短信
                 String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode();
-                // 暂时 关闭，调试中。
-                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+                //
+                SysUser touser = userMapper.selectUserById(Long.valueOf(userid));
+
+                Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             }
 
@@ -738,12 +759,14 @@ public class AudSheetService {
                 danwei = sheet.getBudgetpayList().get(0).getSuppliername();
             }
             String msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过" + "&#money#=" + sheet.getHejiBenci().toString() + "&#danwei#=" + danwei;
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+            SysUser confirmUser = userMapper.selectUserById(Long.valueOf(sheet.getConfirmUserid()));
+            Juhe.sendSMS_Audited(confirmUser.getPhonenumber(), msg, url, key);
 
             //发送短信，给经办人
             msg = "#type#=拨付单&#name#=" + sheet.getSheetcode() + "&#result#=通过";
-            // 暂时 关闭，调试中。
-            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
+            //
+            SysUser toUser = userMapper.selectUserById(Long.valueOf(sheet.getSheetuserid()));
+            Juhe.sendSMS_Audited_ToSheetUser(toUser.getPhonenumber(), msg, url, key);
 
 //            CommonFunc.SendSMS_Audited(Session["CurrentUserID"].ToString(), 、、发送短信，给当前审核人
 //                    "#type#=拨付单&#name#=" + lab_SheetCode.Text + "&#result#=通过"
