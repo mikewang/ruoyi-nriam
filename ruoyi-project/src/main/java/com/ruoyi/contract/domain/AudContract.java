@@ -1,10 +1,9 @@
 package com.ruoyi.contract.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
-import com.ruoyi.project.domain.AudProjectdoc;
 import com.ruoyi.sheet.domain.AudSheet;
 import com.ruoyi.sheet.domain.AudSheetauditrecord;
-import com.ruoyi.sheet.domain.SrmSupplierinfo;
+import com.ruoyi.sheet.domain.SrmSupplier;
 import com.ruoyi.project.domain.AudProject;
 import java.math.BigDecimal;
 import java.util.List;
@@ -59,7 +58,7 @@ public class AudContract extends BaseEntity {
     private String sheetstatuslinktext;
 
     private AudProject projectinfo;
-    private SrmSupplierinfo supplierinfo;
+    private SrmSupplier supplierinfo;
 
     private List<AudContractdoc> contractdocList;
 
@@ -290,11 +289,11 @@ public class AudContract extends BaseEntity {
         this.projectinfo = projectinfo;
     }
 
-    public SrmSupplierinfo getSupplierinfo() {
+    public SrmSupplier getSupplierinfo() {
         return supplierinfo;
     }
 
-    public void setSupplierinfo(SrmSupplierinfo supplierinfo) {
+    public void setSupplierinfo(SrmSupplier supplierinfo) {
         this.supplierinfo = supplierinfo;
     }
 

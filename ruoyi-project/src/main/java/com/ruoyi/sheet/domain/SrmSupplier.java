@@ -9,7 +9,7 @@ import java.util.List;
 
 
 
-public class SrmSupplierinfo extends BaseEntity {
+public class SrmSupplier extends BaseEntity {
 
     private Integer supplierid;
 
@@ -321,7 +321,7 @@ public class SrmSupplierinfo extends BaseEntity {
 
     @Override
     public String toString() {
-        return "SrmSupplierinfo{" +
+        return "SrmSupplier{" +
                 "supplierid=" + supplierid +
                 ", suppliername='" + suppliername + '\'' +
                 ", suppliershortname='" + suppliershortname + '\'' +

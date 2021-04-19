@@ -5,7 +5,6 @@ import com.ruoyi.api.domain.AppClientinfo;
 import com.ruoyi.api.mapper.AppClientinfoMapper;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudMessageMapper;
-import com.ruoyi.audit.service.AudApplyService;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.domain.model.BasDoc;
@@ -69,7 +68,7 @@ public class AudContractService {
     AudSheetMapper audSheetMapper;
 
     @Resource
-    SrmSupplierinfoMapper supplierinfoMapper;
+    SrmSupplierMapper supplierinfoMapper;
 
     @Resource
     BasUsedmaxserialnumberMapper usedmaxserialnumberMapper;

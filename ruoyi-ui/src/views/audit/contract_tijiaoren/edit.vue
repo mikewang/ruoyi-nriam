@@ -155,6 +155,7 @@
           <el-row v-bind:hidden="form.contractid === undefined || readonly.basic">
             <el-col :span="16">
               <el-form-item label="上传合同正文" prop="contractuploadfileList">
+
                 <el-upload action="#" :http-request="requestUploadDoc" :before-remove="beforeRemoveDoc"
                            :on-remove="handleRemoveDoc" :on-preview="handleReviewDoc"
                            :file-list="contractuploadfileList" :before-upload="beforeUploadDoc"
@@ -162,8 +163,9 @@
                   <el-button size="small">上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
+<!--                <bas-doc :basdoc="basDocAppraisalQita" :readonly="readonly.basic" @changeFileList="changeContractfileList" :key="form.contractid" ></bas-doc>-->
 
-                <a @click="downloadContractdocTemplate">下载合同模板</a>
+                <el-link @click="downloadContractdocTemplate">下载合同模板</el-link>
               </el-form-item>
             </el-col>
           </el-row>
@@ -261,6 +263,7 @@ import ProjectData from "@/views/public/project-data";
 import ProjectDoc from "@/views/public/project-doc";
 import DictData from "@/views/public/dict-data";
 import SupplierData from "@/views/public/supplier-data";
+import BasDoc from "@/views/public/bas-doc";
 
 import {
   confirmAuditSheet,
@@ -282,10 +285,12 @@ import {
   uploadFile,
   getContractConfirmNote
 } from "@/api/audit/contract"
+import {changeDocList} from "@/api/public/basdoc";
+
 
 export default {
   name: "contract_tijiaoren_edit",
-  components: {ProjectData, ProjectDoc, DictData, SupplierData},
+  components: {BasDoc, ProjectData, ProjectDoc, DictData, SupplierData},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -776,12 +781,16 @@ export default {
 
     },
 
+    changeContractfileList(filelist) {
+
+
+    },
+
     // 上传 合同文本。
 
     requestUploadDoc: function (params) {
 
       if (this.form.contractid === undefined) {
-
         return this.$confirm(`合同没有保存？`);
       }
       let file = params.file;
@@ -859,8 +868,8 @@ export default {
 
           console.log("response is ", response);
 
-          var fileURL = window.URL.createObjectURL(new Blob([response]));
-          var fileLink = document.createElement('a');
+          const fileURL = window.URL.createObjectURL(new Blob([response]));
+          const fileLink = document.createElement('a');
 
           fileLink.href = fileURL;
           fileLink.setAttribute('download', this.form.contractname + ".doc");

@@ -5,23 +5,16 @@ import com.ruoyi.api.domain.AppClientinfo;
 import com.ruoyi.api.mapper.AppClientinfoMapper;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudMessageMapper;
-import com.ruoyi.audit.service.AudApplyService;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.domain.model.BasDoc;
-import com.ruoyi.common.enums.FourtechStatus;
 import com.ruoyi.common.enums.SheetStatus;
-import com.ruoyi.common.utils.ConvertUpMoney;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SMSSender.Juhe;
 import com.ruoyi.common.utils.push.PushMessageToApp;
-import com.ruoyi.contract.domain.AudContract;
-import com.ruoyi.contract.domain.AudContractdoc;
-import com.ruoyi.contract.domain.AudContractpay;
 import com.ruoyi.contract.mapper.AudContractdocMapper;
 import com.ruoyi.fourtech.domain.AudFourtech;
 import com.ruoyi.fourtech.mapper.AudFourtechMapper;
-import com.ruoyi.project.domain.DocFile;
 import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.mapper.*;
@@ -35,11 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class AudFourtechService {
@@ -64,7 +53,7 @@ public class AudFourtechService {
 
 
     @Resource
-    SrmSupplierinfoMapper supplierinfoMapper;
+    SrmSupplierMapper supplierinfoMapper;
 
     @Resource
     BasUsedmaxserialnumberMapper usedmaxserialnumberMapper;

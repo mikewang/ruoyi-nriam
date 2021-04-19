@@ -60,8 +60,6 @@ public class AudSheet extends BaseEntity {
 
     private AudProject projectinfo;
 
-
-
     private List<AudBudgetpay> budgetpayList;
 
     private Integer operateCode = 1;

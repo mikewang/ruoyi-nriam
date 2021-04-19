@@ -21,7 +21,6 @@ import com.ruoyi.project.domain.DocFile;
 import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.project.service.AudProjectService;
 import com.ruoyi.project.service.AudProjectdocService;
-import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.mapper.*;
 import com.ruoyi.system.domain.SysUserRole;
@@ -29,7 +28,6 @@ import com.ruoyi.system.mapper.SysDeptMapper;
 import com.ruoyi.system.mapper.SysDictDataMapper;
 import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
-import org.apache.poi.hpsf.Decimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,9 +51,8 @@ public class AudSheetService {
     @Resource
     AudSheetauditrecordMapper audSheetauditrecordMapper;
 
-
     @Resource
-    SrmSupplierinfoMapper supplierinfoMapper;
+    SrmSupplierService supplierService;
 
     @Resource
     BasUsedmaxserialnumberMapper usedmaxserialnumberMapper;
@@ -76,14 +73,8 @@ public class AudSheetService {
     private SysDictDataMapper dictDataMapper;
 
     @Resource
-    private BasDocMapper basDocMapper;
-
-    @Resource
     private SysUserMapper userMapper;
 
-
-    @Resource
-    private AudProjectdocService projectdocService;
 
     @Resource
     private AudProjectService projectService;
@@ -119,10 +110,6 @@ public class AudSheetService {
 
             AudProjectdoc query = new AudProjectdoc();
             query.setProjectid(projectid);
-//
-//            List<AudProjectdoc> list = projectdocService.selectProjectdocList(query);
-//
-//            project.setProjectdocList(list);
 
             sheet.setProjectinfo(project);
         }
@@ -193,10 +180,6 @@ public class AudSheetService {
 //            curCode = "BFD" + DateTime.Now.ToString("yyyyMMdd") + newSerialNumber.ToString("000");
 //            newEntity.SheetCode = curCode;
 //        }
-
-
-
-
             BasUsedmaxserialnumber query = new BasUsedmaxserialnumber();
             query.setModulename("拨付单号");
             query.setSomedate(DateUtils.getDate());
@@ -777,10 +760,13 @@ public class AudSheetService {
 
 
             //对应的协作单位审批通过 ，在协作单位开发完成后补充。
-//            for (int s = 0; s < dpl_SupplierIDList.Items.Count; s++)
-//            {
-//                isupm.AuditPass(dpl_SupplierIDList.Items[s].Text);
-//            }
+            List<Integer> supplierids = new ArrayList<>();
+
+            for (AudBudgetpay budgetpay : sheet.getBudgetpayList()) {
+                supplierids.add(budgetpay.getSupplierid());
+            }
+            supplierService.updateSupplierInfoIfAuditedByIds(supplierids);
+
 
         }
 
@@ -788,127 +774,6 @@ public class AudSheetService {
         audSheetauditrecordMapper.insertAudSheetauditrecord(record);
 
         return result;
-    }
-
-
-    @Transactional
-    public Integer addSupplierinfo(SrmSupplierinfo supplier) {
-
-        Integer result = supplierinfoMapper.insertSupplierInfo(supplier);
-
-        BasDoc doc = new BasDoc();
-        doc.setDocid(supplier.getOrgImgId());
-        doc.setRelatedid(supplier.getSupplierid());
-        doc.setDoctype("营业执照");
-        doc.setAttachtotype("协作单位");
-        basDocMapper.updateBasDocAttachToType(doc);
-        log.debug("supplier is " + supplier.toString());
-
-        if (supplier.getDocList() != null) {
-            for (DocFile map : supplier.getDocList()) {
-                log.debug("getDocList map is " + map.toString());
-                Integer docid = map.getUrl();
-                doc = new BasDoc();
-                doc.setDocid(docid);
-                doc.setRelatedid(supplier.getSupplierid());
-                doc.setDoctype("其它附件");
-                doc.setAttachtotype("协作单位");
-                basDocMapper.updateBasDocAttachToType(doc);
-            }
-        }
-
-        return result;
-    }
-
-    @Transactional
-    public Integer updateSupplierinfo(SrmSupplierinfo supplier) {
-        log.debug("supplier is " + supplier.toString());
-
-        Integer result = supplierinfoMapper.updateSupplierInfo(supplier);
-
-        BasDoc doc = new BasDoc();
-        doc.setRelatedid(supplier.getSupplierid());
-        doc.setAttachtotype("协作单位");
-
-        Set<Integer> sets = new HashSet<>();
-        for( DocFile file : supplier.getDocList()){
-            sets.add(file.getUrl());
-        }
-
-        sets.add(supplier.getOrgImgId());
-
-
-        Set<Integer> sets2 = new HashSet<>();
-        for (BasDoc record : basDocMapper.selectBasDocList(doc))
-        {
-            if (sets.contains(record.getDocid()) == false)
-            {
-                sets2.add(record.getDocid());
-            }
-        }
-
-        List<Integer> ids = new ArrayList<Integer>();
-        for(Integer id : sets2) {
-            ids.add(id);
-        }
-
-        log.debug("deleteBasDocByIds is " + ids.toString());
-        if (ids.size() > 0) {
-            result =  basDocMapper.deleteBasDocByIds(ids);
-        }
-
-        doc.setDoctype("营业执照");
-        doc.setDocid(supplier.getOrgImgId());
-
-        result =  basDocMapper.updateBasDocAttachToType(doc);
-
-        if (supplier.getDocList() != null && supplier.getDocList().size() > 0) {
-            for (DocFile map : supplier.getDocList()) {
-                Integer docid = (Integer) map.getUrl();
-                doc = new BasDoc();
-                doc.setDocid(docid);
-                doc.setRelatedid(supplier.getSupplierid());
-                doc.setDoctype("其它附件");
-                doc.setAttachtotype("协作单位");
-                result = basDocMapper.updateBasDocAttachToType(doc);
-            }
-        }
-
-        return result;
-    }
-
-    @Transactional
-    public Integer deleteSupplierinfo(List<Integer> ids) {
-        log.debug("supplier ids is " + ids.toString());
-
-        Integer result = supplierinfoMapper.deleteSupplierInfoByIds(ids);
-
-        return result;
-    }
-
-    public List<SrmSupplierinfo> selectSupplierInfoList(SrmSupplierinfo query) {
-
-        log.debug("selectSupplierInfoList  query is " + query.toString());
-
-        List<SrmSupplierinfo> list = supplierinfoMapper.selectSupplierInfoList(query);
-
-        //   log.debug("request selectSupplierInfoList  list is " + list.toString());
-
-        return list;
-    }
-
-    public SrmSupplierinfo selectSupplierInfoById(Integer supplierid) {
-
-        SrmSupplierinfo s = supplierinfoMapper.selectSupplierInfoById(supplierid);
-
-        return s;
-    }
-
-    public SrmSupplierinfo selectSupplierInfoByOrganizationcode(String organizationcode) {
-
-        SrmSupplierinfo s = supplierinfoMapper.selectSupplierInfoByOrganizationcode(organizationcode);
-
-        return s;
     }
 
 

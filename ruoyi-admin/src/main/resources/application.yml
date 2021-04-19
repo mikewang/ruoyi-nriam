@@ -127,7 +127,7 @@ igtpush:
   AppSecret: tz3ZXLXmcm78lax1ZoiEA4
   MasterSecret: lLXGA2xk2X9vnqTtmymzY1
   MsgHOST: http://sdk.open.api.igexin.com/apiex.htm
-#  //消息推送的参数
+#  //消息推送的参数  前任代码C# 配置
 #  public static string APPID = "tIjwdNzp5x5BLclX4ee2Q5";
 #  public static string AppKey = "UI0YWsdihy8hmSezn5umE9";
 #  public static string AppSecret = "tz3ZXLXmcm78lax1ZoiEA4";

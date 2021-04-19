@@ -23,7 +23,7 @@ import com.ruoyi.project.domain.DocFile;
 import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sheet.domain.*;
 import com.ruoyi.sheet.service.AudSheetService;
-import io.swagger.models.auth.In;
+import com.ruoyi.sheet.service.SrmSupplierService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -34,15 +34,16 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/audit")
 public class AudSheetController extends BaseController {
     @Resource
     private AudSheetService sheetService;
+    @Resource
+    private SrmSupplierService supplierService;
+
     @Resource
     private AppClientinfoService clientinfoService;
     @Resource
@@ -463,7 +464,7 @@ public class AudSheetController extends BaseController {
     @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
     @Log(title = "协作单位管理", businessType = BusinessType.INSERT)
     @PostMapping("/supplier")
-    public AjaxResult addSupplier(@Validated @RequestBody SrmSupplierinfo supplier) {
+    public AjaxResult addSupplier(@Validated @RequestBody SrmSupplier supplier) {
 
         Integer userid = getCurrentLoginUserid();
         supplier.setCreateuserid(userid);
@@ -473,14 +474,13 @@ public class AudSheetController extends BaseController {
 
         String organizationcode = supplier.getOrganizationcode();
 
-        SrmSupplierinfo ss = sheetService.selectSupplierInfoByOrganizationcode(organizationcode);
+        SrmSupplier ss = supplierService.selectSupplierInfoByOrganizationcode(organizationcode);
 
         if (ss != null) {
             return AjaxResult.error("组织代码重复，操作失败，请联系管理员");
         }
 
-
-        Integer result = sheetService.addSupplierinfo(supplier);
+        Integer result = supplierService.addSupplierinfo(supplier);
 
         if (result > 0) {
 
@@ -495,19 +495,19 @@ public class AudSheetController extends BaseController {
     @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
     @Log(title = "协作单位管理", businessType = BusinessType.UPDATE)
     @PutMapping("/supplier")
-    public AjaxResult updateSupplier(@Validated @RequestBody SrmSupplierinfo supplier) {
+    public AjaxResult updateSupplier(@Validated @RequestBody SrmSupplier supplier) {
 
         logger.debug("updateSupplier is " + supplier.toString());
 
         String organizationcode = supplier.getOrganizationcode();
 
-        SrmSupplierinfo ss = sheetService.selectSupplierInfoByOrganizationcode(organizationcode);
+        SrmSupplier ss = supplierService.selectSupplierInfoByOrganizationcode(organizationcode);
 
         if (ss != null && ss.getSupplierid().equals(supplier.getSupplierid()) == false) {
             return AjaxResult.error("组织代码重复，操作失败，请联系管理员");
         }
 
-        Integer result = sheetService.updateSupplierinfo(supplier);
+        Integer result = supplierService.updateSupplierinfo(supplier);
 
         if (result > 0) {
 
@@ -531,7 +531,7 @@ public class AudSheetController extends BaseController {
             ids.add(id);
         }
 
-        Integer result = sheetService.deleteSupplierinfo(ids);
+        Integer result = supplierService.deleteSupplierinfo(ids);
 
         if (result > 0) {
 
@@ -549,11 +549,11 @@ public class AudSheetController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
     @GetMapping(value = {"/supplier/filter"})
-    public AjaxResult getSheetSupplier(SrmSupplierinfo query) {
+    public AjaxResult getSheetSupplier(SrmSupplier query) {
         AjaxResult ajax = AjaxResult.success();
         logger.debug("SrmSupplierinfo = " + query.toString());
         query.setIfdeleted(false);
-        List<SrmSupplierinfo> plist = sheetService.selectSupplierInfoList(query);
+        List<SrmSupplier> plist = supplierService.selectSupplierInfoList(query);
         if (plist != null) {
             ajax.put(AjaxResult.DATA_TAG, plist);
         } else {
@@ -564,12 +564,12 @@ public class AudSheetController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('srm:supplier:list')")
     @GetMapping("/supplier/list")
-    public TableDataInfo supplierList(SrmSupplierinfo query) {
+    public TableDataInfo supplierList(SrmSupplier query) {
         logger.debug("query  is " + query.toString());
 
         startPage();
         query.setIfdeleted(false);
-        List<SrmSupplierinfo> list = sheetService.selectSupplierInfoList(query);
+        List<SrmSupplier> list = supplierService.selectSupplierInfoList(query);
 
         return getDataTable(list);
     }
@@ -584,10 +584,10 @@ public class AudSheetController extends BaseController {
 
         Integer userid = getCurrentLoginUserid();
 
-        SrmSupplierinfo supplierinfo;
+        SrmSupplier supplierinfo;
 
         if (StringUtils.isNotNull(supplierid)) {
-            supplierinfo = sheetService.selectSupplierInfoById(supplierid);
+            supplierinfo = supplierService.selectSupplierInfoById(supplierid);
 
             BasDoc record = new BasDoc();
             record.setAttachtotype("协作单位");
@@ -616,14 +616,12 @@ public class AudSheetController extends BaseController {
             logger.debug("supplierinfo getDocList is " + supplierinfo.getDocList());
 
         } else {
-            supplierinfo = new SrmSupplierinfo();
+            supplierinfo = new SrmSupplier();
             supplierinfo.setCreateuserid(userid);
         }
         ajax.put(AjaxResult.DATA_TAG, supplierinfo);
 
         return ajax;
     }
-
-
 
 }
