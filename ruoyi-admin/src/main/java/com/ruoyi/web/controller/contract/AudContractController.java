@@ -35,6 +35,7 @@ import com.ruoyi.sheet.domain.AudSheetauditrecord;
 import com.ruoyi.sheet.service.AudSheetService;
 import com.ruoyi.system.service.ISysDictDataService;
 import io.swagger.models.auth.In;
+//import jdk.internal.org.xml.sax.SAXException;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Bookmark;
@@ -43,20 +44,25 @@ import org.apache.poi.hwpf.usermodel.Range;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.sax.ToXMLContentHandler;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -558,8 +564,6 @@ public class AudContractController extends BaseController {
                 logger.error("读取文件标签失败", e);
             }
 
-
-
             //response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             //FileUtils.setAttachmentResponseHeader(response, downloadName);
             //FileUtils.writeBytes(downloadPath, response.getOutputStream());
@@ -612,11 +616,22 @@ public class AudContractController extends BaseController {
         return ajax;
     }
 
+    public String parseToHTML(String path) throws IOException, SAXException, TikaException {
+        ContentHandler handler = new ToXMLContentHandler();
+
+        AutoDetectParser parser = new AutoDetectParser();
+        Metadata metadata = new Metadata();
+        try (InputStream stream =  new FileInputStream(new File(path));) {
+            parser.parse(stream, handler, metadata);
+            return handler.toString();
+        }
+    }
+
 
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "合同管理", businessType = BusinessType.UPDATE)
     @PutMapping("/submit")
-    public AjaxResult submit(@Validated @RequestBody AudContract contract) {
+    public AjaxResult submit(@Validated @RequestBody AudContract contract) throws IOException, TikaException, SAXException {
         AjaxResult ajax = AjaxResult.success();
         logger.debug("AudContract 提交审批 is " + contract.toString());
 
@@ -624,6 +639,26 @@ public class AudContractController extends BaseController {
 
             return AjaxResult.error(" 还没有上传合同正文，无法提交审核");
         }
+
+        AudContractdoc query = new AudContractdoc();
+        query.setContractid(contract.getContractid());
+
+        List<AudContractdoc> contractdocList = contractService.selectAudContractdocList(query);
+
+        for (AudContractdoc doc: contractdocList) {
+            String filePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + doc.getDocname();;
+
+            String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(),"html");
+            String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;
+
+            String htmlstr = parseToHTML(filePath);
+
+            logger.debug("文档word转成html " + htmlstr);
+
+            Files.write(Paths.get(htmlfilePath), htmlstr.getBytes());
+
+        }
+
 
         contract.setSheetstatus(SheetStatus.XiangMuShenPi.getCode());
 
@@ -684,6 +719,45 @@ public class AudContractController extends BaseController {
         }
         return ajax;
     }
+
+
+    /**
+     * 根据合同编号获取 合同拨付单
+     */
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @GetMapping(value = {"/doc/{contractid}"})
+    public AjaxResult getContractdocHtml(@PathVariable(value = "contractid", required = false) Integer contractid) throws IOException {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(contractid)) {
+            logger.debug("getContract contractid = " + contractid.toString());
+
+            AudContractdoc query = new AudContractdoc();
+            query.setContractid(contractid);
+
+            List<AudContractdoc> contractdocList = contractService.selectAudContractdocList(query);
+
+            String html = "";
+
+            for (AudContractdoc doc: contractdocList) {
+                String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(),"html");
+                String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;
+
+                html = new String(Files.readAllBytes(Paths.get(htmlfilePath)));
+
+            }
+
+            if (html.equals("")) {
+                ajax = AjaxResult.error("合同文本为空。");
+            } else {
+                ajax.put(AjaxResult.DATA_TAG, html);
+
+            }
+
+        }
+        return ajax;
+    }
+
 
 
 

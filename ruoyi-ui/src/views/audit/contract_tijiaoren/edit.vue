@@ -1056,6 +1056,8 @@ export default {
 
     clickContractdoc() {
       this.msgError("开发中，浏览合同正文。");
+
+
     },
 
     clickPaysheet(item) {
