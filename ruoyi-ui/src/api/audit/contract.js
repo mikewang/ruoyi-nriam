@@ -132,6 +132,15 @@ export function submitContract(data) {
   })
 }
 
+
+// 查询合同正文
+export function getContractdoc(contractid) {
+  return request({
+    url: '/contract/doc/' + praseStrEmpty(contractid),
+    method: 'get'
+  })
+}
+
 export function deleteContract(contractid) {
   return request({
     url: '/contract/' + praseStrEmpty(contractid),

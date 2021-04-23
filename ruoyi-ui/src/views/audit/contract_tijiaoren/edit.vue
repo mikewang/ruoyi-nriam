@@ -253,6 +253,19 @@
       </el-row>
     </el-row>
 
+
+    <!-- 添加或修改菜单对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+<div v-html="contractdocHtml">
+
+</div>
+      <div slot="footer" class="dialog-footer">
+        <el-button> 打印 </el-button>
+<!--        <el-button type="primary" @click="submitJoinForm">确 定</el-button>-->
+<!--        <el-button @click="cancelJoinForm">取 消</el-button>-->
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -283,9 +296,9 @@ import {
   submitContract,
   updateContract,
   uploadFile,
-  getContractConfirmNote
+  getContractConfirmNote,
+  getContractdoc
 } from "@/api/audit/contract"
-import {changeDocList} from "@/api/public/basdoc";
 
 
 export default {
@@ -310,6 +323,7 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      contractdocHtml: '',
 
       // 数据字典  项目类型
       DictTypeNameContractType: "合同类型",
@@ -1055,9 +1069,11 @@ export default {
     },
 
     clickContractdoc() {
-      this.msgError("开发中，浏览合同正文。");
-
-
+      this.open = true;
+      getContractdoc(this.form.contractid).then(response=>{
+        console.log(response);
+        this.contractdocHtml = response.data;
+      });
     },
 
     clickPaysheet(item) {

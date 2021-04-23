@@ -8,7 +8,6 @@ import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -36,11 +35,12 @@ import com.ruoyi.sheet.service.AudSheetService;
 import com.ruoyi.system.service.ISysDictDataService;
 import io.swagger.models.auth.In;
 //import jdk.internal.org.xml.sax.SAXException;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.poi.hwpf.converter.PicturesManager;
+import org.apache.poi.hwpf.converter.WordToHtmlConverter;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.usermodel.Bookmark;
-import org.apache.poi.hwpf.usermodel.Bookmarks;
-import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.hwpf.usermodel.*;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -53,12 +53,19 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.w3c.dom.Document;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -627,11 +634,62 @@ public class AudContractController extends BaseController {
         }
     }
 
+    public String parse2HTML(String path) throws IOException, ParserConfigurationException, TransformerException {
+        InputStream input = new FileInputStream(path);
+        HWPFDocument wordDocument = new HWPFDocument(input);
+        WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(
+                DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                        .newDocument());
+//        wordToHtmlConverter.setPicturesManager(new PicturesManager() {
+//            public String savePicture(byte[] content, PictureType pictureType,
+//                                      String suggestedName, float widthInches, float heightInches) {
+//                return suggestedName;
+//            }
+//        });
+        wordToHtmlConverter.setPicturesManager(new PicturesManager() {
+            @Override
+            public String savePicture(byte[] content, PictureType pictureType, String suggestedName, float widthInches, float heightInches) {
+                String type = pictureType.name();
+                return "data:image/" + type + ";base64," + new String(Base64.encodeBase64(content));
+            }
+
+        });
+
+        wordToHtmlConverter.processDocument(wordDocument);
+//        List pics = wordDocument.getPicturesTable().getAllPictures();
+//        if (pics != null) {
+//            for (int i = 0; i < pics.size(); i++) {
+//                Picture pic = (Picture) pics.get(i);
+//                try {
+//                    pic.writeImageContent(new FileOutputStream(path
+//                            + pic.suggestFullFileName()));
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+        Document htmlDocument = wordToHtmlConverter.getDocument();
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        DOMSource domSource = new DOMSource(htmlDocument);
+        StreamResult streamResult = new StreamResult(outStream);
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer serializer = tf.newTransformer();
+        serializer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
+        serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+        serializer.setOutputProperty(OutputKeys.METHOD, "html");
+        serializer.transform(domSource, streamResult);
+        outStream.close();
+        String content = new String(outStream.toByteArray());
+        return content;
+        //org.apache.commons.io.FileUtils.write(new File(path, "1.html"), content, "utf-8");
+    }
+
+
 
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "合同管理", businessType = BusinessType.UPDATE)
     @PutMapping("/submit")
-    public AjaxResult submit(@Validated @RequestBody AudContract contract) throws IOException, TikaException, SAXException {
+    public AjaxResult submit(@Validated @RequestBody AudContract contract) throws IOException, TikaException, SAXException, TransformerException, ParserConfigurationException {
         AjaxResult ajax = AjaxResult.success();
         logger.debug("AudContract 提交审批 is " + contract.toString());
 
@@ -651,7 +709,7 @@ public class AudContractController extends BaseController {
             String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(),"html");
             String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;
 
-            String htmlstr = parseToHTML(filePath);
+            String htmlstr = parse2HTML(filePath);
 
             logger.debug("文档word转成html " + htmlstr);
 
