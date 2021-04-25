@@ -1,4 +1,4 @@
-package com.ruoyi.sheet.domain;
+package com.ruoyi.audit.domain;
 
 public class BasUsedmaxserialnumber {
 

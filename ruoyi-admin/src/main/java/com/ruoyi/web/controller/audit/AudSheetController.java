@@ -1,7 +1,8 @@
 package com.ruoyi.web.controller.audit;
 
 import com.ruoyi.api.service.AppClientinfoService;
-import com.ruoyi.audit.domain.AudSignpic;
+import com.ruoyi.audit.domain.*;
+import com.ruoyi.audit.service.AudSheetauditrecordService;
 import com.ruoyi.audit.service.AudSignpicService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -17,13 +18,16 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.contract.domain.AudContract;
+import com.ruoyi.contract.service.AudContractService;
+import com.ruoyi.fourtech.domain.AudFourtech;
+import com.ruoyi.fourtech.service.AudFourtechService;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.domain.DocFile;
 import com.ruoyi.project.service.BasDocService;
-import com.ruoyi.sheet.domain.*;
-import com.ruoyi.sheet.service.AudSheetService;
-import com.ruoyi.sheet.service.SrmSupplierService;
+import com.ruoyi.audit.service.AudSheetService;
+import com.ruoyi.audit.service.SrmSupplierService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -57,6 +61,15 @@ public class AudSheetController extends BaseController {
 
     @Resource
     private ServerConfig serverConfig;
+
+    @Resource
+    private AudSheetauditrecordService sheetauditrecordService;
+
+    @Resource
+    private AudFourtechService fourtechService;
+
+    @Resource
+    private AudContractService contractService;
 
 
     private Integer getCurrentLoginUserid() {
@@ -411,6 +424,80 @@ public class AudSheetController extends BaseController {
         return ajax;
     }
 
+
+
+    @PreAuthorize("@ss.hasPermi('audit:myrecord:list')")
+    @GetMapping("/myrecord/list")
+    public TableDataInfo myAuditRecordList() {
+        Integer userid = getCurrentLoginUserid();
+        startPage();
+        List<AudSheetauditrecord> list = sheetauditrecordService.selectMyauditrecord(userid);
+
+        for (AudSheetauditrecord record : list) {
+            if (record.getSheettype().equals("拨付单")) {
+               AudSheet sheet = sheetService.selectSheetTijiaorenById(record.getSheetid());
+               record.setCode(sheet.getSheetcode());
+               record.setName("");
+               record.setSheetuseridlinktext(sheet.getSheetuseridlinktext());
+               record.setProjectidlinktext(sheet.getProjectidlinktext());
+               record.setOrganizationidlinktext(sheet.getOrganizationidlinktext());
+               record.setMoney(sheet.getHejiBenci());
+               record.setSheetstatuslinktext(sheet.getSheetstatuslinktext());
+
+               List<AudBudgetpay> budgetpayList =  sheetService.selectSheetBudgetPayById(sheet.getSheetid());
+               List<String > supplierList = new ArrayList<>();
+               for (AudBudgetpay pay : budgetpayList) {
+                   supplierList.add(pay.getSuppliername());
+               }
+               record.setSupplieridlinktext(String.join(",", supplierList));
+
+            }
+            if (record.getSheettype().equals("合同拨付单")) {
+                AudSheet sheet = sheetService.selectSheetTijiaorenById(record.getSheetid());
+                record.setCode(sheet.getSheetcode());
+                record.setSheetuseridlinktext(sheet.getSheetuseridlinktext());
+                record.setProjectidlinktext(sheet.getProjectidlinktext());
+                record.setOrganizationidlinktext(sheet.getOrganizationidlinktext());
+                record.setMoney(sheet.getHejiBenci());
+                record.setSheetstatuslinktext(sheet.getSheetstatuslinktext());
+
+                AudContract contract = contractService.selectContractById(sheet.getRelatedcontractid());
+                record.setName(contract.getContractname());
+                record.setSupplieridlinktext(contract.getSupplieridlinktext());
+            }
+
+            if (record.getSheettype().equals("合同")) {
+                AudContract contract = contractService.selectContractById(record.getSheetid());
+                record.setCode(contract.getContractcode());
+                record.setName(contract.getContractname());
+                record.setSupplieridlinktext(contract.getSupplieridlinktext());
+                record.setSheetuseridlinktext(contract.getContractuseridlinktext());
+                record.setProjectidlinktext(contract.getProjectidlinktext());
+                record.setOrganizationidlinktext(contract.getOrganizationidlinktext());
+                record.setMoney(contract.getContractmoney());
+                record.setSheetstatuslinktext(contract.getSheetstatuslinktext());
+            }
+
+            if (record.getSheettype().equals("四技合同")) {
+
+                AudFourtech fourtech = fourtechService.selectFourtechById(record.getSheetid());
+                record.setCode(fourtech.getFourtechcode());
+                record.setName(fourtech.getFourtechname());
+                record.setSupplieridlinktext(fourtech.getCoperationunit());
+                record.setSheetuseridlinktext(fourtech.getSheetuseridlinktext());
+                record.setProjectidlinktext("");
+                record.setOrganizationidlinktext(fourtech.getOrganizationidlinktext());
+                record.setMoney(fourtech.getFourtechmoney());
+                record.setSheetstatuslinktext(fourtech.getSheetstatuslinktext());
+            }
+
+            if (record.getSheettype().equals("小额经费单")) {
+
+            }
+        }
+
+        return getDataTable(list);
+    }
 
     /**
      * 文件上传

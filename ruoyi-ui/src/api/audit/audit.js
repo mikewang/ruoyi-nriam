@@ -196,3 +196,12 @@ export function editSheetSupplier(data) {
     data: data
   })
 }
+
+//  查询我的审批记录 列表
+export function listAuditMyrecord(query) {
+  return request({
+    url: '/audit/myrecord/list',
+    method: 'get',
+    params: query
+  })
+}

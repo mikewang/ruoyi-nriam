@@ -1,7 +1,6 @@
-package com.ruoyi.sheet.mapper;
+package com.ruoyi.audit.mapper;
 
-import com.ruoyi.sheet.domain.BasUsedmaxserialnumber;
-import java.util.List;
+import com.ruoyi.audit.domain.BasUsedmaxserialnumber;
 
 public interface BasUsedmaxserialnumberMapper {
 

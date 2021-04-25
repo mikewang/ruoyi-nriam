@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.sheet.mapper.BasUsedmaxserialnumberMapper">
-  <resultMap id="BaseResultMap" type="com.ruoyi.sheet.domain.BasUsedmaxserialnumber">
+<mapper namespace="com.ruoyi.audit.mapper.BasUsedmaxserialnumberMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.audit.domain.BasUsedmaxserialnumber">
     <result column="ModuleName" jdbcType="VARCHAR" property="modulename" />
     <result column="UsedMaxSerialNumber" jdbcType="INTEGER" property="usedmaxserialnumber" />
     <result column="SomeDate" jdbcType="VARCHAR" property="somedate" />
   </resultMap>
-  <insert id="insertBasUsedmaxserialnumber" parameterType="com.ruoyi.sheet.domain.BasUsedmaxserialnumber">
+  <insert id="insertBasUsedmaxserialnumber" parameterType="com.ruoyi.audit.domain.BasUsedmaxserialnumber">
     insert into BAS_UsedMaxSerialNumber (ModuleName, UsedMaxSerialNumber,
       SomeDate)
     values (#{modulename,jdbcType=VARCHAR}, #{usedmaxserialnumber,jdbcType=INTEGER}, 
       #{somedate,jdbcType=VARCHAR})
   </insert>
 
-  <update id="updateBasUsedmaxserialnumber" parameterType="com.ruoyi.sheet.domain.BasUsedmaxserialnumber">
+  <update id="updateBasUsedmaxserialnumber" parameterType="com.ruoyi.audit.domain.BasUsedmaxserialnumber">
     update BAS_UsedMaxSerialNumber
     set UsedMaxSerialNumber = #{usedmaxserialnumber,jdbcType=INTEGER}
     where SomeDate =  #{somedate,jdbcType=VARCHAR} and ModuleName = #{modulename,jdbcType=VARCHAR}

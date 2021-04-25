@@ -1,6 +1,5 @@
 package com.ruoyi.web.controller.contract;
 
-import com.ruoyi.api.service.AppClientinfoService;
 import com.ruoyi.audit.domain.AudSignpic;
 import com.ruoyi.audit.service.AudSignpicService;
 import com.ruoyi.common.annotation.Log;
@@ -25,20 +24,13 @@ import com.ruoyi.contract.domain.AudContractdoc;
 import com.ruoyi.contract.service.AudContractService;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
-import com.ruoyi.project.domain.AudProject;
-import com.ruoyi.project.domain.AudProjectdoc;
-import com.ruoyi.project.service.AudProjectService;
-import com.ruoyi.project.service.BasDocService;
-import com.ruoyi.sheet.domain.AudSheet;
-import com.ruoyi.sheet.domain.AudSheetauditrecord;
-import com.ruoyi.sheet.service.AudSheetService;
-import com.ruoyi.system.service.ISysDictDataService;
-import io.swagger.models.auth.In;
+import com.ruoyi.audit.domain.AudSheet;
+import com.ruoyi.audit.domain.AudSheetauditrecord;
+import com.ruoyi.audit.service.AudSheetService;
 //import jdk.internal.org.xml.sax.SAXException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.poi.hwpf.converter.PicturesManager;
 import org.apache.poi.hwpf.converter.WordToHtmlConverter;
-import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.*;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
@@ -65,7 +57,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -270,17 +261,23 @@ public class AudContractController extends BaseController {
         }
 
         //记录审核结论   /////////////////////////记录审核结论，消除待办事项////////////////
+
+        //记录审核结论
+//        SheetAuditRecord record = new SheetAuditRecord();
 //        record.SheetID = int.Parse(Request["kid"].ToString());
-//        record.SheetType = "拨付单";
+//        record.SheetType = "合同";
 //        record.AuditType = Request["t"].ToString();    //把当前的审批环节作为类型记录进去
 //        record.AuditOpinion = AuditOpinion1.txt_Opinion.Text;
 //        record.AuditResult = Convert.ToBoolean(int.Parse(AuditOpinion1.rbtnl_Result.SelectedValue));
 //        record.AuditTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 //        record.AuditUserID = int.Parse(Session["CurrentUserID"].ToString());
+//
+//        ISheetAuditRecordManager irm = SheetAuditRecordManager.GetInstance();
+//        irm.AddNew(record);
 
         AudSheetauditrecord record = new AudSheetauditrecord();
         record.setSheetid(sheet.getContractid());
-        record.setSheettype(sheet.getContracttypelinktext()); // 名称为 合同。
+        record.setSheettype("合同"); // 名称为 合同。
         record.setAudittype(audittype.toString());
         record.setAuditopinion(sheet.getConfirmNote());
         record.setAudittime(DateUtils.dateTimeNow());

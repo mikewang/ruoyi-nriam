@@ -1,9 +1,9 @@
 package com.ruoyi.contract.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
-import com.ruoyi.sheet.domain.AudSheet;
-import com.ruoyi.sheet.domain.AudSheetauditrecord;
-import com.ruoyi.sheet.domain.SrmSupplier;
+import com.ruoyi.audit.domain.AudSheet;
+import com.ruoyi.audit.domain.AudSheetauditrecord;
+import com.ruoyi.audit.domain.SrmSupplier;
 import com.ruoyi.project.domain.AudProject;
 import java.math.BigDecimal;
 import java.util.List;

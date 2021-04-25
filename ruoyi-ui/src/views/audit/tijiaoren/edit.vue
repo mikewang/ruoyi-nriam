@@ -70,13 +70,13 @@
             <el-col :span="8">
               <el-form-item label="项目合同" prop="basicfileList2">
                 <project-doc :doc-type="DocTypeXiangmuHetong" @changeFileList="changeBasicDocList"
-                             :doc-list="basicfileList2" :readonly="true"></project-doc>
+                             :doc-list="basicfileList2" :readonly="true" :key="basicfileList1Key"></project-doc>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="实施方案" prop="basicfileList3">
                 <project-doc :doc-type="DocTypeShishiFangan" @changeFileList="changeBasicDocList"
-                             :doc-list="basicfileList3" :readonly="true"></project-doc>
+                             :doc-list="basicfileList3" :readonly="true" :key="basicfileList1Key"></project-doc>
               </el-form-item>
             </el-col>
 

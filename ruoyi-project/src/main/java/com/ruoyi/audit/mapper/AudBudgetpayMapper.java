@@ -1,9 +1,8 @@
-package com.ruoyi.sheet.mapper;
+package com.ruoyi.audit.mapper;
 
-import com.ruoyi.sheet.domain.AudBudgetpay;
-import com.ruoyi.sheet.domain.AudBudgetpayRecordQuery;
+import com.ruoyi.audit.domain.AudBudgetpay;
+import com.ruoyi.audit.domain.AudBudgetpayRecordQuery;
 
-import java.util.HashMap;
 import java.util.List;
 
 public interface AudBudgetpayMapper {

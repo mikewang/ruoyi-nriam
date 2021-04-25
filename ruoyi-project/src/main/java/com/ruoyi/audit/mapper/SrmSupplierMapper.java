@@ -1,6 +1,6 @@
-package com.ruoyi.sheet.mapper;
+package com.ruoyi.audit.mapper;
 
-import com.ruoyi.sheet.domain.SrmSupplier;
+import com.ruoyi.audit.domain.SrmSupplier;
 import java.util.List;
 
 public interface SrmSupplierMapper {

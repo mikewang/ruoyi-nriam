@@ -1,6 +1,8 @@
-package com.ruoyi.sheet.domain;
+package com.ruoyi.audit.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+
+import java.math.BigDecimal;
 
 public class AudSheetauditrecord extends BaseEntity {
 
@@ -25,6 +27,22 @@ public class AudSheetauditrecord extends BaseEntity {
 
     private String audittypeName;
     private String auditresultName;
+
+
+
+    // 附加数据，我的审批记录显示用。
+    private String code;
+    private String name;
+
+    private String sheetuseridlinktext;
+    private String supplieridlinktext;
+
+    private String projectidlinktext;
+    private String organizationidlinktext;
+    private String sheetstatuslinktext;
+
+    private BigDecimal money;
+
 
     public Integer getAuditid() {
         return auditid;
@@ -136,6 +154,71 @@ public class AudSheetauditrecord extends BaseEntity {
         this.auditresultName = auditresultName;
     }
 
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSheetuseridlinktext() {
+        return sheetuseridlinktext;
+    }
+
+    public void setSheetuseridlinktext(String sheetuseridlinktext) {
+        this.sheetuseridlinktext = sheetuseridlinktext;
+    }
+
+    public String getSupplieridlinktext() {
+        return supplieridlinktext;
+    }
+
+    public void setSupplieridlinktext(String supplieridlinktext) {
+        this.supplieridlinktext = supplieridlinktext;
+    }
+
+    public String getProjectidlinktext() {
+        return projectidlinktext;
+    }
+
+    public void setProjectidlinktext(String projectidlinktext) {
+        this.projectidlinktext = projectidlinktext;
+    }
+
+    public String getOrganizationidlinktext() {
+        return organizationidlinktext;
+    }
+
+    public void setOrganizationidlinktext(String organizationidlinktext) {
+        this.organizationidlinktext = organizationidlinktext;
+    }
+
+    public String getSheetstatuslinktext() {
+        return sheetstatuslinktext;
+    }
+
+    public void setSheetstatuslinktext(String sheetstatuslinktext) {
+        this.sheetstatuslinktext = sheetstatuslinktext;
+    }
+
+    public BigDecimal getMoney() {
+        return money;
+    }
+
+    public void setMoney(BigDecimal money) {
+        this.money = money;
+    }
+
     @Override
     public String toString() {
         return "AudSheetauditrecord{" +
@@ -148,6 +231,9 @@ public class AudSheetauditrecord extends BaseEntity {
                 ", audituserid=" + audituserid +
                 ", audittime='" + audittime + '\'' +
                 ", signpicName='" + signpicName + '\'' +
+                ", audittypeName='" + audittypeName + '\'' +
+                ", auditresultName='" + auditresultName + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 }

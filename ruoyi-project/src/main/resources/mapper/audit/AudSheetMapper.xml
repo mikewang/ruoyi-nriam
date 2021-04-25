@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.sheet.mapper.AudSheetMapper">
-  <resultMap id="BaseResultMap" type="com.ruoyi.sheet.domain.AudSheet">
+<mapper namespace="com.ruoyi.audit.mapper.AudSheetMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.audit.domain.AudSheet">
 
     <id column="SheetID" jdbcType="INTEGER" property="sheetid" />
     <result column="SheetCode" jdbcType="VARCHAR" property="sheetcode" />
@@ -59,7 +59,7 @@
   </select>
 
   <!--   查询经办人经办过的拨付单列表 筛选结果 -->
-  <select id="selectSheetTijiaoren" parameterType="com.ruoyi.sheet.domain.AudSheet" resultMap="BaseResultMap">
+  <select id="selectSheetTijiaoren" parameterType="com.ruoyi.audit.domain.AudSheet" resultMap="BaseResultMap">
     <include refid="selectSheet"/>
     WHERE a.SheetType = '拨付单'
     and a.SheetUserID = #{sheetuserid,jdbcType=INTEGER}
@@ -67,7 +67,7 @@
     order by a.SheetTime desc
   </select>
 
-  <insert id="insertAudSheet" parameterType="com.ruoyi.sheet.domain.AudSheet"  useGeneratedKeys="true"
+  <insert id="insertAudSheet" parameterType="com.ruoyi.audit.domain.AudSheet" useGeneratedKeys="true"
           keyProperty="sheetid" >
     insert into Aud_Sheet ( SheetCode, SheetType,
       RelatedContractID, ThisPayTimes, SheetUserID, 
@@ -94,7 +94,7 @@
     order by a.SheetTime desc
   </select>
 
-  <update id="updateAudSheetStatus" parameterType="com.ruoyi.sheet.domain.AudSheet">
+  <update id="updateAudSheetStatus" parameterType="com.ruoyi.audit.domain.AudSheet">
     update Aud_Sheet
     set  SheetStatus = #{sheetstatus,jdbcType=INTEGER}
     where SheetID = #{sheetid,jdbcType=INTEGER}
@@ -136,7 +136,7 @@
     order by a.SheetTime desc;
   </select>
 
-  <update id="updateAudSheet" parameterType="com.ruoyi.sheet.domain.AudSheet">
+  <update id="updateAudSheet" parameterType="com.ruoyi.audit.domain.AudSheet">
     update Aud_Sheet
     set SheetCode = #{sheetcode,jdbcType=VARCHAR},
       SheetType = #{sheettype,jdbcType=VARCHAR},

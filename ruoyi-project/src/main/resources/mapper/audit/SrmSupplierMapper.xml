@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.sheet.mapper.SrmSupplierMapper">
-  <resultMap id="BaseResultMap" type="com.ruoyi.sheet.domain.SrmSupplier">
+<mapper namespace="com.ruoyi.audit.mapper.SrmSupplierMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.audit.domain.SrmSupplier">
     <id column="SupplierID" jdbcType="INTEGER" property="supplierid" />
     <result column="SupplierName" jdbcType="VARCHAR" property="suppliername" />
     <result column="SupplierShortName" jdbcType="VARCHAR" property="suppliershortname" />
@@ -34,7 +34,7 @@
     <result column="characterLinkText" jdbcType="VARCHAR" property="characterLinkText" />
   </resultMap>
 
-  <select id="selectSupplierInfoList" parameterType="com.ruoyi.sheet.domain.SrmSupplier" resultMap="BaseResultMap">
+  <select id="selectSupplierInfoList" parameterType="com.ruoyi.audit.domain.SrmSupplier" resultMap="BaseResultMap">
     select a.SupplierID, a.SupplierName, a.SupplierShortName, a.Address, a.Character, a.Type, a.WebSite, a.
       Person1Name, a.Person1Phone1, a.Person1Phone2, a.Person1Email, a.Person2Name, a.Person2Phone1, a.
              Person2Phone2, a.Person2Email, a.SupplierLevel, a.BankName, a.BankNumber, a.OrganizationCode, a.
@@ -74,7 +74,7 @@ order by a.SupplierID desc
     where a.SupplierID = #{supplierid,jdbcType=INTEGER}
   </select>
 
-  <insert id="insertSupplierInfo" parameterType="com.ruoyi.sheet.domain.SrmSupplier" useGeneratedKeys="true"
+  <insert id="insertSupplierInfo" parameterType="com.ruoyi.audit.domain.SrmSupplier" useGeneratedKeys="true"
           keyProperty="supplierid" >
     insert into SRM_SupplierInfo (SupplierName, SupplierShortName,
     Address, Character, Type,
@@ -96,7 +96,7 @@ order by a.SupplierID desc
     #{ifdeleted,jdbcType=BIT})
   </insert>
 
-  <update id="updateSupplierInfo" parameterType="com.ruoyi.sheet.domain.SrmSupplier">
+  <update id="updateSupplierInfo" parameterType="com.ruoyi.audit.domain.SrmSupplier">
     update SRM_SupplierInfo
     set SupplierName = #{suppliername,jdbcType=VARCHAR},
       SupplierShortName = #{suppliershortname,jdbcType=VARCHAR},

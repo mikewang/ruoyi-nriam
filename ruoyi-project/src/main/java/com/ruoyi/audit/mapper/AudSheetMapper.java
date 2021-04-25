@@ -1,6 +1,6 @@
-package com.ruoyi.sheet.mapper;
+package com.ruoyi.audit.mapper;
 
-import com.ruoyi.sheet.domain.AudSheet;
+import com.ruoyi.audit.domain.AudSheet;
 import java.util.List;
 
 public interface AudSheetMapper {

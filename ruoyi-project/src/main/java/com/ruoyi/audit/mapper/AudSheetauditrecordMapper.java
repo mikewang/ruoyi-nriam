@@ -1,6 +1,6 @@
-package com.ruoyi.sheet.mapper;
+package com.ruoyi.audit.mapper;
 
-import com.ruoyi.sheet.domain.AudSheetauditrecord;
+import com.ruoyi.audit.domain.AudSheetauditrecord;
 import java.util.List;
 
 public interface AudSheetauditrecordMapper {
@@ -8,6 +8,8 @@ public interface AudSheetauditrecordMapper {
     List<AudSheetauditrecord>  selectSheetauditRecord(AudSheetauditrecord sheet);
 
     int insertAudSheetauditrecord(AudSheetauditrecord record);
+
+    List<AudSheetauditrecord> selectMyauditrecord(Integer audituserid);
 
 //    AudSheetauditrecord selectByPrimaryKey(Integer auditid);
 //
