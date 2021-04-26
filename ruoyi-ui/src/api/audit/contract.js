@@ -184,3 +184,13 @@ export function getContractConfirmNote(audittype) {
   }
 
 }
+
+
+
+export function listApplyDeleteContract(query) {
+  return request({
+    url: '/contract/applydelete/list',
+    method: 'get',
+    params: query
+  })
+}

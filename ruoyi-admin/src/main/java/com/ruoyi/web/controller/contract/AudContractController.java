@@ -1,6 +1,16 @@
 package com.ruoyi.web.controller.contract;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.ruoyi.audit.domain.AudSheet;
+import com.ruoyi.audit.domain.AudSheetauditrecord;
 import com.ruoyi.audit.domain.AudSignpic;
+import com.ruoyi.audit.service.AudSheetService;
 import com.ruoyi.audit.service.AudSignpicService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -19,23 +29,21 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.common.utils.sign.Md5Utils;
 import com.ruoyi.contract.domain.AudContract;
 import com.ruoyi.contract.domain.AudContractdoc;
 import com.ruoyi.contract.service.AudContractService;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
-import com.ruoyi.audit.domain.AudSheet;
-import com.ruoyi.audit.domain.AudSheetauditrecord;
-import com.ruoyi.audit.service.AudSheetService;
-//import jdk.internal.org.xml.sax.SAXException;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.converter.PicturesManager;
 import org.apache.poi.hwpf.converter.WordToHtmlConverter;
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.usermodel.*;
+import org.apache.poi.hwpf.usermodel.Bookmark;
+import org.apache.poi.hwpf.usermodel.PictureType;
+import org.apache.poi.hwpf.usermodel.Range;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -54,7 +62,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
@@ -64,6 +75,15 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
+
+
+import jp.sourceforge.qrcode.QRCodeDecoder;
+import jp.sourceforge.qrcode.data.QRCodeImage;
+import jp.sourceforge.qrcode.exception.DecodingFailedException;
+
+
 
 @RestController
 @RequestMapping("/contract")
@@ -123,7 +143,7 @@ public class AudContractController extends BaseController {
     @PreAuthorize("@ss.hasPermi('audit:audit3:list')")
     @Log(title = "合同项目负责人审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit3")
-    public AjaxResult xiangmuConfirm(@Validated @RequestBody AudContract contract) {
+    public AjaxResult xiangmuConfirm(@Validated @RequestBody AudContract contract) throws IOException, WriterException {
 
         logger.debug("audit3 contract is " + contract.toString());
         AjaxResult ajax = AjaxResult.success();
@@ -148,7 +168,7 @@ public class AudContractController extends BaseController {
     @PreAuthorize("@ss.hasPermi('audit:audit4:list')")
     @Log(title = "合同部门审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit4")
-    public AjaxResult bumenConfirm(@Validated @RequestBody AudContract contract) {
+    public AjaxResult bumenConfirm(@Validated @RequestBody AudContract contract) throws IOException, WriterException {
 
         logger.debug("audit4 contract is " + contract.toString());
         AjaxResult ajax = AjaxResult.success();
@@ -173,7 +193,7 @@ public class AudContractController extends BaseController {
     @PreAuthorize("@ss.hasPermi('audit:audit5:list')")
     @Log(title = "合同分管处审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit5")
-    public AjaxResult chuConfirm(@Validated @RequestBody AudContract contract) {
+    public AjaxResult chuConfirm(@Validated @RequestBody AudContract contract) throws IOException, WriterException {
 
         logger.debug("audit5 contract is " + contract.toString());
         AjaxResult ajax = AjaxResult.success();
@@ -198,7 +218,7 @@ public class AudContractController extends BaseController {
     @PreAuthorize("@ss.hasPermi('audit:audit6:list')")
     @Log(title = "合同分管所审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit6")
-    public AjaxResult fengguansuoConfirm(@Validated @RequestBody AudContract contract) {
+    public AjaxResult fengguansuoConfirm(@Validated @RequestBody AudContract contract) throws IOException, WriterException {
 
         logger.debug("audit6 contract is " + contract.toString());
         AjaxResult ajax = AjaxResult.success();
@@ -224,7 +244,7 @@ public class AudContractController extends BaseController {
     @PreAuthorize("@ss.hasPermi('audit:audit7:list')")
     @Log(title = "合同所审批", businessType = BusinessType.UPDATE)
     @PutMapping("/audit7")
-    public AjaxResult suoConfirm(@Validated @RequestBody AudContract contract) {
+    public AjaxResult suoConfirm(@Validated @RequestBody AudContract contract) throws IOException, WriterException {
 
         logger.debug("audit7 contract is " + contract.toString());
         AjaxResult ajax = AjaxResult.success();
@@ -232,6 +252,33 @@ public class AudContractController extends BaseController {
 
         return ajax;
     }
+
+
+    @PreAuthorize("@ss.hasPermi('contract:applydelete:list')")
+    @GetMapping("/applydelete/list")
+    public TableDataInfo applydeleteList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("applydelete list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.selectContractApplyDelete(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('contract:applydelete:list')")
+    @Log(title = "合同作废审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/applydelete")
+    public AjaxResult applydeleteConfirm(@Validated @RequestBody AudContract contract) throws IOException, WriterException {
+
+        logger.debug("applydelete Confirm contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+        ajax = auditConfirm(contract, 9);
+
+        return ajax;
+    }
+
 
     private String signpicFilename(String signpicName) {
         // 本地资源路径
@@ -249,12 +296,12 @@ public class AudContractController extends BaseController {
         return result;
     }
 
-    private AjaxResult auditConfirm(AudContract sheet, Integer audittype) {
+    private AjaxResult auditConfirm(AudContract contract, Integer audittype) throws IOException, WriterException {
         AjaxResult ajax = AjaxResult.success();
         Integer userid = getCurrentLoginUserid();
-        sheet.setConfirmUserid(userid);
+        contract.setConfirmUserid(userid);
 
-        AudSignpic s = audSignpicService.selectSignpicByUserId(sheet.getConfirmUserid());
+        AudSignpic s = audSignpicService.selectSignpicByUserId(contract.getConfirmUserid());
 
         if (s == null || this.signpicFilename(s.getSignpicName()).equals("")) {
             return AjaxResult.error("您的签名图片尚未上传，无法审批！");
@@ -276,51 +323,93 @@ public class AudContractController extends BaseController {
 //        irm.AddNew(record);
 
         AudSheetauditrecord record = new AudSheetauditrecord();
-        record.setSheetid(sheet.getContractid());
+        record.setSheetid(contract.getContractid());
         record.setSheettype("合同"); // 名称为 合同。
         record.setAudittype(audittype.toString());
-        record.setAuditopinion(sheet.getConfirmNote());
+        record.setAuditopinion(contract.getConfirmNote());
         record.setAudittime(DateUtils.dateTimeNow());
         record.setAudituserid(userid);
 
-        if (sheet.getConfirmResult() == 1) {
+        if (contract.getConfirmResult() == 1) {
             record.setAuditresult(true);
             if (audittype == 3) {
-                sheet.setAudittype(audittype.toString());
-                sheet.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
+                contract.setAudittype(audittype.toString());
+                contract.setSheetstatus(SheetStatus.BuMenShenPi.getCode());
             } else if (audittype == 4) {
-                sheet.setAudittype(audittype.toString());
-                sheet.setSheetstatus(SheetStatus.ChuShenPi.getCode());
+                contract.setAudittype(audittype.toString());
+                contract.setSheetstatus(SheetStatus.ChuShenPi.getCode());
             } else if (audittype == 5) {
-                sheet.setAudittype(audittype.toString());
-                sheet.setSheetstatus(SheetStatus.FenGuanSuoShenPi.getCode());
+                contract.setAudittype(audittype.toString());
+                contract.setSheetstatus(SheetStatus.FenGuanSuoShenPi.getCode());
             } else if (audittype == 6) {
-                sheet.setAudittype(audittype.toString());
-                int flag = sheet.getContractmoney().compareTo(BigDecimal.valueOf(50000L));
+                contract.setAudittype(audittype.toString());
+                int flag = contract.getContractmoney().compareTo(BigDecimal.valueOf(50000L));
                 if (flag >= 0) {
                     // //拨付单总金额大于5万，到所长审批
-                    sheet.setSheetstatus(SheetStatus.SuoZhangShenPi.getCode());
+                    contract.setSheetstatus(SheetStatus.SuoZhangShenPi.getCode());
                 } else {
-                    sheet.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+                    contract.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+                    //合同审批通过后，要改写合同正文文档，加上签名，加上二维码
+                    shenpiwanchengProcessDoc(contract);
                 }
             } else if (audittype == 7) {
-                sheet.setAudittype(audittype.toString());
+                contract.setAudittype(audittype.toString());
 
-                sheet.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+                contract.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+                //合同审批通过后，要改写合同正文文档，加上签名，加上二维码
+                shenpiwanchengProcessDoc(contract);
             }
 
-            contractService.updateAudContractStatus(sheet, record);
-        } else if (sheet.getConfirmResult() == 2) {
+            contractService.updateAudContractStatus(contract, record);
+        } else if (contract.getConfirmResult() == 2) {
             record.setAuditresult(false);
-            sheet.setSheetstatus(SheetStatus.NoPass.getCode());
-            contractService.updateAudContractStatus(sheet, record);
+            contract.setSheetstatus(SheetStatus.NoPass.getCode());
+            contractService.updateAudContractStatus(contract, record);
         } else {
-            return AjaxResult.error("审批'" + sheet.getContractname() + "'失败，没有选择审批结果");
+            return AjaxResult.error("审批'" + contract.getContractname() + "'失败，没有选择审批结果");
         }
 
         return ajax;
     }
 
+    //合同审批通过后，要改写合同正文文档，加上签名，加上二维码
+    private void shenpiwanchengProcessDoc(AudContract contract) throws IOException, WriterException {
+
+        String toEncodeString = contract.getContractcode() + "|" + contract.getContractmoney().toString() + "|" + contract.getSupplieridlinktext() + "|" + DateUtils.dateTimeNow("yyyyMMdd");
+
+        String cryptLinkString = Md5Utils.hash(toEncodeString + Constants.HttpKey);
+
+        toEncodeString = toEncodeString + "|" + cryptLinkString;
+
+        String filePath = DateUtils.dateTimeNow("yyyyMMddHHmmssSSS") + ".jpg";
+
+        filePath = RuoYiConfig.getProfile() + File.separator + "temp" + File.separator + filePath ;
+
+        logger.debug("filePath is " + filePath);
+
+        //Encoding charset to be used
+        String charset = "UTF-8";
+        Map<EncodeHintType, ErrorCorrectionLevel> hashMap = new HashMap<EncodeHintType, ErrorCorrectionLevel>();
+
+        //generates QR code with Low level(L) error correction capability
+        hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+
+        //invoking the user-defined method that creates the QR code
+        generateQRcode(toEncodeString, filePath, charset, hashMap, 200, 200);//increase or decrease height and width accodingly
+
+
+
+    }
+
+    private void generateQRcode(String data, String path, String charset, Map map, int h, int w) throws WriterException, IOException {
+        //the BitMatrix class represents the 2D matrix of bits
+        //MultiFormatWriter is a factory class that finds the appropriate Writer subclass for the BarcodeFormat requested and encodes the barcode with the supplied contents.
+
+        BitMatrix matrix = new MultiFormatWriter().encode(new String(data.getBytes(charset), charset), BarcodeFormat.QR_CODE, w, h);
+
+        MatrixToImageWriter.writeToPath(matrix,"jpg", Paths.get(path));
+
+    }
 
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "合同管理", businessType = BusinessType.INSERT)
@@ -440,10 +529,8 @@ public class AudContractController extends BaseController {
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "模板文件下载", businessType = BusinessType.EXPORT)
     @GetMapping("/template/download")
-    public void download(@RequestParam("contractid") Integer contractid, HttpServletResponse response, HttpServletRequest request) throws IOException
-    {
-        try
-        {
+    public void download(@RequestParam("contractid") Integer contractid, HttpServletResponse response, HttpServletRequest request) throws IOException {
+        try {
             String filename = "";
 
             AudContract contract = contractService.selectContractById(contractid);
@@ -473,8 +560,7 @@ public class AudContractController extends BaseController {
 
             resource = localPath + resource;
 
-            if (!FileUtils.checkAllowDownload(resource) || !FileUtils.getFile(resource).exists())
-            {
+            if (!FileUtils.checkAllowDownload(resource) || !FileUtils.getFile(resource).exists()) {
                 throw new Exception(StringUtils.format("合同文件模板({})非法，不允许下载或不存在。 ", resource));
             }
 
@@ -485,10 +571,9 @@ public class AudContractController extends BaseController {
             File f = FileUtils.getFile(downloadPath);
 
             //File f = new File(downloadPath);
-            if(f.exists() && !f.isDirectory()) {
+            if (f.exists() && !f.isDirectory()) {
                 logger.debug("downloadPath file is existed. " + downloadPath);
-            }
-            else {
+            } else {
                 logger.debug("downloadPath file is not  existed. " + downloadPath);
             }
 
@@ -501,27 +586,26 @@ public class AudContractController extends BaseController {
             try {
                 String buffer = "";
 
-                if (path.endsWith(".doc")){
+                if (path.endsWith(".doc")) {
                     InputStream is = new FileInputStream(new File(path));
 
                     HWPFDocument document = new HWPFDocument(is);
 
                     for (Integer i = 0; i < document.getBookmarks().getBookmarksCount(); i++) {
-                       Bookmark bookmark =  document.getBookmarks().getBookmark(i);
+                        Bookmark bookmark = document.getBookmarks().getBookmark(i);
 
-                        logger.debug("书签" + (i+1) + "的名称是：" + bookmark.getName());
+                        logger.debug("书签" + (i + 1) + "的名称是：" + bookmark.getName());
                         logger.debug("开始位置：" + bookmark.getStart());
                         logger.debug("结束位置：" + bookmark.getEnd());
 
                     }
 
-                    Map<String,String> dataMap = new HashMap<String,String >();
+                    Map<String, String> dataMap = new HashMap<String, String>();
                     dataMap.put("title", contract.getContractname());
 
                     if (contract.getContractcode() != null) {
                         dataMap.put("contractcode", contract.getContractcode());
-                    }
-                    else {
+                    } else {
                         dataMap.put("contractcode", "");
                     }
 
@@ -536,12 +620,12 @@ public class AudContractController extends BaseController {
 
                     logger.debug("dataMap is " + dataMap.toString());
 
-                    for (String  key : dataMap.keySet()) {
-                        for(int i = 0; i < document.getBookmarks().getBookmarksCount(); i++){
+                    for (String key : dataMap.keySet()) {
+                        for (int i = 0; i < document.getBookmarks().getBookmarksCount(); i++) {
                             Bookmark bookmark = document.getBookmarks().getBookmark(i);
-                             if(bookmark.getName().equals(key)){
-                                logger.debug("替代书签" + (i+1) + "的名称 key 是：" + bookmark.getName());
-                                Range range = new Range(bookmark.getStart(),bookmark.getEnd(),document);
+                            if (bookmark.getName().equals(key)) {
+                                logger.debug("替代书签" + (i + 1) + "的名称 key 是：" + bookmark.getName());
+                                Range range = new Range(bookmark.getStart(), bookmark.getEnd(), document);
                                 range.insertBefore(dataMap.get(key));
                                 //range.insertAfter(dataMap.get(key));
                                 break;
@@ -550,12 +634,12 @@ public class AudContractController extends BaseController {
                     }
 
                     response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-                     FileUtils.setAttachmentResponseHeader(response, contract.getContractname());
+                    FileUtils.setAttachmentResponseHeader(response, contract.getContractname());
                     document.write(response.getOutputStream());
 
                     logger.debug("此文件 bookmarks count = " + document.getBookmarks().getBookmarksCount());
 
-                }else if (path.endsWith(".docx")){
+                } else if (path.endsWith(".docx")) {
                     FileInputStream fs = new FileInputStream(new File(path));
                     XWPFDocument xdoc = new XWPFDocument(fs);
                     XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
@@ -563,17 +647,14 @@ public class AudContractController extends BaseController {
                 } else {
                     logger.debug("此文件不是word文件！" + downloadPath);
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("读取文件标签失败", e);
             }
 
             //response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             //FileUtils.setAttachmentResponseHeader(response, downloadName);
             //FileUtils.writeBytes(downloadPath, response.getOutputStream());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("下载文件失败", e);
         }
     }
@@ -604,13 +685,14 @@ public class AudContractController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @GetMapping(value = {"/{contractid}"})
-    public AjaxResult getContract(@PathVariable(value = "contractid", required = false) Integer contractid) {
+    public AjaxResult getContract(@PathVariable(value = "contractid", required = false) Integer contractid) throws IOException, WriterException {
         AjaxResult ajax = AjaxResult.success();
 
         if (StringUtils.isNotNull(contractid)) {
             logger.debug("getContract contractid = " + contractid.toString());
             AudContract p = contractService.selectContractById(contractid);
             if (p != null) {
+                shenpiwanchengProcessDoc(p);
                 ajax.put(AjaxResult.DATA_TAG, p);
             } else {
                 ajax = AjaxResult.error("contractid：" + contractid.toString() + " 不存在");
@@ -625,7 +707,7 @@ public class AudContractController extends BaseController {
 
         AutoDetectParser parser = new AutoDetectParser();
         Metadata metadata = new Metadata();
-        try (InputStream stream =  new FileInputStream(new File(path));) {
+        try (InputStream stream = new FileInputStream(new File(path));) {
             parser.parse(stream, handler, metadata);
             return handler.toString();
         }
@@ -682,7 +764,6 @@ public class AudContractController extends BaseController {
     }
 
 
-
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "合同管理", businessType = BusinessType.UPDATE)
     @PutMapping("/submit")
@@ -700,10 +781,11 @@ public class AudContractController extends BaseController {
 
         List<AudContractdoc> contractdocList = contractService.selectAudContractdocList(query);
 
-        for (AudContractdoc doc: contractdocList) {
-            String filePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + doc.getDocname();;
+        for (AudContractdoc doc : contractdocList) {
+            String filePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + doc.getDocname();
+            ;
 
-            String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(),"html");
+            String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(), "html");
             String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;
 
             String htmlstr = parse2HTML(filePath);
@@ -730,7 +812,6 @@ public class AudContractController extends BaseController {
         }
 
     }
-
 
 
     /**
@@ -794,8 +875,8 @@ public class AudContractController extends BaseController {
 
             String html = "";
 
-            for (AudContractdoc doc: contractdocList) {
-                String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(),"html");
+            for (AudContractdoc doc : contractdocList) {
+                String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(), "html");
                 String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;
 
                 html = new String(Files.readAllBytes(Paths.get(htmlfilePath)));
@@ -812,8 +893,6 @@ public class AudContractController extends BaseController {
         }
         return ajax;
     }
-
-
 
 
 }

@@ -128,5 +128,8 @@ public class Constants
     public static final String RESOURCE_PREFIX = "/profile";
 
 
+    //新加的常量
+
+    public static final String HttpKey = "C4CA4238F0B923890DCE509A6F75841M";
 
 }

@@ -182,6 +182,19 @@ public class AudContractService {
     }
 
 
+    public List<AudContract> selectContractApplyDelete(AudContract sheet) {
+
+        List<AudContract> sheetList = audContractMapper.selectContractApplyDelete(sheet);
+        for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+        }
+        log.debug("request selectContractApplyDelete list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+
 
     public AudContract selectContractById(Integer contractid) {
 

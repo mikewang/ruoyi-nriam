@@ -25,6 +25,8 @@ public interface AudContractMapper {
     List<AudContract> selectContractFenguansuo(AudContract record);
     List<AudContract> selectContractSuo(AudContract record);
 
+    List<AudContract> selectContractApplyDelete(AudContract record);
+
     List<AudContract> selectAll();
 
     int updateByPrimaryKey(AudContract record);

@@ -71,6 +71,15 @@
   </select>
 
 
+    <select id="selectContractApplyDelete" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+        <include refid="selectContract"/>
+--         ShenQingZuoFei = 34            //申请作废中
+        WHERE a.SheetStatus = 34
+        <if test="contractname != null and contractname != '' ">
+            and a.contractname like concat('%', #{contractname,jdbcType=VARCHAR}, '%')
+        </if>
+        order by a.ContractTime desc
+    </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from Aud_Contract

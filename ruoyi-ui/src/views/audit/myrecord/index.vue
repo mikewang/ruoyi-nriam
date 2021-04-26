@@ -169,7 +169,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.contractid);
+      this.ids = selection.map(item => item.sheetid);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
@@ -178,8 +178,26 @@ export default {
       console.log("myrecord row is  ", row);
       if (row.sheettype === "拨付单") {
         const path = '/audit/tijiaoren/' + row.sheetid;
-        console.log("path is " + path);
+        console.log("path 拨付单 is " + path);
         this.$router.push({path: path});
+      }
+      else if (row.sheettype === "合同拨付单") {
+        const path = '/contract/paysheet/' + row.sheetid;
+        console.log("path 合同拨付单 is " + path);
+        this.$router.push({path: path});
+      }
+      else if (row.sheettype === "合同") {
+        const path = '/contract/tijiaoren/' + row.sheetid;
+        console.log("path 合同 is " + path);
+        this.$router.push({path: path});
+      }
+      else if (row.sheettype === "四技合同") {
+        const path = '/fourtech/tijiaoren/' + row.sheetid;
+        console.log("path 四技合同 is " + path);
+        this.$router.push({path: path});
+      }
+      else if (row.sheettype === "小额经费单") {
+        this.msgError("小额经费单 开发中");
       }
 
     }
