@@ -78,13 +78,6 @@ import java.util.Map;
 
 
 
-
-import jp.sourceforge.qrcode.QRCodeDecoder;
-import jp.sourceforge.qrcode.data.QRCodeImage;
-import jp.sourceforge.qrcode.exception.DecodingFailedException;
-
-
-
 @RestController
 @RequestMapping("/contract")
 public class AudContractController extends BaseController {
@@ -304,7 +297,7 @@ public class AudContractController extends BaseController {
         AudSignpic s = audSignpicService.selectSignpicByUserId(contract.getConfirmUserid());
 
         if (s == null || this.signpicFilename(s.getSignpicName()).equals("")) {
-            return AjaxResult.error("您的签名图片尚未上传，无法审批！");
+            return AjaxResult.error("您的签名图片 没有上传，无法审批！");
         }
 
         //记录审核结论   /////////////////////////记录审核结论，消除待办事项////////////////
@@ -396,6 +389,83 @@ public class AudContractController extends BaseController {
 
         //invoking the user-defined method that creates the QR code
         generateQRcode(toEncodeString, filePath, charset, hashMap, 200, 200);//increase or decrease height and width accodingly
+
+        // 获取doc文件。
+        AudContractdoc query = new AudContractdoc();
+        query.setContractid(contract.getContractid());
+
+        List<AudContractdoc> contractdocList = contractService.selectAudContractdocList(query);
+
+        String html = "";
+
+        for (AudContractdoc doc : contractdocList) {
+            String path = RuoYiConfig.getProfile() + doc.getRelativepath() + File.separator + doc.getDocname();
+
+            try {
+                String buffer = "";
+
+                if (path.endsWith(".doc")) {
+                    InputStream is = new FileInputStream(new File(path));
+
+                    HWPFDocument document = new HWPFDocument(is);
+
+
+                    for (Integer i = 0; i < document.getBookmarks().getBookmarksCount(); i++) {
+                        Bookmark bookmark = document.getBookmarks().getBookmark(i);
+
+                        logger.debug("书签" + (i + 1) + "的名称是：" + bookmark.getName());
+                        logger.debug("开始位置：" + bookmark.getStart());
+                        logger.debug("结束位置：" + bookmark.getEnd());
+                    }
+
+                    Map<String, Object> dataMap = new HashMap<String, Object>();
+                    dataMap.put("erweima", contract.getContractname());
+                    dataMap.put("fengmian_projectName", contract.getContractname());
+
+                    logger.debug("dataMap is " + dataMap.toString());
+
+                    for (String key : dataMap.keySet()) {
+                        for (int i = 0; i < document.getBookmarks().getBookmarksCount(); i++) {
+                            Bookmark bookmark = document.getBookmarks().getBookmark(i);
+                            if (bookmark.getName().equals(key)) {
+
+                                logger.debug("替代书签" + (i + 1) + "的名称 key 是：" + bookmark.getName());
+                                Range range = new Range(bookmark.getStart(), bookmark.getEnd(), document);
+                                range.insertBefore(dataMap.get(key).toString());
+
+                                break;
+                            }
+                        }
+                    }
+
+                    FileOutputStream fos = new FileOutputStream( new File(path));
+                    document.write(fos);
+                    fos.flush();
+                    fos.close();
+
+                    logger.debug("文件是 " + path);
+
+                    logger.debug("此文件 bookmarks count = " + document.getBookmarks().getBookmarksCount());
+
+                } else if (path.endsWith(".docx")) {
+                    FileInputStream fs = new FileInputStream(new File(path));
+                    XWPFDocument xdoc = new XWPFDocument(fs);
+                    XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
+                    buffer = extractor.getText();
+                } else {
+                    logger.debug("此文件不是word文件！");
+                }
+            } catch (Exception e) {
+                logger.error("读取文件标签失败", e);
+            }
+
+            String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(), "html");
+            String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;
+
+            html = new String(Files.readAllBytes(Paths.get(htmlfilePath)));
+
+        }
+
 
 
 
@@ -555,7 +625,7 @@ public class AudContractController extends BaseController {
 
             String resource = "Contract/Template/";
 
-            filename = filename + ".doc";
+            filename = filename + ".docx";
             resource = resource + filename;
 
             resource = localPath + resource;
@@ -570,7 +640,6 @@ public class AudContractController extends BaseController {
 
             File f = FileUtils.getFile(downloadPath);
 
-            //File f = new File(downloadPath);
             if (f.exists() && !f.isDirectory()) {
                 logger.debug("downloadPath file is existed. " + downloadPath);
             } else {
@@ -582,11 +651,22 @@ public class AudContractController extends BaseController {
             String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
             logger.debug("downloadName is " + downloadName);
 
-
             try {
                 String buffer = "";
 
-                if (path.endsWith(".doc")) {
+
+                if (path.endsWith(".docx")) {
+                    FileInputStream fs = new FileInputStream(new File(path));
+                    XWPFDocument xdoc = new XWPFDocument(fs);
+                    XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
+                    buffer = extractor.getText();
+
+
+
+                }
+                else if (path.endsWith(".doc")) {
+                    logger.error("此文件是Word97-2003版，已不支持！" + downloadPath);
+
                     InputStream is = new FileInputStream(new File(path));
 
                     HWPFDocument document = new HWPFDocument(is);
@@ -639,21 +719,14 @@ public class AudContractController extends BaseController {
 
                     logger.debug("此文件 bookmarks count = " + document.getBookmarks().getBookmarksCount());
 
-                } else if (path.endsWith(".docx")) {
-                    FileInputStream fs = new FileInputStream(new File(path));
-                    XWPFDocument xdoc = new XWPFDocument(fs);
-                    XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
-                    buffer = extractor.getText();
-                } else {
+                }
+                else {
                     logger.debug("此文件不是word文件！" + downloadPath);
                 }
             } catch (Exception e) {
                 logger.error("读取文件标签失败", e);
             }
 
-            //response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            //FileUtils.setAttachmentResponseHeader(response, downloadName);
-            //FileUtils.writeBytes(downloadPath, response.getOutputStream());
         } catch (Exception e) {
             logger.error("下载文件失败", e);
         }
@@ -713,18 +786,15 @@ public class AudContractController extends BaseController {
         }
     }
 
+
+
+
     public String parse2HTML(String path) throws IOException, ParserConfigurationException, TransformerException {
         InputStream input = new FileInputStream(path);
         HWPFDocument wordDocument = new HWPFDocument(input);
         WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(
                 DocumentBuilderFactory.newInstance().newDocumentBuilder()
                         .newDocument());
-//        wordToHtmlConverter.setPicturesManager(new PicturesManager() {
-//            public String savePicture(byte[] content, PictureType pictureType,
-//                                      String suggestedName, float widthInches, float heightInches) {
-//                return suggestedName;
-//            }
-//        });
         wordToHtmlConverter.setPicturesManager(new PicturesManager() {
             @Override
             public String savePicture(byte[] content, PictureType pictureType, String suggestedName, float widthInches, float heightInches) {
@@ -735,18 +805,6 @@ public class AudContractController extends BaseController {
         });
 
         wordToHtmlConverter.processDocument(wordDocument);
-//        List pics = wordDocument.getPicturesTable().getAllPictures();
-//        if (pics != null) {
-//            for (int i = 0; i < pics.size(); i++) {
-//                Picture pic = (Picture) pics.get(i);
-//                try {
-//                    pic.writeImageContent(new FileOutputStream(path
-//                            + pic.suggestFullFileName()));
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
         Document htmlDocument = wordToHtmlConverter.getDocument();
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         DOMSource domSource = new DOMSource(htmlDocument);
@@ -760,7 +818,6 @@ public class AudContractController extends BaseController {
         outStream.close();
         String content = new String(outStream.toByteArray());
         return content;
-        //org.apache.commons.io.FileUtils.write(new File(path, "1.html"), content, "utf-8");
     }
 
 
@@ -772,7 +829,6 @@ public class AudContractController extends BaseController {
         logger.debug("AudContract 提交审批 is " + contract.toString());
 
         if (contract.getContractdocList().size() == 0) {
-
             return AjaxResult.error(" 还没有上传合同正文，无法提交审核");
         }
 
@@ -783,7 +839,6 @@ public class AudContractController extends BaseController {
 
         for (AudContractdoc doc : contractdocList) {
             String filePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + doc.getDocname();
-            ;
 
             String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(), "html");
             String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;

@@ -16,7 +16,7 @@
     </description>
 
     <properties>
-        <poi.version>3.17</poi.version>
+        <poi.version>5.0.0</poi.version>
     </properties>
 
     <dependencies>
@@ -143,14 +143,14 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/QRCode/QRCode -->
-        <dependency>
-            <groupId>QRCode</groupId>
-            <artifactId>QRCode</artifactId>
-            <version>3.0</version>
-            <scope>system</scope>
-            <systemPath>D:/JavaProjects/QRCode-3.0.0.jar</systemPath>
+<!--        <dependency>-->
+<!--            <groupId>QRCode</groupId>-->
+<!--            <artifactId>QRCode</artifactId>-->
+<!--            <version>3.0</version>-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>D:/JavaProjects/QRCode-3.0.0.jar</systemPath>-->
 
-        </dependency>
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.google.zxing</groupId>
