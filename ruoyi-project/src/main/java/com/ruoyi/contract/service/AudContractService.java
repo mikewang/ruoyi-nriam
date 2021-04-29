@@ -221,6 +221,28 @@ public class AudContractService {
 
        // ConvertUpMoney.toChinese(contract.getContractmoney().toString());
 
+        if (contract.getContractcode() == null || contract.getContractcode().isEmpty()) {
+            BasUsedmaxserialnumber query = new BasUsedmaxserialnumber();
+            query.setModulename("合同编号");
+            query.setSomedate(DateUtils.getDate());
+            Integer serialnumber = 1;
+            BasUsedmaxserialnumber record = usedmaxserialnumberMapper.selectBasUsedmaxserialnumber(query);
+            if (record == null) {
+                query.setUsedmaxserialnumber(serialnumber);
+                usedmaxserialnumberMapper.insertBasUsedmaxserialnumber(query);
+            } else {
+                serialnumber = record.getUsedmaxserialnumber() + 1;
+                query.setUsedmaxserialnumber(serialnumber);
+                usedmaxserialnumberMapper.updateBasUsedmaxserialnumber(query);
+            }
+
+            String contractcode = "HT" + DateUtils.dateTimeNow("yyyy") + String.format("%04d", serialnumber);
+
+            log.debug("contractcode is " + contractcode);
+
+            contract.setContractcode(contractcode);
+        }
+
         result = audContractMapper.insertAudContract(contract);
 
         Integer contractid = contract.getContractid();

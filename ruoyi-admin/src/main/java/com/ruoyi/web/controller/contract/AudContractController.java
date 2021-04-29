@@ -35,25 +35,48 @@ import com.ruoyi.contract.domain.AudContractdoc;
 import com.ruoyi.contract.service.AudContractService;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.project.service.BasDocService;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.poi.POIXMLDocument;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.converter.PicturesManager;
 import org.apache.poi.hwpf.converter.WordToHtmlConverter;
 import org.apache.poi.hwpf.usermodel.Bookmark;
 import org.apache.poi.hwpf.usermodel.PictureType;
 import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.converter.core.IXWPFConverter;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.converter.pdf.PdfConverter;
+import org.apache.poi.xwpf.converter.pdf.PdfOptions;
+import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
+import org.apache.poi.xwpf.converter.xhtml.XHTMLOptions;
+
+
+//import fr.opensagres.poi.xwpf.converter.xhtml.Base64EmbedImgManager;
+//import fr.opensagres.poi.xwpf.converter.xhtml.XHTMLConverter;
+//import fr.opensagres.poi.xwpf.converter.xhtml.XHTMLOptions;
+
+
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.ToXMLContentHandler;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -81,6 +104,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/contract")
 public class AudContractController extends BaseController {
+
+    public static final String RUN_NODE_NAME = "w:r";
+    public static final String TEXT_NODE_NAME = "w:t";
+    public static final String BOOKMARK_START_TAG = "w:bookmarkStart";
+    public static final String BOOKMARK_END_TAG = "w:bookmarkEnd";
+    public static final String BOOKMARK_ID_ATTR_NAME = "w:id";
+    public static final String STYLE_NODE_NAME = "w:rPr";
+
     @Resource
     private AudContractService contractService;
 
@@ -89,6 +120,9 @@ public class AudContractController extends BaseController {
 
     @Resource
     private AudSignpicService audSignpicService;
+
+    @Resource
+    private BasDocService basDocService;
 
 
     @Resource
@@ -342,6 +376,7 @@ public class AudContractController extends BaseController {
                     contract.setSheetstatus(SheetStatus.SuoZhangShenPi.getCode());
                 } else {
                     contract.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+                    logger.debug("分所长 审批完成 ，金额小于50000");
                     //合同审批通过后，要改写合同正文文档，加上签名，加上二维码
                     shenpiwanchengProcessDoc(contract);
                 }
@@ -388,7 +423,7 @@ public class AudContractController extends BaseController {
         hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
 
         //invoking the user-defined method that creates the QR code
-        generateQRcode(toEncodeString, filePath, charset, hashMap, 200, 200);//increase or decrease height and width accodingly
+        generateQRcode(toEncodeString, filePath, charset, hashMap, 200, 200);//increase or d ecrease height and width accodingly
 
         // 获取doc文件。
         AudContractdoc query = new AudContractdoc();
@@ -396,62 +431,133 @@ public class AudContractController extends BaseController {
 
         List<AudContractdoc> contractdocList = contractService.selectAudContractdocList(query);
 
-        String html = "";
-
         for (AudContractdoc doc : contractdocList) {
             String path = RuoYiConfig.getProfile() + doc.getRelativepath() + File.separator + doc.getDocname();
-
+            logger.debug("合同 原件 is " + path);
             try {
                 String buffer = "";
 
-                if (path.endsWith(".doc")) {
-                    InputStream is = new FileInputStream(new File(path));
-
-                    HWPFDocument document = new HWPFDocument(is);
-
-
-                    for (Integer i = 0; i < document.getBookmarks().getBookmarksCount(); i++) {
-                        Bookmark bookmark = document.getBookmarks().getBookmark(i);
-
-                        logger.debug("书签" + (i + 1) + "的名称是：" + bookmark.getName());
-                        logger.debug("开始位置：" + bookmark.getStart());
-                        logger.debug("结束位置：" + bookmark.getEnd());
-                    }
+                if (path.endsWith(".docx")) {
+                    logger.debug("合同文件 is " + path);
+                    InputStream in = new FileInputStream(path);
+                    XWPFDocument document = new XWPFDocument(in);
 
                     Map<String, Object> dataMap = new HashMap<String, Object>();
-                    dataMap.put("erweima", contract.getContractname());
-                    dataMap.put("fengmian_projectName", contract.getContractname());
 
-                    logger.debug("dataMap is " + dataMap.toString());
+                    Map<String,Object> erweima = new HashMap<String, Object>();
+                    erweima.put("width", 80);
+                    erweima.put("height", 80);
+                    erweima.put("type", "jpg");
+                    erweima.put("content", filePath);
+                    logger.debug("二维码 is " + filePath);
+                    dataMap.put("erweima", erweima);
 
-                    for (String key : dataMap.keySet()) {
-                        for (int i = 0; i < document.getBookmarks().getBookmarksCount(); i++) {
-                            Bookmark bookmark = document.getBookmarks().getBookmark(i);
-                            if (bookmark.getName().equals(key)) {
 
-                                logger.debug("替代书签" + (i + 1) + "的名称 key 是：" + bookmark.getName());
-                                Range range = new Range(bookmark.getStart(), bookmark.getEnd(), document);
-                                range.insertBefore(dataMap.get(key).toString());
+                    AudSignpic s = audSignpicService.selectSignpicByUserId(contract.getContractuserid());
 
-                                break;
-                            }
-                        }
+                    if (s == null || s.getSignpicName().equals("")) {
+
+                    }
+                    else {
+                        Map<String,Object> jingbanren = new HashMap<String, Object>();
+                        jingbanren.put("width", 120);
+                        jingbanren.put("height", 60);
+                        jingbanren.put("type", "jpg");
+                        String signpicFile = RuoYiConfig.getProfile() + File.separator + "upload" + File.separator + "signpic" + File.separator + s.getSignpicName();
+                        logger.debug("经办人 is " + signpicFile);
+                        jingbanren.put("content", signpicFile);
+                        dataMap.put("jingbanren", jingbanren);
+                    }
+//
+                    s = audSignpicService.selectSignpicByUserId(getCurrentLoginUserid());
+
+                    if (s == null || s.getSignpicName().equals("")) {
+
+                    }
+                    else {
+                        Map<String,Object> faren = new HashMap<String, Object>();
+                        faren.put("width", 120);
+                        faren.put("height", 60);
+                        faren.put("type", "jpg");
+                        String signpicFile = RuoYiConfig.getProfile() + File.separator + "upload" + File.separator + "signpic" + File.separator + s.getSignpicName();
+                        logger.debug("法人 is " + signpicFile);
+                        faren.put("content", signpicFile);
+                        dataMap.put("faren", faren);
                     }
 
-                    FileOutputStream fos = new FileOutputStream( new File(path));
-                    document.write(fos);
-                    fos.flush();
-                    fos.close();
+                    // 更新 书签
+                    List<XWPFParagraph> parasList = document.getParagraphs();
+                    replaceInAllParagraphs(parasList, dataMap);
 
-                    logger.debug("文件是 " + path);
 
-                    logger.debug("此文件 bookmarks count = " + document.getBookmarks().getBookmarksCount());
 
-                } else if (path.endsWith(".docx")) {
-                    FileInputStream fs = new FileInputStream(new File(path));
-                    XWPFDocument xdoc = new XWPFDocument(fs);
-                    XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
-                    buffer = extractor.getText();
+                    // 保存文件 docx,html ,pdf 三种格式。
+                    FileOutputStream outStream = null;
+                    try {
+                        String destpath = RuoYiConfig.getProfile() + doc.getRelativepath() + File.separator + contract.getContractcode() + ".docx";
+                        outStream = new FileOutputStream(destpath);
+                        document.write(outStream);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    finally {
+                        outStream.flush();
+                        outStream.close();
+                    }
+
+                    try {
+                        String destpath = RuoYiConfig.getProfile() + doc.getRelativepath() + File.separator + contract.getContractcode() + ".pdf";
+                        PdfOptions pdfOptions = PdfOptions.create();
+                        // 输出路径
+                        outStream = new FileOutputStream(destpath);
+                        // 调用转换
+                        PdfConverter.getInstance().convert(document,outStream,pdfOptions);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    finally {
+                        outStream.flush();
+                        outStream.close();
+                    }
+
+                    try {
+                        String destpath = RuoYiConfig.getProfile() + doc.getRelativepath() + File.separator + contract.getContractcode() + ".html";
+
+                        XHTMLOptions options = XHTMLOptions.create();
+
+                        Base64ImageExtractor imageExtractor = new Base64ImageExtractor();
+                        options.setExtractor(imageExtractor);
+                        options.URIResolver(imageExtractor);
+
+                        //3：转换XWPFDocument to XHTML
+                        OutputStream out = new FileOutputStream(new File(destpath));
+                        IXWPFConverter<XHTMLOptions> converter = XHTMLConverter.getInstance();
+                        converter.convert(document, out, options);
+
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    finally {
+                        outStream.flush();
+                        outStream.close();
+                    }
+
+                    BasDoc record = new BasDoc();
+                    record.setDocid(doc.getDocid());
+                    record.setRelativepath(doc.getRelativepath());
+                    record.setDocname(contract.getContractcode() + ".docx");
+                    record.setRelatedid(doc.getRelatedid());
+                    record.setDoctype(doc.getDoctype());
+                    record.setAttachtotype(doc.getAttachtotype());
+
+                    basDocService.updateBasDoc(record);
+
+                } else if (path.endsWith(".doc")) {
+                    logger.error("此文件是Word97-2003版，已不支持！" + path);
+
                 } else {
                     logger.debug("此文件不是word文件！");
                 }
@@ -459,15 +565,7 @@ public class AudContractController extends BaseController {
                 logger.error("读取文件标签失败", e);
             }
 
-            String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(), "html");
-            String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;
-
-            html = new String(Files.readAllBytes(Paths.get(htmlfilePath)));
-
         }
-
-
-
 
     }
 
@@ -657,11 +755,37 @@ public class AudContractController extends BaseController {
 
                 if (path.endsWith(".docx")) {
                     FileInputStream fs = new FileInputStream(new File(path));
-                    XWPFDocument xdoc = new XWPFDocument(fs);
-                    XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
-                    buffer = extractor.getText();
+                    XWPFDocument document = new XWPFDocument(fs);
 
+                    Map<String, Object> dataMap = new HashMap<String, Object>();
+                    dataMap.put("title", contract.getContractname());
 
+                    if (contract.getContractcode() != null) {
+                        dataMap.put("contractcode", contract.getContractcode());
+                    } else {
+                        dataMap.put("contractcode", "");
+                    }
+
+                    dataMap.put("suppliername_cover", contract.getSupplieridlinktext());
+                    dataMap.put("projecttype", contract.getProjectinfo().getProjecttypelinktext());
+                    dataMap.put("projectname", contract.getProjectinfo().getProjectname());
+                    dataMap.put("suppliername_mudi", contract.getSupplierinfo().getSuppliername());
+                    dataMap.put("suppliername_qianyan", contract.getSupplierinfo().getSuppliername());
+                    dataMap.put("suppliername_gaizhang", contract.getSupplierinfo().getSuppliername());
+                    dataMap.put("bankname", contract.getSupplierinfo().getBankname());
+                    dataMap.put("banknumber", contract.getSupplierinfo().getBanknumber());
+
+                    /**
+                     * 对段落中的标记进行替换
+                     */
+                    List<XWPFParagraph> parasList = document.getParagraphs();
+                    replaceInAllParagraphs(parasList, dataMap);
+
+                    response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                    FileUtils.setAttachmentResponseHeader(response, contract.getContractname());
+                    document.write(response.getOutputStream());
+
+                    logger.debug("下载完成, " +  downloadName);
 
                 }
                 else if (path.endsWith(".doc")) {
@@ -787,9 +911,7 @@ public class AudContractController extends BaseController {
     }
 
 
-
-
-    public String parse2HTML(String path) throws IOException, ParserConfigurationException, TransformerException {
+    public String parseDoc2HTML(String path) throws IOException, ParserConfigurationException, TransformerException {
         InputStream input = new FileInputStream(path);
         HWPFDocument wordDocument = new HWPFDocument(input);
         WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(
@@ -820,6 +942,24 @@ public class AudContractController extends BaseController {
         return content;
     }
 
+    //docx转换html
+    public String parseDocx2HTML(String path) throws IOException {
+        XWPFDocument docxDocument = new XWPFDocument(new FileInputStream(path));
+
+        XHTMLOptions options = XHTMLOptions.create();
+
+        Base64ImageExtractor imageExtractor = new Base64ImageExtractor();
+        options.setExtractor(imageExtractor);
+        options.URIResolver(imageExtractor);
+
+        //3：转换XWPFDocument to XHTML
+        ByteArrayOutputStream htmlStream = new ByteArrayOutputStream();
+        IXWPFConverter<XHTMLOptions> converter = XHTMLConverter.getInstance();
+        converter.convert(docxDocument, htmlStream, options);
+        String htmlStr = htmlStream.toString();
+        return htmlStr;
+    }
+
 
     @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
     @Log(title = "合同管理", businessType = BusinessType.UPDATE)
@@ -843,7 +983,7 @@ public class AudContractController extends BaseController {
             String htmlfileName = doc.getDocname().replaceFirst(doc.getDoctype(), "html");
             String htmlfilePath = RuoYiConfig.getProfile() + doc.getRelativepath() + "/" + htmlfileName;
 
-            String htmlstr = parse2HTML(filePath);
+            String htmlstr = parseDocx2HTML(filePath);
 
             logger.debug("文档word转成html " + htmlstr);
 
@@ -948,6 +1088,69 @@ public class AudContractController extends BaseController {
         }
         return ajax;
     }
+
+
+    public void replaceInAllParagraphs(List<XWPFParagraph> xwpfParagraphList, Map<String, Object> params) throws IOException, InvalidFormatException {
+        for (XWPFParagraph paragraph : xwpfParagraphList) {
+            //Here you have your paragraph;
+            CTP ctp = paragraph.getCTP();
+            // Get all bookmarks and loop through them
+            List<CTBookmark> bookmarks = ctp.getBookmarkStartList();
+
+            for(CTBookmark bookmark : bookmarks)
+            {
+
+                System.out.println("paragraph bookmark name "+bookmark.getName());
+
+                Object data = params.get(bookmark.getName());
+                if (data != null) {
+
+                    if (data instanceof String) {
+                        XWPFRun run = paragraph.createRun();
+                        run.setText(data.toString());
+
+                        Node firstNode = bookmark.getDomNode();
+                        Node nextNode = firstNode.getNextSibling();
+                        while (nextNode != null) {
+                            String nodeName = nextNode.getNodeName();
+                            if (nodeName.equals(BOOKMARK_END_TAG)) {
+                                break;
+                            }
+                            Node delNode = nextNode;
+                            nextNode = nextNode.getNextSibling();
+                            ctp.getDomNode().removeChild(delNode);
+                        }
+
+                        if (nextNode == null) {
+                            ctp.getDomNode().insertBefore(run.getCTR().getDomNode(), firstNode);
+                        } else {
+                            ctp.getDomNode().insertBefore(run.getCTR().getDomNode(), nextNode);
+                        }
+                    }
+                    else if (data instanceof Map) {
+
+                        String imgurl = (String)((Map<?, ?>) data).get("content");
+                        logger.debug("插入书签 is " + imgurl);
+                        String type = (String)((Map<?, ?>) data).get("type");
+                        int width = (Integer) ((Map<?, ?>) data).get("width");
+                        int height = (Integer) ((Map<?, ?>) data).get("height");
+
+                        InputStream picIs = new FileInputStream(new File(imgurl));
+                        if(picIs != null){
+                            XWPFRun run = paragraph.createRun();
+                            run.addPicture(picIs,XWPFDocument.PICTURE_TYPE_JPEG,imgurl, Units.toEMU(width), Units.toEMU(height));
+                            logger.debug("插入书签 added now.");
+                        }
+                    }
+
+                }
+
+            }
+
+
+        }
+    }
+
 
 
 }
