@@ -306,6 +306,32 @@ public class AudContractController extends BaseController {
         return ajax;
     }
 
+    @PreAuthorize("@ss.hasPermi('contract:toexecute:list')")
+    @GetMapping("/toexecute/list")
+    public TableDataInfo toexecuteList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("toexecute list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.selectContractToExecute(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('contract:viewexecute:list')")
+    @GetMapping("/viewexecute/list")
+    public TableDataInfo viewexecuteList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("viewexecute list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.selectContractToExecute(query);
+
+        return getDataTable(list);
+    }
+
 
     private String signpicFilename(String signpicName) {
         // 本地资源路径

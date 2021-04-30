@@ -81,6 +81,17 @@
         order by a.ContractTime desc
     </select>
 
+    <select id="selectContractToExecute" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+        <include refid="selectContract"/>
+        --  //获取合同的列表（已经通过审批的、包括“已审批”“已签订”“已付款”)
+        -- ShenPiWanCheng(8, "审批完成") ,YiQianDing(30, "已签订") FuKuanWanCheng(31, "付款完成")
+        WHERE a.SheetStatus in (8, 30, 31)
+        <if test="contractname != null and contractname != '' ">
+            and a.contractname like concat('%', #{contractname,jdbcType=VARCHAR}, '%')
+        </if>
+        order by a.ContractTime desc
+    </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from Aud_Contract
     where ContractID = #{contractid,jdbcType=INTEGER}

@@ -31,7 +31,6 @@
         <el-table-column label="合同编号" align="center" prop="contractcode" :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column label="合同名称" align="center" prop="contractname" width="200"/>
-
         <el-table-column label="提交时间" align="center" prop="contracttime"/>
         <el-table-column label="项目名称" align="center" prop="projectidlinktext" width="180"/>
 
@@ -60,7 +59,7 @@
               icon="el-icon-remove"
               @click="handleUpdate(scope.row)"
               v-hasPermi="['contract:tijiaoren:list']"
-            >申请删除
+            >申请作废
             </el-button>
           </template>
         </el-table-column>
@@ -221,7 +220,7 @@ export default {
               }
 
               //只有一张拨付单，并且“首次付款时间”为空。说明是刚审批通过的合同
-              if (row.paySheetList.length == 1 && (row.firstpaytime === "" || row.firstpaytime === undefined)){
+              if (row.paySheetList.length == 1 && (row.firstpaytime === "" || row.firstpaytime === null || row.firstpaytime === undefined)){
 
                 row.btn_pay_visible = false;
                 row.lab_paycomplete_visible = false;

@@ -102,6 +102,8 @@ public class AudContractService {
             List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
             contract.setPaySheetList(paySheets);
 
+            log.debug("contract.getPaySheetList.size is " + contract.getPaySheetList().size());
+
 //            AudContractpay record = new AudContractpay();
 //            record.setContractid(contract.getContractid());
 //            contract.setContractpayList(audContractpayMapper.selectContractPay(record));
@@ -190,6 +192,20 @@ public class AudContractService {
             contract.setPaySheetList(paySheets);
         }
         log.debug("request selectContractApplyDelete list is " + sheetList.toString());
+
+        return sheetList;
+    }
+
+    public List<AudContract> selectContractToExecute(AudContract sheet) {
+
+        List<AudContract> sheetList = audContractMapper.selectContractToExecute(sheet);
+
+        for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+        }
+
+        log.debug("request selectContractToExecute list is " + sheetList.toString());
 
         return sheetList;
     }

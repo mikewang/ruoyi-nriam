@@ -26,6 +26,9 @@ public interface AudContractMapper {
     List<AudContract> selectContractSuo(AudContract record);
 
     List<AudContract> selectContractApplyDelete(AudContract record);
+    List<AudContract> selectContractToExecute(AudContract record);
+
+
 
     List<AudContract> selectAll();
 
