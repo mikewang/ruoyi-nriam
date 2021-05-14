@@ -1155,7 +1155,8 @@ public class AudContractService {
         return sheetList;
     }
 
-
+    // 用于
+    @Transactional
     public Integer updateContractPaysheet(Integer contractid, Integer status)
     {
 
@@ -1188,6 +1189,20 @@ public class AudContractService {
 //            isheetm.SetStatus(status, id);
 
         return 1;
+    }
+
+    // 用于
+    @Transactional
+    public Integer updateContractFirstPay(Integer contractid)
+    {
+
+        AudContract record = new AudContract();
+        record.setContractid(contractid);
+        record.setFirstpaytime(DateUtils.dateTimeNow());
+
+        Integer result =  audContractMapper.updateAudContractFirstPayTime(record);
+
+        return result;
     }
 
 //

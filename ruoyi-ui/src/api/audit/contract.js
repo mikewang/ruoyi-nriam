@@ -209,3 +209,21 @@ export function listViewexecuteContract(query) {
   })
 }
 
+
+
+export function firstpayContract(data) {
+  return request({
+    url: '/contract/firstpay',
+    method: 'put',
+    data: data
+  })
+}
+
+export function applydeleteContract(data) {
+  return request({
+    url: '/contract/applydelete',
+    method: 'put',
+    data: data
+  })
+}
+

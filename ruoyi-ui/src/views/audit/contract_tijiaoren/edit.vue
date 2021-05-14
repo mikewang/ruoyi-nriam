@@ -41,12 +41,15 @@
             <el-col :span="8">
               <el-form-item label="所属项目" prop="projectid">
                 <!-- 所属项目组件-->
-                <project-data :readonly="readonly.basic" :selected-project-data="form.projectinfo" @changeProjectData="selectProjectData" :selected-option="projectSelectedOption" :key="projectid" ></project-data>
+                <project-data :readonly="readonly.basic" :selected-project-data="form.projectinfo"
+                              @changeProjectData="selectProjectData" :selected-option="projectSelectedOption"
+                              :key="projectid"></project-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="所属部门" prop="organizationidlinktext">
-                <el-input readonly v-model="form.projectinfo.organizationidlinktext" :show-overflow-tooltip="true" :key="form.projectid"/>
+                <el-input readonly v-model="form.projectinfo.organizationidlinktext" :show-overflow-tooltip="true"
+                          :key="form.projectid"/>
               </el-form-item>
             </el-col>
 
@@ -77,17 +80,20 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目申报书" prop="basicfileList1">
-                <project-doc  :doc-type="DocTypeXiangmuShenbaoShu" @changeFileList="changeBasicDocList" :doc-list="basicfileList1" :readonly="true" :key="basicfileList1Key"></project-doc>
+                <project-doc :doc-type="DocTypeXiangmuShenbaoShu" @changeFileList="changeBasicDocList"
+                             :doc-list="basicfileList1" :readonly="true" :key="basicfileList1Key"></project-doc>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="项目合同" prop="basicfileList2">
-                <project-doc  :doc-type="DocTypeXiangmuHetong" @changeFileList="changeBasicDocList" :doc-list="basicfileList2" :readonly="true" :key="basicfileList1Key"></project-doc>
+                <project-doc :doc-type="DocTypeXiangmuHetong" @changeFileList="changeBasicDocList"
+                             :doc-list="basicfileList2" :readonly="true" :key="basicfileList1Key"></project-doc>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="实施方案" prop="basicfileList3">
-                <project-doc  :doc-type="DocTypeShishiFangan" @changeFileList="changeBasicDocList"  :doc-list="basicfileList3" :readonly="true" :key="basicfileList1Key"></project-doc>
+                <project-doc :doc-type="DocTypeShishiFangan" @changeFileList="changeBasicDocList"
+                             :doc-list="basicfileList3" :readonly="true" :key="basicfileList1Key"></project-doc>
               </el-form-item>
             </el-col>
 
@@ -97,7 +103,8 @@
             <el-col :span="8">
               <el-form-item label="乙方单位" prop="supplierid" label-width="150px">
                 <!-- 乙方单位组件-->
-                <supplier-data :readonly="readonly.basic" :selected-supplier-data="form.supplierinfo" @changeSupplierData="selectSupplierData" :key="supplierid" ></supplier-data>
+                <supplier-data :readonly="readonly.basic" :selected-supplier-data="form.supplierinfo"
+                               @changeSupplierData="selectSupplierData" :key="supplierid"></supplier-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -163,7 +170,7 @@
                   <el-button size="small">上传文件<i class="el-icon-upload el-icon--right"></i>
                   </el-button>
                 </el-upload>
-<!--                <bas-doc :basdoc="basDocAppraisalQita" :readonly="readonly.basic" @changeFileList="changeContractfileList" :key="form.contractid" ></bas-doc>-->
+                <!--                <bas-doc :basdoc="basDocAppraisalQita" :readonly="readonly.basic" @changeFileList="changeContractfileList" :key="form.contractid" ></bas-doc>-->
 
                 <el-link @click="downloadContractdocTemplate">下载合同模板</el-link>
               </el-form-item>
@@ -187,7 +194,9 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row><el-divider></el-divider></el-row>
+          <el-row>
+            <el-divider></el-divider>
+          </el-row>
           <el-row v-for="audit in form.sheetAuditRecordList" v-bind:hidden="hidden.acceptance">
             <el-col :span="16">
               <el-form-item :label="audit.audittypeName">
@@ -204,7 +213,7 @@
                 <el-col :span="16">
                   <template>
                     <span>审批结果 </span>
-                    <el-radio-group v-model="form.confirmResult"  @change="changeConfirmResult">
+                    <el-radio-group v-model="form.confirmResult" @change="changeConfirmResult">
                       <el-radio :label="1">通过</el-radio>
                       <el-radio :label="2">不通过</el-radio>
                     </el-radio-group>
@@ -247,7 +256,8 @@
 
           <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改后提交</el-button>
           <el-button v-if="hidden.printBtn === false" type="primary" @click="printContractdoc">打印合同正文</el-button>
-          <el-button v-if="hidden.downloadprintBtn === false" type="primary" @click="printContractdoc">下载合同打印</el-button>
+          <el-button v-if="hidden.downloadprintBtn === false" type="primary" @click="printContractdoc">下载合同打印
+          </el-button>
           <el-button @click="closeForm">取 消</el-button>
         </el-col>
       </el-row>
@@ -256,13 +266,11 @@
 
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
-<div v-html="contractdocHtml">
 
-</div>
       <div slot="footer" class="dialog-footer">
-        <el-button> 打印 </el-button>
-<!--        <el-button type="primary" @click="submitJoinForm">确 定</el-button>-->
-<!--        <el-button @click="cancelJoinForm">取 消</el-button>-->
+        <el-button> 打印</el-button>
+        <!--        <el-button type="primary" @click="submitJoinForm">确 定</el-button>-->
+        <!--        <el-button @click="cancelJoinForm">取 消</el-button>-->
       </div>
     </el-dialog>
 
@@ -278,26 +286,21 @@ import DictData from "@/views/public/dict-data";
 import SupplierData from "@/views/public/supplier-data";
 import BasDoc from "@/views/public/bas-doc";
 
-import {
-  confirmAuditSheet,
-  deleteSheet,
-  getSheetAuditRecord,
-  getSheetBudgetpayRecord
-} from "@/api/audit/audit";
+import {deleteSheet, getSheetAuditRecord, getSheetBudgetpayRecord} from "@/api/audit/audit";
 import {getSignpic} from "@/api/audit/signpic"
 import {
   addContract,
-  confirmAuditContract,// 确定审批
+  confirmAuditContract,
   deleteContract,
   downloadTemplateDoc,
   getContract,
+  getContractConfirmNote,
+  getContractdoc,
   listContractdoc,
   listContractPaysheet,
   submitContract,
   updateContract,
-  uploadFile,
-  getContractConfirmNote,
-  getContractdoc
+  uploadFile
 } from "@/api/audit/contract"
 
 
@@ -334,8 +337,8 @@ export default {
       DocTypeXiangmuHetong: "项目合同",
       DocTypeShishiFangan: "实施方案",
 
-      projectid:0,
-      supplierid:0,
+      projectid: 0,
+      supplierid: 0,
 
       // 数据字典
       basicfileList1: [],
@@ -474,8 +477,7 @@ export default {
       console.log("changeConfirmResult is ", value);
       if (value === 1) {
         this.form.confirmNote = getContractConfirmNote(this.opcode);
-      }
-      else {
+      } else {
 
         this.form.confirmNote = "";
       }
@@ -644,14 +646,13 @@ export default {
     changeFormDictType(dict) {
 
       if (dict.type === this.DictTypeNameContractType) {
-        console.log("changeFormDictType is ",dict);
+        console.log("changeFormDictType is ", dict);
         if (dict) {
           this.form.contracttype = dict.id;
         } else {
           this.form.contracttype = undefined;
         }
-      }
-      else {
+      } else {
         console.error("changeFormDictType  意外 is ", dict);
       }
     },
@@ -660,13 +661,13 @@ export default {
     selectProjectData(project) {
       console.log("selectProjectData is ", project);
       this.form.projectid = undefined;
-      this.form.projectinfo =  {projectid:undefined};
+      this.form.projectinfo = {projectid: undefined};
 
       const this_ = this;
 
       if (project) {
         this_.form.projectid = project.projectid;
-        this_.form.projectinfo =  project;
+        this_.form.projectinfo = project;
         this_.projectid = project.projectid;
 
         listProjectdoc({projectid: project.projectid}).then(response => {
@@ -697,7 +698,7 @@ export default {
 
       } else {
         this.form.projectid = undefined;
-        this.form.projectinfo =  {projectid:undefined};
+        this.form.projectinfo = {projectid: undefined};
       }
 
     },
@@ -726,13 +727,13 @@ export default {
     selectSupplierData(supplier) {
       console.log("selectSupplierData is ", supplier);
       this.form.supplierid = undefined;
-      this.form.supplierinfo =  {supplierid:undefined};
+      this.form.supplierinfo = {supplierid: undefined};
 
       const this_ = this;
 
       if (supplier) {
         this_.form.supplierid = supplier.supplierid;
-        this_.form.supplierinfo =  supplier;
+        this_.form.supplierinfo = supplier;
         this_.supplierid = supplier.supplierid;
 
         let contract = this_.form;
@@ -788,8 +789,7 @@ export default {
           });
         });
 
-      }
-      else {
+      } else {
         this.supplierid = undefined;
       }
 
@@ -1070,7 +1070,7 @@ export default {
 
     clickContractdoc() {
       this.open = true;
-      getContractdoc(this.form.contractid).then(response=>{
+      getContractdoc(this.form.contractid).then(response => {
         console.log(response);
         this.contractdocHtml = response.data;
       });

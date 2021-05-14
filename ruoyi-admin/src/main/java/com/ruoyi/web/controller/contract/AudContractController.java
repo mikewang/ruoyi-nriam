@@ -300,8 +300,19 @@ public class AudContractController extends BaseController {
     public AjaxResult applydeleteConfirm(@Validated @RequestBody AudContract contract) throws IOException, WriterException {
 
         logger.debug("applydelete Confirm contract is " + contract.toString());
+
+        if (contract.getReason() == "" || contract.getReason() == null) {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+        else {
+
+        }
+
         AjaxResult ajax = AjaxResult.success();
-        ajax = auditConfirm(contract, 9);
+
+
+
+//        ajax = auditConfirm(contract, 9);
 
         return ajax;
     }
@@ -1177,6 +1188,31 @@ public class AudContractController extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('contract:tijiaoren:list')")
+    @Log(title = "合同管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/firstpay")
+    public AjaxResult firstPayTime(@Validated @RequestBody AudContract contract) throws IOException, TikaException, SAXException, TransformerException, ParserConfigurationException {
+        AjaxResult ajax = AjaxResult.success();
 
+        if (contract.getFirstpaytime() == "" || contract.getFirstpaytime() == null) {
+
+        }
+        else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+        Integer result = contractService.updateContractFirstPay(contract.getContractid());
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, contract.getContractid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
 
 }

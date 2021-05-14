@@ -2,8 +2,8 @@
   <div class="app-container">
     <el-row :gutter="20">
       <!--查询数据-->
-      <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="合同名称" prop="contractname">
+      <el-form ref="queryParams"  :model="queryParams" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form-item label="合同名称" prop="contractname" >
           <el-input v-model="queryParams.contractname" clearable/>
         </el-form-item>
         <el-form-item>
@@ -57,7 +57,7 @@
               size="mini"
               type="text"
               icon="el-icon-remove"
-              @click="handleUpdate(scope.row)"
+              @click="handleApplyDelete(scope.row)"
               v-hasPermi="['contract:tijiaoren:list']"
             >申请作废
             </el-button>
@@ -90,7 +90,7 @@
                          size="mini"
                          type="text"
                          icon="el-icon-edit"
-                         @click="handleUpdate(scope.row)"
+                         @click="handleFirstPay(scope.row)"
               >第1单付款
             </el-button>
             </span>
@@ -107,11 +107,27 @@
       />
     </el-row>
 
+    <!-- 添加或修改菜单对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="applydeleteForm" :model="applydeleteForm" :rules="rules" label-width="160px" :key="timer">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="请输入申请作废的理由" prop="reason">
+              <el-input v-model="applydeleteForm.reason" placeholder="" type="textarea"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitApplyDeleteForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {listTijiaorenContract} from "@/api/audit/contract";
+import {deleteContract, listTijiaorenContract, firstpayContract, applydeleteContract} from "@/api/audit/contract";
 
 
 export default {
@@ -159,19 +175,21 @@ export default {
         FuKuanWanCheng: 31,
         ShenQingZuoFei: 34
       },
+      // 表单
       // 表单参数
-      form: {},
+      applydeleteForm: {},
       // 状态为在研的项目，申请审核 功能按钮是否显示？
       timer: '',
       // 表单校验
-      rules: {}
+      applydeleteRules: {
+        reason: [
+          {required: true, message: "理由不能为空", trigger: "blur"}
+        ]
+      }
     };
   },
   watch: {
 
-    form() {
-
-    }
 
   },
   created() {
@@ -312,8 +330,8 @@ export default {
     },
     // 表单重置
     reset() {
-      this.form = {};
-      this.resetForm("form");
+      this.applydeleteForm = {};
+      this.resetForm("applydeleteForm");
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -343,10 +361,67 @@ export default {
       const path = '/contract/tijiaoren/' + row.contractid;
       console.log("path is " + path);
       this.$router.push({path: path});
+    },
+
+    handleApplyDelete(row) {
+
+      this.title = "申请作废合同";
+      this.open = true;
+      this.applydeleteForm.contractid = row.contractid;
+
+    },
+
+    submitApplyDeleteForm: function() {
+
+      this.$refs["applydeleteForm"].validate(valid => {
+        if (valid) {
+          const this_ = this;
+          this.$confirm('是否确定申请作废该合同？', "", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }).then(function () {
+
+            console.log("submit applydeleteForm is ", this_.applydeleteForm);
+
+            applydeleteContract(this_.applydeleteForm).then(response => {
+              this_.open = false;
+              this_.msgSuccess("操作完成");
+              this_.getList();
+            });
+
+          }).catch(console.error);
+          this_.open = false;
+          console.log("submit applydeleteForm is ", this_.applydeleteForm);
+        }
+      });
+    },
+
+    handleFirstPay(row) {
+      const this_ = this;
+      this.$confirm('请确保已签订了纸质合同之后再执行此操作。是否确定已签订？', "第1单付款", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+
+        firstpayContract(row).then(response => {
+          this_.msgSuccess("操作完成");
+          this_.getList();
+        });
+
+      }).catch(console.error);
+    },
+
+    /** 提交按钮 */
+    submitForm: function () {
+
     }
+
 
   }
 };
+
 </script>
 
 <style scoped>
