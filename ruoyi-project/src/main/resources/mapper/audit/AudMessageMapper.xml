@@ -34,6 +34,8 @@
         where MessageID = #{messageid,jdbcType=INTEGER}
     </update>
 
+
+
   <update id="updateIfProcessedAudMessageBySheetAndId" parameterType="com.ruoyi.audit.domain.AudMessage">
     update Aud_Message
     set ProcessedTime = #{processedtime,jdbcType=VARCHAR},

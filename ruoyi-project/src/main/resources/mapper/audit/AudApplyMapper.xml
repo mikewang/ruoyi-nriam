@@ -88,7 +88,7 @@
                 #{applystatus,jdbcType=INTEGER})
     </insert>
 
-    <update id="updateAuditAudApply" parameterType="com.ruoyi.audit.domain.AudApply">
+    <update id="updateAudApply" parameterType="com.ruoyi.audit.domain.AudApply">
         update Aud_Apply
         set AuditUserID  = #{audituserid,jdbcType=INTEGER},
             AuditTime    = #{audittime,jdbcType=VARCHAR},

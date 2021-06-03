@@ -7,9 +7,11 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.ruoyi.audit.domain.AudApply;
 import com.ruoyi.audit.domain.AudSheet;
 import com.ruoyi.audit.domain.AudSheetauditrecord;
 import com.ruoyi.audit.domain.AudSignpic;
+import com.ruoyi.audit.service.AudApplyService;
 import com.ruoyi.audit.service.AudSheetService;
 import com.ruoyi.audit.service.AudSignpicService;
 import com.ruoyi.common.annotation.Log;
@@ -124,6 +126,9 @@ public class AudContractController extends BaseController {
     @Resource
     private BasDocService basDocService;
 
+
+    @Resource
+    private AudApplyService applyService;
 
     @Resource
     private TokenService tokenService;
@@ -296,25 +301,61 @@ public class AudContractController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('contract:applydelete:list')")
     @Log(title = "合同作废审批", businessType = BusinessType.UPDATE)
-    @PutMapping("/applydelete")
-    public AjaxResult applydeleteConfirm(@Validated @RequestBody AudContract contract) throws IOException, WriterException {
+    @PutMapping("/deleteapply/nopass")
+    public AjaxResult nopassApplydelete(@Validated @RequestBody AudContract contract) {
 
-        logger.debug("applydelete Confirm contract is " + contract.toString());
+        logger.debug("applydelete nopass  contract is " + contract.toString());
 
         if (contract.getReason() == "" || contract.getReason() == null) {
             return AjaxResult.error(" 操作失败，请联系管理员");
         }
         else {
+            Integer uid = getCurrentLoginUserid();
 
+            contract.setSheetstatus(SheetStatus.ShenPiWanCheng.getCode());
+            contract.setConfirmUserid(uid);
+
+            Integer result = contractService.nopassApplydeleteAudContract(contract);
+            AjaxResult ajax = AjaxResult.success();
+
+            if (result == 1) {
+
+            }
+            else {
+                ajax = AjaxResult.error(" 操作失败，请联系管理员");
+            }
+
+            return ajax;
         }
+    }
 
-        AjaxResult ajax = AjaxResult.success();
+    @PreAuthorize("@ss.hasPermi('contract:applydelete:list')")
+    @Log(title = "合同作废审批", businessType = BusinessType.UPDATE)
+    @PutMapping("/deleteapply/confirm")
+    public AjaxResult confirmApplydelete(@Validated @RequestBody AudContract contract) {
+        logger.debug("  is " + contract.toString());
 
+        if (contract.getReason() == "" || contract.getReason() == null) {
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+        else {
+            Integer uid = getCurrentLoginUserid();
 
+            contract.setSheetstatus(SheetStatus.YiZuoFei.getCode());
+            contract.setConfirmUserid(uid);
 
-//        ajax = auditConfirm(contract, 9);
+            Integer result = contractService.confirmApplydeleteAudContract(contract);
+            AjaxResult ajax = AjaxResult.success();
 
-        return ajax;
+            if (result == 1) {
+
+            }
+            else {
+                ajax = AjaxResult.error(" 操作失败，请联系管理员");
+            }
+
+            return ajax;
+        }
     }
 
     @PreAuthorize("@ss.hasPermi('contract:toexecute:list')")
@@ -425,6 +466,7 @@ public class AudContractController extends BaseController {
                 shenpiwanchengProcessDoc(contract);
             }
 
+            // 最后 更新状态
             contractService.updateAudContractStatus(contract, record);
         } else if (contract.getConfirmResult() == 2) {
             record.setAuditresult(false);
@@ -927,6 +969,20 @@ public class AudContractController extends BaseController {
             AudContract p = contractService.selectContractById(contractid);
             if (p != null) {
                 shenpiwanchengProcessDoc(p);
+
+                // 申请作废的记录
+                AudApply apply = new AudApply();
+                apply.setApplytype("合同作废申请");
+                apply.setRelatedid(p.getContractid());
+
+                apply = applyService.selectApplyByTypeAndRelatedID(apply);
+
+                if (apply != null) {
+                    apply.getApplyreason();
+                    p.setApplyDeleteReason(apply.getApplyreason());
+                    p.setApplyDeleteTime(apply.getApplytime());
+                }
+
                 ajax.put(AjaxResult.DATA_TAG, p);
             } else {
                 ajax = AjaxResult.error("contractid：" + contractid.toString() + " 不存在");

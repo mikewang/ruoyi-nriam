@@ -305,7 +305,7 @@ public class AchPatentService {
         apply.setAuditopinion(patent.getConfirmNote());
         apply.setApplystatus(patent.getConfirmResult());
 
-        applyMapper.updateAuditAudApply(apply);
+        applyMapper.updateAudApply(apply);
 
 
         //消除"审核人"待办事项

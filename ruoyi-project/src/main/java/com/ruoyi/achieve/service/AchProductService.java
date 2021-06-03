@@ -286,7 +286,7 @@ public class AchProductService {
         apply.setAuditopinion(product.getConfirmNote());
         apply.setApplystatus(product.getConfirmResult());
 
-        applyMapper.updateAuditAudApply(apply);
+        applyMapper.updateAudApply(apply);
 
 
         //消除"审核人"待办事项

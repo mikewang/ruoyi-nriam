@@ -24,6 +24,9 @@ import RightToolbar from "@/components/RightToolbar"
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-gist.css'
 
+// 添加 vuemeta by wfg
+import VueMeta from 'vue-meta'
+
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
 Vue.prototype.getConfigKey = getConfigKey
@@ -54,6 +57,9 @@ Vue.component('RightToolbar', RightToolbar)
 Vue.use(permission)
 Vue.use(hljs.vuePlugin);
 
+// 添加 vuemeta by wfg
+Vue.use(VueMeta)
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -66,6 +72,7 @@ Vue.use(hljs.vuePlugin);
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
+
 
 Vue.config.productionTip = false
 

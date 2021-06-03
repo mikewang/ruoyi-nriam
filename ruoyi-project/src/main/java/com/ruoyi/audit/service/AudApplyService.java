@@ -1,6 +1,8 @@
 package com.ruoyi.audit.service;
 
+import com.ruoyi.audit.domain.AudApply;
 import com.ruoyi.audit.domain.AudMessage;
+import com.ruoyi.audit.mapper.AudApplyMapper;
 import com.ruoyi.audit.mapper.AudMessageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,9 @@ public class AudApplyService {
 
     @Resource
     private AudMessageMapper audMessageMapper;
+
+    @Resource
+    private AudApplyMapper audApplyMapper;
 
     public List<AudMessage> selectByUserId(Long userId) {
         List<AudMessage> messageList = audMessageMapper.selectMessageByToUserId(userId.intValue());
@@ -35,13 +40,20 @@ public class AudApplyService {
         return messageList;
     }
 
+    public AudApply selectApplyByTypeAndRelatedID(AudApply apply) {
+
+      return    audApplyMapper.selectApplyByTypeAndRelatedID(apply);
+
+    }
+
     public Integer updateProcessedByIds(List<Integer> ids) {
 
-//        String[] messageIds = ids.split(",");
-//
-//        List<String> items = Arrays.asList(messageIds);
-
         return audMessageMapper.updateProcessedByIds(ids);
+    }
+
+    public Integer auditApply(AudApply apply) {
+
+        return audApplyMapper.updateAudApply(apply);
     }
 
 }

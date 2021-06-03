@@ -286,7 +286,7 @@ public class AchStandardService {
         apply.setAuditopinion(standard.getConfirmNote());
         apply.setApplystatus(standard.getConfirmResult());
 
-        applyMapper.updateAuditAudApply(apply);
+        applyMapper.updateAudApply(apply);
 
 
         //消除"审核人"待办事项

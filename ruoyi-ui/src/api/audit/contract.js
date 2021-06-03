@@ -65,6 +65,23 @@ export function listAudit7Contract(query) {
 }
 
 
+export function confirmDeleteApplyContract(data) {
+  return request({
+    url: '/contract/deleteapply/confirm',
+    method: 'put',
+    data: data
+  })
+}
+
+
+export function nopassDeleteApplyContract(data) {
+  return request({
+    url: '/contract/deleteapply/nopass',
+    method: 'put',
+    data: data
+  })
+}
+
 // 查询合同，之 提交人。
 export function getContract(contractid) {
   return request({

@@ -230,6 +230,18 @@
               </el-row>
             </el-form-item>
           </el-row>
+          <el-row v-bind:hidden="hidden.applyDelete">
+            <el-col :span="16">
+              <el-form-item label="申请作废理由" prop="applyDeleteReason">
+                <el-input v-model="form.applyDeleteReason" type="textarea" disabled/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="申请时间" prop="applyDeleteTime">
+                <span>{{ form.applyDeleteTime }}</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </template>
 
         <template v-if="this.hidden.acceptance == false">
@@ -256,8 +268,9 @@
 
           <el-button v-if="hidden.changeBtn === false" type="primary" @click="changeForm">修改后提交</el-button>
           <el-button v-if="hidden.printBtn === false" type="primary" @click="printContractdoc">打印合同正文</el-button>
-          <el-button v-if="hidden.downloadprintBtn === false" type="primary" @click="printContractdoc">下载合同打印
-          </el-button>
+          <el-button v-if="hidden.downloadprintBtn === false" type="primary" @click="printContractdoc">下载合同打印</el-button>
+          <el-button v-if="hidden.nopassdeleteBtn === false" type="warning" @click="nopassDeleteApply">不同意</el-button>
+          <el-button v-if="hidden.confirmdeleteBtn === false" type="primary" @click="confirmDeleteApply">确认作废</el-button>
           <el-button @click="closeForm">取 消</el-button>
         </el-col>
       </el-row>
@@ -300,7 +313,9 @@ import {
   listContractPaysheet,
   submitContract,
   updateContract,
-  uploadFile
+  uploadFile,
+  confirmDeleteApplyContract,
+  nopassDeleteApplyContract
 } from "@/api/audit/contract"
 
 
@@ -501,6 +516,7 @@ export default {
         basic: false,
         acceptance: true,
         confirm: true,
+        applyDelete: true,
         saveBtn: true,
         changeBtn: true,
         deleteBtn: true,
@@ -510,7 +526,8 @@ export default {
         confirmBtn: true,
         printBtn: true,
         downloadprintBtn: true,
-        addAcceptanceBtn: true
+        nopassdeleteBtn: true,
+        confirmdeleteBtn: true
       };
     },
 
@@ -587,7 +604,20 @@ export default {
           this.hidden.acceptance = false;
 
         }
-      } else if (this.form.sheetstatus === this.SheetStatus.YiZuoFei) {
+      }
+      else if (this.form.sheetstatus === this.SheetStatus.ShenQingZuoFei) {
+        if (this.opcode.indexOf("query") !== -1) {
+          this.hidden.acceptance = false;
+
+        } else if (this.opcode.indexOf("audit") !== -1) {
+          this.hidden.acceptance = false;
+          this.readonly.confirm = false;
+          this.hidden.applyDelete = false;
+          this.hidden.nopassdeleteBtn = false;
+          this.hidden.confirmdeleteBtn = false;
+        }
+      }
+      else if (this.form.sheetstatus === this.SheetStatus.YiZuoFei) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
 
@@ -1066,6 +1096,36 @@ export default {
 
     printContractdoc() {
       this.msgError("开发中，打印合同正文。");
+    },
+
+    nopassDeleteApply() {
+      const this_ = this;
+      this.$confirm('是否确认不同意?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+
+        nopassDeleteApplyContract(this_.form, this_.opcode).then(result => {
+          this_.closeForm();
+          this_.msgSuccess("操作 完成");
+        });
+      });
+    },
+
+    confirmDeleteApply() {
+      const this_ = this;
+      this.$confirm('是否确认作废?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+
+        confirmDeleteApplyContract(this_.form, this_.opcode).then(result => {
+          this_.closeForm();
+          this_.msgSuccess("操作 完成");
+        });
+      });
     },
 
     clickContractdoc() {

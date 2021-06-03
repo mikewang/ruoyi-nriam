@@ -60,13 +60,12 @@ export const constantRoutes = [
     children: [
       {
         path: 'index',
-        component: (resolve) => require(['@/views/index'], resolve),
+        component: (resolve) => require(['@/views'], resolve),
         name: '首页',
         meta: { title: '首页', icon: 'dashboard', noCache: true, affix: true }
       }
     ]
   },
-
   {
     path: '/user',
     component: Layout,
@@ -416,6 +415,12 @@ export const constantRoutes = [
         component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
         name: 'Audit7Contract',
         meta: { title: '合同审批', icon: '', opcode: 'audit7',noCache: true }
+      },
+      {
+        path: 'auditApplydelete/:sheetid(\\d+)',
+        component: (resolve) => require(['@/views/audit/contract_tijiaoren/edit'], resolve),
+        name: 'AuditApplydelete',
+        meta: { title: '合同作废申请审批', icon: '', opcode: 'auditApplydelete',noCache: true }
       }
     ]
   },
@@ -505,5 +510,13 @@ export const constantRoutes = [
 export default new Router({
   mode: 'history', // 去掉url中的#
   scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
+  routes: constantRoutes,
+  watch: {
+    // $route: {
+    //   immediate: true,
+    //   handler(to, from) {
+    //     document.title = to.meta.title || 'Some Default Title';
+    //   }
+    // }
+  }
 })

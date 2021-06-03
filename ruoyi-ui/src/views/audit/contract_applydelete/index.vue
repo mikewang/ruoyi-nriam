@@ -143,10 +143,9 @@ export default {
       );
     },
 
-
     handleAuditContract(row) {
       console.log("update row is  ", row);
-      const path = '/contract/audit3/' + row.contractid;
+      const path = '/contract/auditApplydelete/' + row.contractid;
       console.log("path is " + path);
       this.$router.push({path: path});
     }

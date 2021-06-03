@@ -286,7 +286,7 @@ public class AchSoftwareService {
         apply.setAuditopinion(software.getConfirmNote());
         apply.setApplystatus(software.getConfirmResult());
 
-        applyMapper.updateAuditAudApply(apply);
+        applyMapper.updateAudApply(apply);
 
 
         //消除"审核人"待办事项

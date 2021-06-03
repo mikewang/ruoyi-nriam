@@ -73,6 +73,9 @@ public class AudContract extends BaseEntity {
 
     private List<AudSheetauditrecord> sheetAuditRecordList;
 
+    private String applyDeleteReason;
+    private String applyDeleteTime;
+
     public Integer getContractid() {
         return contractid;
     }
@@ -359,6 +362,22 @@ public class AudContract extends BaseEntity {
 
     public void setSheetAuditRecordList(List<AudSheetauditrecord> sheetAuditRecordList) {
         this.sheetAuditRecordList = sheetAuditRecordList;
+    }
+
+    public String getApplyDeleteReason() {
+        return applyDeleteReason;
+    }
+
+    public void setApplyDeleteReason(String applyDeleteReason) {
+        this.applyDeleteReason = applyDeleteReason;
+    }
+
+    public String getApplyDeleteTime() {
+        return applyDeleteTime;
+    }
+
+    public void setApplyDeleteTime(String applyDeleteTime) {
+        this.applyDeleteTime = applyDeleteTime;
     }
 
     @Override

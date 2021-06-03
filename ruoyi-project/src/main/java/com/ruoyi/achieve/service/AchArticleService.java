@@ -290,7 +290,7 @@ public class AchArticleService {
         apply.setAuditopinion(article.getConfirmNote());
         apply.setApplystatus(article.getConfirmResult());
 
-        applyMapper.updateAuditAudApply(apply);
+        applyMapper.updateAudApply(apply);
 
 
         //消除"审核人"待办事项

@@ -18,7 +18,7 @@ public interface AudApplyMapper {
 
     List<AudApply> selectAll();
 
-    int updateAuditAudApply(AudApply record);
+    int updateAudApply(AudApply record);
 
     int updateByPrimaryKey(AudApply record);
 

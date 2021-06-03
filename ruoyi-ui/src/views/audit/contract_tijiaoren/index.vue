@@ -112,8 +112,8 @@
       <el-form ref="applydeleteForm" :model="applydeleteForm" :rules="rules" label-width="160px" :key="timer">
         <el-row>
           <el-col :span="24">
-            <el-form-item label="请输入申请作废的理由" prop="reason">
-              <el-input v-model="applydeleteForm.reason" placeholder="" type="textarea"/>
+            <el-form-item label="请输入申请作废的理由" prop="applyDeleteReason">
+              <el-input v-model="applydeleteForm.applyDeleteReason" placeholder="" type="textarea"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -182,7 +182,7 @@ export default {
       timer: '',
       // 表单校验
       applydeleteRules: {
-        reason: [
+        applyDeleteReason: [
           {required: true, message: "理由不能为空", trigger: "blur"}
         ]
       }
@@ -368,6 +368,7 @@ export default {
       this.title = "申请作废合同";
       this.open = true;
       this.applydeleteForm.contractid = row.contractid;
+      this.applydeleteForm.contractname = row.contractname;
 
     },
 
@@ -383,6 +384,7 @@ export default {
           }).then(function () {
 
             console.log("submit applydeleteForm is ", this_.applydeleteForm);
+
 
             applydeleteContract(this_.applydeleteForm).then(response => {
               this_.open = false;

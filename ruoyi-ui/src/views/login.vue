@@ -81,7 +81,8 @@ export default {
         code: [{ required: true, trigger: "change", message: "验证码不能为空" }]
       },
       loading: false,
-      redirect: undefined
+      redirect: undefined,
+      pageName: 'loading'
     };
   },
   watch: {
@@ -92,9 +93,22 @@ export default {
       immediate: true
     }
   },
+  mounted() {
+    console.log("login mounted.");
+    // setTimeout(() => {
+    //   this.pageName = 'async';
+    //   this.pageName = window.location.href;
+    //   console.log("query url is ", window.location.href);
+    // }, 2000)
+  },
   created() {
     this.getCode();
     this.getCookie();
+  },
+  metaInfo () {
+    // return {
+    //   title: this.pageName
+    // }
   },
   methods: {
     getCode() {
