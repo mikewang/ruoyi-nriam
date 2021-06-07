@@ -11,6 +11,9 @@ public interface AudSheetauditrecordMapper {
 
     List<AudSheetauditrecord> selectMyauditrecord(Integer audituserid);
 
+    List<AudSheetauditrecord> selectFourtechMyauditrecord(Integer audituserid);
+
+
 //    AudSheetauditrecord selectByPrimaryKey(Integer auditid);
 //
 //

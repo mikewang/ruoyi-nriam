@@ -27,4 +27,13 @@ public class AudSheetauditrecordService {
         return myauditrecordList;
     }
 
+    public List<AudSheetauditrecord> selectFourtechMyauditrecord(Integer audituserid) {
+
+        List<AudSheetauditrecord> myauditrecordList = audSheetauditrecordMapper.selectFourtechMyauditrecord(audituserid);
+
+        log.debug("request myauditrecordList list is " + myauditrecordList.toString());
+
+        return myauditrecordList;
+    }
+
 }

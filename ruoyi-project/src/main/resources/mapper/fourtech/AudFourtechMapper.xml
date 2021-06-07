@@ -49,6 +49,17 @@
     order by a.SheetTime desc
   </select>
 
+
+  <!--   查询我的审核的列表 -->
+  <select id="selectFourtechAuditedByUserid" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select b.FourTechID, b.FourTechType,b.SheetTime, c.real_name AS SheetUserIDLinkText, b.FourTechName, b.FourTechMoney, b.CoperationUnit,d.dict_label AS SheetStatusLinkText
+    from Aud_SheetAuditRecord a left join Aud_FourTech b
+    on a.SheetID = b.FourTechID
+    left join sys_user c  on b.SheetUserID = c.user_id
+    left join (select * from sys_dict_data where dict_type='四技合同状态') d on b.SheetStatus = d.dict_value
+    where AuditUserID = #{sheetuserid,jdbcType=INTEGER} and SheetType='四技合同' order by a.AuditTime desc
+  </select>
+
   <select id="selectFourtechTijiaoren" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
     <include refid="selectFourtech"/>
     WHERE a.SheetUserID = #{sheetuserid,jdbcType=INTEGER}

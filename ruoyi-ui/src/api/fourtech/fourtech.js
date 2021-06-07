@@ -127,3 +127,11 @@ export function listAudit7Fourtech(query) {
     params: query
   })
 }
+
+export function listMyAuditFourtech(query) {
+  return request({
+    url: '/fourtech/myaudit/list',
+    method: 'get',
+    params: query
+  })
+}

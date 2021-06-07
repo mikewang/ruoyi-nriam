@@ -637,6 +637,16 @@ public class AudFourtechService {
         return sheetList;
     }
 
+
+    public List<AudFourtech> selectFourtechAuditedByUserid(Integer uid) {
+
+        List<AudFourtech> list = audFourtechMapper.selectFourtechAuditedByUserid(uid);
+
+        log.debug("request  sheetList list audited by is " + list.toString());
+
+        return list;
+    }
+
 //
 //
 //    public List<AudBudgetpay> selectFourtechBudgetPayById(Integer sheetid) {
