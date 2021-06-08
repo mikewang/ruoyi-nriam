@@ -143,7 +143,7 @@ export default {
 
     handleAuditFourtech(row) {
       console.log("update row is  ", row);
-      const path = '/fourtech/' + row.fourtechid;
+      const path = '/fourtech/tijiaoren/' + row.fourtechid;
       console.log("path is " + path);
       this.$router.push({path: path});
     }

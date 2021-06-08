@@ -31,41 +31,20 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="项目负责人" prop="managerid">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.managerid" placeholder="请选择项目负责人" style="display:block;"
-                           clearable @clear="clearManagerValue" @change="changeManagerValue"
-                           filterable :filter-method="filterManagerOptions">
-                  <el-option
-                    v-for="item in userOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+                <user-data :readonly="readonly.basic" :selected-user-id="form.managerid"
+                           @changeUserData="changeFormManagerValue" :key="form.fourtechid"></user-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="所属部门" prop="organizationid">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.organizationid" placeholder="请选择所属部门" style="display:block;"
-                           clearable @clear="clearDeptValue" @change="changeDeptValue"
-                           filterable :filter-method="filterDeptOptions" :show-overflow-tooltip="true">
-                  <el-option
-                    v-for="item in deptOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+                <dept-data :key="form.fourtechid" :readonly="readonly.basic" :selected-dept-id="form.organizationid"
+                           @changeDeptId="changeFormDeptId"></dept-data>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="所属团队" prop="teamid">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.teamid" placeholder="请选择所属团队" style="display:block;"
-                           clearable @clear="clearTeamValue" @change="changeTeamValue"
-                           filterable :filter-method="filterTeamOptions">
-                  <el-option
-                    v-for="item in teamOptions"
-                    :key="item.id"
-                    :label="item.value"
-                    :value="item.id"/>
-                </el-select>
+                <team-data :readonly="readonly.basic" :selected-team-id="form.teamid"
+                           @changeTeamId="changeFormTeamValue" :key="form.fourtechid"></team-data>
               </el-form-item>
             </el-col>
           </el-row>
@@ -220,6 +199,8 @@
 </template>
 
 <script>
+
+
 import {getProject, listAftersetup, listProjectdoc} from "@/api/project/project";
 import {
   addSheet,
@@ -239,10 +220,16 @@ import {getSignpic} from "@/api/audit/signpic"
 import {listUser} from "@/api/system/user";
 import {listDept} from "@/api/system/dept";
 import {listTeam} from "@/api/project/team";
+import ProjectDoc from "@/views/public/project-doc";
+import DeptData from "@/views/public/dept-data";
+import TeamData from "@/views/public/team-data";
+import DictData from "@/views/public/dict-data";
+import UserData from "@/views/public/user-data";
 
 
 export default {
   name: "fourtech_tijiaoren_edit",
+  components: {ProjectDoc, UserData, "dept-data": DeptData, "team-data": TeamData, "dict-data": DictData},
   data() {
     return {
       // 各个组件的只读和隐藏属性控制
@@ -264,12 +251,9 @@ export default {
       open: false,
 
       // 数据字典  专利类型
-
+      DictTypeNameFourtechType: "四技合同类型",
       fourtechtypeOptions: ["技术开发合同","技术转让合同","技术服务合同","技术咨询合同"],
       fourtechtypeList: [],
-
-      userOptions: [],
-      userList: [],
 
       deptOptions: [],
       deptList: [],
@@ -412,7 +396,12 @@ export default {
 
                 this_.form = contract;
 
-                this_.loadAllOptions();
+                console.log("this.form is ", this.form);
+                this.configTemplateStatus();
+
+                this.loading = false;
+                // this_.timer = Date.now().toString();
+
               });
             });
           });
@@ -537,13 +526,15 @@ export default {
       }
       else if (this.form.sheetstatus === this.SheetStatus.ShenPiWanCheng) {
         if (this.opcode.indexOf("query") !== -1) {
-          this.hidden.acceptance = false;
+          this.hidden.confirm = false;
+          console.log("审批记录查询明细");
 
         }
       }
       else if (this.form.sheetstatus === this.SheetStatus.YiZuoFei) {
         if (this.opcode.indexOf("query") !== -1) {
           this.hidden.acceptance = false;
+
 
         }
       }
@@ -610,144 +601,33 @@ export default {
       }
     },
 
-    loadAllOptions() {
-      let listOptions = [];
-      listDept().then(response => {
-        console.log(response);
-
-        response.data.forEach(function (item) {
-          const dept = {value: item.deptName, id: item.deptId};
-          listOptions.push(dept);
-        });
-        this.deptList = listOptions;
-        this.deptOptions = listOptions;
-
-        listOptions = [];
-        listTeam().then(response => {
-          console.log(response);
-          response.rows.forEach(function (item) {
-            const team = {value: item.teamname, id: item.teamid};
-            listOptions.push(team);
-          });
-          this.teamList = listOptions;
-          this.teamOptions = listOptions;
-
-          listOptions = [];
-          listUser().then(response => {
-            console.log("listUser is ", response);
-            response.rows.forEach(function (item) {
-              //console.log("item is ", item);
-              const user = {value: item.realName, id: item.userId, hotKey: item.hotKey};
-              //console.log(user);
-              listOptions.push(user);
-            });
-            this.userList = listOptions;
-            this.userOptions = listOptions;
-
-            console.log("this.form is ", this.form);
-            this.configTemplateStatus();
-
-            this.loading = false;
-
-          });
-        });
-      });
-    },
-
-    clearManagerValue() {
-
-
-    },
-
-    changeManagerValue(value) {
+    // 组件方法
+    changeFormManagerValue(value) {
 
       if (value) {
 
-        this.form.projectmanagerid = value;
+        this.form.managerid = value.userId;
       } else {
-        this.form.projectmanagerid = undefined;
+        this.form.managerid = undefined;
       }
 
     },
 
-    filterManagerOptions(v) {
-
-      console.log("filterManagerOptions value is " + v);
-
-      if (v) {
-        this.userOptions = this.userList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          const py = item.hotKey;
-          var hh = -1;
-          if (py !== undefined && py !== null) {
-            hh = py.indexOf(val);
-          }
-
-          if (item.value.indexOf(val) !== -1 || hh !== -1) return true
-
-        });
-      } else {
-        this.userOptions = this.userList;
-      }
-    },
-    clearDeptValue() {
-
-    },
-    changeDeptValue(value) {
-      if (value) {
-        this.form.organizationid = value;
-      } else {
-        this.form.organizationid = undefined;
-      }
-    },
-
-    filterDeptOptions(v) {
-      console.log("filter value is " + v);
-      if (v) {
-        this.deptOptions = this.deptList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.deptOptions = this.deptList;
-      }
-    },
-
-    clearTeamValue() {
-
+    changeFormDeptId(dept) {
+      this.form.organizationid = dept.deptId;
 
     },
 
-    changeTeamValue(value) {
+    changeFormTeamValue(value) {
 
       if (value) {
 
-        this.form.teamid = value;
+        this.form.teamid = value.id;
       } else {
         this.form.teamid = undefined;
       }
     },
 
-    filterTeamOptions(v) {
-
-      console.log("filter value is " + v);
-
-      if (v) {
-        this.teamOptions = this.teamList.filter((item) => {
-          // 如果直接包含输入值直接返回true
-          const val = v.toLowerCase()
-          if (item.value.indexOf(val) !== -1) return true
-          // if (item.szm.substring(0, 1).indexOf(val) !== -1) return true
-          // if (item.szm.indexOf(val) !== -1) return true
-        });
-      } else {
-        this.teamOptions = this.teamList;
-      }
-    },
 
 
     // 上传 合同文本。
