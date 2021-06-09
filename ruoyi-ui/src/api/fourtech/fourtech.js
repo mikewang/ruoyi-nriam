@@ -135,3 +135,19 @@ export function listMyAuditFourtech(query) {
     params: query
   })
 }
+
+export function listFourtech_ShenPiWanCheng(query) {
+  return request({
+    url: '/fourtech/ShenPiWanCheng/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function updaeCodefourtech(data) {
+  return request({
+    url: '/fourtech/codefourtech/',
+    method: 'put',
+    data: data
+  })
+}

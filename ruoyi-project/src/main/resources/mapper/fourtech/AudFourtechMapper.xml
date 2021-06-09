@@ -168,4 +168,24 @@
     a.SheetStatus = #{sheetstatus,jdbcType=INTEGER}
     order by a.SheetTime desc
   </select>
+
+
+  <select id="selectFourtechShenPiWanCheng" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
+    <include refid="selectFourtech"/>
+    WHERE
+    a.SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+    <if test="sheettime != null and sheettime != '' ">
+      and #{sheettime,jdbcType=VARCHAR} = SUBSTRING(sheettime,1,4)
+    </if>
+
+    order by a.SheetTime desc
+  </select>
+
+  <update id="updateFourtechCode" parameterType="com.ruoyi.fourtech.domain.AudFourtech">
+    update Aud_FourTech
+    set
+      fourtechcode = #{fourtechcode,jdbcType=VARCHAR}
+    where FourTechID = #{fourtechid,jdbcType=INTEGER}
+  </update>
+
 </mapper>

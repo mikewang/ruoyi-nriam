@@ -612,5 +612,36 @@ public class AudFourtechController extends BaseController {
         return getDataTable(list);
     }
 
+    @PreAuthorize("@ss.hasPermi('fourtech:codefourtech:list')")
+    @GetMapping("/ShenPiWanCheng/list")
+    public TableDataInfo ShenPiWanChengList(AudFourtech query) {
+
+        Integer uid = getCurrentLoginUserid();
+
+        startPage();
+
+        List<AudFourtech> list = fourtechService.selectFourtechShenPiWanCheng(query);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('fourtech:codefourtech:list')")
+    @Log(title = "四技合同填写合同编号", businessType = BusinessType.UPDATE)
+    @PutMapping("/codefourtech")
+    public AjaxResult updateCodefourtech(@Validated @RequestBody AudFourtech contract) {
+
+        logger.debug("updateCodefourtech contract is " + contract.toString());
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer result = fourtechService.updateFourtechCode(contract);
+
+        if (result ==1 ) {
+            return  ajax;
+        }
+        else {
+            return AjaxResult.error("操作失败");
+        }
+    }
+
 
 }

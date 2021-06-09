@@ -69,7 +69,7 @@
 
           <el-row>
             <el-col :span="8">
-              <el-form-item label="项目开始日期" prop="projectbegindate">
+              <el-form-item label="项目开始日期" prop="begindate">
                 <el-date-picker v-bind:readonly="readonly.basic" v-model="form.begindate" type="date" placeholder="请选择日期"
                                 value-format="yyyy-MM-dd"
                                 style="display:block;"></el-date-picker>
@@ -217,9 +217,7 @@ import {addFourtech, updateFourtech, getFourtech,downloadTemplateDoc, uploadFile
 
 import {handleUploadReview} from "@/api/achieve/basdoc";
 import {getSignpic} from "@/api/audit/signpic"
-import {listUser} from "@/api/system/user";
-import {listDept} from "@/api/system/dept";
-import {listTeam} from "@/api/project/team";
+
 import ProjectDoc from "@/views/public/project-doc";
 import DeptData from "@/views/public/dept-data";
 import TeamData from "@/views/public/team-data";
@@ -331,7 +329,7 @@ export default {
     this.resetTemplateStatus();
     console.log(" created this.$route.params is ", this.$route.params);
 
-    var sheetid = this.$route.params && this.$route.params.sheetid;
+    let sheetid = this.$route.params && this.$route.params.sheetid;
     if (sheetid === undefined || Number(sheetid) === 0) {
       sheetid = undefined;
     } else {
@@ -781,7 +779,7 @@ export default {
             this.form.projectManagerIDLinkText = project.projectManagerIDLinkText;
             this.form.organizationIDLinkText = project.organizationIDLinkText;
             this.form.organizationid = project.organizationid;
-            this.form.projectmanagerid = project.projectmanagerid;
+            this.form.managerid = project.projectmanagerid;
 
             listProjectdoc({projectid: this.form.projectid}).then(response => {
               const this_ = this;

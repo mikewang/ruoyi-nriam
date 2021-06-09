@@ -258,6 +258,7 @@ export default {
   created() {
 
     this.getList();
+
     listData({"dictType": "团队角色"}).then(response => {
       console.log(response);
       this.teamroleListOptions = response.rows.sort(function (a, b) {
