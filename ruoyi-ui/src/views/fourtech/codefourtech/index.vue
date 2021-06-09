@@ -222,6 +222,7 @@ export default {
       this.form.fourtechcode = row.fourtechcode;
       this.form.fourtechid = row.fourtechid;
       this.form.fourtechname = row.fourtechname;
+      this.form.sheetuserid = row.sheetuserid;
       this.open = true;
     },
 

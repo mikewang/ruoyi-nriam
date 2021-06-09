@@ -8,6 +8,7 @@ import com.ruoyi.audit.domain.AudSheetauditrecord;
 import com.ruoyi.audit.mapper.*;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysDictData;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.enums.SheetStatus;
 import com.ruoyi.common.utils.DateUtils;
@@ -20,6 +21,7 @@ import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.system.domain.SysUserRole;
 import com.ruoyi.system.mapper.SysDeptMapper;
 import com.ruoyi.system.mapper.SysDictDataMapper;
+import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.system.mapper.SysUserRoleMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +77,8 @@ public class AudFourtechService {
     @Resource
     private BasDocMapper basDocMapper;
 
+    @Resource
+    private SysUserMapper userMapper;
 
     public List<AudFourtech> selectFourtechTijiaoren(AudFourtech fourtech) {
 
@@ -211,17 +215,18 @@ public class AudFourtechService {
 
             //发送短信 发送给经办人
             String msg = "#type#=四技合同&#name#=" + contract.getFourtechname()  + "&#result#=不通过";
-            String jinbanren = contract.getSheetuserid().toString();
-            // 暂时 关闭，调试中。
-            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
+            SysUser touser = userMapper.selectUserById(Long.valueOf(contract.getSheetuserid()));
+
+            Juhe.sendSMS_Audited_ToSheetUser(touser.getPhonenumber(), msg, url, key);
 
             //发送短信 发送给当前审核人
             String danwei =  contract.getCoperationunit();
 
             msg = "#type#=四技合同&#name#=" + contract.getFourtechname() + "&#result#=不通过" + "&#money#=" + contract.getFourtechmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
 
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+            touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
+
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
         }
         else if (contract.getSheetstatus().equals(SheetStatus.ChuShen.getCode())) {
             result = audFourtechMapper.updateFourtechStatus(contract);
@@ -259,13 +264,10 @@ public class AudFourtechService {
 
                 //发送短信
                 String msg = "#type#=四技合同&#name#=" + contract.getFourtechname();
-                // 暂时 关闭，调试中。
-                // userid ..
-                Integer currentAudituserid =  contract.getSheetuserid();
 
-                String currentAudituseridTel = "13776614820";
+                SysUser touser = userMapper.selectUserById(Long.valueOf(contract.getSheetuserid()));
 
-                Juhe.sendSMS_Audited(currentAudituseridTel, msg, url, key);
+                Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
             }
         }
@@ -316,20 +318,19 @@ public class AudFourtechService {
 
             //发送短信 给项目负责人  。
             String msg = "#type#=四技合同&#name#=" + contract.getFourtechname();
-            // 暂时 关闭，调试中。
-            Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+
+            SysUser touser = userMapper.selectUserById(Long.valueOf(contract.getManagerid()));
+
+            Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             //发送短信 发送给当前审核人
             String danwei = contract.getCoperationunit();
 
             msg = "#type#=四技合同&#name#=" + contract.getFourtechname() + "&#result#=通过" + "&#money#=" + contract.getFourtechmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
 
-            Integer currentAudituserid =  record.getAudituserid();
+            touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
 
-            String currentAudituseridTel = "13776614820";
-
-            Juhe.sendSMS_Audited(currentAudituseridTel, msg, url, key);
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
         }
         else  if (contract.getSheetstatus().equals(SheetStatus.BuMenShenPi.getCode())) {
@@ -385,20 +386,18 @@ public class AudFourtechService {
 
             //发送短信 给部门负责人  。
             String msg = "#type#=四技合同&#name#=" + contract.getFourtechname();
-            // 暂时 关闭，调试中。
-            Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+
+            SysUser touser = userMapper.selectUserById(Long.valueOf(managerId));
+
+            Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             //发送短信 发送给当前审核人
             String danwei = contract.getCoperationunit();
 
             msg = "#type#=四技合同&#name#=" + contract.getFourtechname() + "&#result#=通过" + "&#money#=" + contract.getFourtechmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
+            touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
 
-            Integer currentAudituserid =  record.getAudituserid();
-
-            String currentAudituseridTel = "13776614820";
-
-            Juhe.sendSMS_Audited(currentAudituseridTel, msg, url, key);
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
         }
         else  if (contract.getSheetstatus().equals(SheetStatus.ChuShenPi.getCode())) {
@@ -451,19 +450,20 @@ public class AudFourtechService {
 
                 //发送短信
                 String msg = "#type#=四技合同&#name#=" + contract.getFourtechname();
-                // 暂时 关闭，调试中。
-                // userid ..
-                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+
+                SysUser touser = userMapper.selectUserById(Long.valueOf(userid));
+
+                Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             }
              //发送 发送短信  给当前审核人
 
             String danwei = contract.getCoperationunit();
             String  msg = "#type#=四技合同&#name#=" + contract.getFourtechname() + "&#result#=通过" + "&#money#=" + contract.getFourtechmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
-            Integer currentAudituserid =  record.getAudituserid();
-            String currentAudituseridTel = "13776614820";
-            Juhe.sendSMS_Audited(currentAudituseridTel, msg, url, key);
+
+            SysUser touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
+
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
 
         }
@@ -515,19 +515,17 @@ public class AudFourtechService {
 
                 //发送短信
                 String msg = "#type#=四技合同&#name#=" + contract.getFourtechname();
-                // 暂时 关闭，调试中。
-                // userid ..
-                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+                SysUser touser = userMapper.selectUserById(Long.valueOf(userid));
+                Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
             }
 
             //发送 发送短信  给当前审核人
 
             String danwei = contract.getCoperationunit();
             String  msg = "#type#=四技合同&#name#=" + contract.getFourtechname() + "&#result#=通过" + "&#money#=" + contract.getFourtechmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
-            Integer currentAudituserid =  record.getAudituserid();
-            String currentAudituseridTel = "13776614820";
-            Juhe.sendSMS_Audited(currentAudituseridTel, msg, url, key);
+
+            SysUser touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
 
         }
@@ -559,16 +557,15 @@ public class AudFourtechService {
             //发送短信 发送给当前审核人
             String danwei = contract.getCoperationunit();
             String  msg = "#type#=四技合同&#name#=" + contract.getFourtechname() + "&#result#=通过" + "&#money#=" + contract.getFourtechmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
-
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+            SysUser touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
             //发送短信，给经办人
             msg = "#type#=四技合同&#name#=" + contract.getFourtechname() + "&#result#=通过";
             //
             // 经办人 contract.getSheetuserid().toString();
-
-            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
+            touser = userMapper.selectUserById(Long.valueOf(contract.getSheetuserid()));
+            Juhe.sendSMS_Audited_ToSheetUser(touser.getPhonenumber(), msg, url, key);
 
         }
 
@@ -687,9 +684,9 @@ public class AudFourtechService {
 
         String msg = "#name#=" + contract.getFourtechname() + "&#num#=" + contract.getFourtechcode().toString() ;
 
-        String currentAudituseridTel = "13776614820";
+        SysUser touser = userMapper.selectUserById(Long.valueOf(contract.getSheetuserid()));
 
-        Juhe.sendSMS_CodeFourTech(currentAudituseridTel, msg, url, key);
+        Juhe.sendSMS_CodeFourTech(touser.getPhonenumber(), msg, url, key);
 
         return result;
     }

@@ -754,7 +754,7 @@ public class AudContractService {
             //发送短信 发送给经办人
             String msg = "#type#=合同&#name#=" + contract.getContractname()  + "&#result#=不通过";
             String jinbanren = contract.getContractuserid().toString();
-            // 暂时 关闭，调试中。
+
             SysUser touser = userMapper.selectUserById(Long.valueOf(contract.getContractuserid()));
 
             Juhe.sendSMS_Audited_ToSheetUser(touser.getPhonenumber(), msg, url, key);
@@ -763,11 +763,10 @@ public class AudContractService {
             String danwei = contract.getSupplierinfo().getSuppliername();
 
             msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=不通过" + "&#money#=" + contract.getContractmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
 
             touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
 
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
         }
         else  if (contract.getSheetstatus().equals(SheetStatus.XiangMuShenPi.getCode())) {
@@ -870,40 +869,6 @@ public class AudContractService {
             }
 
 
-            //ism.AddNew(sheet, payList, false);
-
-
-//            //记录系统日志
-//            SystemLog slog = new SystemLog();
-//            slog.LogType = (int)Entity.Enums.LogType.tijiaoshenpi;
-//            slog.LogUserID = int.Parse(Session["CurrentUserID"].ToString().ToString());
-//            slog.LogTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-//            slog.LogContent = "提交了合同：" + txt_ContractName.Text + "。编号为：" + lab_ContractCode.Text;
-//            ISystemLogManager islm = SystemLogManager.GetInstance();
-//            islm.AddNew(slog);
-//
-//            //给相应人员发提醒消息
-//            AudMessage am = new AudMessage();
-//            am.MessageTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-//            am.MessageTitle = "新合同待审批";
-//            am.MessageContent = "合同：" + txt_ContractName.Text + "待审批。"
-//                    + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=3&f=todo&type=ht&kid=" + lab_ContractID.Text + "\" target=\"_self\" >查看</a> ";   //t=3表示项目负责人审批
-//            //查询消息要发送给哪个人员
-//            //发送给项目的负责人
-//            am.ToUserID = int.Parse(lab_PMUserID.Text);
-//            am.RelatedSheetType = "合同";
-//            am.RelatedSheetID = int.Parse(lab_ContractID.Text);
-//            IAudMessageManager iamm = AudMessageManager.GetInstance();
-//            iamm.AddNew(am);
-//
-//            api.MsgManager.SendToAUser(am.ToUserID.ToString(), am.MessageTitle,
-//                    "新合同：" + txt_ContractName.Text + "  待审批。");
-//
-//            //发送短信
-//            CommonFunc.SendSMS_ToAudit(am.ToUserID.ToString(),
-//                    "#type#=合同&#name#=" + txt_ContractName.Text);
-
-
             String title = "新合同待审批";
             String content = "合同：" + contract.getContractname() + "待审批。" + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=3&f=todo&type=ht&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";   //t=3表示项目负责人审批
             AudMessage message = new AudMessage();
@@ -931,20 +896,6 @@ public class AudContractService {
 
 
             //发送短信
-//
-//            // 获取 短信服务器的密钥信息
-//            String url = "";
-//            String key = "";
-//
-//            List<SysDictData> dictList = dictDataMapper.selectDictDataByType("短信服务商");
-//            for (SysDictData dict : dictList) {
-//                if (dict.getDictLabel().equals("key")) {
-//                    key = dict.getDictValue();
-//                }
-//                if (dict.getDictLabel().equals("url")) {
-//                    url = dict.getDictValue();
-//                }
-//            }
 
             if (url.length() > 0) {
                 log.debug("发送短息开始，" + url + " key: " + key);
@@ -1010,17 +961,17 @@ public class AudContractService {
 
             //发送短信 经办人。
             String msg = "#type#=合同&#name#=" + contract.getContractname();
-            // 暂时 关闭，调试中。
-            Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+            SysUser touser = userMapper.selectUserById(Long.valueOf(contract.getContractuserid()));
+            Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             //发送短信 发送给当前审核人
             String danwei = contract.getSupplierinfo().getSuppliername();
 
             msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过" + "&#money#=" + contract.getContractmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
 
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+            touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
 
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
         }
         else if (contract.getSheetstatus() == SheetStatus.ChuShenPi.getCode()) {
@@ -1074,9 +1025,8 @@ public class AudContractService {
 
                 //发送短信
                 String msg = "#type#=合同&#name#=" + contract.getContractname();
-                // 暂时 关闭，调试中。
-                // userid ..
-                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+                SysUser touser = userMapper.selectUserById(Long.valueOf(userid));
+                Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             }
 
@@ -1084,9 +1034,10 @@ public class AudContractService {
             String danwei = contract.getSupplierinfo().getSuppliername();
 
             String  msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过" + "&#money#=" + contract.getContractmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
 
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+            SysUser touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
+
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
         }
         else if (contract.getSheetstatus() == SheetStatus.FenGuanSuoShenPi.getCode()) {
@@ -1136,8 +1087,8 @@ public class AudContractService {
                 }
                 //发送短信
                 String msg = "#type#=拨付单&#name#=" + contract.getContractname();
-                // 暂时 关闭，调试中。
-                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+                SysUser touser = userMapper.selectUserById(Long.valueOf(userid));
+                Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             }
 
@@ -1192,8 +1143,8 @@ public class AudContractService {
                 }
                 //发送短信
                 String msg = "#type#=拨付单&#name#=" + contract.getContractname();
-                // 暂时 关闭，调试中。
-                Juhe.sendSMS_ToAudit("13776614820", msg, url, key);
+                SysUser touser = userMapper.selectUserById(Long.valueOf(userid));
+                Juhe.sendSMS_ToAudit(touser.getPhonenumber(), msg, url, key);
 
             }
 
@@ -1247,14 +1198,15 @@ public class AudContractService {
             String danwei = contract.getSupplierinfo().getSuppliername();
 
             String  msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过" + "&#money#=" + contract.getContractmoney().toString() + "&#danwei#=" + danwei;
-            String danqianshenheren = record.getAudituserid().toString();
 
-            Juhe.sendSMS_Audited("13776614820", msg, url, key);
+            SysUser touser = userMapper.selectUserById(Long.valueOf(record.getAudituserid()));
+            Juhe.sendSMS_Audited(touser.getPhonenumber(), msg, url, key);
 
             //发送短信，给经办人
             msg = "#type#=合同&#name#=" + contract.getContractname() + "&#result#=通过";
-            // 暂时 关闭，调试中。
-            Juhe.sendSMS_Audited_ToSheetUser("13776614820", msg, url, key);
+            touser = userMapper.selectUserById(Long.valueOf(contract.getContractuserid()));
+
+            Juhe.sendSMS_Audited_ToSheetUser(touser.getPhonenumber(), msg, url, key);
 
         }
 
