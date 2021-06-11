@@ -244,3 +244,10 @@ export function applydeleteContract(data) {
   })
 }
 
+export function queryContract(query) {
+  return request({
+    url: '/contract/query/list',
+    method: 'get',
+    params: query
+  })
+}

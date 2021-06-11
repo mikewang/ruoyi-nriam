@@ -109,17 +109,6 @@ public class AudContractService {
 
             log.debug("contract.getPaySheetList.size is " + contract.getPaySheetList().size());
 
-//            AudContractpay record = new AudContractpay();
-//            record.setContractid(contract.getContractid());
-//            contract.setContractpayList(audContractpayMapper.selectContractPay(record));
-//
-//            AudContractdoc doc = new AudContractdoc();
-//            record.setContractid(doc.getContractid());
-//            List<AudContractdoc> contractdocList = contractdocMapper.selectAudContractdocList(doc);
-//            contract.setContractdocList(contractdocList);
-//
-//            contract.setProjectinfo(projectMapper.selectProjectById(contract.getProjectid()));
-//            contract.setSupplierinfo(supplierinfoMapper.selectSupplierInfoById(contract.getSupplierid()));
         }
 
         log.debug("request sheetList list is " + sheetList.toString());
@@ -1277,6 +1266,23 @@ public class AudContractService {
         return result;
     }
 
+
+
+    public List<AudContract> queryContractList(AudContract sheet) {
+
+        List<AudContract> sheetList = audContractMapper.queryContractList(sheet);
+
+        for (AudContract contract : sheetList) {
+            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
+            contract.setPaySheetList(paySheets);
+
+            log.debug("contract.getPaySheetList.size is " + contract.getPaySheetList().size());
+        }
+
+        log.debug("request sheetList list is " + sheetList.toString());
+
+        return sheetList;
+    }
 
 
 

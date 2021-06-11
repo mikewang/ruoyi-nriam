@@ -29,6 +29,8 @@ public interface AudContractMapper {
     List<AudContract> selectContractToExecute(AudContract record);
 
 
+    List<AudContract> queryContractList(AudContract record);
+
 
     List<AudContract> selectAll();
 

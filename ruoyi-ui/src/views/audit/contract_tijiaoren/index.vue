@@ -36,7 +36,7 @@
 
         <el-table-column label="合同金额（元）" align="center" prop="contractmoney" width="100"/>
         <el-table-column label="乙方单位" align="center" prop="supplieridlinktext" width="100"/>
-            <el-table-column label="合同状态" align="center" prop="sheetstatuslinktext" width="100">
+        <el-table-column label="合同状态" align="center" prop="sheetstatuslinktext" width="100">
         </el-table-column>
         <el-table-column
           label="操作"
@@ -128,11 +128,16 @@
 
 <script>
 import {deleteContract, listTijiaorenContract, firstpayContract, applydeleteContract} from "@/api/audit/contract";
+import BasDoc from "@/views/public/bas-doc";
+import ProjectData from "@/views/public/project-data";
+import ProjectDoc from "@/views/public/project-doc";
+import DictData from "@/views/public/dict-data";
+import SupplierData from "@/views/public/supplier-data";
 
 
 export default {
   name: "contract_tijiaoren_index",
-  // components: {  },
+  components: {BasDoc, ProjectData, ProjectDoc, DictData, SupplierData},
   data() {
     return {
       // 遮罩层
@@ -180,6 +185,8 @@ export default {
       applydeleteForm: {},
       // 状态为在研的项目，申请审核 功能按钮是否显示？
       timer: '',
+      DictTypeNameContractType: "合同类型",
+
       // 表单校验
       applydeleteRules: {
         applyDeleteReason: [
@@ -418,7 +425,9 @@ export default {
     /** 提交按钮 */
     submitForm: function () {
 
-    }
+    },
+
+
 
 
   }

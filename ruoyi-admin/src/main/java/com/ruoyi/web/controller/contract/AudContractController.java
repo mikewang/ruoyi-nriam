@@ -1271,4 +1271,17 @@ public class AudContractController extends BaseController {
 
     }
 
+    @PreAuthorize("@ss.hasPermi('statistic:querycontract:list')")
+    @GetMapping("/query/list")
+    public TableDataInfo queryList(AudContract query) {
+
+        Integer uid = getCurrentLoginUserid();
+        query.setContractuserid(uid);
+        logger.debug("queryList list  is " + query.toString());
+        startPage();
+        List<AudContract> list = contractService.queryContractList(query);
+
+        return getDataTable(list);
+    }
+
 }

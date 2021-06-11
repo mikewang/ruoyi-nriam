@@ -213,6 +213,16 @@
         order by a.ContractTime desc
     </select>
 
+    <select id="queryContractList" parameterType="com.ruoyi.contract.domain.AudContract" resultMap="BaseResultMap">
+        <include refid="selectContract"/>
+        WHERE
+        a.SheetStatus != 17
+        <if test="contractname != null and contractname != '' ">
+            and a.contractname like concat('%', #{contractname,jdbcType=VARCHAR}, '%')
+        </if>
+        order by a.ContractTime desc
+    </select>
+
   <select id="selectAll" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
