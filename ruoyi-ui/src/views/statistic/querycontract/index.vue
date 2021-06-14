@@ -23,6 +23,18 @@
         <el-form-item label="所属部门" prop="organizationid">
         <dept-data :selected-dept-id="queryParams.organizationid"
                    @changeDeptId="changeFormDeptId"></dept-data>
+        </el-form-item>
+        <el-form-item label="乙方单位" prop="supplierid" label-width="150px">
+          <!-- 乙方单位组件-->
+          <supplier-data  :selected-supplier-data="queryParams.supplierid"
+                         @changeSupplierData="selectSupplierData" :key="supplierid"></supplier-data>
+        </el-form-item>
+        <el-form-item label="项目开始日期" prop="projectbegindate">
+          <el-date-picker v-model="queryParams.projectbegindate" type="date"
+                          placeholder="请选择日期"
+                          value-format="yyyy-MM-dd"
+                          style="display:block;"></el-date-picker>
+        </el-form-item>
         <el-form-item>
           <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -467,6 +479,13 @@ export default {
       this.queryParams.organizationid = dept.deptId;
 
     },
+    // 组件方法
+    selectSupplierData(supplier) {
+      console.log("selectSupplierData is ", supplier);
+      this.queryParams.supplierid =  supplier.supplierid;
+
+    },
+
 
   }
 };
