@@ -20,6 +20,7 @@
                         @changeProjectData="selectProjectData" :selected-option="projectSelectedOption"
                        ></project-data>
         </el-form-item>
+        <el-form-item label="所属部门" prop="organizationid">
         <dept-data :selected-dept-id="queryParams.organizationid"
                    @changeDeptId="changeFormDeptId"></dept-data>
         <el-form-item>
