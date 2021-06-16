@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row :gutter="20">
       <!--查询数据-->
-      <el-form ref="queryParams"  :model="queryParams" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form ref="queryParams"  :model="queryParams" :inline="true" v-show="showSearch" label-width="108px">
         <el-form-item label="合同名称" prop="contractname" >
           <el-input v-model="queryParams.contractname" clearable/>
         </el-form-item>
@@ -29,12 +29,38 @@
           <supplier-data  :selected-supplier-data="queryParams.supplierid"
                          @changeSupplierData="selectSupplierData" :key="supplierid"></supplier-data>
         </el-form-item>
-        <el-form-item label="项目开始日期" prop="projectbegindate">
-          <el-date-picker v-model="queryParams.projectbegindate" type="date"
-                          placeholder="请选择日期"
-                          value-format="yyyy-MM-dd"
-                          style="display:block;"></el-date-picker>
+        <el-form-item label="审批通过日期" prop="passtime">
+          <el-date-picker
+            v-model="queryParams.passtime"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="yyyy-MM-dd"
+            style="display:block;">
+          </el-date-picker>
         </el-form-item>
+        <el-form-item label="经办人" prop="contractuserid">
+          <user-data :selected-user-id="queryParams.contractuserid"
+                     @changeUserData="changeContractuserid"></user-data>
+        </el-form-item>
+        <el-form-item label="合同状态" prop="sheetstatus">
+          <dict-data :dict-type-name="DictTypeNameSheetStatus"
+                     :selected-dict-value="queryParams.sheetstatus" :data-options="undefined"
+                     @changeDictValue="changeFormDictType" ></dict-data>
+        </el-form-item>
+        <el-form-item label="合同状态" prop="sheetstatus">
+          <dict-data :dict-type-name="DictTypeNameSheetStatus"
+                     :selected-dict-value="queryParams.sheetstatus" :data-options="undefined"
+                     @changeDictValue="changeFormDictType" ></dict-data>
+        </el-form-item>
+
+        <el-form-item label="是否付款完成" prop="ifAllPayed">
+          <dict-data :dict-type-name="DictTypeNameIfAllPayed"
+                     :selected-dict-value="queryParams.ifAllPayed" :data-options=ContractIfAllPayedOptions
+                     @changeDictValue="changeFormDictType" ></dict-data>
+        </el-form-item>
+
         <el-form-item>
           <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -155,11 +181,12 @@ import DictData from "@/views/public/dict-data";
 import SupplierData from "@/views/public/supplier-data";
 import {listProjectdoc} from "@/api/project/project";
 import DeptData from "@/views/public/dept-data";
+import UserData from "@/views/public/user-data";
 
 
 export default {
   name: "contract_tijiaoren_index",
-  components: {BasDoc, ProjectData, ProjectDoc, DictData, SupplierData, "dept-data": DeptData},
+  components: {BasDoc, ProjectData, ProjectDoc, DictData, SupplierData, "dept-data": DeptData, UserData},
   data() {
     return {
       // 遮罩层
@@ -209,6 +236,11 @@ export default {
       timer: '',
       DictTypeNameContractType: "合同类型",
       projectSelectedOption: "aftersetup",
+
+      DictTypeNameSheetStatus: "单据状态",
+
+      DictTypeNameIfAllPayed: "是否付款完成",
+      ContractIfAllPayedOptions: [{dictLabel:"是", dictValue: 1},{dictLabel:"否" ,dictValue: 0}],
 
 
       // 表单校验
@@ -461,7 +493,24 @@ export default {
         } else {
           this.queryParams.contracttype = undefined;
         }
-      } else {
+      }
+      else  if (dict.type === this.DictTypeNameSheetStatus) {
+        console.log("changeFormDictType is ", dict);
+        if (dict) {
+          this.queryParams.sheetstatus = dict.id;
+        } else {
+          this.queryParams.sheetstatus = undefined;
+        }
+      }
+      else  if (dict.type === this.DictTypeNameIfAllPayed) {
+        console.log("changeFormDictType is ", dict);
+        if (dict) {
+          this.queryParams.ifAllPayed = dict.id;
+        } else {
+          this.queryParams.ifAllPayed = undefined;
+        }
+      }
+      else {
         console.error("changeFormDictType  意外 is ", dict);
       }
     },
@@ -483,6 +532,18 @@ export default {
     selectSupplierData(supplier) {
       console.log("selectSupplierData is ", supplier);
       this.queryParams.supplierid =  supplier.supplierid;
+
+    },
+
+
+    changeContractuserid(value) {
+
+      if (value) {
+
+        this.queryParams.contractuserid = value.userId;
+      } else {
+        this.queryParams.contractuserid = undefined;
+      }
 
     },
 
