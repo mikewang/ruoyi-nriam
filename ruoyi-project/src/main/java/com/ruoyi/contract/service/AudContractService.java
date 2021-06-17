@@ -1272,12 +1272,6 @@ public class AudContractService {
 
         List<AudContract> sheetList = audContractMapper.queryContractList(sheet);
 
-        for (AudContract contract : sheetList) {
-            List<AudSheet> paySheets = audSheetMapper.selectContractPaySheetByContractid(contract.getContractid());
-            contract.setPaySheetList(paySheets);
-
-            log.debug("contract.getPaySheetList.size is " + contract.getPaySheetList().size());
-        }
 
         log.debug("request sheetList list is " + sheetList.toString());
 

@@ -220,6 +220,13 @@
         <if test="contractname != null and contractname != '' ">
             and a.contractname like concat('%', #{contractname,jdbcType=VARCHAR}, '%')
         </if>
+        <if test="params.passtimeRange != null ">
+            and #{params.passtimeRange[0],jdbcType=VARCHAR} &lt;= a.passtime
+            and  #{params.passtimeRange[1],jdbcType=VARCHAR} &gt;= a.passtime
+        </if>
+        <if test="params.ifAllPayed != null ">
+            and a.contractname like concat('%', '江苏省知识服务网络数据库服务合同', '%')
+        </if>
         order by a.ContractTime desc
     </select>
 

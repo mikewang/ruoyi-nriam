@@ -76,9 +76,6 @@ public class AudContract extends BaseEntity {
     private String applyDeleteReason;
     private String applyDeleteTime;
 
-    private Integer ifAllPayed;
-
-
     public Integer getContractid() {
         return contractid;
     }
@@ -383,13 +380,6 @@ public class AudContract extends BaseEntity {
         this.applyDeleteTime = applyDeleteTime;
     }
 
-    public Integer getIfAllPayed() {
-        return ifAllPayed;
-    }
-
-    public void setIfAllPayed(Integer ifAllPayed) {
-        this.ifAllPayed = ifAllPayed;
-    }
 
     @Override
     public String toString() {
@@ -430,6 +420,8 @@ public class AudContract extends BaseEntity {
                 ", confirmUserid=" + confirmUserid +
                 ", audittype='" + audittype + '\'' +
                 ", sheetAuditRecordList=" + sheetAuditRecordList +
+                ", applyDeleteReason='" + applyDeleteReason + '\'' +
+                ", applyDeleteTime='" + applyDeleteTime + '\'' +
                 '}';
     }
 }

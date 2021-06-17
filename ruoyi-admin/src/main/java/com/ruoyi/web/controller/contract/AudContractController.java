@@ -1278,6 +1278,13 @@ public class AudContractController extends BaseController {
         Integer uid = getCurrentLoginUserid();
         query.setContractuserid(uid);
         logger.debug("queryList list  is " + query.toString());
+        logger.debug("queryList getParams list  is " + query.getParams().toString());
+
+        if (query.getParams().get("passtimeRange") != null && query.getParams().get("passtimeRange") != "") {
+            String passtimes = (String) query.getParams().get("passtimeRange");
+            query.getParams().put("passtimeRange", passtimes.split(","));
+        }
+
         startPage();
         List<AudContract> list = contractService.queryContractList(query);
 

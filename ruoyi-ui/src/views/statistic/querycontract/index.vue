@@ -27,11 +27,11 @@
         <el-form-item label="乙方单位" prop="supplierid" label-width="150px">
           <!-- 乙方单位组件-->
           <supplier-data  :selected-supplier-data="queryParams.supplierid"
-                         @changeSupplierData="selectSupplierData" :key="supplierid"></supplier-data>
+                         @changeSupplierData="selectSupplierData" ></supplier-data>
         </el-form-item>
-        <el-form-item label="审批通过日期" prop="passtime">
+        <el-form-item label="审批通过日期" prop="passtimeRange">
           <el-date-picker
-            v-model="queryParams.passtime"
+            v-model="queryParams.passtimeRange"
             type="daterange"
             range-separator="至"
             start-placeholder="开始日期"
@@ -155,7 +155,7 @@
 
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
-      <el-form ref="applydeleteForm" :model="applydeleteForm" :rules="rules" label-width="160px" :key="timer">
+      <el-form ref="applydeleteForm" :model="applydeleteForm" :rules="applydeleteRules" label-width="160px" :key="timer">
         <el-row>
           <el-col :span="24">
             <el-form-item label="请输入申请作废的理由" prop="applyDeleteReason">
@@ -262,125 +262,16 @@ export default {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      console.log("queryParams is ", this.queryParams);
-      queryContract(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      console.log("queryParams params is ", this.queryParams.params);
+
+      let query = this.addDateRange(this.queryParams, this.dateRange);
+
+      query.params.passtimeRange = query.passtimeRange;
+      query.params.ifAllPayed = query.ifAllPayed;
+
+      queryContract(query).then(response => {
           console.log("response is ", response);
-          let sheetList = [];
-          let rows = response.rows;
-          for (let i=0; i < rows.length; i++) {
-            let row = rows[i];
-
-            // 按钮功能可视性判断。
-            let a_ApplyDelete = false;
-            //对于刚审批完的合同，可以显示“申请作废”按钮
-            if (row.sheetstatus === this.SheetStatus.ShenPiWanCheng && row.payedtimes === 1) {
-              //表示只付过一次款，说明是刚审批完成的合同
-              a_ApplyDelete = true;
-            }
-            row.a_ApplyDelete = a_ApplyDelete;
-
-
-            // 拨付单下的功能按钮可见度
-            row.btn_pay_visible = false;
-            row.lab_paycomplete_visible = false;
-            row.lbtn_firstpay_visible = false;
-            row.paySheetItems = [];
-
-            let ifDisplayPayButton = true;  //是否显示付款按钮的标志
-            let ifDisplayPayCompleteLab = true;  //是否显示付款完成的标志
-
-            //“审批完成”和“已签订”“付款完成”的合同，才查询其下属的拨付单的情况
-            if (row.sheetstatus === this.SheetStatus.ShenPiWanCheng || row.sheetstatus === this.SheetStatus.YiQianDing || row.sheetstatus === this.SheetStatus.FuKuanWanCheng) {
-
-              for (let j=0; j <row.paySheetList.length; j++) {
-                let pay = row.paySheetList[j];
-                if (pay.sheetstatus !== this.SheetStatus.ShenPiWanCheng) {
-                   ifDisplayPayButton = false;  //是否显示付款按钮的标志
-                   ifDisplayPayCompleteLab = false;  //是否显示付款完成的标志
-                }
-              }
-
-              //只有一张拨付单，并且“首次付款时间”为空。说明是刚审批通过的合同
-              if (row.paySheetList.length == 1 && (row.firstpaytime === "" || row.firstpaytime === null || row.firstpaytime === undefined)){
-
-                row.btn_pay_visible = false;
-                row.lab_paycomplete_visible = false;
-                row.lbtn_firstpay_visible = true;
-
-              }
-              else {
-
-                if (ifDisplayPayButton == true)   //说明都是已经审批完成的拨付单
-                {
-                  if (row.paytotaltimes === row.payedtimes)   //总次数和付款次数相同，不要显示“付款”按钮
-                  {
-                    ifDisplayPayButton = false;
-                    ifDisplayPayCompleteLab = true;      //付款完成
-                  }
-                  else
-                  {
-                    ifDisplayPayButton = true;
-                    ifDisplayPayCompleteLab = false;      //付款还未完成
-                  }
-                }
-                row.lbtn_pay_visible = ifDisplayPayButton;
-                row.lab_paycomplete_visible = ifDisplayPayCompleteLab;
-              }
-              // 必须在这三个状态下 ，才显示 合同拨付单
-              let paySheetItems = [];
-
-              for (let j=0; j < row.paySheetList.length; j++) {
-
-                let pay = row.paySheetList[j];
-
-                if (pay.sheetstatus === this.SheetStatus.ShenPiWanCheng) {
-
-                  let lab_yishen_visible = true;
-                  let lbtn_daishen_visible = false;
-                  let lab_yishen_text = "第" + (j+1).toString() + "单(已审)";
-                  let lbtn_daishen_text = "";
-
-                  if (j ===0 && (row.firstpaytime === "" || row.firstpaytime === undefined)) {
-                    let lab_yishen_text = "第1单";
-                  }
-
-                  let paysheetItem = {lab_yishen_visible:lab_yishen_visible, lbtn_daishen_visible:lbtn_daishen_visible,lab_yishen_text:lab_yishen_text,lbtn_daishen_text:lbtn_daishen_text};
-
-                  paySheetItems.push(paysheetItem);
-
-                }
-                else if (pay.sheetstatus === this.SheetStatus.NoPass) {
-
-                  let lab_yishen_visible = false;
-                  let lbtn_daishen_visible = true;
-                  let lab_yishen_text = "";
-                  let lbtn_daishen_text = "第" + (j+1).toString()+ "单(不通过)";
-                  let paysheetItem = {lab_yishen_visible:lab_yishen_visible, lbtn_daishen_visible:lbtn_daishen_visible,lab_yishen_text:lab_yishen_text,lbtn_daishen_text:lbtn_daishen_text};
-
-                  paySheetItems.push(paysheetItem);
-                }
-
-
-                else {
-                  let lab_yishen_visible = false;
-                  let lbtn_daishen_visible = true;
-                  let lab_yishen_text = "";
-                  let lbtn_daishen_text = "第" + (j+1).toString()+ "单(待审)";
-                  let paysheetItem = {lab_yishen_visible:lab_yishen_visible, lbtn_daishen_visible:lbtn_daishen_visible,lab_yishen_text:lab_yishen_text,lbtn_daishen_text:lbtn_daishen_text};
-
-                  paySheetItems.push(paysheetItem);
-                }
-              }
-
-              row.paySheetItems = paySheetItems; // 合同拨付单。
-
-              console.log("paySheetItems now ,", paySheetItems);
-            }
-
-
-            sheetList.push(row);
-          }
-          this.sheetList = sheetList;
+          this.sheetList = response.rows;
           this.total = response.total;
           this.loading = false;
         }
