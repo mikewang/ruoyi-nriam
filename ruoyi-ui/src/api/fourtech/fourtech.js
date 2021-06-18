@@ -151,3 +151,12 @@ export function updaeCodefourtech(data) {
     data: data
   })
 }
+
+
+export function queryFourtech(query) {
+  return request({
+    url: '/fourtech/query/list',
+    method: 'get',
+    params: query
+  })
+}

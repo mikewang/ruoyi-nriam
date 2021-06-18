@@ -36,8 +36,8 @@
         <el-table-column label="起止时间" align="center" prop="fourtechDateRange" width="180"/>
 
         <el-table-column label="合同金额（元）" align="center" prop="fourtechmoney" width="100"/>
-          <el-table-column label="合作单位" align="center" prop="coperationunit" width="100"/>
-            <el-table-column label="合同状态" align="center" prop="sheetstatuslinktext" width="100">
+        <el-table-column label="合作单位" align="center" prop="coperationunit" width="100"/>
+        <el-table-column label="合同状态" align="center" prop="sheetstatuslinktext" width="100">
         </el-table-column>
         <el-table-column
           label="操作"

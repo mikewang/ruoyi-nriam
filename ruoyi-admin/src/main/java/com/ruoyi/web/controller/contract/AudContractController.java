@@ -38,6 +38,7 @@ import com.ruoyi.contract.service.AudContractService;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.service.BasDocService;
+import io.swagger.models.auth.In;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.hwpf.HWPFDocument;
@@ -1280,14 +1281,25 @@ public class AudContractController extends BaseController {
         logger.debug("queryList list  is " + query.toString());
         logger.debug("queryList getParams list  is " + query.getParams().toString());
 
-        if (query.getParams().get("passtimeRange") != null && query.getParams().get("passtimeRange") != "") {
-            String passtimes = (String) query.getParams().get("passtimeRange");
-            query.getParams().put("passtimeRange", passtimes.split(","));
+        if (query.getParams().containsKey("passtimeRange")) {
+            logger.debug("queryList getParams containsKey  is " + query.getParams().keySet().toString());
+            if (query.getParams().get("passtimeRange") != null && query.getParams().get("passtimeRange") != "" && query.getParams().get("passtimeRange") != "undefine" ) {
+                logger.debug("check get passtimeRange is " +  query.getParams().get("passtimeRange"));
+                String passtimes = (String) query.getParams().get("passtimeRange");
+                query.getParams().put("passtimeRange", passtimes.split(","));
+            }
+        }
+
+        if (query.getParams().containsKey("ifAllPayed")) {
+            logger.debug("queryList getParams containsKey  is " + query.getParams().keySet().toString());
+            if (query.getParams().get("ifAllPayed") != null && query.getParams().get("ifAllPayed") != ""  && query.getParams().get("ifAllPayed") != "undefine") {
+                logger.debug("check get ifAllPayed is " +  query.getParams().get("ifAllPayed"));
+                query.getParams().put("ifAllPayed", Integer.valueOf(query.getParams().get("ifAllPayed").toString()));
+            }
         }
 
         startPage();
         List<AudContract> list = contractService.queryContractList(query);
-
         return getDataTable(list);
     }
 

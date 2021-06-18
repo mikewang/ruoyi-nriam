@@ -87,59 +87,17 @@
         <el-table-column
           label="操作"
           align="center"
-          width="160"
+          width="100"
           class-name="small-padding fixed-width"
         >
           <template slot-scope="scope">
             <el-button
               size="mini"
               type="text"
-              icon="el-icon-edit"
+              icon="el-icon-view"
               @click="handleUpdate(scope.row)"
-              v-hasPermi="['contract:tijiaoren:list']"
             >查看
             </el-button>
-            <el-button  v-if="scope.row.a_ApplyDelete"
-              size="mini"
-              type="text"
-              icon="el-icon-remove"
-              @click="handleApplyDelete(scope.row)"
-              v-hasPermi="['contract:tijiaoren:list']"
-            >申请作废
-            </el-button>
-          </template>
-        </el-table-column>
-        <el-table-column label="拨付单" align="center" prop="sheetstatus" width="100">
-          <template slot-scope="scope">
-
-            <span v-for="item in scope.row.paySheetItems">
-              <span v-if="item.lab_yishen_visible">{{item.lab_yishen_text}}</span>
-            <el-button v-if="item.lbtn_daishen_visible"
-              size="mini"
-              type="text"
-              icon="el-icon-edit"
-              @click="handleUpdate(scope.row)"
-            >{{item.lbtn_daishen_text}}
-            </el-button>
-            </span>
-            <br/>
-            <span>
-              <el-button v-if="scope.row.btn_pay_visible"
-                                     size="mini"
-                                     type="text"
-                                     icon="el-icon-edit"
-                                     @click="handleUpdate(scope.row)"
-                          >继续付款
-            </el-button>
-              <span v-if="scope.row.lab_paycomplete_visible">付款完成</span>
-              <el-button v-if="scope.row.lbtn_firstpay_visible"
-                         size="mini"
-                         type="text"
-                         icon="el-icon-edit"
-                         @click="handleFirstPay(scope.row)"
-              >第1单付款
-            </el-button>
-            </span>
           </template>
         </el-table-column>
       </el-table>
@@ -155,19 +113,7 @@
 
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
-      <el-form ref="applydeleteForm" :model="applydeleteForm" :rules="applydeleteRules" label-width="160px" :key="timer">
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="请输入申请作废的理由" prop="applyDeleteReason">
-              <el-input v-model="applydeleteForm.applyDeleteReason" placeholder="" type="textarea"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitApplyDeleteForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
+
     </el-dialog>
   </div>
 </template>
@@ -185,7 +131,7 @@ import UserData from "@/views/public/user-data";
 
 
 export default {
-  name: "contract_tijiaoren_index",
+  name: "contract_query_index",
   components: {BasDoc, ProjectData, ProjectDoc, DictData, SupplierData, "dept-data": DeptData, UserData},
   data() {
     return {
@@ -266,8 +212,12 @@ export default {
 
       let query = this.addDateRange(this.queryParams, this.dateRange);
 
-      query.params.passtimeRange = query.passtimeRange;
-      query.params.ifAllPayed = query.ifAllPayed;
+      if (query.passtimeRange != null) {
+        query.params.passtimeRange = query.passtimeRange;
+      }
+      if (query.ifAllPayed != null) {
+        query.params.ifAllPayed = query.ifAllPayed;
+      }
 
       queryContract(query).then(response => {
           console.log("response is ", response);
@@ -305,10 +255,7 @@ export default {
       this.multiple = !selection.length;
     },
 
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.$router.push({path: '/contract/tijiaoren'});
-    },
+    /** 按钮操作 */
 
     handleUpdate(row) {
       console.log("update row is  ", row);
@@ -317,62 +264,8 @@ export default {
       this.$router.push({path: path});
     },
 
-    handleApplyDelete(row) {
-
-      this.title = "申请作废合同";
-      this.open = true;
-      this.applydeleteForm.contractid = row.contractid;
-      this.applydeleteForm.contractname = row.contractname;
-
-    },
-
-    submitApplyDeleteForm: function() {
-
-      this.$refs["applydeleteForm"].validate(valid => {
-        if (valid) {
-          const this_ = this;
-          this.$confirm('是否确定申请作废该合同？', "", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }).then(function () {
-
-            console.log("submit applydeleteForm is ", this_.applydeleteForm);
 
 
-            applydeleteContract(this_.applydeleteForm).then(response => {
-              this_.open = false;
-              this_.msgSuccess("操作完成");
-              this_.getList();
-            });
-
-          }).catch(console.error);
-          this_.open = false;
-          console.log("submit applydeleteForm is ", this_.applydeleteForm);
-        }
-      });
-    },
-
-    handleFirstPay(row) {
-      const this_ = this;
-      this.$confirm('请确保已签订了纸质合同之后再执行此操作。是否确定已签订？', "第1单付款", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-
-        firstpayContract(row).then(response => {
-          this_.msgSuccess("操作完成");
-          this_.getList();
-        });
-
-      }).catch(console.error);
-    },
-
-    /** 提交按钮 */
-    submitForm: function () {
-
-    },
 
     // 组件方法
     changeFormDictType(dict) {
@@ -380,7 +273,7 @@ export default {
       if (dict.type === this.DictTypeNameContractType) {
         console.log("changeFormDictType is ", dict);
         if (dict) {
-          this.queryParams.contracttype = dict.id;
+          this.queryParams.contracttype = dict.dictValue;
         } else {
           this.queryParams.contracttype = undefined;
         }
@@ -388,7 +281,7 @@ export default {
       else  if (dict.type === this.DictTypeNameSheetStatus) {
         console.log("changeFormDictType is ", dict);
         if (dict) {
-          this.queryParams.sheetstatus = dict.id;
+          this.queryParams.sheetstatus = dict.dictValue;
         } else {
           this.queryParams.sheetstatus = undefined;
         }
@@ -396,7 +289,7 @@ export default {
       else  if (dict.type === this.DictTypeNameIfAllPayed) {
         console.log("changeFormDictType is ", dict);
         if (dict) {
-          this.queryParams.ifAllPayed = dict.id;
+          this.queryParams.ifAllPayed = dict.dictValue;
         } else {
           this.queryParams.ifAllPayed = undefined;
         }

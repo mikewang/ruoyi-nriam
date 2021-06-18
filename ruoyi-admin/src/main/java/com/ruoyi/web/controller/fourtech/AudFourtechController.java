@@ -643,5 +643,18 @@ public class AudFourtechController extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('statistic:queryfourtech:list')")
+    @GetMapping("/query/list")
+    public TableDataInfo queryList(AudFourtech query) {
+
+        Integer uid = getCurrentLoginUserid();
+
+        startPage();
+
+        List<AudFourtech> list = fourtechService.queryFourtech(query);
+
+        return getDataTable(list);
+    }
+
 
 }

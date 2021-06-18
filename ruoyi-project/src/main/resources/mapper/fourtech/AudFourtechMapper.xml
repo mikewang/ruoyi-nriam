@@ -188,4 +188,14 @@
     where FourTechID = #{fourtechid,jdbcType=INTEGER}
   </update>
 
+  <select id="queryFourtech" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
+    <include refid="selectFourtech"/>
+    WHERE a.SheetUserID = #{sheetuserid,jdbcType=INTEGER}
+    <if test="fourtechname != null and fourtechname != '' ">
+      and a.fourtechname like concat('%', #{fourtechname,jdbcType=VARCHAR}, '%')
+    </if>
+    and  a.SheetStatus != 9
+    order by a.SheetTime desc
+  </select>
+
 </mapper>

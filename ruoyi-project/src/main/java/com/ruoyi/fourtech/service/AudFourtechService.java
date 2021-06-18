@@ -692,4 +692,13 @@ public class AudFourtechService {
     }
 
 
+    public List<AudFourtech> queryFourtech(AudFourtech fourtech) {
+
+        List<AudFourtech> sheetList = audFourtechMapper.queryFourtech(fourtech);
+
+        log.debug("queryFourtech sheetList is " + sheetList.toString());
+
+        return sheetList;
+    }
+
 }

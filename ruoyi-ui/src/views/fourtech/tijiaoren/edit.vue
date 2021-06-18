@@ -17,7 +17,8 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="合同类型" prop="fourtechtype">
-                <el-select v-bind:readonly="readonly.basic" v-model="form.fourtechtype" placeholder="请选择合同类型" style="display:block;"
+
+                <el-select v-bind:readonly="readonly.basic" v-model="form.fourtechtype" placeholder="请选择合同类型" style=" display:block;"
                            @change="changeFourtechtypeValue">
                   <el-option
                     v-for="item in fourtechtypeOptions"
