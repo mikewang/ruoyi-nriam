@@ -4,7 +4,7 @@
       <!--查询数据-->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="108px">
         <el-form-item label="合同编号" prop="fourtechcode">
-          <el-input v-model="queryParams.fourtechcode"/>
+          <el-input v-model="queryParams.fourtechcode" clearable/>
         </el-form-item>
         <el-form-item label="项目名称" prop="fourtechname">
           <el-input v-model="queryParams.fourtechname" clearable/>
@@ -15,7 +15,7 @@
                    @changeDictValue="changeFormDictType" ></dict-data>
         </el-form-item>
         <el-form-item label="所属部门" prop="organizationid">
-          <dept-data :key="queryParams.fourtechid" :selected-dept-id="queryParams.organizationid"
+          <dept-data :key="queryParams.organizationid" :selected-dept-id="queryParams.organizationid"
                      @changeDeptId="changeFormDeptId"></dept-data>
         </el-form-item>
         <el-form-item label="项目负责人" prop="managerid">
@@ -171,7 +171,7 @@ export default {
     getList() {
       this.loading = true;
       console.log("queryParams is ", this.queryParams);
-      listTijiaorenFourtech(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      queryFourtech(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           console.log("response is ", response);
           this.sheetList = response.rows;
           this.total = response.total;

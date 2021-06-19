@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.fourtech.mapper.AudFourtechMapper">
   <resultMap id="BaseResultMap" type="com.ruoyi.fourtech.domain.AudFourtech">
-
     <id column="FourTechID" jdbcType="INTEGER" property="fourtechid" />
     <result column="FourTechCode" jdbcType="VARCHAR" property="fourtechcode" />
     <result column="FourTechName" jdbcType="VARCHAR" property="fourtechname" />
@@ -26,6 +25,7 @@
     <result column="OrganizationIDLinkText" jdbcType="VARCHAR" property="organizationidlinktext" />
     <result column="SheetStatusLinkText" jdbcType="VARCHAR" property="sheetstatuslinktext" />
   </resultMap>
+
 
   <sql id="selectFourtech">
     SELECT a.FourTechID, a.FourTechCode, a.FourTechName, a.FourTechType, a.ManagerID
@@ -190,11 +190,37 @@
 
   <select id="queryFourtech" parameterType="com.ruoyi.fourtech.domain.AudFourtech" resultMap="BaseResultMap">
     <include refid="selectFourtech"/>
-    WHERE a.SheetUserID = #{sheetuserid,jdbcType=INTEGER}
+    WHERE  a.SheetStatus != 9
+    and  a.SheetStatus != 17
+    <if test="fourtechcode != null and fourtechcode != '' ">
+      and a.fourtechcode like concat('%', #{fourtechcode,jdbcType=VARCHAR}, '%')
+    </if>
     <if test="fourtechname != null and fourtechname != '' ">
       and a.fourtechname like concat('%', #{fourtechname,jdbcType=VARCHAR}, '%')
     </if>
-    and  a.SheetStatus != 9
+    <if test="fourtechtype != null and fourtechtype != '' ">
+      and a.fourtechtype = #{fourtechtype,jdbcType=VARCHAR}
+    </if>
+    <if test="organizationid != null and organizationid != '' ">
+      and a.organizationid = #{organizationid,jdbcType=INTEGER}
+    </if>
+    <if test="managerid != null and managerid != '' ">
+      and a.managerid = #{managerid,jdbcType=INTEGER}
+    </if>
+    <if test="coperationunit != null and coperationunit != '' ">
+      and a.coperationunit like concat('%', #{coperationunit,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="sheettime != null and sheettime != '' ">
+      and #{sheettime,jdbcType=VARCHAR} &gt;= SUBSTRING(sheettime,1,4)
+      and #{sheettime,jdbcType=VARCHAR} &lt;= SUBSTRING(sheettime,1,4)
+    </if>
+    <if test="sheetstatus != null and sheetstatus != '' ">
+      and a.sheetstatus = #{sheetstatus,jdbcType=INTEGER}
+    </if>
+    <if test="sheetuserid != null and sheetuserid != '' ">
+      and a.sheetuserid = #{sheetuserid,jdbcType=INTEGER}
+    </if>
+
     order by a.SheetTime desc
   </select>
 

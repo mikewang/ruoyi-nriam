@@ -648,7 +648,7 @@ public class AudFourtechController extends BaseController {
     public TableDataInfo queryList(AudFourtech query) {
 
         Integer uid = getCurrentLoginUserid();
-
+        logger.debug("fourtech  queryList is " + query.toString());
         startPage();
 
         List<AudFourtech> list = fourtechService.queryFourtech(query);
