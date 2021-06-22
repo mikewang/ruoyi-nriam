@@ -1,6 +1,7 @@
 package com.ruoyi.expense.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.project.domain.AudProject;
 
 import java.math.BigDecimal;
 
@@ -47,6 +48,8 @@ public class AudExpense extends BaseEntity {
     private String projectidlinktext;
     private String organizationidlinktext;
     private String sheetstatuslinktext;
+
+    private AudProject projectinfo;
 
     public Integer getExpensesheetid() {
         return expensesheetid;
@@ -182,6 +185,15 @@ public class AudExpense extends BaseEntity {
 
     public void setSheetstatuslinktext(String sheetstatuslinktext) {
         this.sheetstatuslinktext = sheetstatuslinktext;
+    }
+
+
+    public AudProject getProjectinfo() {
+        return projectinfo;
+    }
+
+    public void setProjectinfo(AudProject projectinfo) {
+        this.projectinfo = projectinfo;
     }
 
     @Override

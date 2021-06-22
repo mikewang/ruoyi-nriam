@@ -77,6 +77,9 @@ export default {
       if (this.basdoc.attachtotype === "专利") {
           filepath = 2;
       }
+      if (this.basdoc.attachtotype === "小额经费单") {
+        filepath = 2;
+      }
 
       uploadBasDoc(filepath, formData).then(response => {
         console.log("response.name is ", response.name);

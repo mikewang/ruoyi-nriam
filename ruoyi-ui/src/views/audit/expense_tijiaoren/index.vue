@@ -76,7 +76,7 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitApplyDeleteForm">确 定</el-button>
+        <el-button type="primary" @click="cancel">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -197,74 +197,24 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.contractid);
+      this.ids = selection.map(item => item.expensesheetid);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
 
     /** 新增按钮操作 */
     handleAdd() {
-      this.$router.push({path: '/contract/tijiaoren'});
+      this.$router.push({path: '/expense/tijiaoren'});
     },
 
     handleUpdate(row) {
       console.log("update row is  ", row);
-      const path = '/contract/tijiaoren/' + row.contractid;
+      const path = '/expense/tijiaoren/' + row.expensesheetid;
       console.log("path is " + path);
       this.$router.push({path: path});
     },
 
-    handleApplyDelete(row) {
 
-      this.title = "申请作废合同";
-      this.open = true;
-      this.applydeleteForm.contractid = row.contractid;
-      this.applydeleteForm.contractname = row.contractname;
-
-    },
-
-    submitApplyDeleteForm: function() {
-
-      this.$refs["applydeleteForm"].validate(valid => {
-        if (valid) {
-          const this_ = this;
-          this.$confirm('是否确定申请作废该合同？', "", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }).then(function () {
-
-            console.log("submit applydeleteForm is ", this_.applydeleteForm);
-
-
-            applydeleteContract(this_.applydeleteForm).then(response => {
-              this_.open = false;
-              this_.msgSuccess("操作完成");
-              this_.getList();
-            });
-
-          }).catch(console.error);
-          this_.open = false;
-          console.log("submit applydeleteForm is ", this_.applydeleteForm);
-        }
-      });
-    },
-
-    handleFirstPay(row) {
-      const this_ = this;
-      this.$confirm('请确保已签订了纸质合同之后再执行此操作。是否确定已签订？', "第1单付款", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-
-        firstpayContract(row).then(response => {
-          this_.msgSuccess("操作完成");
-          this_.getList();
-        });
-
-      }).catch(console.error);
-    },
 
     /** 提交按钮 */
     submitForm: function () {

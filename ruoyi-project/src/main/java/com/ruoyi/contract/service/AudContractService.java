@@ -20,6 +20,7 @@ import com.ruoyi.contract.domain.AudContractpay;
 import com.ruoyi.contract.mapper.AudContractMapper;
 import com.ruoyi.contract.mapper.AudContractdocMapper;
 import com.ruoyi.contract.mapper.AudContractpayMapper;
+import com.ruoyi.expense.domain.AudExpense;
 import com.ruoyi.project.mapper.AudProjectMapper;
 import com.ruoyi.project.mapper.BasDocMapper;
 import com.ruoyi.system.domain.SysUserRole;
@@ -229,7 +230,7 @@ public class AudContractService {
     public Integer addContractTijiaoren(AudContract contract) {
         Integer result = 1;
 
-       // ConvertUpMoney.toChinese(contract.getContractmoney().toString());
+        // ConvertUpMoney.toChinese(contract.getContractmoney().toString());
 
         if (contract.getContractcode() == null || contract.getContractcode().isEmpty()) {
             BasUsedmaxserialnumber query = new BasUsedmaxserialnumber();
@@ -269,6 +270,8 @@ public class AudContractService {
 
         return contractid;
     }
+
+
 
 
     @Transactional

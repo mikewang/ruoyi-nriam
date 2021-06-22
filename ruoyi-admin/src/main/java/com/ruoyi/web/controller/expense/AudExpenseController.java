@@ -106,6 +106,9 @@ public class AudExpenseController extends BaseController {
     @Resource
     private TokenService tokenService;
 
+    @Resource
+    private ServerConfig serverConfig;
+
 
     private Integer getCurrentLoginUserid() {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
@@ -259,5 +262,43 @@ public class AudExpenseController extends BaseController {
         AjaxResult ajax = AjaxResult.success();
         return ajax;
     }
+
+
+    @PreAuthorize("@ss.hasPermi('expense:tijiaoren:list')")
+    @Log(title = "小额经费管理", businessType = BusinessType.INSERT)
+    @PostMapping("/tijiaoren")
+    public AjaxResult add(@Validated @RequestBody AudExpense expense) {
+
+        AjaxResult ajax = AjaxResult.success();
+
+        Integer userid = getCurrentLoginUserid();
+
+        expense.setSheetuserid(userid);
+        expense.setSheettime(DateUtils.dateTimeNow());
+
+
+        Integer status = expense.getSheetstatus();
+        logger.debug("sheet.getSheetstatus is " + status.toString());
+
+        expense.setSheetstatus(SheetStatus.XinJianZhong.getCode());
+        logger.debug("AudExpense add is " + expense.toString());
+
+        expense.setDaxie(ConvertUpMoney.toChinese(expense.getMoney().toString()));
+        expense.setOrganizationid(expense.getProjectinfo().getOrganizationid());
+
+        Integer result = expenseService.addExpenseTijiaoren(expense);
+
+        if (result > 0) {
+
+            ajax.put(AjaxResult.DATA_TAG, expense.getExpensesheetid());
+
+            return ajax;
+        } else {
+
+            return AjaxResult.error(" 操作失败，请联系管理员");
+        }
+
+    }
+
 
 }

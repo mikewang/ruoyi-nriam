@@ -224,14 +224,12 @@ public class AudExpenseService {
     }
 
     @Transactional
-    public Integer addContractTijiaoren(AudContract contract) {
+    public Integer addExpenseTijiaoren(AudExpense expense) {
         Integer result = 1;
 
-       // ConvertUpMoney.toChinese(contract.getContractmoney().toString());
-
-        if (contract.getContractcode() == null || contract.getContractcode().isEmpty()) {
+        if (expense.getExpensesheetcode() == null || expense.getExpensesheetcode().isEmpty()) {
             BasUsedmaxserialnumber query = new BasUsedmaxserialnumber();
-            query.setModulename("合同编号");
+            query.setModulename("经费单编号");
             query.setSomedate(DateUtils.getDate());
             Integer serialnumber = 1;
             BasUsedmaxserialnumber record = usedmaxserialnumberMapper.selectBasUsedmaxserialnumber(query);
@@ -244,28 +242,18 @@ public class AudExpenseService {
                 usedmaxserialnumberMapper.updateBasUsedmaxserialnumber(query);
             }
 
-            String contractcode = "HT" + DateUtils.dateTimeNow("yyyy") + String.format("%04d", serialnumber);
+            String expensesheetcode = "JFD" + DateUtils.dateTimeNow("yyyy") + String.format("%04d", serialnumber);
 
-            log.debug("contractcode is " + contractcode);
+            log.debug("getExpensesheetcode is " + expensesheetcode);
 
-            contract.setContractcode(contractcode);
+            expense.setExpensesheetcode(expensesheetcode);
         }
 
-        result = audContractMapper.insertAudContract(contract);
+        result = audExpenseMapper.insertAudExpense(expense);
 
-        Integer contractid = contract.getContractid();
+        Integer expensesheetid = expense.getExpensesheetid();
 
-        AudContractpay record = new AudContractpay();
-        record.setContractid(contractid);
-
-        audContractpayMapper.deleteContractPay(record);
-
-        for (AudContractpay contractpay : contract.getContractpayList()) {
-            contractpay.setContractid(contractid);
-            audContractpayMapper.insertContractPay(contractpay);
-        }
-
-        return contractid;
+        return expensesheetid;
     }
 
 
