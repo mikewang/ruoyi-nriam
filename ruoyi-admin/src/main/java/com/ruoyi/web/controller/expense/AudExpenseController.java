@@ -276,7 +276,6 @@ public class AudExpenseController extends BaseController {
         expense.setSheetuserid(userid);
         expense.setSheettime(DateUtils.dateTimeNow());
 
-
         Integer status = expense.getSheetstatus();
         logger.debug("sheet.getSheetstatus is " + status.toString());
 
@@ -301,4 +300,26 @@ public class AudExpenseController extends BaseController {
     }
 
 
+
+    /**
+     * 根据编号获取详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('expense:tijiaoren:list')")
+    @GetMapping(value = {"/{expensesheetid}"})
+    public AjaxResult getExpense(@PathVariable(value = "expensesheetid", required = false) Integer expensesheetid) throws IOException, WriterException {
+        AjaxResult ajax = AjaxResult.success();
+
+        if (StringUtils.isNotNull(expensesheetid)) {
+            logger.debug("getExpense expensesheetid = " + expensesheetid.toString());
+
+            AudExpense p = expenseService.selectExpenseById(expensesheetid);
+            if (p != null) {
+                ajax.put(AjaxResult.DATA_TAG, p);
+            } else {
+                ajax = AjaxResult.error("expensesheetid：" + expensesheetid.toString() + " 不存在");
+            }
+
+        }
+        return ajax;
+    }
 }

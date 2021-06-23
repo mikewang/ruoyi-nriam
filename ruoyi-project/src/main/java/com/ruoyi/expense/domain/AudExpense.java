@@ -1,9 +1,11 @@
 package com.ruoyi.expense.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.project.domain.AudProject;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class AudExpense extends BaseEntity {
 
@@ -50,6 +52,7 @@ public class AudExpense extends BaseEntity {
     private String sheetstatuslinktext;
 
     private AudProject projectinfo;
+    private List<BasDoc> docList;
 
     public Integer getExpensesheetid() {
         return expensesheetid;
@@ -194,6 +197,14 @@ public class AudExpense extends BaseEntity {
 
     public void setProjectinfo(AudProject projectinfo) {
         this.projectinfo = projectinfo;
+    }
+
+    public List<BasDoc> getDocList() {
+        return docList;
+    }
+
+    public void setDocList(List<BasDoc> docList) {
+        this.docList = docList;
     }
 
     @Override

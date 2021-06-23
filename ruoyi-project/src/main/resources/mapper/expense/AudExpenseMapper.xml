@@ -74,6 +74,21 @@
                 #{sheetstatus,jdbcType=INTEGER})
     </insert>
 
+    <select id="selectAudExpenseById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <include refid="selectExpense"/>
+        WHERE a.ExpenseSheetID = #{expensesheetid,jdbcType=INTEGER}
+    </select>
+
+    <update id="updateAudExpenseStatus" parameterType="com.ruoyi.expense.domain.AudExpense">
+        update Aud_Expense
+        set
+        <if test="passtime != null ">
+            passtime = #{passtime,jdbcType=VARCHAR},
+        </if>
+        SheetStatus = #{sheetstatus,jdbcType=INTEGER}
+        where ExpenseSheetID = #{expensesheetid,jdbcType=INTEGER}
+    </update>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         <!--
           WARNING - @mbg.generated

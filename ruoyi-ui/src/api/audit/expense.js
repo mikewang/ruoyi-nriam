@@ -83,26 +83,26 @@ export function nopassDeleteApplyContract(data) {
 }
 
 // 查询合同，之 提交人。
-export function getContract(contractid) {
+export function getExpense(expensesheetid) {
   return request({
-    url: '/contract/' + praseStrEmpty(contractid),
+    url: '/expense/' + praseStrEmpty(expensesheetid),
     method: 'get'
   })
 }
 
 
 // 合同，之 提交人。
-export function addContract(data) {
+export function addExpense(data) {
   return request({
-    url: '/contract/tijiaoren',
+    url: '/expense/tijiaoren',
     method: 'post',
     data: data
   })
 }
 
-export function updateContract(data) {
+export function updateExpense(data) {
   return request({
-    url: '/contract/tijiaoren',
+    url: '/expense/tijiaoren',
     method: 'put',
     data: data
   })

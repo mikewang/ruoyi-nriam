@@ -9,6 +9,10 @@ public interface AudExpenseMapper {
     List<AudExpense> selectExpenseTijiaoren(AudExpense record);
     int insertAudExpense(AudExpense record);
 
+    AudExpense selectAudExpenseById(Integer expensesheetid);
+    int updateAudExpenseStatus(AudExpense record);
+
+
     int deleteByPrimaryKey(Integer expensesheetid);
 
     /**

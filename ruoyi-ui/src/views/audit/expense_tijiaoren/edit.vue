@@ -223,7 +223,7 @@
       <el-row>
         <el-col :span="24" align="center">
           <el-button v-if="hidden.submitBtn === false" type="primary" @click="submitForm">提交审批</el-button>
-          <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">保存合同信息</el-button>
+          <el-button v-if="hidden.saveBtn === false" type="success" @click="saveForm">暂存</el-button>
           <el-button v-if="hidden.confirmBtn === false" type="success" @click="confirmForm">确定审批</el-button>
           <el-button v-if="hidden.deleteBtn === false" type="danger" @click="deleteForm">删除</el-button>
 
@@ -279,6 +279,7 @@ import {
   nopassDeleteApplyContract
 } from "@/api/audit/contract"
 
+import {addExpense, updateExpense, getExpense} from "@/api/audit/expense";
 
 export default {
   name: "expense_tijiaoren_edit",
@@ -314,7 +315,6 @@ export default {
       DocTypeShishiFangan: "实施方案",
 
       projectid: 0,
-      supplierid: 0,
 
       // 数据字典
       basicfileList1: [],
@@ -373,7 +373,7 @@ export default {
 
   beforeCreate() {
     console.log(" beforeCreate this.$route.meta is ", this.$route.meta);
-    const contractid = this.$route.params && this.$route.params.sheetid;
+    const expensesheetid = this.$route.params && this.$route.params.sheetid;
 
   },
   created() {
@@ -407,19 +407,18 @@ export default {
       } else {
         const this_ = this;
         this.reset();
-        getContract(expensesheetid).then(response => {
+        getExpense(expensesheetid).then(response => {
 
           console.log("getContract response data is ", response.data);
 
-          const contract = response.data;
+          const expense = response.data;
 
-          contract.contracttype = contract.contracttype.toString();
-
-          this_.form = contract;
-          this_.projectid = contract.projectid;
-          this_.supplierid = contract.supplierid;
+          this_.form = expense;
+          this_.projectid = expense.projectid;
 
           this_.configTemplateStatus();
+
+          this_.basDocExpense.relatedid = this_.form.expensesheetid;
 
           this_.loading = false;
 
@@ -593,19 +592,15 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        contractid: undefined,
-        contractcode: undefined,
-        contractname: undefined,
-        contracttype: undefined,
-        contracttypelinktext: undefined,
+        expensesheetid: undefined,
+        expensesheetcode: undefined,
+        expensename: undefined,
 
         projectid: undefined, // 为了rules校验。
         projectinfo: {projectid: undefined},
-        supplierid: undefined,
-        supplierinfo: {supplierid: undefined},
 
-        paytotaltimes: 2,
-        contractpayList: [],
+        money:undefined,
+        vouchercount:undefined,
         reason: undefined,
 
         sheetuserid: undefined,
@@ -621,8 +616,7 @@ export default {
 
       };
 
-      this.changePaytotaltimes(this.form.paytotaltimes);
-      this.form.contractuseridlinktext = this.$store.getters.realName
+      this.form.sheetuseridlinktext = this.$store.getters.realName
       this.resetForm("form");
     },
 
@@ -735,78 +729,6 @@ export default {
 
     },
 
-    // 组件方法
-    selectSupplierData(supplier) {
-      console.log("selectSupplierData is ", supplier);
-      this.form.supplierid = undefined;
-      this.form.supplierinfo = {supplierid: undefined};
-
-      const this_ = this;
-
-      if (supplier) {
-        this_.form.supplierid = supplier.supplierid;
-        this_.form.supplierinfo = supplier;
-        this_.supplierid = supplier.supplierid;
-
-        let contract = this_.form;
-
-        listContractdoc({contractid: contract.contractid}).then(response => {
-
-          console.log("listContractdoc is ", response.data);
-
-          if (response.data !== null) {
-            contract.contractdocList = response.data;
-          } else {
-            contract.contractdocList = [];
-          }
-
-          const doclist = [];
-
-          for (let i = 0; i < contract.contractdocList.length; i++) {
-            let item = contract.contractdocList[i];
-            doclist.push({"name": item.docname, "url": item.docid});
-          }
-
-          this_.contractuploadfileList = doclist;
-
-          getSignpic(contract.contractuserid).then(response => {
-            console.log("getSignpic response is ", response);
-            contract.OPINION_JINGBAN = "经与项目负责人和乙方负责人沟通，双方同意签订本合同。合同内容真实。";
-            contract.sheetuseridImage = response.data.signpicName;
-
-            let auditRecord = {sheettype: "合同", sheetid: contract.contractid};
-
-            getSheetAuditRecord(auditRecord).then(response => {
-              console.log("getSheetAuditRecord response data is ", response.data);
-              contract.sheetAuditRecordList = response.data;
-
-              // 得到所有的合同拨付单
-
-              //读取合同对应的拨付单并绑定到repeat控件
-              // DataSet paysheetds = im.GetPaySheetOfAContract(lab_ContractID.Text , false);
-              // rpt_PaySheet.DataSource = paysheetds.Tables[0];
-              // rpt_PaySheet.DataBind();
-              // paysheetds.Dispose();
-              listContractPaysheet(contract.contractid).then(response => {
-
-                console.log("listContractPaysheet 合同拨付单 is ", response.data);
-
-                contract.paysheetList = response.data;
-
-                this_.projectid = contract.projectid;
-
-                this_.loading = false;
-              });
-            });
-          });
-        });
-
-      } else {
-        this.supplierid = undefined;
-      }
-
-    },
-
 
     /** 关闭按钮 */
     closeForm() {
@@ -846,22 +768,22 @@ export default {
 
           if (this_.opcode === "add" || this_.opcode === "query") {
             // 处理掉添加， 为了更新或修改。
-            if (this_.form.contractid === undefined) {
-              addContract(this.form).then(response => {
+            if (this_.form.expensesheetid === undefined) {
+              addExpense(this.form).then(response => {
                 console.log("response is ", response);
                 if (response.data === 0) {
                   this_.msgError("保存失败");
-                  this_.form.contractid = undefined;
+                  this_.form.expensesheetid = undefined;
                 } else {
                   this.msgSuccess("保存成功" + response.data);
-                  this.form.contractid = response.data;
+                  this.form.expensesheetid = response.data;
                   this.opcode = "query";
                   this.configTemplateStatus();
                 }
                 //this.closeForm();
               });
             } else {
-              updateContract(this_.form).then(result => {
+              updateExpense(this_.form).then(result => {
                 this_.msgSuccess("修改成功");
                 //   this.closeForm();
               });
