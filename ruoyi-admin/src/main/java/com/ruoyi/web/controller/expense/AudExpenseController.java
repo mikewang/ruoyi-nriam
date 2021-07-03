@@ -275,17 +275,37 @@ public class AudExpenseController extends BaseController {
 
         expense.setSheetuserid(userid);
         expense.setSheettime(DateUtils.dateTimeNow());
+        Integer result = 0;
 
-        Integer status = expense.getSheetstatus();
-        logger.debug("sheet.getSheetstatus is " + status.toString());
+        if (expense.getExpensesheetid() == null) {
+            expense.setSheetstatus(SheetStatus.XinJianZhong.getCode());
+            logger.debug("AudExpense add is " + expense.toString());
 
-        expense.setSheetstatus(SheetStatus.XinJianZhong.getCode());
-        logger.debug("AudExpense add is " + expense.toString());
+            expense.setDaxie(ConvertUpMoney.toChinese(expense.getMoney().toString()));
+            expense.setOrganizationid(expense.getProjectinfo().getOrganizationid());
 
-        expense.setDaxie(ConvertUpMoney.toChinese(expense.getMoney().toString()));
-        expense.setOrganizationid(expense.getProjectinfo().getOrganizationid());
+            result = expenseService.addExpenseTijiaoren(expense);
+        }
+        else {
+            expense.setDaxie(ConvertUpMoney.toChinese(expense.getMoney().toString()));
+            expense.setOrganizationid(expense.getProjectinfo().getOrganizationid());
 
-        Integer result = expenseService.addExpenseTijiaoren(expense);
+            Integer status = expense.getSheetstatus();
+            logger.debug("sheet.getSheetstatus is " + status.toString());
+            if (status == SheetStatus.XinJianZhong.getCode()) {
+
+                result = expenseService.updateExpenseTijiaoren(expense);
+            }
+            else if (status == SheetStatus.XiangMuShenPi.getCode()){
+
+                result = expenseService.updateExpenseTijiaoren(expense);
+
+                result = expenseService.updateExpenseStatus(expense);
+
+            }
+
+        }
+
 
         if (result > 0) {
 
@@ -298,7 +318,6 @@ public class AudExpenseController extends BaseController {
         }
 
     }
-
 
 
     /**

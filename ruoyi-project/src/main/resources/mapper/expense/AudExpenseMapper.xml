@@ -74,6 +74,22 @@
                 #{sheetstatus,jdbcType=INTEGER})
     </insert>
 
+    <update id="updateAudExpense" parameterType="com.ruoyi.expense.domain.AudExpense">
+        update Aud_Expense
+        set ExpenseName = #{expensename,jdbcType=VARCHAR},
+        ExpenseSheetCode = #{expensesheetcode,jdbcType=VARCHAR},
+        SheetUserID = #{sheetuserid,jdbcType=INTEGER},
+        SheetTime = #{sheettime,jdbcType=VARCHAR},
+        ProjectID = #{projectid,jdbcType=INTEGER},
+        OrganizationID = #{organizationid,jdbcType=INTEGER},
+        Money = #{money,jdbcType=DECIMAL},
+        daxie = #{daxie,jdbcType=VARCHAR},
+        Reason = #{reason,jdbcType=VARCHAR},
+        VoucherCount = #{vouchercount,jdbcType=INTEGER},
+        PassTime = #{passtime,jdbcType=VARCHAR}
+        where ExpenseSheetID = #{expensesheetid,jdbcType=INTEGER}
+    </update>
+
     <select id="selectAudExpenseById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         <include refid="selectExpense"/>
         WHERE a.ExpenseSheetID = #{expensesheetid,jdbcType=INTEGER}

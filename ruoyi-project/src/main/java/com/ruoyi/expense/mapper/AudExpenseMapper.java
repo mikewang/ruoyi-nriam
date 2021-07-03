@@ -11,7 +11,7 @@ public interface AudExpenseMapper {
 
     AudExpense selectAudExpenseById(Integer expensesheetid);
     int updateAudExpenseStatus(AudExpense record);
-
+    int updateAudExpense(AudExpense record);
 
     int deleteByPrimaryKey(Integer expensesheetid);
 

@@ -384,6 +384,7 @@ export default {
     let expensesheetid = this.$route.params && this.$route.params.sheetid;
     if (expensesheetid === undefined || Number(expensesheetid) === 0) {
       expensesheetid = undefined;
+
     } else {
 
     }
@@ -403,6 +404,7 @@ export default {
       if (expensesheetid === undefined) {
         this.reset();
         this.configTemplateStatus();
+        this.form.sheetstatus = this.SheetStatus.XinJianZhong;
         this.loading = false;
       } else {
         const this_ = this;
@@ -783,7 +785,8 @@ export default {
                 //this.closeForm();
               });
             } else {
-              updateExpense(this_.form).then(result => {
+              this_.form.expensesheetid = null;
+              addExpense(this_.form).then(result => {
                 this_.msgSuccess("修改成功");
                 //   this.closeForm();
               });
@@ -806,14 +809,19 @@ export default {
           console.log("submit form is ", this.form);
           this_.form.operateCode = 2; // 提交审核代码 提交给后端。
 
-          if (this_.form.sheetstatus === 17 && this_.form.contractid !== undefined) {
-            // 处理掉添加， 为了更新或修改。
-
-            submitContract(this.form).then(result => {
+          if ( this_.form.sheetstatus === this_.SheetStatus.XinJianZhong) {
+            this_.form.sheetstatus = this_.SheetStatus.XiangMuShenPi;
+            addExpense(this_.form).then(result => {
               this.msgSuccess("提交审核成功");
               this.closeForm();
             });
           }
+          else {
+            this.msgError("提交审核失败");
+            this.closeForm();
+          }
+
+
         }
       });
     },
@@ -834,7 +842,7 @@ export default {
           this.opcode = "add";
           this.configTemplateStatus();
         })
-      });
+      }); 
     },
 
     confirmForm() {

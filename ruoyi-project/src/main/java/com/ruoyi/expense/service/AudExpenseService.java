@@ -230,6 +230,8 @@ public class AudExpenseService {
             expense.setExpensesheetcode(expensesheetcode);
         }
 
+        expense.setDaxie(ConvertUpMoney.toChinese(expense.getMoney().toString()));
+
         result = audExpenseMapper.insertAudExpense(expense);
 
         Integer expensesheetid = expense.getExpensesheetid();
@@ -275,79 +277,52 @@ public class AudExpenseService {
 
 
     @Transactional
-    public Integer updateContractTijiaoren(AudContract contract) {
+    public Integer updateExpenseTijiaoren(AudExpense expense) {
         Integer result = 1;
 
-        ConvertUpMoney.toChinese(contract.getContractmoney().toString());
+        ConvertUpMoney.toChinese(expense.getMoney().toString());
 
-        result = audContractMapper.updateAudContract(contract);
+        result = audExpenseMapper.updateAudExpense(expense);
 
-        Integer contractid = contract.getContractid();
-
-        AudContractpay record = new AudContractpay();
-        record.setContractid(contractid);
-
-        audContractpayMapper.deleteContractPay(record);
-
-        for (AudContractpay contractpay : contract.getContractpayList()) {
-            contractpay.setContractid(contractid);
-            audContractpayMapper.insertContractPay(contractpay);
-        }
-
-        // log.debug("contract is " + contract.toString());
-
-        if (contract.getContractdocList() != null && contract.getContractdocList().size() > 0) {
-
-            List<AudContractdoc> docList = contract.getContractdocList();
-
-            for (AudContractdoc doc : docList) {
-                doc.setContractid(contract.getContractid());
-            }
-            log.debug("getContractdocList is " + docList.toString());
-
-            audContractdocMapper.mergeAudContractdoc(docList);
-            audContractdocMapper.sourceMergeAudContractdoc(docList);
-        } else {
-            AudContractdoc doc = new AudContractdoc();
-            doc.setContractid(contractid);
-            audContractdocMapper.deleteAudContractdoc(doc);
-        }
 
         return result;
     }
 
-    @Transactional
-    public Integer mergeContractDoc(Integer contractid, BasDoc doc) {
-
-        Integer result = basDocMapper.insertBasDoc(doc);
-
-        log.debug("mergeContractDoc docid is " + doc.getDocid().toString());
-
-        AudContractdoc record = new AudContractdoc();
-        record.setContractid(contractid);
-        record.setDocid(doc.getDocid());
-        record.setIfdeleted(0);
-
-        contractdocMapper.insertAudContractdoc(record);
-
-        return doc.getDocid();
-    }
-
-
-    public List<AudContractdoc> selectAudContractdocList(AudContractdoc sheet) {
-
-        List<AudContractdoc> sheetList = contractdocMapper.selectAudContractdocList(sheet);
-
-        log.debug("request sheetList list is " + sheetList.toString());
-
-        return sheetList;
-    }
-
-
     // 用于 提交审批。
     @Transactional
-    public Integer updateAudContractStatus(AudContract contract) {
+    public Integer updateExpenseStatus(AudExpense expense) {
         Integer result = 0;
+        if (expense.getSheetstatus().equals(SheetStatus.XiangMuShenPi.getCode())) {
+            result = audExpenseMapper.updateAudExpenseStatus(expense);
+
+            //记录系统日志
+//            SystemLog slog = new SystemLog();
+//            slog.LogType = (int)Entity.Enums.LogType.tijiaoshenpi;
+//            slog.LogUserID = int.Parse(Session["CurrentUserID"].ToString().ToString());
+//            slog.LogTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//            slog.LogContent = "提交了经费单：" + lab_Code.Text;
+//            ISystemLogManager islm = SystemLogManager.GetInstance();
+//            islm.AddNew(slog);
+
+            //给相应人员发提醒消息
+            String title = "新的经费单待审批";
+            String content = "经费单：" + expense.getExpensesheetcode() + "待审批。" + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=3&f=todo&type=ht&kid=" + expense.getExpensesheetid() + "\" target=\"_self\" >查看</a> ";   //t=3表示项目负责人审批
+            AudMessage message = new AudMessage();
+            message.setMessagetime(DateUtils.dateTimeNow());
+            message.setMessagetitle(title);
+            message.setMessagecontent(content);
+            //查询消息要发送给哪个人员
+            //发送给合同的经办人
+            message.setTouserid(expense.getProjectinfo().getProjectmanagerid());
+            message.setRelatedsheettype("小额经费单");
+            message.setRelatedsheetid(expense.getExpensesheetid());
+            messageMapper.insertAudMessage(message);
+
+
+
+
+        }
+
 
 //        if (contract.getSheetstatus().equals(SheetStatus.XiangMuShenPi.getCode())) {
 //            //合同提交审核了，这时候要自动生成第一期的拨付单
@@ -483,19 +458,7 @@ public class AudExpenseService {
 ////                    "#type#=合同&#name#=" + txt_ContractName.Text);
 //
 //
-//            String title = "新合同待审批";
-//            String content = "合同：" + contract.getContractname() + "待审批。" + "<a href=\"/Audit/SheetList_ToAudit.aspx?t=3&f=todo&type=ht&kid=" + contract.getContractid() + "\" target=\"_self\" >查看</a> ";   //t=3表示项目负责人审批
-//            AudMessage message = new AudMessage();
-//            message.setMessagetime(DateUtils.dateTimeNow());
-//            message.setMessagetitle(title);
-//            message.setMessagecontent(content);
-//            //查询消息要发送给哪个人员
-//            //发送给合同的经办人
-//            message.setTouserid(contract.getProjectinfo().getProjectmanagerid());
-//            message.setRelatedsheettype("合同");
-//            message.setRelatedsheetid(contract.getContractid());
-//            messageMapper.insertAudMessage(message);
-//
+
 //            // 发送推送
 //
 //            Integer userid = message.getTouserid();
