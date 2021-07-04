@@ -2,11 +2,11 @@
   <div class="app-container">
     <el-row :gutter="20">
       <!--用户数据-->
-      <el-col :span="20" :xs="24">
+      <el-col :span="24" :xs="24">
         <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="108px">
-          <el-form-item label="SKU名称" prop="contractNo">
+          <el-form-item label="SKU名称" prop="skuName">
             <el-input
-              v-model="queryParams.contractNo"
+              v-model="queryParams.skuName"
               placeholder="请输入SKU名称"
               clearable
               size="small"
@@ -14,16 +14,16 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="尺寸类别" prop="status">
+          <el-form-item label="尺寸类别" prop="photoSizeValue">
             <el-select
-              v-model="queryParams.status"
+              v-model="queryParams.photoSizeValue"
               placeholder="尺寸类别"
               clearable
               size="small"
               style="width: 240px"
             >
               <el-option
-                v-for="dict in statusOptions"
+                v-for="dict in photosizeOptions"
                 :key="dict.dictValue"
                 :label="dict.dictLabel"
                 :value="dict.dictValue"
@@ -43,7 +43,7 @@
               icon="el-icon-plus"
               size="mini"
               @click="handleAdd"
-              v-hasPermi="['logis:contract:add']"
+              v-hasPermi="['sku:sku:list']"
             >新增
             </el-button>
           </el-col>
@@ -54,7 +54,7 @@
               size="mini"
               :disabled="single"
               @click="handleUpdate"
-              v-hasPermi="['logis:contract:edit']"
+              v-hasPermi="['sku:sku:list']"
             >修改
             </el-button>
           </el-col>
@@ -65,7 +65,7 @@
               size="mini"
               :disabled="multiple"
               @click="handleDelete"
-              v-hasPermi="['logis:contract:remove']"
+              v-hasPermi="['sku:sku:list']"
             >删除
             </el-button>
           </el-col>
@@ -75,29 +75,24 @@
               icon="el-icon-download"
               size="mini"
               @click="handleExport"
-              v-hasPermi="['logis:contract:export']"
+              v-hasPermi="['sku:sku:list']"
             >导出
             </el-button>
           </el-col>
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
 
-        <el-table v-loading="loading" :data="contractList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="skuList" @selection-change="handleSelectionChange" :key="timer">
           <el-table-column type="selection" width="50" align="center"/>
-          <el-table-column label="合同ID" align="center" prop="contractId"/>
-          <el-table-column label="合同编号" align="center" prop="contractNo"/>
-          <el-table-column label="合同名称" align="center" prop="contractName" :show-overflow-tooltip="true"/>
-          <el-table-column label="用户姓名" align="center" prop="realName" :show-overflow-tooltip="true"/>
-          <el-table-column label="部门" align="center" prop="dept.deptName" :show-overflow-tooltip="true"/>
-          <el-table-column label="状态" align="center">
-            <template slot-scope="scope">
-              <el-switch
-                v-model="scope.row.status"
-                active-value="0"
-                inactive-value="1"
-                @change="handleStatusChange(scope.row)"
-              ></el-switch>
-            </template>
+          <el-table-column label="名称" align="center" prop="skuName"/>
+          <el-table-column label="图片" align="center">
+            <el-table-column v-for="(item, index) in photosizeOptions" :label="item.dictLabel" align="center" >
+              <template slot-scope="scope">
+                <i class="el-icon-close" v-if="checkPhotoList(index,scope.row.photoList) === 0"></i>
+                <i class="el-icon-check" v-else></i>
+              </template>
+            </el-table-column>
+
           </el-table-column>
           <el-table-column label="创建时间" align="center" prop="created" width="160">
             <template slot-scope="scope">
@@ -116,7 +111,7 @@
                 type="text"
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
-                v-hasPermi="['logis:contract:edit']"
+                v-hasPermi="['sku:sku:list']"
               >修改
               </el-button>
               <el-button
@@ -125,7 +120,7 @@
                 type="text"
                 icon="el-icon-delete"
                 @click="handleDelete(scope.row)"
-                v-hasPermi="['logis:contract:remove']"
+                v-hasPermi="['sku:sku:list']"
               >删除
               </el-button>
             </template>
@@ -147,8 +142,8 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="SKU名称" prop="contractNo">
-              <el-input v-model="form.contractNo" placeholder="请输入SKU名称"/>
+            <el-form-item label="SKU名称" prop="skuName">
+              <el-input v-model="form.skuName" placeholder="请输入SKU名称"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -156,8 +151,8 @@
           <el-col :span="24">
             <el-form-item label="尺寸类型">
               <template>
-                <el-tabs v-model="photoTab" >
-                  <el-tab-pane v-for="item in photos" :label="item.name" :name="item.name" :key="item.photoId">
+                <el-tabs v-model="photoSizeLabel" >
+                  <el-tab-pane v-for="item in photos" :label="item.photoSizeLabel" :name="item.photoSizeLabel" :key="item.photoId">
                     <SkuPhoto :fileitem="item" :key="item.photoId" ></SkuPhoto>
                   </el-tab-pane>
                 </el-tabs>
@@ -191,19 +186,16 @@
 
 <script>
 import {
-  addContract,
   delContract,
-  downloadContractFile,
   exportContract,
   getContract,
-  listContract,
-  updateContract,
-  uploadContractFile
 } from "@/api/logis/contract";
+import {listSku, addSku, getSku, listSkuPhoto} from "@/api/sku/sku";
+
 import SkuPhoto from "@/views/public/sku-photo"
 
 export default {
-  name: "Contract",
+  name: "Sku",
   components: {SkuPhoto},
   data() {
     return {
@@ -219,59 +211,37 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 用户表格数据
-      contractList: null,
+      // 业务表格数据
+      skuList: null,
       // 弹出层标题
       title: "",
-      // 部门树选项
-      deptOptions: undefined,
       // 是否显示弹出层
       open: false,
       // 部门名称
       deptName: undefined,
       // 日期范围
       dateRange: [],
-      // 状态数据字典
-      statusOptions: [],
-      // 性别状态字典
-      sexOptions: [],
-      // 岗位选项
-      postOptions: [],
-      // 角色选项
-      roleOptions: [],
+      // 图片尺寸类别数据字典
+      photosizeOptions: [],
+
       // 表单参数
       form: {},
-      defaultProps: {
-        children: "children",
-        label: "label"
-      },
+      timer: '',
+
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        deptId: undefined,
-        realName: undefined,
-        contractNo: undefined,
-        contractName: undefined,
-        status: undefined,
-        created: undefined
+        skuName: undefined
       },
       // 表单校验
       rules: {
-        contractNo: [
-          {required: true, message: "合同编号不能为空", trigger: "blur"}
-        ],
-        contractName: [
-          {required: true, message: "合同名称不能为空", trigger: "blur"}
+        skuName: [
+          {required: true, message: "SKU名称不能为空", trigger: "blur"}
         ]
       },
-      photoTab:"100*100",
-      photos: [
-        {photoId:1,name:"100*100",url:null,skuId:null},
-        {photoId:2,name:"200*200",url:null,skuId:null},
-        {photoId:3,name:"300*300",url:null,skuId:null},
-        {photoId:4,name:"1024*1024",url:null,skuId:null}
-      ]
+      photoSizeLabel:"",
+      photos: []
     };
   },
   watch: {
@@ -279,58 +249,44 @@ export default {
   },
   created() {
     console.log("this.$store.getters.realName is " + this.$store.getters.realName);
-    this.loading = false;
-    // this.getList();
-    // this.getTreeselect();
-    // this.getDicts("sys_normal_disable").then(response => {
-    //   this.statusOptions = response.data;
-    // });
-    // this.getDicts("sys_user_sex").then(response => {
-    //   this.sexOptions = response.data;
-    // });
+
+    this.getDicts("图片尺寸类别").then(response => {
+      this.photosizeOptions = response.data;
+      this.timer = Date.now();
+
+      this.getList();
+    });
+
+
   },
   methods: {
     /** 查询合同列表 */
     getList() {
       this.loading = true;
-      listContract(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          this.contractList = response.rows;
+      listSku(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+          this.skuList = response.rows;
+          console.log("skuList is ", this.skuList);
           this.total = response.total;
           this.loading = false;
         }
       );
     },
-    /** 查询部门下拉树结构 */
-    getTreeselect() {
-      treeselect().then(response => {
-        this.deptOptions = response.data;
-      });
+
+    checkPhotoList(index, photos) {
+      console.log("photos is ", photos);
+      let result = 0;
+      const dictItem = this.photosizeOptions[index];
+      for(let i=0; i< photos.length; i++){
+        const photo = photos[i];
+        console.log("dictItem dictValue is ", dictItem.dictValue, "photosizeValue is ", photo.photoSizeValue);
+        if (photo.photoSizeValue === dictItem.dictValue && photo.photoText != null) {
+          result = 1;
+          break;
+        }
+      }
+      return result;
     },
-    // 筛选节点
-    filterNode(value, data) {
-      if (!value) return true;
-      return data.label.indexOf(value) !== -1;
-    },
-    // 节点单击事件
-    handleNodeClick(data) {
-      this.queryParams.deptId = data.id;
-      this.getList();
-    },
-    // 用户状态修改
-    handleStatusChange(row) {
-      let text = row.status === "0" ? "启用" : "停用";
-      this.$confirm('确认要"' + text + '""' + row.contractName + '"合同吗?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return changeUserStatus(row.contractId, row.status);
-      }).then(() => {
-        this.msgSuccess(text + "成功");
-      }).catch(function () {
-        row.status = row.status === "0" ? "1" : "0";
-      });
-    },
+
     // 取消按钮
     cancel() {
       this.open = false;
@@ -339,15 +295,10 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        contractId: undefined,
-        contractNo: undefined,
-        contractName: undefined,
-        userId: undefined,
-        deptId: undefined,
-        realName: undefined,
+        skuId: undefined,
+        skuName: undefined,
         status: "0",
-        created: undefined,
-        fileList: undefined
+        created: undefined
       };
       this.resetForm("form");
     },
@@ -371,37 +322,40 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      // this.form.userId = this.$store.getters.userId;
-      // this.form.realName = this.$store.getters.realName;
+      this.photos = [];
+      for (let i = 0; i < this.photosizeOptions.length; i++) {
+        let option = this.photosizeOptions[i];
+        let photo = new Object();
+        photo.photoId = null;
+        photo.photoSizeLabel = option.dictLabel;
+        photo.photoSizeValue = option.dictValue;
+        photo.photoText = null;
+        this.photos.push(photo);
+
+        if (i === 0) {
+          this.photoSizeLabel = option.dictLabel;
+        }
+      }
+
       this.open = true;
       this.title = "添加SKU";
     },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      this.getTreeselect();
-      const contractId = row.contractId || this.ids
-      getContract(contractId).then(response => {
-        console.log(response.data);
-        this.form = response.data;
-        console.log("this.form is ", this.form);
-        this.open = true;
-        this.title = "修改SKU";
-      });
-    },
+
     /** 提交按钮 */
     submitForm: function () {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.contractId !== undefined) {
+          if (this.form.skuId !== undefined) {
             console.log("submitForm is ", this.form);
-            updateContract(this.form).then(response => {
+            this.form.photoList = this.photos;
+            updateSku(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addContract(this.form).then(response => {
+            this.form.photoList = this.photos;
+            addSku(this.form).then(response => {
               this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -410,6 +364,21 @@ export default {
         }
       });
     },
+
+    /** 修改按钮操作 */
+    handleUpdate(row) {
+      this.reset();
+      const skuId = row.skuId || this.ids
+      getSku(skuId).then(response => {
+        console.log("update sku is ", response.data);
+        this.form = response.data;
+        console.log("this.form is ", this.form);
+        this.photos = this.form.photoList;
+        this.open = true;
+        this.title = "修改SKU";
+      });
+    },
+
     /** 删除按钮操作 */
     handleDelete(row) {
       const contractIds = row.contractId || this.ids;
@@ -436,68 +405,6 @@ export default {
       }).then(response => {
         this.download(response.msg);
       })
-    },
-    beforeUpload(file) {
-
-      this.form.fileList.forEach(
-        function (item) {
-          if (item.name === file.name) {
-            return false;
-          }
-        }
-      );
-      return true;
-
-    },
-    handleUploadError(error, file, fileList) {
-    },
-    handleUploadExceed(file, fileList) {
-    },
-    handleUploadSuccess(response, file, fileList) {
-    },
-    requestUpload: function (params) {
-      let file = params.file;
-      console.log(file);
-      let formData = new FormData();
-      formData.append('file', file);
-      uploadContractFile(formData).then(response => {
-        console.log("response", response.name);
-        console.log("response", response.url);
-        this.form.fileList = this.form.fileList.concat({name: response.name, url: response.url});
-      });
-    },
-    handleUploadChange(file, fileList) {
-      // this.form.fileList = fileList.slice(-10);
-    },
-    handleUploadRemove(file) {
-
-      console.log("handleUploadRemove ", file.name);
-
-      this.form.fileList.forEach((item, index) => {
-        if (item.name === file.name) {
-          this.form.fileList.splice(index, 1);
-        }
-      });
-
-    },
-    handleUploadPreview(file) {
-
-      console.log("handleUploadPreview is ", file.url);
-
-      downloadContractFile({"file": file.url}).then(response => {
-        var fileURL = window.URL.createObjectURL(new Blob([response]));
-        var fileLink = document.createElement('a');
-
-        console.log("response.data is ", response);
-
-        fileLink.href = fileURL;
-        fileLink.setAttribute('download', file.name);
-        document.body.appendChild(fileLink);
-
-        fileLink.click();
-        URL.revokeObjectURL(fileURL);
-
-      }).catch(console.error);
     },
 
   }

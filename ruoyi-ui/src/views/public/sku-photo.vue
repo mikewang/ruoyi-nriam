@@ -7,13 +7,12 @@
 <!--  </el-upload>-->
   <el-upload
     class="avatar-uploader"
-    action="#" :http-request="requestUpload"
+    action="#"
     :show-file-list="false"
     :auto-upload="false"
     :on-change="changeFile">
-    <img v-if="fileitem.url" :src="fileitem.url" class="avatar">
-    <el-button v-else slot="trigger" size="small" type="primary">选取图片{{fileitem.name}}</el-button>
-    <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+    <img v-if="fileitem.photoText" :src="fileitem.photoText" class="avatar">
+    <el-button v-else slot="trigger" size="small" type="primary">选取图片 {{fileitem.photoSizeLabel}}</el-button>
     <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
   </el-upload>
 </div>
@@ -52,16 +51,13 @@ export default {
       reader.onload = function (e) {
         // 这个就是base64编码了
         // console.log("这个就是base64编码 is ", this.result);
-        This.fileitem.url = this.result;
+        This.fileitem.photoText = this.result;
       }
     },
 
     requestUpload: function (params) {
       let file = params.file;
       console.log(file);
-
-
-
     },
 
     beforeRemove(file) {
