@@ -89,5 +89,25 @@ public class SkuService {
         return skuId;
     }
 
+    @Transactional
+    public Long updateSkuInfo(SkuInfo skuInfo) {
+        log.debug("updateSkuInfo is below.");
+
+        Integer rows = skuInfoMapper.insertSkuInfo(skuInfo);
+
+        if (rows > 0) {
+            Long skuId = skuInfo.getSkuId();
+
+            for ( SkuPhoto photo :skuInfo.getPhotoList()) {
+                photo.setSkuId(skuId);
+                skuPhotoMapper.insertSkuPhoto(photo);
+            }
+        }
+
+        Long skuId = rows > 0 ? skuInfo.getSkuId() : rows;
+
+        return skuId;
+    }
+
 
 }

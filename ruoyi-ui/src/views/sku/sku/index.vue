@@ -96,7 +96,7 @@
           </el-table-column>
           <el-table-column label="创建时间" align="center" prop="created" width="160">
             <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.createTime) }}</span>
+              <span>{{scope.row.created}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -152,8 +152,8 @@
             <el-form-item label="尺寸类型">
               <template>
                 <el-tabs v-model="photoSizeLabel" >
-                  <el-tab-pane v-for="item in photos" :label="item.photoSizeLabel" :name="item.photoSizeLabel" :key="item.photoId">
-                    <SkuPhoto :fileitem="item" :key="item.photoId" ></SkuPhoto>
+                  <el-tab-pane v-for="item in form.photoList" :label="item.photoSizeLabel" :name="item.photoSizeLabel" :key="item.photoId">
+                    <SkuPhoto :item="item" :key="item.photoId" ></SkuPhoto>
                   </el-tab-pane>
                 </el-tabs>
               </template>
@@ -241,7 +241,6 @@ export default {
         ]
       },
       photoSizeLabel:"",
-      photos: []
     };
   },
   watch: {
@@ -322,7 +321,7 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      this.photos = [];
+      this.form.photoList = [];
       for (let i = 0; i < this.photosizeOptions.length; i++) {
         let option = this.photosizeOptions[i];
         let photo = new Object();
@@ -330,7 +329,7 @@ export default {
         photo.photoSizeLabel = option.dictLabel;
         photo.photoSizeValue = option.dictValue;
         photo.photoText = null;
-        this.photos.push(photo);
+        this.form.photoList.push(photo);
 
         if (i === 0) {
           this.photoSizeLabel = option.dictLabel;
@@ -347,14 +346,12 @@ export default {
         if (valid) {
           if (this.form.skuId !== undefined) {
             console.log("submitForm is ", this.form);
-            this.form.photoList = this.photos;
             updateSku(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            this.form.photoList = this.photos;
             addSku(this.form).then(response => {
               this.msgSuccess("新增成功");
               this.open = false;
@@ -373,7 +370,30 @@ export default {
         console.log("update sku is ", response.data);
         this.form = response.data;
         console.log("this.form is ", this.form);
-        this.photos = this.form.photoList;
+        for (let i = 0; i < this.photosizeOptions.length; i++) {
+          let option = this.photosizeOptions[i];
+          let x = false;
+          for (let j=0; j< this.form.photoList.length; j++){
+            let photo = this.form.photoList[j];
+              if (photo.photoSizeValue === option.photoSizeValue) {
+                x = true;
+                break;
+              }
+          }
+
+          if (x) {
+            let photo = new Object();
+            photo.photoId = null;
+            photo.photoSizeLabel = option.dictLabel;
+            photo.photoSizeValue = option.dictValue;
+            photo.photoText = null;
+            this.form.photoList.push(photo);
+          }
+
+          if (i === 0) {
+            this.photoSizeLabel = option.dictLabel;
+          }
+        }
         this.open = true;
         this.title = "修改SKU";
       });

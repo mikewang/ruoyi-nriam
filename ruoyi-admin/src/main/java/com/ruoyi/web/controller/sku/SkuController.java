@@ -123,10 +123,8 @@ public class SkuController extends BaseController {
         Long rows = skuService.insertSkuInfo(skuInfo);
 
         if (rows > 0 ) {
-            Long skuId = skuInfo.getSkuId();
-
             AjaxResult ajax = AjaxResult.success();
-            ajax.put(AjaxResult.DATA_TAG, skuId);
+            ajax.put(AjaxResult.DATA_TAG, 1);
             return  ajax;
         }
         else {

@@ -7,13 +7,15 @@
 <!--  </el-upload>-->
   <el-upload
     class="avatar-uploader"
+    style="width:500px;hight:300px"
+    accept="image/png,image/jpg,image/jpeg"
     action="#"
     :show-file-list="false"
     :auto-upload="false"
     :on-change="changeFile">
     <img v-if="fileitem.photoText" :src="fileitem.photoText" class="avatar">
     <el-button v-else slot="trigger" size="small" type="primary">选取图片 {{fileitem.photoSizeLabel}}</el-button>
-    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+<!--    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>-->
   </el-upload>
 </div>
 </template>
@@ -23,13 +25,13 @@
 export default {
   name: "SkuPhoto",
   components: {},
-  props:['fileitem'],
+  props:['item'],
   data() {
     return {
 // 遮罩层
       loading: true,
 // 传入的参数
-//       fileitem: this.item
+      fileitem: this.item
     };
   },
   created() {
@@ -43,7 +45,7 @@ export default {
 // 上传。
 
     changeFile(file, fileList) {
-      const This = this;
+      const this_ = this;
 
       //this.imageUrl = URL.createObjectURL(file.raw);
       const reader = new FileReader();
@@ -51,7 +53,7 @@ export default {
       reader.onload = function (e) {
         // 这个就是base64编码了
         // console.log("这个就是base64编码 is ", this.result);
-        This.fileitem.photoText = this.result;
+        this_.fileitem.photoText = this.result;
       }
     },
 
