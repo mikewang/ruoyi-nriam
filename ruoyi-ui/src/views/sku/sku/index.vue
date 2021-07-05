@@ -49,17 +49,6 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-              v-hasPermi="['sku:sku:list']"
-            >修改
-            </el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -84,9 +73,10 @@
 
         <el-table v-loading="loading" :data="skuList" @selection-change="handleSelectionChange" :key="timer">
           <el-table-column type="selection" width="50" align="center"/>
+          <el-table-column label="编号" align="center" prop="skuId"/>
           <el-table-column label="名称" align="center" prop="skuName"/>
           <el-table-column label="图片" align="center">
-            <el-table-column v-for="(item, index) in photosizeOptions" :label="item.dictLabel" align="center" >
+            <el-table-column v-for="(item, index) in photosizeOptions" :label="item.dictLabel" align="center">
               <template slot-scope="scope">
                 <i class="el-icon-close" v-if="checkPhotoList(index,scope.row.photoList) === 0"></i>
                 <i class="el-icon-check" v-else></i>
@@ -96,7 +86,7 @@
           </el-table-column>
           <el-table-column label="创建时间" align="center" prop="created" width="160">
             <template slot-scope="scope">
-              <span>{{scope.row.created}}</span>
+              <span>{{ formateDate(scope.row.created) }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -112,10 +102,9 @@
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
                 v-hasPermi="['sku:sku:list']"
-              >修改
+              >编辑
               </el-button>
               <el-button
-                v-if="scope.row.userId !== 1"
                 size="mini"
                 type="text"
                 icon="el-icon-delete"
@@ -151,9 +140,10 @@
           <el-col :span="24">
             <el-form-item label="尺寸类型">
               <template>
-                <el-tabs v-model="photoSizeLabel" >
-                  <el-tab-pane v-for="item in form.photoList" :label="item.photoSizeLabel" :name="item.photoSizeLabel" :key="item.photoId">
-                    <SkuPhoto :item="item" :key="item.photoId" ></SkuPhoto>
+                <el-tabs v-model="photoSizeLabel">
+                  <el-tab-pane v-for="item in form.photoList" :label="item.photoSizeLabel" :name="item.photoSizeLabel"
+                               :key="item.photoId">
+                    <SkuPhoto :item="item" :key="item.photoId"></SkuPhoto>
                   </el-tab-pane>
                 </el-tabs>
               </template>
@@ -185,14 +175,10 @@
 </template>
 
 <script>
-import {
-  delContract,
-  exportContract,
-  getContract,
-} from "@/api/logis/contract";
-import {listSku, addSku, getSku, listSkuPhoto} from "@/api/sku/sku";
+import {addSku, getSku, listSku, updateSku, deleteSku, uniqueSku, exportSku} from "@/api/sku/sku";
 
 import SkuPhoto from "@/views/public/sku-photo"
+import {uniqueProject} from "@/api/project/project";
 
 export default {
   name: "Sku",
@@ -237,15 +223,18 @@ export default {
       // 表单校验
       rules: {
         skuName: [
-          {required: true, message: "SKU名称不能为空", trigger: "blur"}
+          {required: true, message: "SKU名称不能为空", trigger: "blur"},
+          {
+            required: true,
+            trigger: "change",
+            validator: this.validateSkuName
+          }
         ]
       },
-      photoSizeLabel:"",
+      photoSizeLabel: "",
     };
   },
-  watch: {
-
-  },
+  watch: {},
   created() {
     console.log("this.$store.getters.realName is " + this.$store.getters.realName);
 
@@ -264,7 +253,7 @@ export default {
       this.loading = true;
       listSku(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           this.skuList = response.rows;
-          console.log("skuList is ", this.skuList);
+          console.log("listSku skuList is ", this.skuList);
           this.total = response.total;
           this.loading = false;
         }
@@ -272,12 +261,12 @@ export default {
     },
 
     checkPhotoList(index, photos) {
-      console.log("photos is ", photos);
+      // console.log("photos is ", photos);
       let result = 0;
       const dictItem = this.photosizeOptions[index];
-      for(let i=0; i< photos.length; i++){
+      for (let i = 0; i < photos.length; i++) {
         const photo = photos[i];
-        console.log("dictItem dictValue is ", dictItem.dictValue, "photosizeValue is ", photo.photoSizeValue);
+        // console.log("dictItem dictValue is ", dictItem.dictValue, "photosizeValue is ", photo.photoSizeValue);
         if (photo.photoSizeValue === dictItem.dictValue && photo.photoText != null) {
           result = 1;
           break;
@@ -285,6 +274,47 @@ export default {
       }
       return result;
     },
+
+    formateDate(datetime) {
+      function addDateZero(num) {
+        return (num < 10 ? "0" + num : num);
+      }
+
+      let d = new Date(datetime);
+      let formatdatetime = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate()) + ' ' + addDateZero(d.getHours()) + ':' + addDateZero(d.getMinutes()) + ':' + addDateZero(d.getSeconds());
+      let formatdate = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate());
+
+      return formatdate;
+    },
+
+
+    getSkuName(query) {
+      return new Promise((resolve, reject) => {
+        let res = uniqueSku(query);
+        resolve(res);
+      });
+    },
+
+    async validateSkuName(rule, value, callback) {
+      if (!value) {
+        callback(new Error("SKU名称不能为空"));
+      } else {
+        if (this.form.skuName === undefined) {
+          callback();
+        } else {
+          let query = {skuName: value, skuId: this.form.skuId};
+          let res = await this.getSkuName(query);
+          console.log(res);
+          if (res.data > 0) {
+            callback(new Error("SKU名称重复"));
+          } else {
+            callback();
+          }
+        }
+
+      }
+    },
+
 
     // 取消按钮
     cancel() {
@@ -314,7 +344,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.contractId);
+      this.ids = selection.map(item => item.skuId);
       this.single = selection.length !== 1;
       this.multiple = !selection.length;
     },
@@ -369,19 +399,25 @@ export default {
       getSku(skuId).then(response => {
         console.log("update sku is ", response.data);
         this.form = response.data;
-        console.log("this.form is ", this.form);
+        console.log("this.form is ", this.form.photoList, "this.photosizeOptions is ", this.photosizeOptions);
         for (let i = 0; i < this.photosizeOptions.length; i++) {
           let option = this.photosizeOptions[i];
-          let x = false;
-          for (let j=0; j< this.form.photoList.length; j++){
-            let photo = this.form.photoList[j];
-              if (photo.photoSizeValue === option.photoSizeValue) {
-                x = true;
-                break;
-              }
+
+          if (i === 0) {
+            this.photoSizeLabel = option.dictLabel;
           }
 
-          if (x) {
+          let x = false;
+          for (let j = 0; j < this.form.photoList.length; j++) {
+            let photo = this.form.photoList[j];
+            console.log("photo.photoSizeValue === option.photoSizeValue", photo.photoSizeValue , option.dictValue);
+            if (photo.photoSizeValue === option.dictValue) {
+              x = true;
+              break;
+            }
+          }
+
+          if (x === false) {
             let photo = new Object();
             photo.photoId = null;
             photo.photoSizeLabel = option.dictLabel;
@@ -390,10 +426,9 @@ export default {
             this.form.photoList.push(photo);
           }
 
-          if (i === 0) {
-            this.photoSizeLabel = option.dictLabel;
-          }
         }
+
+        console.log("this.form is ", this.form.photoList);
         this.open = true;
         this.title = "修改SKU";
       });
@@ -401,30 +436,40 @@ export default {
 
     /** 删除按钮操作 */
     handleDelete(row) {
-      const contractIds = row.contractId || this.ids;
-      this.$confirm('是否确认删除合同编号为"' + contractIds + '"的数据项?', "警告", {
+      const skuIds = row.skuId || this.ids;
+      this.$confirm('是否确认删除编号为"' + skuIds + '"的数据项?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        return delContract(contractIds);
+        return deleteSku(skuIds);
       }).then(() => {
         this.getList();
         this.msgSuccess("删除成功");
       })
     },
     /** 导出按钮操作 */
-    handleExport() {
+    handleExport(row) {
       const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有合同数据项?', "警告", {
+      const skuIds = row.skuId || this.ids;
+      this.$confirm('是否确认导出所选数据项?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        return exportContract(queryParams);
-      }).then(response => {
-        this.download(response.msg);
+        exportSku(skuIds).then(response => {
+
+          const fileURL = window.URL.createObjectURL(new Blob([response]));
+          const fileLink = document.createElement('a');
+          fileLink.href = fileURL;
+          fileLink.setAttribute('download', "a" + ".jpg");
+          document.body.appendChild(fileLink);
+          fileLink.click();
+          URL.revokeObjectURL(fileURL);
+
+        });
       })
+
     },
 
   }

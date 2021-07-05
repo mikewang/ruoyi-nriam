@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class SkuService {
@@ -61,13 +58,9 @@ public class SkuService {
         return skuInfo;
     }
 
-
-
     public Integer queryIfDuplicate(SkuInfo skuInfo) {
-        return 1;
+        return skuInfoMapper.queryIfDuplicate(skuInfo);
     }
-
-
 
     @Transactional
     public Long insertSkuInfo(SkuInfo skuInfo) {
@@ -77,9 +70,10 @@ public class SkuService {
 
         if (rows > 0) {
             Long skuId = skuInfo.getSkuId();
-
             for ( SkuPhoto photo :skuInfo.getPhotoList()) {
                 photo.setSkuId(skuId);
+                photo.setStatus(1);
+                photo.setCreated(new Date());
                 skuPhotoMapper.insertSkuPhoto(photo);
             }
         }
@@ -93,14 +87,22 @@ public class SkuService {
     public Long updateSkuInfo(SkuInfo skuInfo) {
         log.debug("updateSkuInfo is below.");
 
-        Integer rows = skuInfoMapper.insertSkuInfo(skuInfo);
+        Integer rows = skuInfoMapper.updateSkuInfo(skuInfo);
 
         if (rows > 0) {
             Long skuId = skuInfo.getSkuId();
-
             for ( SkuPhoto photo :skuInfo.getPhotoList()) {
                 photo.setSkuId(skuId);
-                skuPhotoMapper.insertSkuPhoto(photo);
+                photo.setStatus(1);
+                photo.setCreated(new Date());
+                if (photo.getPhotoId() == null) {
+                    skuPhotoMapper.insertSkuPhoto(photo);
+                }
+                else {
+                    photo.setModified(new Date());
+                    skuPhotoMapper.updateSkuPhoto(photo);
+                }
+
             }
         }
 
@@ -109,5 +111,16 @@ public class SkuService {
         return skuId;
     }
 
+
+    @Transactional
+    public int deleteSkuInfoBySkuIds(Long[] skuIds)
+    {
+        // 必须将 Array 转换成 List，否则报错。
+        List<Long> ids = Arrays.asList(skuIds);
+
+        int rows =  skuInfoMapper.deleteSkuInfoBySkuIds(ids);
+
+        return rows;
+    }
 
 }

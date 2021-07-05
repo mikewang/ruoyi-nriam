@@ -832,7 +832,6 @@ public class AudContractController extends BaseController {
             try {
                 String buffer = "";
 
-
                 if (path.endsWith(".docx")) {
                     FileInputStream fs = new FileInputStream(new File(path));
                     XWPFDocument document = new XWPFDocument(fs);

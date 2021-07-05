@@ -46,6 +46,22 @@ export function deleteSku(ids) {
   })
 }
 
+export function uniqueSku(query) {
+  return request({
+    url: '/sku/sku/unique',
+    method: 'get',
+    params: query
+  })
+}
+
+export function exportSku(ids) {
+  return request({
+    url: '/sku/export/' + ids,
+    responseType: 'blob',
+    method: 'get'
+  })
+}
+
 // 查询列表
 export function listSkuPhoto(query) {
   return request({

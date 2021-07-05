@@ -9,7 +9,8 @@ public interface SkuInfoMapper {
     int insertSkuInfo(SkuInfo record);
     SkuInfo selectSkuInfoById(Long skuId);
     int updateSkuInfo(SkuInfo record);
-
+    int deleteSkuInfoBySkuIds(List<Long> skuIds);
+    int queryIfDuplicate(SkuInfo record);
 
     int deleteByPrimaryKey(Long skuId);
 

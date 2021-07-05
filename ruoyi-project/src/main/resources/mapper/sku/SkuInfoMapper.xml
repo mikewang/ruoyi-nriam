@@ -12,7 +12,7 @@
   <select id="selectSkuInfo" resultMap="BaseResultMap">
     select sku_id, sku_name, user_id, created, status
     from sku_info
-    where 0=0
+    where status=1
     <if test="skuName != null and skuName != '' ">
       and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
     </if>
@@ -32,11 +32,27 @@
   </update>
 
   <select id="selectSkuInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select sku_id, sku_name, user_id, created, status
+    select sku_id, sku_name, user_id,  created, status
     from sku_info
     where sku_id = #{skuId,jdbcType=BIGINT}
   </select>
 
+  <update id="deleteSkuInfoBySkuIds" parameterType="List">
+    update sku_info set status = 0
+    where sku_id in
+    <foreach  item ="skuId" index="index"  collection="list" open="(" separator="," close=")">
+      #{skuId,jdbcType=BIGINT}
+    </foreach>
+
+  </update>
+
+  <select id="queryIfDuplicate" parameterType="com.ruoyi.sku.domain.SkuInfo" resultType="int">
+    select count(*) from sku_info
+    where status = 1 and sku_name = #{skuName,jdbcType=VARCHAR}
+    <if test="skuId != null and skuId != 0 ">
+      and sku_id != #{skuId,jdbcType=BIGINT}
+    </if>
+  </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     <!--
