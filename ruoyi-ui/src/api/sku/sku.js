@@ -54,13 +54,40 @@ export function uniqueSku(query) {
   })
 }
 
-export function exportSku(ids) {
+export function exportSku(query) {
+  return request({
+    url: '/sku/sku/export/',
+    responseType: 'blob',
+    method: 'get',
+    params: query
+  })
+}
+
+
+export function listSkuExport(query) {
+  return request({
+    url: '/sku/export/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function deleteSkuExport(ids) {
   return request({
     url: '/sku/export/' + ids,
+    method: 'delete'
+  })
+}
+
+
+export function downloadSkuExport(ids) {
+  return request({
+    url: '/sku/download/' + ids,
     responseType: 'blob',
     method: 'get'
   })
 }
+
 
 // 查询列表
 export function listSkuPhoto(query) {

@@ -29,10 +29,26 @@ public class SkuService {
     @Resource
     private SkuPhotoMapper skuPhotoMapper;
 
+    @Resource
+    private SkuExportMapper skuExportMapper;
 
     public List<SkuInfo> selectSkuList(SkuInfo skuInfo) {
 
         List<SkuInfo> list = skuInfoMapper.selectSkuInfo(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            SkuPhoto photo = new SkuPhoto();
+            photo.setSkuId(skuInfo1.getSkuId());
+            List<SkuPhoto> photos = skuPhotoMapper.selectSkuPhoto(photo);
+            skuInfo1.setPhotoList(photos);
+        }
+
+        return list;
+    }
+
+    public List<SkuInfo> selectSkuListByPhotoSizeValue(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.selectSkuListByPhotoSizeValue(skuInfo);
 
         for (SkuInfo skuInfo1 : list) {
             SkuPhoto photo = new SkuPhoto();
@@ -122,5 +138,44 @@ public class SkuService {
 
         return rows;
     }
+
+
+    public List<SkuExport> selectSkuExport(SkuExport skuExport) {
+
+        List<SkuExport> list = skuExportMapper.selectSkuExport(skuExport);
+
+        return list;
+    }
+
+
+    @Transactional
+    public Long insertSkuExport(SkuExport skuExport) {
+        log.debug("insertSkuExport is below.");
+
+        Integer rows = skuExportMapper.insertSkuExport(skuExport);
+
+        Long exportId = rows > 0 ? skuExport.getExportId() : rows;
+
+        return exportId;
+    }
+
+    @Transactional
+    public int deleteSkuExportByExportIds(Long[] exportIds)
+    {
+        // 必须将 Array 转换成 List，否则报错。
+        List<Long> ids = Arrays.asList(exportIds);
+
+        int rows =  skuExportMapper.deleteSkuExportByExportIds(ids);
+
+        return rows;
+    }
+
+    public SkuExport selectSkuExportById(Long exportId) {
+
+        SkuExport skuExport = skuExportMapper.selectSkuExportById(exportId);
+
+        return skuExport;
+    }
+
 
 }

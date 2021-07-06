@@ -6,6 +6,8 @@ import java.util.List;
 public interface SkuInfoMapper {
 
     List<SkuInfo> selectSkuInfo(SkuInfo record);
+    List<SkuInfo> selectSkuListByPhotoSizeValue(SkuInfo record);
+
     int insertSkuInfo(SkuInfo record);
     SkuInfo selectSkuInfoById(Long skuId);
     int updateSkuInfo(SkuInfo record);

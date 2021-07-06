@@ -18,7 +18,7 @@ public class SkuInfo extends BaseEntity {
     private Integer status;
 
     private List<SkuPhoto> photoList;
-    private String photoSizeValue;
+    private List<String>  photoSizeValues;
 
     public Long getSkuId() {
         return skuId;
@@ -68,16 +68,16 @@ public class SkuInfo extends BaseEntity {
         this.photoList = photoList;
     }
 
-    public String getPhotoSizeValue() {
-        return photoSizeValue;
+    public List<String> getPhotoSizeValues() {
+        return photoSizeValues;
     }
 
-    public void setPhotoSizeValue(String photoSizeValue) {
-        this.photoSizeValue = photoSizeValue;
+    public void setPhotoSizeValues(List<String> photoSizeValues) {
+        this.photoSizeValues = photoSizeValues;
     }
 
     @Override
-    public String   toString() {
+    public String toString() {
         return "SkuInfo{" +
                 "skuId=" + skuId +
                 ", skuName='" + skuName + '\'' +
@@ -85,6 +85,7 @@ public class SkuInfo extends BaseEntity {
                 ", created=" + created +
                 ", status=" + status +
                 ", photoList=" + photoList +
+                ", photoSizeValues=" + photoSizeValues +
                 '}';
     }
 }

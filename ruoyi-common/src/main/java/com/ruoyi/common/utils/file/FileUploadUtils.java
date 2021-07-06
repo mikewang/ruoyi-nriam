@@ -1,7 +1,8 @@
 package com.ruoyi.common.utils.file;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.Base64;
+
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -259,4 +260,6 @@ public class FileUploadUtils
         }
         return extension;
     }
+
+
 }

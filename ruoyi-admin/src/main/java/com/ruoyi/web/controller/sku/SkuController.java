@@ -10,9 +10,12 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.ImageConverter;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.sku.domain.SkuExport;
 import com.ruoyi.sku.domain.SkuInfo;
+import com.ruoyi.sku.domain.SkuPhoto;
 import com.ruoyi.sku.service.SkuService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +25,11 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -33,6 +41,9 @@ public class SkuController extends BaseController {
 
     @Resource
     private SkuService skuService;
+
+//    @Resource
+//    private HttpServletResponse response;
 
     private Long getCurrentLoginUserId() {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
@@ -46,11 +57,22 @@ public class SkuController extends BaseController {
     @GetMapping("/sku/list")
     public TableDataInfo skuList(SkuInfo skuInfo) {
 
+        logger.debug("skuList is " + skuInfo.toString());
         startPage();
 
-        List<SkuInfo> list = skuService.selectSkuList(skuInfo);
+        if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
 
-        return getDataTable(list);
+            List<SkuInfo> skuInfos = skuService.selectSkuList(skuInfo);
+            return getDataTable(skuInfos);
+        }
+        else {
+            List<SkuInfo> skuInfos = skuService.selectSkuListByPhotoSizeValue(skuInfo);
+            return getDataTable(skuInfos);
+        }
+
+//        List<SkuInfo> list = skuService.selectSkuList(skuInfo);
+//
+//        return getDataTable(list);
     }
 
     /**
@@ -149,93 +171,157 @@ public class SkuController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('sku:sku:list')")
     @Log(title = "SKU管理", businessType = BusinessType.EXPORT)
-    @GetMapping("/export2/{skuIds}")
-    public void exportSku(@PathVariable Long[] skuIds, HttpServletResponse response, HttpServletRequest request) throws IOException {
+    @GetMapping("/sku/export")
+    public void exportSku(SkuInfo skuInfo, HttpServletResponse response) throws IOException {
+        logger.debug("exportSku is " + skuInfo.toString());
         try {
 
             //文件路径
-            String filePath = RuoYiConfig.getDownloadPath() + "Export";
+            String basicPath = RuoYiConfig.getDownloadPath() + "/Export";
 
-//            String yyyymm = DateUtils.dateTimeNow("yyyyMM");
-//            String ddHHmmss = DateUtils.dateTimeNow("ddHHmmss");
-//
-//            filePath = filePath + "/" + yyyymm + "/" + ddHHmmss;
+            String yyyymmdd = DateUtils.dateTimeNow("yyyyMMdd");
+            String HHmmss = DateUtils.dateTimeNow("HHmmss");
 
+            basicPath = basicPath + "/" + yyyymmdd + "/" + HHmmss ;
 
-            String fileName = "a.jpeg";
+            String exportfilePath = basicPath + "/" + getCurrentLoginUserId().toString();
 
-            SkuInfo skuInfo = skuService.selectSkuInfoById(Long.valueOf(1005));
+            Files.createDirectories(Paths.get(exportfilePath));
 
-            String base64String = skuInfo.getPhotoList().get(0).getPhotoText();
+            if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
 
-            String downloadPath = filePath + "/" + fileName;
-            logger.debug("downloadpath is " + downloadPath);
+                List<SkuInfo> skuInfos = skuService.selectSkuList(skuInfo);
 
-            // tokenize the data
-            String[] parts = base64String.split(",");
-            String imageString = parts[1];
+                for (SkuInfo skuInfo1 : skuInfos) {
 
-            ImageConverter.ConvertBase64ToImageFile(imageString, downloadPath);
+                    for (SkuPhoto photo : skuInfo1.getPhotoList()) {
 
-            // 读到流中
-            InputStream inStream = new FileInputStream(downloadPath);// 文件的存放路径
-            // 设置输出的格式
-            response.reset();
-            response.setContentType("bin");
-            response.addHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-            // 循环取出流中的数据
-            byte[] b = new byte[100];
-            int len;
-            try {
-                while ((len = inStream.read(b)) > 0)
-                    response.getOutputStream().write(b, 0, len);
-                inStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                        if (photo.getPhotoText() == null) {
+                            continue;
+                        }
+
+                        Files.createDirectories(Paths.get(exportfilePath + "/" + photo.getPhotoSizeLabel()));
+
+                        String base64String = photo.getPhotoText();
+
+                        String[] parts = base64String.split(",");
+                        String imageString = parts[1];
+                        String fileformatter = parts[0];
+
+                        String ext = fileformatter.split("/")[1].split(";")[0];
+
+                        String fileName = skuInfo1.getSkuId().toString() + "_" + photo.getPhotoSizeValue()+ "." + ext;
+
+                        String imagefileName = exportfilePath + "/" + photo.getPhotoSizeLabel() + "/" + fileName;
+
+                        ImageConverter.ConvertBase64ToImageFile(imageString, imagefileName);
+                    }
+
+                }
             }
-        } catch (Exception e) {
-            logger.error("下载文件失败 " + e.toString());
-        }
+            else {
+                List<SkuInfo> skuInfos = skuService.selectSkuListByPhotoSizeValue(skuInfo);
 
-    }
+                for (SkuInfo skuInfo1 : skuInfos) {
 
-    @PreAuthorize("@ss.hasPermi('sku:sku:list')")
-    @Log(title = "SKU管理", businessType = BusinessType.EXPORT)
-    @GetMapping("/export/{skuIds}")
-    public void exportSku2(@PathVariable Long[] skuIds, HttpServletResponse response, HttpServletRequest request) throws IOException {
-        try {
+                    for (SkuPhoto photo : skuInfo1.getPhotoList()) {
 
-            //文件路径
-            String filePath = RuoYiConfig.getDownloadPath() + "/Export";
+                        if (photo.getPhotoText() == null) {
+                            continue;
+                        }
 
-//            String yyyymm = DateUtils.dateTimeNow("yyyyMM");
-//            String ddHHmmss = DateUtils.dateTimeNow("ddHHmmss");
-//
-//            filePath = filePath + "/" + yyyymm + "/" + ddHHmmss;
+                        if (skuInfo.getPhotoSizeValues().contains(photo.getPhotoSizeValue()) == false) {
+                            continue;
+                        }
 
-            String fileName = "a.jpg";
+                        Files.createDirectories(Paths.get(exportfilePath + "/" + photo.getPhotoSizeLabel()));
 
-            SkuInfo skuInfo = skuService.selectSkuInfoById(Long.valueOf(1005));
+                        String base64String = photo.getPhotoText();
 
-            String base64String = skuInfo.getPhotoList().get(0).getPhotoText();
+                        String[] parts = base64String.split(",");
+                        String imageString = parts[1];
+                        String fileformatter = parts[0];
 
-            String[] parts = base64String.split(",");
-            String imageString = parts[1];
+                        String ext = fileformatter.split("/")[1].split(";")[0];
 
-            String downloadPath = filePath + "/" + fileName;
-            ImageConverter.ConvertBase64ToImageFile(imageString, downloadPath);
+                        String fileName = skuInfo1.getSkuId().toString() + "_" + photo.getPhotoSizeValue()+ "." + ext;
 
+                        String imagefileName = exportfilePath + "/" + photo.getPhotoSizeLabel() + "/" + fileName;
+
+                        ImageConverter.ConvertBase64ToImageFile(imageString, imagefileName);
+                    }
+                }
+            }
+
+
+            String downloadFile = basicPath + "/" + getCurrentLoginUserId().toString() + ".zip";
+
+            ImageConverter.pack(exportfilePath, downloadFile);
 
             try {
                 // path是指欲下载的文件的路径。
-                File file = new File(downloadPath);
+                File file = new File(downloadFile);
                 // 取得文件名。
                 String filename = file.getName();
+                logger.debug("download filename is " + filename);
                 // 取得文件的后缀名。
                 String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
 
                 // 以流的形式下载文件。
-                InputStream fis = new BufferedInputStream(new FileInputStream(downloadPath));
+                InputStream fis = new BufferedInputStream(new FileInputStream(downloadFile));
+                byte[] buffer = new byte[fis.available()];
+                fis.read(buffer);
+                fis.close();
+                // 清空response
+                response.reset();
+                // 设置response的Header
+                response.addHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes()));
+                response.addHeader("Content-Length", "" + file.length());
+                OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
+                response.setContentType("application/octet-stream");
+                toClient.write(buffer);
+                toClient.flush();
+
+                SkuExport export = new SkuExport();
+                export.setExportPath(exportfilePath);
+                export.setStatus(1);
+                export.setExportTime(new Date());
+                export.setUserId(getCurrentLoginUserId());
+                skuService.insertSkuExport(export);
+
+            } catch (Exception e) {
+                logger.error("读取文件标签失败", e);
+            }
+
+        } catch (Exception e) {
+            logger.error("下载文件失败", e);
+        }
+
+    }
+
+    @PreAuthorize("@ss.hasPermi('sku:export:list')")
+    @Log(title = "导出记录", businessType = BusinessType.EXPORT)
+    @GetMapping("/download/{exportIds}")
+    public void downloadSkuExport(@PathVariable Long[] exportIds, HttpServletResponse response, HttpServletRequest request) throws IOException {
+        try {
+
+            List<Long> ids = Arrays.asList(exportIds);
+
+            SkuExport export = skuService.selectSkuExportById(ids.get(0));
+            //文件路径
+            String downloadFile = export.getExportPath() + "/" + export.getUserId().toString() + ".zip";
+
+            try {
+                // path是指欲下载的文件的路径。
+                File file = new File(downloadFile);
+                // 取得文件名。
+                String filename = file.getName();
+                logger.debug("download filename is " + filename);
+                // 取得文件的后缀名。
+                String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
+
+                // 以流的形式下载文件。
+                InputStream fis = new BufferedInputStream(new FileInputStream(downloadFile));
                 byte[] buffer = new byte[fis.available()];
                 fis.read(buffer);
                 fis.close();
@@ -255,6 +341,45 @@ public class SkuController extends BaseController {
 
         } catch (Exception e) {
             logger.error("下载文件失败", e);
+        }
+
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('sku:export:list')")
+    @GetMapping("/export/list")
+    public TableDataInfo skuExportList(SkuExport skuExport) {
+
+        logger.debug("skuExportList is " + skuExport.toString());
+        startPage();
+
+        List<SkuExport> list = skuService.selectSkuExport(skuExport);
+
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('sku:export:list')")
+    @Log(title = "导出记录", businessType = BusinessType.DELETE)
+    @DeleteMapping("/export/{exportIds}")
+    public AjaxResult removeExport(@PathVariable Long[] exportIds) throws IOException {
+
+        for (Long id : exportIds) {
+
+            SkuExport export = skuService.selectSkuExportById(id);
+            logger.debug("delete disk file at " + export.getExportPath()+"/"+export.getUserId().toString()+".zip");
+
+            FileUtils.deleteFile(export.getExportPath()+".zip");
+
+            FileUtils.deleteDirectory(new File(export.getExportPath()));
+
+        }
+
+        Integer rows = skuService.deleteSkuExportByExportIds(exportIds);
+
+        if (rows > 0) {
+            return AjaxResult.success("");
+        } else {
+            return AjaxResult.error(" 操作失败，请联系管理员");
         }
 
     }

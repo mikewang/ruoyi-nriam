@@ -4,32 +4,17 @@
       <!--用户数据-->
       <el-col :span="24" :xs="24">
         <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="108px">
-          <el-form-item label="SKU名称" prop="skuName">
-            <el-input
-              v-model="queryParams.skuName"
-              placeholder="请输入SKU名称"
+          <el-form-item label="导出时间起止" prop="exportTimes">
+            <el-date-picker
+              type="daterange"
+              format="yyyy-mm-dd"
+              value-format="yyyy-mm-dd"
+              v-model="queryParams.exportTimes"
+              placeholder="请输入"
               clearable
               size="small"
-              style="width: 240px"
-              @keyup.enter.native="handleQuery"
+              style="width: 160px"
             />
-          </el-form-item>
-          <el-form-item label="尺寸类别" prop="photoSizeValues">
-            <el-select
-              v-model="queryParams.photoSizeValues"
-              placeholder="尺寸类别"
-              clearable
-              multiple
-              size="small"
-              style="width: 240px"
-            >
-              <el-option
-                v-for="dict in photosizeOptions"
-                :key="dict.dictValue"
-                :label="dict.dictLabel"
-                :value="dict.dictValue"
-              />
-            </el-select>
           </el-form-item>
           <el-form-item>
             <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -40,33 +25,13 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-              v-hasPermi="['sku:sku:list']"
-            >新增
-            </el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               :disabled="multiple"
               @click="handleDelete"
-              v-hasPermi="['sku:sku:list']"
+              v-hasPermi="['sku:export:list']"
             >删除
-            </el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-              v-hasPermi="['sku:sku:list']"
-            >导出
             </el-button>
           </el-col>
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -74,22 +39,16 @@
 
         <el-table v-loading="loading" :data="skuList" @selection-change="handleSelectionChange" :key="timer">
           <el-table-column type="selection" width="50" align="center"/>
-          <el-table-column label="编号" align="center" prop="skuId"/>
-          <el-table-column label="名称" align="center" prop="skuName"/>
-          <el-table-column label="图片" align="center">
-            <el-table-column v-for="(item, index) in photosizeOptions" :label="item.dictLabel" align="center">
-              <template slot-scope="scope">
-                <i class="el-icon-close" v-if="checkPhotoList(index,scope.row.photoList) === 0"></i>
-                <i class="el-icon-check" v-else></i>
-              </template>
-            </el-table-column>
-
-          </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="created" width="160">
+          <el-table-column label="编号" align="center" prop="exportId" width="150"/>
+          <el-table-column label="导出时间" align="center" prop="exportTime" width="160">
             <template slot-scope="scope">
-              <span>{{ formateDate(scope.row.created) }}</span>
+              <span>{{ formateDate(scope.row.exportTime) }}</span>
             </template>
           </el-table-column>
+          <el-table-column label="导出路径" align="center" prop="exportPath" >
+
+          </el-table-column>
+
           <el-table-column
             label="操作"
             align="center"
@@ -100,17 +59,17 @@
               <el-button
                 size="mini"
                 type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-                v-hasPermi="['sku:sku:list']"
-              >编辑
+                icon="el-icon-download"
+                @click="handleDownload(scope.row)"
+                v-hasPermi="['sku:export:list']"
+              >下载
               </el-button>
               <el-button
                 size="mini"
                 type="text"
                 icon="el-icon-delete"
                 @click="handleDelete(scope.row)"
-                v-hasPermi="['sku:sku:list']"
+                v-hasPermi="['sku:export:list']"
               >删除
               </el-button>
             </template>
@@ -137,21 +96,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="尺寸类型">
-              <template>
-                <el-tabs v-model="photoSizeLabel">
-                  <el-tab-pane v-for="item in form.photoList" :label="item.photoSizeLabel" :name="item.photoSizeLabel"
-                               :key="item.photoId">
-                    <SkuPhoto :item="item" :key="item.photoId"></SkuPhoto>
-                  </el-tab-pane>
-                </el-tabs>
-              </template>
 
-            </el-form-item>
-          </el-col>
-        </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="创建时间">
@@ -176,14 +121,11 @@
 </template>
 
 <script>
-import {addSku, getSku, listSku, updateSku, deleteSku, uniqueSku, exportSku} from "@/api/sku/sku";
-
-import SkuPhoto from "@/views/public/sku-photo"
-import {uniqueProject} from "@/api/project/project";
+import {listSkuExport, deleteSkuExport, downloadSkuExport} from "@/api/sku/sku";
 
 export default {
-  name: "Sku",
-  components: {SkuPhoto},
+  name: "SkuExport",
+  components: {},
   data() {
     return {
       // 遮罩层
@@ -219,8 +161,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        skuName: undefined,
-        photoSizeValues: []
+        exportTime: undefined
       },
       // 表单校验
       rules: {
@@ -240,13 +181,7 @@ export default {
   created() {
     console.log("this.$store.getters.realName is " + this.$store.getters.realName);
 
-    this.getDicts("图片尺寸类别").then(response => {
-      this.photosizeOptions = response.data;
-      this.timer = Date.now();
-
-      this.getList();
-    });
-
+    this.getList();
 
   },
   methods: {
@@ -254,29 +189,13 @@ export default {
     getList() {
       this.loading = true;
       console.log("this.queryParams is ", this.queryParams);
-
-      listSku(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      listSkuExport(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           this.skuList = response.rows;
           console.log("listSku skuList is ", this.skuList);
           this.total = response.total;
           this.loading = false;
         }
       );
-    },
-
-    checkPhotoList(index, photos) {
-      // console.log("photos is ", photos);
-      let result = 0;
-      const dictItem = this.photosizeOptions[index];
-      for (let i = 0; i < photos.length; i++) {
-        const photo = photos[i];
-        // console.log("dictItem dictValue is ", dictItem.dictValue, "photosizeValue is ", photo.photoSizeValue);
-        if (photo.photoSizeValue === dictItem.dictValue && photo.photoText != null) {
-          result = 1;
-          break;
-        }
-      }
-      return result;
     },
 
     formateDate(datetime) {
@@ -288,37 +207,8 @@ export default {
       let formatdatetime = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate()) + ' ' + addDateZero(d.getHours()) + ':' + addDateZero(d.getMinutes()) + ':' + addDateZero(d.getSeconds());
       let formatdate = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate());
 
-      return formatdate;
+      return formatdatetime;
     },
-
-
-    getSkuName(query) {
-      return new Promise((resolve, reject) => {
-        let res = uniqueSku(query);
-        resolve(res);
-      });
-    },
-
-    async validateSkuName(rule, value, callback) {
-      if (!value) {
-        callback(new Error("SKU名称不能为空"));
-      } else {
-        if (this.form.skuName === undefined) {
-          callback();
-        } else {
-          let query = {skuName: value, skuId: this.form.skuId};
-          let res = await this.getSkuName(query);
-          console.log(res);
-          if (res.data > 0) {
-            callback(new Error("SKU名称重复"));
-          } else {
-            callback();
-          }
-        }
-
-      }
-    },
-
 
     // 取消按钮
     cancel() {
@@ -328,7 +218,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        skuId: undefined,
+        exportId: undefined,
         skuName: undefined,
         status: "0",
         created: undefined
@@ -348,28 +238,13 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.skuId);
+      this.ids = selection.map(item => item.exportId);
       this.single = selection.length !== 1;
       this.multiple = !selection.length;
     },
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      this.form.photoList = [];
-      for (let i = 0; i < this.photosizeOptions.length; i++) {
-        let option = this.photosizeOptions[i];
-        let photo = new Object();
-        photo.photoId = null;
-        photo.photoSizeLabel = option.dictLabel;
-        photo.photoSizeValue = option.dictValue;
-        photo.photoText = null;
-        this.form.photoList.push(photo);
-
-        if (i === 0) {
-          this.photoSizeLabel = option.dictLabel;
-        }
-      }
-
       this.open = true;
       this.title = "添加SKU";
     },
@@ -378,7 +253,7 @@ export default {
     submitForm: function () {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.skuId !== undefined) {
+          if (this.form.exportId !== undefined) {
             console.log("submitForm is ", this.form);
             updateSku(this.form).then(response => {
               this.msgSuccess("修改成功");
@@ -397,56 +272,49 @@ export default {
     },
 
     /** 修改按钮操作 */
-    handleUpdate(row) {
+    handleDownload(row) {
       this.reset();
-      const skuId = row.skuId || this.ids
-      getSku(skuId).then(response => {
-        console.log("update sku is ", response.data);
-        this.form = response.data;
-        console.log("this.form is ", this.form.photoList, "this.photosizeOptions is ", this.photosizeOptions);
-        for (let i = 0; i < this.photosizeOptions.length; i++) {
-          let option = this.photosizeOptions[i];
+      const exportId = row.exportId || this.ids;
+      const this_ = this;
 
-          if (i === 0) {
-            this.photoSizeLabel = option.dictLabel;
-          }
-
-          let x = false;
-          for (let j = 0; j < this.form.photoList.length; j++) {
-            let photo = this.form.photoList[j];
-            console.log("photo.photoSizeValue === option.photoSizeValue", photo.photoSizeValue , option.dictValue);
-            if (photo.photoSizeValue === option.dictValue) {
-              x = true;
-              break;
-            }
-          }
-
-          if (x === false) {
-            let photo = new Object();
-            photo.photoId = null;
-            photo.photoSizeLabel = option.dictLabel;
-            photo.photoSizeValue = option.dictValue;
-            photo.photoText = null;
-            this.form.photoList.push(photo);
-          }
-
-        }
-
-        console.log("this.form is ", this.form.photoList);
-        this.open = true;
-        this.title = "修改SKU";
-      });
-    },
-
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const skuIds = row.skuId || this.ids;
-      this.$confirm('是否确认删除编号为"' + skuIds + '"的数据项?', "警告", {
+      this.$confirm('是否确认重新下载导出的文件?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        return deleteSku(skuIds);
+        this_.loading = true;
+        downloadSkuExport(exportId).then(response => {
+          const blob = new Blob([response]);
+          console.log("response.length is ", blob.size);
+          if (blob.size < 10) {
+            this_.msgError("下载失败");
+          }
+          else {
+            const fileURL = window.URL.createObjectURL(blob);
+            const fileLink = document.createElement('a');
+            fileLink.href = fileURL;
+            fileLink.setAttribute('download', "sku_export" + ".zip");
+            document.body.appendChild(fileLink);
+            fileLink.click();
+            URL.revokeObjectURL(fileURL);
+            this_.msgSuccess("下载成功");
+          }
+
+          this_.loading = false;
+        });
+      })
+
+    },
+
+    /** 删除按钮操作 */
+    handleDelete(row) {
+      const exportIds = row.exportId || this.ids;
+      this.$confirm('是否确认删除编号为"' + exportIds + '"的数据项?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return deleteSkuExport(exportIds);
       }).then(() => {
         this.getList();
         this.msgSuccess("删除成功");
@@ -463,22 +331,15 @@ export default {
       }).then(function () {
         this_.loading = true;
         exportSku(queryParams).then(response => {
-          const blob = new Blob([response]);
-          console.log("response.length is ", blob);
-          if (blob.size < 10) {
-            this_.msgError("导出失败");
-          }
-          else {
-            const fileURL = window.URL.createObjectURL(blob);
-            const fileLink = document.createElement('a');
-            fileLink.href = fileURL;
-            fileLink.setAttribute('download', "sku_export" + ".zip");
-            document.body.appendChild(fileLink);
-            fileLink.click();
-            URL.revokeObjectURL(fileURL);
-            this_.msgSuccess("导出成功");
-          }
+          const fileURL = window.URL.createObjectURL(new Blob([response]));
+          const fileLink = document.createElement('a');
+          fileLink.href = fileURL;
+          fileLink.setAttribute('download', "sku_export" + ".zip");
+          document.body.appendChild(fileLink);
+          fileLink.click();
+          URL.revokeObjectURL(fileURL);
           this_.loading = false;
+
         });
       })
 

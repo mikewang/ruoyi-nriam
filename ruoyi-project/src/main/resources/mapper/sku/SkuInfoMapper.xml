@@ -9,13 +9,29 @@
     <result column="status" jdbcType="INTEGER" property="status" />
   </resultMap>
 
-  <select id="selectSkuInfo" resultMap="BaseResultMap">
+  <select id="selectSkuInfo" resultMap="BaseResultMap"  parameterType="com.ruoyi.sku.domain.SkuInfo" >
     select sku_id, sku_name, user_id, created, status
     from sku_info
     where status=1
     <if test="skuName != null and skuName != '' ">
       and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
     </if>
+    order by created desc
+  </select>
+
+  <select id="selectSkuListByPhotoSizeValue" resultMap="BaseResultMap"  parameterType="com.ruoyi.sku.domain.SkuInfo" >
+    select sku_id, sku_name, user_id, created, status
+    from sku_info
+    where status=1
+    <if test="skuName != null and skuName != '' ">
+      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+    </if>
+    and  sku_id in (select distinct sku_id from sku_photo where status = 1 and photo_text is not null and  photo_size_value in
+    <foreach  item ="photoSizeValue" index="index"  collection="photoSizeValues" open="(" separator="," close=")">
+      #{photoSizeValue,jdbcType=VARCHAR}
+    </foreach>
+    )
+
     order by created desc
   </select>
 
