@@ -16,7 +16,7 @@
     </description>
 
     <properties>
-        <poi.version>3.15</poi.version>
+        <poi.version>4.1.2</poi.version>
     </properties>
 
     <dependencies>
@@ -24,6 +24,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
+<!--            因为provided表明该包只在编译和测试的时候用。所以，当启动tomcat的时候，就不会冲突了。-->
         </dependency>
 
         <!-- spring-boot-devtools -->

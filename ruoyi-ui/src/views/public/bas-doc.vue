@@ -74,6 +74,7 @@ export default {
       formData.append('file', file);
 
       let filepath = 1;
+
       if (this.basdoc.attachtotype === "专利") {
           filepath = 2;
       }

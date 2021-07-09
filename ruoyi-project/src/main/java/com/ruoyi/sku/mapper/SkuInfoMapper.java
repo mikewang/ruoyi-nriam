@@ -8,6 +8,12 @@ public interface SkuInfoMapper {
     List<SkuInfo> selectSkuInfo(SkuInfo record);
     List<SkuInfo> selectSkuListByPhotoSizeValue(SkuInfo record);
 
+    List<SkuInfo> batchSelectSkuList(SkuInfo record);
+    List<SkuInfo> batchSelectSkuListByPhotoSizeValue(SkuInfo record);
+
+    List<SkuInfo> exportSkuList(SkuInfo record);
+    List<SkuInfo> exportSkuListByPhotoSizeValue(SkuInfo record);
+
     int insertSkuInfo(SkuInfo record);
     SkuInfo selectSkuInfoById(Long skuId);
     int updateSkuInfo(SkuInfo record);

@@ -33,6 +33,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button type="success " icon="el-icon-search" size="mini" @click="handleExcelBatchSearch">Excel批量搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
@@ -74,7 +75,12 @@
 
         <el-table v-loading="loading" :data="skuList" @selection-change="handleSelectionChange" :key="timer">
           <el-table-column type="selection" width="50" align="center"/>
-          <el-table-column label="编号" align="center" prop="skuId"/>
+          <el-table-column label="编号" align="center" prop="skuId">
+            <template slot-scope="scope">
+              <span v-if="scope.row.skuId === null" style="color: red">{{"没有"}}</span>
+              <span v-else>{{scope.row.skuId}}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="名称" align="center" prop="skuName"/>
           <el-table-column label="图片" align="center">
             <el-table-column v-for="(item, index) in photosizeOptions" :label="item.dictLabel" align="center">
@@ -97,7 +103,9 @@
             class-name="small-padding fixed-width"
           >
             <template slot-scope="scope">
+
               <el-button
+                v-if="scope.row.skuId != null"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -106,6 +114,7 @@
               >编辑
               </el-button>
               <el-button
+                v-if="scope.row.skuId != null"
                 size="mini"
                 type="text"
                 icon="el-icon-delete"
@@ -159,8 +168,8 @@
                 v-model="form.created"
                 size="small"
                 style="width: 240px"
-                value-format="yyyy-MM-dd"
-                type="date"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                type="datetime"
                 placeholder="选择日期"
               ></el-date-picker>
             </el-form-item>
@@ -172,18 +181,39 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog :title="excelTitle" :visible.sync="excelOpen" width="600px" append-to-body>
+      <el-form ref="form" :model="excelForm"  label-width="80px">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="Excel文件">
+              <bas-doc :basdoc="ExcelBatchSearch" :readonly="false"  @changeFileList="changeExcelFileList" :key="timer" ></bas-doc>
+
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitExcelForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
   </div>
+
+
 </template>
 
 <script>
 import {addSku, getSku, listSku, updateSku, deleteSku, uniqueSku, exportSku} from "@/api/sku/sku";
 
 import SkuPhoto from "@/views/public/sku-photo"
-import {uniqueProject} from "@/api/project/project";
+import BasDoc from "@/views/public/bas-doc";
+import {changeDocList} from "@/api/public/basdoc";
 
 export default {
   name: "Sku",
-  components: {SkuPhoto},
+  components: {SkuPhoto, BasDoc},
   data() {
     return {
       // 遮罩层
@@ -204,8 +234,6 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
-      // 部门名称
-      deptName: undefined,
       // 日期范围
       dateRange: [],
       // 图片尺寸类别数据字典
@@ -220,7 +248,8 @@ export default {
         pageNum: 1,
         pageSize: 10,
         skuName: undefined,
-        photoSizeValues: []
+        photoSizeValues: [],
+        docidList: []
       },
       // 表单校验
       rules: {
@@ -234,6 +263,13 @@ export default {
         ]
       },
       photoSizeLabel: "",
+      // 弹出层标题
+      excelTitle: "",
+      // 是否显示弹出层
+      excelOpen: false,
+      excelForm: {},
+      ExcelBatchSearch: "Excel批量搜索",
+      docList: []
     };
   },
   watch: {},
@@ -243,10 +279,8 @@ export default {
     this.getDicts("图片尺寸类别").then(response => {
       this.photosizeOptions = response.data;
       this.timer = Date.now();
-
       this.getList();
     });
-
 
   },
   methods: {
@@ -266,6 +300,10 @@ export default {
 
     checkPhotoList(index, photos) {
       // console.log("photos is ", photos);
+      if (photos === null) {
+        return  0;
+      }
+
       let result = 0;
       const dictItem = this.photosizeOptions[index];
       for (let i = 0; i < photos.length; i++) {
@@ -284,11 +322,15 @@ export default {
         return (num < 10 ? "0" + num : num);
       }
 
+      if (datetime === null) {
+        return "";
+      }
+
       let d = new Date(datetime);
       let formatdatetime = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate()) + ' ' + addDateZero(d.getHours()) + ':' + addDateZero(d.getMinutes()) + ':' + addDateZero(d.getSeconds());
       let formatdate = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate());
 
-      return formatdate;
+      return formatdatetime;
     },
 
 
@@ -323,6 +365,7 @@ export default {
     // 取消按钮
     cancel() {
       this.open = false;
+      this.excelOpen = false;
       this.reset();
     },
     // 表单重置
@@ -340,10 +383,12 @@ export default {
       this.queryParams.page = 1;
       this.getList();
     },
+
     /** 重置按钮操作 */
     resetQuery() {
       this.dateRange = [];
       this.resetForm("queryForm");
+      this.queryParams.docidList = [];
       this.handleQuery();
     },
     // 多选框选中数据
@@ -369,6 +414,7 @@ export default {
           this.photoSizeLabel = option.dictLabel;
         }
       }
+      this.form.created = new Date();
 
       this.open = true;
       this.title = "添加SKU";
@@ -483,6 +529,48 @@ export default {
       })
 
     },
+
+    handleExcelBatchSearch() {
+      this.docList = [];
+      this.timer = (new Date()).toString();
+
+      this.excelOpen = true;
+      this.excelTitle = "上传excel文件批量查询";
+
+    },
+
+
+    changeExcelFileList(filelist) {
+      if (this.docList == null) {
+        this.docList = [];
+      }
+
+      let doctype = "Excel批量搜索";
+
+      changeDocList(filelist, doctype, this.docList);
+
+      console.log("filelist is ", filelist);
+      console.log("this.docList is ", this.docList);
+
+    },
+
+    submitExcelForm() {
+
+      console.log("Excel批量搜索 is ", this.queryParams.toString() );
+      this.excelOpen = false;
+
+      this.queryParams.docidList = [];
+      for (let i=0; i< this.docList.length; i++){
+        let doc = this.docList[i];
+        this.queryParams.docidList.push(doc.docid);
+      }
+
+      this.queryParams.page = 1;
+      this.getList();
+      this.docList = [];
+      this.timer = "";
+    },
+
 
   }
 };

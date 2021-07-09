@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import logoImg from '@/assets/logo/HeadLogo.jpg'
+import logoImg from '@/assets/logo/logo.jpg'
 import variables from '@/assets/styles/variables.scss'
 
 export default {
@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '科研管理信息系统',
+      title: 'TUOLI图库',
       logo: logoImg
     }
   }

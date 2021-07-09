@@ -1,5 +1,5 @@
 module.exports = {
-  title: '科研管理信息系统',
+  title: 'TUOLI图库',
 
   /**
    * 侧边栏主题 深色主题theme-dark，浅色主题theme-light

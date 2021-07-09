@@ -46,15 +46,88 @@ public class SkuService {
         return list;
     }
 
+    public List<SkuInfo> batchSelectSkuList(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.batchSelectSkuList(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            if (skuInfo1.getSkuId() != null ) {
+                SkuPhoto photo = new SkuPhoto();
+                photo.setSkuId(skuInfo1.getSkuId());
+                List<SkuPhoto> photos = skuPhotoMapper.selectSkuPhoto(photo);
+                skuInfo1.setPhotoList(photos);
+            }
+            else {
+//                skuInfo1.setPhotoList(new ArrayList<>());
+            }
+        }
+
+        return list;
+    }
+
     public List<SkuInfo> selectSkuListByPhotoSizeValue(SkuInfo skuInfo) {
 
         List<SkuInfo> list = skuInfoMapper.selectSkuListByPhotoSizeValue(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            if (skuInfo1.getSkuId() != null ) {
+                SkuPhoto photo = new SkuPhoto();
+                photo.setSkuId(skuInfo1.getSkuId());
+                List<SkuPhoto> photos = skuPhotoMapper.selectSkuPhoto(photo);
+                skuInfo1.setPhotoList(photos);
+            }
+        }
+
+        return list;
+    }
+
+
+    public List<SkuInfo> exportSkuList(SkuInfo skuInfo) {
+
+        if (skuInfo.getSkuNames() == null) {
+            skuInfo.setSkuNames(new ArrayList<>());
+            log.debug("skuInfo skunames is null, why?");
+        }
+        List<SkuInfo> list = skuInfoMapper.exportSkuList(skuInfo);
 
         for (SkuInfo skuInfo1 : list) {
             SkuPhoto photo = new SkuPhoto();
             photo.setSkuId(skuInfo1.getSkuId());
             List<SkuPhoto> photos = skuPhotoMapper.selectSkuPhoto(photo);
             skuInfo1.setPhotoList(photos);
+        }
+
+        return list;
+    }
+
+    public List<SkuInfo> exportSkuListByPhotoSizeValue(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.exportSkuListByPhotoSizeValue(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            if (skuInfo1.getSkuId() != null ) {
+                SkuPhoto photo = new SkuPhoto();
+                photo.setSkuId(skuInfo1.getSkuId());
+                List<SkuPhoto> photos = skuPhotoMapper.selectSkuPhoto(photo);
+                skuInfo1.setPhotoList(photos);
+            }
+        }
+
+        return list;
+    }
+
+
+    public List<SkuInfo> batchSelectSkuListByPhotoSizeValue(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.batchSelectSkuListByPhotoSizeValue(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            if (skuInfo1.getSkuId() != null ) {
+                SkuPhoto photo = new SkuPhoto();
+                photo.setSkuId(skuInfo1.getSkuId());
+                List<SkuPhoto> photos = skuPhotoMapper.selectSkuPhoto(photo);
+                skuInfo1.setPhotoList(photos);
+            }
         }
 
         return list;

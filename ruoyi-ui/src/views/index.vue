@@ -6,9 +6,6 @@
 
 <script>
 
-import {  listMessage,readMessage } from "@/api/audit/message";
-
-
 export default {
   name: "index",
   components: {},
@@ -46,46 +43,10 @@ export default {
 
   },
   created() {
-   // this.getList();
+
   },
   methods: {
     /** 查询合同列表 */
-    getList() {
-      this.loading = true;
-      listMessage(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          this.messageList = response.rows;
-          this.total = response.total;
-          this.loading = false;
-        }
-      );
-    },
-
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.messageid);
-      this.single = selection.length != 1;
-      this.multiple = !selection.length;
-    },
-
-    /** 设置为已读按钮操作 */
-    handleUpdate(row) {
-      const messageids = row.messageid || this.ids;
-      this.$confirm('是否确认设置已读编号为"' + messageids + '"的数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function() {
-        return readMessage(messageids);
-      }).then(() => {
-        this.getList();
-        this.msgSuccess("操作成功");
-      })
-    },
-
-    /** 查看消息来源按钮操作 */
-    handleLink(row) {
-      this.msgSuccess("跳转到原文的链接");
-    }
 
   }
 };

@@ -1,6 +1,8 @@
 package com.ruoyi.sku.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.core.domain.model.BasDoc;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
 import java.util.Date;
 import java.util.List;
@@ -19,6 +21,10 @@ public class SkuInfo extends BaseEntity {
 
     private List<SkuPhoto> photoList;
     private List<String>  photoSizeValues;
+
+    private List<Integer> docidList;
+
+    private List<String>  skuNames;
 
     public Long getSkuId() {
         return skuId;
@@ -76,6 +82,22 @@ public class SkuInfo extends BaseEntity {
         this.photoSizeValues = photoSizeValues;
     }
 
+    public List<Integer> getDocidList() {
+        return docidList;
+    }
+
+    public void setDocidList(List<Integer> docidList) {
+        this.docidList = docidList;
+    }
+
+    public List<String> getSkuNames() {
+        return skuNames;
+    }
+
+    public void setSkuNames(List<String> skuNames) {
+        this.skuNames = skuNames;
+    }
+
     @Override
     public String toString() {
         return "SkuInfo{" +
@@ -86,6 +108,7 @@ public class SkuInfo extends BaseEntity {
                 ", status=" + status +
                 ", photoList=" + photoList +
                 ", photoSizeValues=" + photoSizeValues +
+                ", docidList=" + docidList +
                 '}';
     }
 }

@@ -4,6 +4,7 @@ import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.model.BasDoc;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
@@ -12,7 +13,9 @@ import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.ImageConverter;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sku.domain.SkuExport;
 import com.ruoyi.sku.domain.SkuInfo;
 import com.ruoyi.sku.domain.SkuPhoto;
@@ -28,6 +31,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +45,9 @@ public class SkuController extends BaseController {
 
     @Resource
     private SkuService skuService;
+
+    @Resource
+    private BasDocService basDocService;
 
 //    @Resource
 //    private HttpServletResponse response;
@@ -57,22 +64,58 @@ public class SkuController extends BaseController {
     @GetMapping("/sku/list")
     public TableDataInfo skuList(SkuInfo skuInfo) {
 
-        logger.debug("skuList is " + skuInfo.toString());
-        startPage();
+        logger.debug("skuList is begin " );
 
-        if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
+        if (skuInfo.getDocidList() == null || skuInfo.getDocidList().size() == 0) {
 
-            List<SkuInfo> skuInfos = skuService.selectSkuList(skuInfo);
-            return getDataTable(skuInfos);
+            if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
+                startPage();
+                List<SkuInfo> skuInfos = skuService.selectSkuList(skuInfo);
+                return getDataTable(skuInfos);
+            }
+            else {
+                startPage();
+                List<SkuInfo> skuInfos = skuService.selectSkuListByPhotoSizeValue(skuInfo);
+                return getDataTable(skuInfos);
+            }
         }
         else {
-            List<SkuInfo> skuInfos = skuService.selectSkuListByPhotoSizeValue(skuInfo);
-            return getDataTable(skuInfos);
+
+            skuInfo.setSkuNames(new ArrayList<>());
+
+            for (Integer docid : skuInfo.getDocidList()) {
+
+                BasDoc basDoc = basDocService.selectBasDocById(docid);
+
+                String fileName = RuoYiConfig.getProfile() + basDoc.getRelativepath() + "/" + basDoc.getDocname();
+
+                logger.debug("read execel file is " +  fileName);
+
+
+                List<ExcelDataVO> rows  =  ExcelReader.readExcel(fileName);
+
+                for (ExcelDataVO vo : rows) {
+
+                    logger.debug(vo.getSkuName());
+
+                    if (vo.getSkuName() != null) {
+                        skuInfo.getSkuNames().add(vo.getSkuName().trim());
+                    }
+                }
+            }
+
+            if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
+                startPage();
+                List<SkuInfo> skuInfos = skuService.batchSelectSkuList(skuInfo);
+                return getDataTable(skuInfos);
+            }
+            else {
+                startPage();
+                List<SkuInfo> skuInfos = skuService.batchSelectSkuListByPhotoSizeValue(skuInfo);
+                return getDataTable(skuInfos);
+            }
         }
 
-//        List<SkuInfo> list = skuService.selectSkuList(skuInfo);
-//
-//        return getDataTable(list);
     }
 
     /**
@@ -188,9 +231,39 @@ public class SkuController extends BaseController {
 
             Files.createDirectories(Paths.get(exportfilePath));
 
+
+            if (skuInfo.getDocidList() == null || skuInfo.getDocidList().size() == 0) {
+                skuInfo.setSkuNames(new ArrayList<>());
+            }
+            else {
+                skuInfo.setSkuNames(new ArrayList<>());
+
+                for (Integer docid : skuInfo.getDocidList()) {
+
+                    BasDoc basDoc = basDocService.selectBasDocById(docid);
+
+                    String fileName = RuoYiConfig.getProfile() + basDoc.getRelativepath() + "/" + basDoc.getDocname();
+
+                    logger.debug("read execel file is " +  fileName);
+
+
+                    List<ExcelDataVO> rows  =  ExcelReader.readExcel(fileName);
+
+                    for (ExcelDataVO vo : rows) {
+
+                        logger.debug(vo.getSkuName());
+
+                        if (vo.getSkuName() != null) {
+                            skuInfo.getSkuNames().add(vo.getSkuName().trim());
+                        }
+                    }
+                }
+            }
+
+            // export select
             if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
 
-                List<SkuInfo> skuInfos = skuService.selectSkuList(skuInfo);
+                List<SkuInfo> skuInfos = skuService.exportSkuList(skuInfo);
 
                 for (SkuInfo skuInfo1 : skuInfos) {
 
@@ -210,7 +283,8 @@ public class SkuController extends BaseController {
 
                         String ext = fileformatter.split("/")[1].split(";")[0];
 
-                        String fileName = skuInfo1.getSkuId().toString() + "_" + photo.getPhotoSizeValue()+ "." + ext;
+                        String fileName = skuInfo1.getSkuId().toString() + "_" + photo.getPhotoSizeValue() + "." + ext;
+                        fileName = skuInfo1.getSkuName() + "." + ext;
 
                         String imagefileName = exportfilePath + "/" + photo.getPhotoSizeLabel() + "/" + fileName;
 
@@ -218,9 +292,8 @@ public class SkuController extends BaseController {
                     }
 
                 }
-            }
-            else {
-                List<SkuInfo> skuInfos = skuService.selectSkuListByPhotoSizeValue(skuInfo);
+            } else {
+                List<SkuInfo> skuInfos = skuService.exportSkuListByPhotoSizeValue(skuInfo);
 
                 for (SkuInfo skuInfo1 : skuInfos) {
 
@@ -244,7 +317,8 @@ public class SkuController extends BaseController {
 
                         String ext = fileformatter.split("/")[1].split(";")[0];
 
-                        String fileName = skuInfo1.getSkuId().toString() + "_" + photo.getPhotoSizeValue()+ "." + ext;
+                        String fileName = skuInfo1.getSkuId().toString() + "_" + photo.getPhotoSizeValue() + "." + ext;
+                        fileName = skuInfo1.getSkuName() + "." + ext;
 
                         String imagefileName = exportfilePath + "/" + photo.getPhotoSizeLabel() + "/" + fileName;
 
@@ -309,7 +383,8 @@ public class SkuController extends BaseController {
 
             SkuExport export = skuService.selectSkuExportById(ids.get(0));
             //文件路径
-            String downloadFile = export.getExportPath() + "/" + export.getUserId().toString() + ".zip";
+            String downloadFile = export.getExportPath() + ".zip";
+            logger.debug("downloadFile is " + downloadFile);
 
             try {
                 // path是指欲下载的文件的路径。

@@ -40,7 +40,7 @@ import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.service.BasDocService;
 import io.swagger.models.auth.In;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.poi.POIXMLDocument;
+//import org.apache.poi.POIXMLDocument;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.converter.PicturesManager;
 import org.apache.poi.hwpf.converter.WordToHtmlConverter;
@@ -50,6 +50,8 @@ import org.apache.poi.hwpf.usermodel.Range;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.converter.core.IImageExtractor;
+import org.apache.poi.xwpf.converter.core.IURIResolver;
 import org.apache.poi.xwpf.converter.core.IXWPFConverter;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.converter.pdf.PdfConverter;
@@ -608,8 +610,8 @@ public class AudContractController extends BaseController {
                         XHTMLOptions options = XHTMLOptions.create();
 
                         Base64ImageExtractor imageExtractor = new Base64ImageExtractor();
-                        options.setExtractor(imageExtractor);
-                        options.URIResolver(imageExtractor);
+                        options.setExtractor((IImageExtractor) imageExtractor);
+                        options.URIResolver((IURIResolver) imageExtractor);
 
                         //3：转换XWPFDocument to XHTML
                         OutputStream out = new FileOutputStream(new File(destpath));
@@ -801,7 +803,7 @@ public class AudContractController extends BaseController {
             String localPath = RuoYiConfig.getDownloadPath();
             logger.debug("localPath is " + localPath);
 
-            String resource = "Contract/Template/";
+            String resource = "/Contract/Template/";
 
             filename = filename + ".docx";
             resource = resource + filename;
@@ -1042,8 +1044,8 @@ public class AudContractController extends BaseController {
         XHTMLOptions options = XHTMLOptions.create();
 
         Base64ImageExtractor imageExtractor = new Base64ImageExtractor();
-        options.setExtractor(imageExtractor);
-        options.URIResolver(imageExtractor);
+        options.setExtractor((IImageExtractor) imageExtractor);
+        options.URIResolver((IURIResolver) imageExtractor);
 
         //3：转换XWPFDocument to XHTML
         ByteArrayOutputStream htmlStream = new ByteArrayOutputStream();

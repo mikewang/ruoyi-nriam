@@ -6,7 +6,7 @@ import org.apache.poi.xwpf.converter.core.IURIResolver;
 
 import java.io.IOException;
 
-public class Base64ImageExtractor implements IImageExtractor, IURIResolver {
+public class Base64ImageExtractor {
 
     private byte[] picture;
 

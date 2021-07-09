@@ -16,7 +16,7 @@
     <if test="skuName != null and skuName != '' ">
       and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
     </if>
-    order by created desc
+    order by sku_id desc
   </select>
 
   <select id="selectSkuListByPhotoSizeValue" resultMap="BaseResultMap"  parameterType="com.ruoyi.sku.domain.SkuInfo" >
@@ -31,8 +31,75 @@
       #{photoSizeValue,jdbcType=VARCHAR}
     </foreach>
     )
+    order by sku_id desc
+  </select>
 
-    order by created desc
+
+  <select id="batchSelectSkuList" resultMap="BaseResultMap"  parameterType="com.ruoyi.sku.domain.SkuInfo" >
+    select * from ( select t2.sku_id, t1.sku_name, t2.user_id, t2.created, t2.status from (
+    <foreach item="skuName" index="index" collection="skuNames" open=" " separator=" union all " close=" ">
+      select #{skuName,jdbcType=VARCHAR} as sku_name
+    </foreach>
+    ) as t1 left join (select * from sku_info where status = 1) t2 on t1.sku_name = t2.sku_name
+    ) tt
+    order by tt.sku_id desc
+  </select>
+
+  <select id="batchSelectSkuListByPhotoSizeValue" resultMap="BaseResultMap"  parameterType="com.ruoyi.sku.domain.SkuInfo" >
+
+    select * from ( select t2.sku_id, t1.sku_name, t2.user_id, t2.created, t2.status from (
+    <foreach item="skuName" index="index" collection="skuNames" open=" " separator=" union all " close=" ">
+      select #{skuName,jdbcType=VARCHAR} as sku_name
+    </foreach>
+    ) as t1 left join (    select sku_id, sku_name, user_id, created, status
+    from sku_info
+    where status=1
+    <if test="skuName != null and skuName != '' ">
+      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+    </if>
+    and  sku_id in (select distinct sku_id from sku_photo where status = 1 and photo_text is not null and  photo_size_value in
+    <foreach  item ="photoSizeValue" index="index"  collection="photoSizeValues" open="(" separator="," close=")">
+      #{photoSizeValue,jdbcType=VARCHAR}
+    </foreach>
+    )) t2 on t1.sku_name = t2.sku_name
+    ) tt
+    order by tt.sku_id desc
+
+  </select>
+
+
+  <select id="exportSkuList" resultMap="BaseResultMap"  parameterType="com.ruoyi.sku.domain.SkuInfo" >
+    select sku_id, sku_name, user_id, created, status
+    from sku_info
+    where status=1
+    <if test="skuNames != null and skuNames.size != 0 ">
+      and sku_name in
+      <foreach  item ="skuName" index="index"  collection="skuNames" open="(" separator="," close=")">
+        #{skuName,jdbcType=VARCHAR}
+      </foreach>
+    </if>
+
+
+    order by sku_id desc
+  </select>
+
+  <select id="exportSkuListByPhotoSizeValue" resultMap="BaseResultMap"  parameterType="com.ruoyi.sku.domain.SkuInfo" >
+    select sku_id, sku_name, user_id, created, status
+    from sku_info
+    where status=1
+    and sku_name in
+    <if test="skuNames != null and skuNames.size != 0 ">
+    <foreach  item ="skuName" index="index"  collection="skuNames" open="(" separator="," close=")">
+      #{skuName,jdbcType=VARCHAR}
+    </foreach>
+    </if>
+    and  sku_id in (select distinct sku_id from sku_photo where status = 1 and photo_text is not null
+                                                            and  photo_size_value in
+    <foreach  item ="photoSizeValue" index="index"  collection="photoSizeValues" open="(" separator="," close=")">
+      #{photoSizeValue,jdbcType=VARCHAR}
+    </foreach>
+    )
+    order by sku_id desc
   </select>
 
   <insert id="insertSkuInfo" parameterType="com.ruoyi.sku.domain.SkuInfo"  useGeneratedKeys="true"  keyProperty="skuId">
