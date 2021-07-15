@@ -16,7 +16,6 @@ import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.ImageConverter;
-import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.service.BasDocService;
@@ -35,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,7 +71,7 @@ public class SkuController extends BaseController {
     @GetMapping("/sku/list")
     public TableDataInfo skuList(SkuInfo skuInfo) {
 
-        logger.debug("skuList is begin " );
+        logger.debug("skuList is begin ");
 
         if (skuInfo.getDocidList() == null || skuInfo.getDocidList().size() == 0) {
 
@@ -81,14 +79,12 @@ public class SkuController extends BaseController {
                 startPage();
                 List<SkuInfo> skuInfos = skuService.selectSkuListWithFile(skuInfo);
                 return getDataTable(skuInfos);
-            }
-            else {
+            } else {
                 startPage();
                 List<SkuInfo> skuInfos = skuService.selectSkuListWithFileByPhotoSizeValue(skuInfo);
                 return getDataTable(skuInfos);
             }
-        }
-        else {
+        } else {
 
             skuInfo.setSkuNames(new ArrayList<>());
 
@@ -98,10 +94,10 @@ public class SkuController extends BaseController {
 
                 String fileName = RuoYiConfig.getProfile() + basDoc.getRelativepath() + "/" + basDoc.getDocname();
 
-                logger.debug("read execel file is " +  fileName);
+                logger.debug("read execel file is " + fileName);
 
 
-                List<ExcelDataVO> rows  =  ExcelReader.readExcel(fileName);
+                List<ExcelDataVO> rows = ExcelReader.readExcel(fileName);
 
                 for (ExcelDataVO vo : rows) {
 
@@ -117,8 +113,7 @@ public class SkuController extends BaseController {
                 startPage();
                 List<SkuInfo> skuInfos = skuService.batchSelectSkuListWithFiles(skuInfo);
                 return getDataTable(skuInfos);
-            }
-            else {
+            } else {
                 startPage();
                 List<SkuInfo> skuInfos = skuService.batchSelectSkuListWithFilesByPhotoSizeValue(skuInfo);
                 return getDataTable(skuInfos);
@@ -140,7 +135,7 @@ public class SkuController extends BaseController {
             SkuInfo skuInfo = skuService.selectSkuInfoWithFilesById(skuId);
 
             // 本地资源路径
-            String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" ;
+            String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload";
 
             for (SkuFile ff : skuInfo.getPhotoFileList()) {
                 String url = fileDirPath + ff.getRelativepath() + "/" + ff.getFileName();
@@ -236,11 +231,9 @@ public class SkuController extends BaseController {
 //    @PreAuthorize("@ss.hasPermi('bas:doc:add')")
     @Log(title = "拓力图片上传", businessType = BusinessType.IMPORT)
     @PostMapping("/upload/{photoSizeValue}")
-    public AjaxResult upload(@PathVariable String photoSizeValue, @RequestParam("file") MultipartFile file) throws IOException
-    {
+    public AjaxResult upload(@PathVariable String photoSizeValue, @RequestParam("file") MultipartFile file) throws IOException {
         logger.debug("file getOriginalFilename is " + file.getOriginalFilename());
-        try
-        {
+        try {
             LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
             String originalFilename = file.getOriginalFilename();
             // 上传文件路径
@@ -278,9 +271,7 @@ public class SkuController extends BaseController {
             ajax.put("fileId", fileId);
 
             return ajax;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             return AjaxResult.error(e.getMessage() + " 上传图片文件异常，请联系管理员");
         }
     }
@@ -291,8 +282,8 @@ public class SkuController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('sku:sku:list')")
     @Log(title = "SKU管理", businessType = BusinessType.EXPORT)
-    @GetMapping("/sku/export")
-    public void exportSku(SkuInfo skuInfo, HttpServletResponse response) throws IOException {
+    @GetMapping("/sku/exportbase64")
+    public void exportSkuBase64(SkuInfo skuInfo, HttpServletResponse response) throws IOException {
         logger.debug("exportSku is " + skuInfo.toString());
         try {
 
@@ -302,7 +293,7 @@ public class SkuController extends BaseController {
             String yyyymmdd = DateUtils.dateTimeNow("yyyyMMdd");
             String HHmmss = DateUtils.dateTimeNow("HHmmss");
 
-            basicPath = basicPath + "/" + yyyymmdd + "/" + HHmmss ;
+            basicPath = basicPath + "/" + yyyymmdd + "/" + HHmmss;
 
             String exportfilePath = basicPath + "/" + getCurrentLoginUserId().toString();
 
@@ -311,8 +302,7 @@ public class SkuController extends BaseController {
 
             if (skuInfo.getDocidList() == null || skuInfo.getDocidList().size() == 0) {
                 skuInfo.setSkuNames(new ArrayList<>());
-            }
-            else {
+            } else {
                 skuInfo.setSkuNames(new ArrayList<>());
 
                 for (Integer docid : skuInfo.getDocidList()) {
@@ -321,10 +311,10 @@ public class SkuController extends BaseController {
 
                     String fileName = RuoYiConfig.getProfile() + basDoc.getRelativepath() + "/" + basDoc.getDocname();
 
-                    logger.debug("read execel file is " +  fileName);
+                    logger.debug("read execel file is " + fileName);
 
 
-                    List<ExcelDataVO> rows  =  ExcelReader.readExcel(fileName);
+                    List<ExcelDataVO> rows = ExcelReader.readExcel(fileName);
 
                     for (ExcelDataVO vo : rows) {
 
@@ -452,8 +442,8 @@ public class SkuController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('sku:export:list')")
     @Log(title = "导出记录", businessType = BusinessType.EXPORT)
-    @GetMapping("/download/{exportIds}")
-    public void downloadSkuExport(@PathVariable Long[] exportIds, HttpServletResponse response, HttpServletRequest request) throws IOException {
+    @GetMapping("/downloadBase64/{exportIds}")
+    public void downloadSkuBase64Export(@PathVariable Long[] exportIds, HttpServletResponse response, HttpServletRequest request) throws IOException {
         try {
 
             List<Long> ids = Arrays.asList(exportIds);
@@ -518,9 +508,9 @@ public class SkuController extends BaseController {
         for (Long id : exportIds) {
 
             SkuExport export = skuService.selectSkuExportById(id);
-            logger.debug("delete disk file at " + export.getExportPath()+"/"+export.getUserId().toString()+".zip");
+            logger.debug("delete disk file at " + export.getExportPath() + "/" + export.getUserId().toString() + ".zip");
 
-            FileUtils.deleteFile(export.getExportPath()+".zip");
+            FileUtils.deleteFile(export.getExportPath() + ".zip");
 
             FileUtils.deleteDirectory(new File(export.getExportPath()));
 
@@ -537,4 +527,208 @@ public class SkuController extends BaseController {
     }
 
 
+    /**
+     * 文件下载
+     */
+    @PreAuthorize("@ss.hasPermi('sku:sku:list')")
+    @Log(title = "SKU管理", businessType = BusinessType.EXPORT)
+    @GetMapping("/sku/export")
+    public void exportSku(SkuInfo skuInfo, HttpServletResponse response) throws IOException {
+        logger.debug("exportSku is " + skuInfo.toString());
+        try {
+
+            //文件路径
+            String basicPath = RuoYiConfig.getDownloadPath() + "/Export";
+
+            String yyyymmdd = DateUtils.dateTimeNow("yyyyMMdd");
+            String HHmmss = DateUtils.dateTimeNow("HHmmss");
+
+            basicPath = basicPath + "/" + yyyymmdd + "/" + HHmmss;
+
+            String exportfilePath = basicPath + "/" + getCurrentLoginUserId().toString();
+
+            Files.createDirectories(Paths.get(exportfilePath));
+
+
+            if (skuInfo.getDocidList() == null || skuInfo.getDocidList().size() == 0) {
+                skuInfo.setSkuNames(new ArrayList<>());
+            } else {
+                skuInfo.setSkuNames(new ArrayList<>());
+
+                for (Integer docid : skuInfo.getDocidList()) {
+
+                    BasDoc basDoc = basDocService.selectBasDocById(docid);
+
+                    String fileName = RuoYiConfig.getProfile() + basDoc.getRelativepath() + "/" + basDoc.getDocname();
+
+                    logger.debug("read execel file is " + fileName);
+
+
+                    List<ExcelDataVO> rows = ExcelReader.readExcel(fileName);
+
+                    for (ExcelDataVO vo : rows) {
+
+                        logger.debug(vo.getSkuName());
+
+                        if (vo.getSkuName() != null) {
+                            skuInfo.getSkuNames().add(vo.getSkuName().trim());
+                        }
+                    }
+                }
+            }
+
+            // export select
+            if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
+
+                List<SkuInfo> skuInfos = skuService.exportSkuListWithFiles(skuInfo);
+
+                for (SkuInfo skuInfo1 : skuInfos) {
+
+                    for (SkuFile file : skuInfo1.getPhotoFileList()) {
+
+                        if (file.getFileName() == null) {
+                            continue;
+                        }
+
+                        Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
+
+                        String ext = file.getFileType();
+
+                        String fileName = skuInfo1.getSkuName() + "." + ext;
+
+                        String imagefileName = exportfilePath + "/" + file.getPhotoSizeLabel() + "/" + fileName;
+
+                        File dest = FileUtils.getFile(imagefileName);
+
+                        String sourcefilePath = RuoYiConfig.getUploadPath() + file.getRelativepath() + "/" + file.getFileName();
+                        File source = FileUtils.getFile(sourcefilePath);
+
+                        FileUtils.copyFile(source, dest);
+
+                    }
+
+                }
+            } else {
+                List<SkuInfo> skuInfos = skuService.exportSkuListWithFilesByPhotoSizeValue(skuInfo);
+
+                for (SkuInfo skuInfo1 : skuInfos) {
+
+                    for (SkuFile file : skuInfo1.getPhotoFileList()) {
+
+                        if (file.getFileName() == null) {
+                            continue;
+                        }
+
+                        Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
+
+                        String ext = file.getFileType();
+
+                        String fileName = skuInfo1.getSkuName() + "." + ext;
+
+                        String imagefileName = exportfilePath + "/" + file.getPhotoSizeLabel() + "/" + fileName;
+
+                        File dest = FileUtils.getFile(imagefileName);
+
+                        String sourcefilePath = RuoYiConfig.getUploadPath() + file.getRelativepath() + "/" + file.getFileName();
+                        File source = FileUtils.getFile(sourcefilePath);
+
+                        FileUtils.copyFile(source, dest);
+
+                    }
+                }
+            }
+
+            String downloadFile = basicPath + "/" + getCurrentLoginUserId().toString() + ".zip";
+
+            ImageConverter.pack(exportfilePath, downloadFile);
+
+            try {
+                // path是指欲下载的文件的路径。
+                File file = new File(downloadFile);
+                // 取得文件名。
+                String filename = file.getName();
+                logger.debug("download filename is " + filename);
+                // 取得文件的后缀名。
+                String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
+
+                // 以流的形式下载文件。
+                InputStream fis = new BufferedInputStream(new FileInputStream(downloadFile));
+                byte[] buffer = new byte[fis.available()];
+                fis.read(buffer);
+                fis.close();
+                // 清空response
+                response.reset();
+                // 设置response的Header
+                response.addHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes()));
+                response.addHeader("Content-Length", "" + file.length());
+                OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
+                response.setContentType("application/octet-stream");
+                toClient.write(buffer);
+                toClient.flush();
+
+                SkuExport export = new SkuExport();
+                export.setExportPath(exportfilePath);
+                export.setStatus(1);
+                export.setExportTime(new Date());
+                export.setUserId(getCurrentLoginUserId());
+                skuService.insertSkuExport(export);
+
+            } catch (Exception e) {
+                logger.error("读取文件标签失败", e);
+            }
+
+        } catch (Exception e) {
+            logger.error("下载文件失败", e);
+        }
+    }
+
+
+    @PreAuthorize("@ss.hasPermi('sku:export:list')")
+    @Log(title = "导出记录", businessType = BusinessType.EXPORT)
+    @GetMapping("/download/{exportIds}")
+    public void downloadSkuExport(@PathVariable Long[] exportIds, HttpServletResponse response, HttpServletRequest request) throws IOException {
+        try {
+
+            List<Long> ids = Arrays.asList(exportIds);
+
+            SkuExport export = skuService.selectSkuExportById(ids.get(0));
+            //文件路径
+            String downloadFile = export.getExportPath() + ".zip";
+            logger.debug("downloadFile is " + downloadFile);
+
+            try {
+                // path是指欲下载的文件的路径。
+                File file = new File(downloadFile);
+                // 取得文件名。
+                String filename = file.getName();
+                logger.debug("download filename is " + filename);
+                // 取得文件的后缀名。
+                String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
+
+                // 以流的形式下载文件。
+                InputStream fis = new BufferedInputStream(new FileInputStream(downloadFile));
+                byte[] buffer = new byte[fis.available()];
+                fis.read(buffer);
+                fis.close();
+                // 清空response
+                response.reset();
+                // 设置response的Header
+                response.addHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes()));
+                response.addHeader("Content-Length", "" + file.length());
+                OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
+                response.setContentType("application/octet-stream");
+                toClient.write(buffer);
+                toClient.flush();
+
+            } catch (Exception e) {
+                logger.error("读取文件标签失败", e);
+            }
+
+        } catch (Exception e) {
+            logger.error("下载文件失败", e);
+        }
+
+    }
+
 }
+

@@ -429,4 +429,47 @@ public class SkuService {
         return list;
     }
 
+
+
+    public List<SkuInfo> exportSkuListWithFiles(SkuInfo skuInfo) {
+
+        if (skuInfo.getSkuNames() == null) {
+            skuInfo.setSkuNames(new ArrayList<>());
+            log.debug("skuInfo skunames is null, why?");
+        }
+        List<SkuInfo> list = skuInfoMapper.exportSkuList(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            SkuFile file = new SkuFile();
+            file.setSkuId(skuInfo1.getSkuId());
+
+            List<SkuFile> files = skuFileMapper.selectSkuFile(file);
+
+            log.debug("photoFileList get " + files.toString());
+
+            skuInfo1.setPhotoFileList(files);
+        }
+
+
+        return list;
+    }
+
+    public List<SkuInfo> exportSkuListWithFilesByPhotoSizeValue(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.exportSkuListWithFilesByPhotoSizeValue(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            if (skuInfo1.getSkuId() != null ) {
+                SkuFile file = new SkuFile();
+                file.setSkuId(skuInfo1.getSkuId());
+
+                List<SkuFile> files = skuFileMapper.selectSkuFile(file);
+                skuInfo1.setPhotoFileList(files);
+            }
+        }
+
+
+        return list;
+    }
+
 }

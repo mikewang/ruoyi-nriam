@@ -56,14 +56,14 @@
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
+  width: 800px;
+  height: 800px;
+  line-height: 800px;
   text-align: center;
 }
 .avatar {
-  width: 178px;
-  height: 178px;
+  width: 800px;
+  height: 800px;
   display: block;
 }
 </style>
@@ -116,8 +116,8 @@ export default {
 // 上传文件之前的钩子
     handleBeforeUpload(file) {
       console.log('handleBeforeUpload', file)
-      if (!(file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/jpg' || file.type === 'image/jpeg' || file.type === 'image/tif')) {
-        this.msgError("请上传格式为image/png, image/gif, image/jpg, image/jpeg, image/tif的图片");
+      if (!(file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/jpg' || file.type === 'image/jpeg' || file.type === 'image/tif'|| file.type === 'image/ai'|| file.type === 'image/psd')) {
+        this.msgError("请上传格式为image/png, image/gif, image/jpg, image/jpeg, image/tif,image/ai, image/psd的图片");
         return false;
       }
       let size = file.size / 1024 / 1024 / 2
@@ -148,7 +148,8 @@ export default {
       console.log("正在上传。。。。");
     },
     handleError(err, file, fileList) {
-
+      this.skuFile.url = "";
+      this.timer = (new Date()).toString();
       this.msgError(err.toString());
     },
 
@@ -164,6 +165,8 @@ export default {
         this.msgSuccess(response.fileName + "上传成功");
 
         this.$emit('changePhotoFile', this.photofile, this.skuFile.photoSizeValue, "add", response.fileId);
+
+        this.timer = (new Date()).toString();
 
       });
     },

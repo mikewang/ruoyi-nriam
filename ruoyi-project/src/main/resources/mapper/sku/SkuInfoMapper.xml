@@ -108,6 +108,28 @@
     order by sku_id desc
   </select>
 
+  <select id="exportSkuListWithFilesByPhotoSizeValue" resultMap="BaseResultMap"  parameterType="com.ruoyi.sku.domain.SkuInfo" >
+    select sku_id, sku_name, user_id, created, status
+    from sku_info
+    where status=1
+    <if test="skuName != null and skuName != '' ">
+      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="skuNames != null and skuNames.size != 0 ">
+      and sku_name in
+      <foreach  item ="skuName" index="index"  collection="skuNames" open="(" separator="," close=")">
+        #{skuName,jdbcType=VARCHAR}
+      </foreach>
+    </if>
+    and  sku_id in (select distinct sku_id from sku_file where status = 1 and file_name is not null
+    and  photo_size_value in
+    <foreach  item ="photoSizeValue" index="index"  collection="photoSizeValues" open="(" separator="," close=")">
+      #{photoSizeValue,jdbcType=VARCHAR}
+    </foreach>
+    )
+    order by sku_id desc
+  </select>
+
   <insert id="insertSkuInfo" parameterType="com.ruoyi.sku.domain.SkuInfo"  useGeneratedKeys="true"  keyProperty="skuId">
     insert into sku_info (sku_name, user_id, created, status)
     values (#{skuName,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT}, #{created,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER})

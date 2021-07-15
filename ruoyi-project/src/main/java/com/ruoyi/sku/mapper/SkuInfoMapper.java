@@ -14,6 +14,9 @@ public interface SkuInfoMapper {
     List<SkuInfo> exportSkuList(SkuInfo record);
     List<SkuInfo> exportSkuListByPhotoSizeValue(SkuInfo record);
 
+
+    List<SkuInfo> exportSkuListWithFilesByPhotoSizeValue(SkuInfo record);
+
     int insertSkuInfo(SkuInfo record);
     SkuInfo selectSkuInfoById(Long skuId);
     int updateSkuInfo(SkuInfo record);

@@ -18,8 +18,12 @@ public class MimeTypeUtils
     public static final String IMAGE_GIF = "image/gif";
 
     public static final String IMAGE_TIF = "image/tif";
+
+    public static final String IMAGE_AI = "image/ai";
+
+    public static final String IMAGE_PSD = "image/psd";
     
-    public static final String[] IMAGE_EXTENSION = { "bmp", "gif", "jpg", "jpeg", "png","tif" };
+    public static final String[] IMAGE_EXTENSION = { "bmp", "gif", "jpg", "jpeg", "png","tif", "ai","psd" };
 
     public static final String[] FLASH_EXTENSION = { "swf", "flv" };
 
@@ -28,7 +32,7 @@ public class MimeTypeUtils
 
     public static final String[] DEFAULT_ALLOWED_EXTENSION = {
             // 图片
-            "bmp", "gif", "jpg", "jpeg", "png","tif",
+            "bmp", "gif", "jpg", "jpeg", "png","tif", "ai","psd",
             // word excel powerpoint
             "doc", "docx", "xls", "xlsx", "ppt", "pptx", "html", "htm", "txt",
             // 压缩文件
@@ -50,8 +54,10 @@ public class MimeTypeUtils
                 return "bmp";
             case IMAGE_GIF:
                 return "gif";
-            case IMAGE_TIF:
-                return "tif";
+            case IMAGE_AI:
+                return "ai";
+            case IMAGE_PSD:
+                return "psd";
             default:
                 return "";
         }
