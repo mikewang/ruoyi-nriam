@@ -8,7 +8,7 @@
   <el-upload
     class="avatar-uploader"
     style="width:500px;hight:300px"
-    accept="image/png,image/jpg,image/jpeg"
+    accept="image/png,image/jpg,image/jpeg,image/tif"
     action="#"
     :show-file-list="false"
     :auto-upload="false"

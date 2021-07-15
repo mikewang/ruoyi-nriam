@@ -85,6 +85,8 @@ public class AudSignpicController extends BaseController {
             File desc = new File(checkFilePath);
             if (desc.exists() == true) {
                 String filePath = fileDirPath + s.getSignpicName();
+
+
                 s.setSignpicName(filePath);
                 logger.debug("url is " + filePath);
             }

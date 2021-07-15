@@ -80,6 +80,17 @@ export function deleteSkuExport(ids) {
 }
 
 
+// 文件上传
+export function uploadSkuFile(photoSizeValue, data) {
+  return request({
+    // headers: {'Content-Type':'multipart/form-data'},
+    url: '/sku/upload/' + photoSizeValue,
+    method: 'post',
+    data: data
+  })
+}
+
+
 export function downloadSkuExport(ids) {
   return request({
     url: '/sku/download/' + ids,
@@ -97,6 +108,8 @@ export function listSkuPhoto(query) {
     params: query
   })
 }
+
+
 
 
 // 新增skuPhoto

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.sku.mapper.SkuFileMapper">
+  <resultMap id="BaseResultMap" type="com.ruoyi.sku.domain.SkuFile">
+    <id column="file_id" jdbcType="BIGINT" property="fileId" />
+    <result column="photo_size_value" jdbcType="VARCHAR" property="photoSizeValue" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="relativePath" jdbcType="VARCHAR" property="relativepath" />
+    <result column="created" jdbcType="TIMESTAMP" property="created" />
+    <result column="modified" jdbcType="TIMESTAMP" property="modified" />
+    <result column="sku_id" jdbcType="BIGINT" property="skuId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="photo_size_label" jdbcType="VARCHAR" property="photoSizeLabel" />
+  </resultMap>
+
+  <insert id="insertSkuFile" parameterType="com.ruoyi.sku.domain.SkuFile" useGeneratedKeys="true"  keyProperty="fileId">
+    insert into sku_file (photo_size_value, file_name,file_type,
+      relativePath, created, modified, 
+      sku_id, status)
+    values ( #{photoSizeValue,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR},#{fileType,jdbcType=VARCHAR},
+      #{relativepath,jdbcType=VARCHAR}, #{created,jdbcType=TIMESTAMP}, #{modified,jdbcType=TIMESTAMP}, 
+      #{skuId,jdbcType=BIGINT}, #{status,jdbcType=INTEGER})
+  </insert>
+  <update id="updateSkuFile" parameterType="com.ruoyi.sku.domain.SkuFile">
+    update sku_file
+    set photo_size_value = #{photoSizeValue,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      file_type = #{fileType,jdbcType=VARCHAR},
+      relativePath = #{relativepath,jdbcType=VARCHAR},
+      modified = #{modified,jdbcType=TIMESTAMP},
+      sku_id = #{skuId,jdbcType=BIGINT},
+      status = #{status,jdbcType=INTEGER}
+    where file_id = #{fileId,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateSkuFileSkuId" parameterType="com.ruoyi.sku.domain.SkuFile">
+    update sku_file
+    set modified = #{modified,jdbcType=TIMESTAMP},
+        sku_id = #{skuId,jdbcType=BIGINT}
+    where file_id = #{fileId,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectSkuFileById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select file_id, photo_size_value, file_name, file_type, relativePath, created, modified, sku_id,
+           status
+    from sku_file
+    where file_id = #{fileId,jdbcType=BIGINT}
+  </select>
+  <select id="selectSkuFile" parameterType="com.ruoyi.sku.domain.SkuFile" resultMap="BaseResultMap">
+    select file_id, photo_size_value, file_name,file_type, relativePath, created, modified, sku_id,
+    a.status,
+    b.dict_label as photo_size_label ,
+    b.dict_sort
+    from sku_file a left join (select * from sys_dict_data  where dict_type = '图片尺寸类别' ) b on a.photo_size_value= b.dict_value
+    where a.status = 1
+    <if test="skuId != null and skuId != 0 ">
+      and a.sku_id = #{skuId,jdbcType=BIGINT}
+    </if>
+  </select>
+
+  <delete id="deleteSkuFileById" parameterType="java.lang.Long">
+    delete from sku_file
+    where file_id = #{fileId,jdbcType=BIGINT}
+  </delete>
+
+</mapper>

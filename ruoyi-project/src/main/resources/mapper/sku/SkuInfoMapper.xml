@@ -72,6 +72,9 @@
     select sku_id, sku_name, user_id, created, status
     from sku_info
     where status=1
+    <if test="skuName != null and skuName != '' ">
+      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+    </if>
     <if test="skuNames != null and skuNames.size != 0 ">
       and sku_name in
       <foreach  item ="skuName" index="index"  collection="skuNames" open="(" separator="," close=")">
@@ -87,8 +90,11 @@
     select sku_id, sku_name, user_id, created, status
     from sku_info
     where status=1
-    and sku_name in
+    <if test="skuName != null and skuName != '' ">
+      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+    </if>
     <if test="skuNames != null and skuNames.size != 0 ">
+      and sku_name in
     <foreach  item ="skuName" index="index"  collection="skuNames" open="(" separator="," close=")">
       #{skuName,jdbcType=VARCHAR}
     </foreach>

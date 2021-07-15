@@ -85,8 +85,8 @@
           <el-table-column label="图片" align="center">
             <el-table-column v-for="(item, index) in photosizeOptions" :label="item.dictLabel" align="center">
               <template slot-scope="scope">
-                <i class="el-icon-close" v-if="checkPhotoFileList(index,scope.row.photoFileList) === 0"></i>
-                <i class="el-icon-check" style="color: blue" v-else></i>
+                <i class="el-icon-close" v-if="checkPhotoList(index,scope.row.photoList) === 0"></i>
+                <i class="el-icon-check" v-else></i>
               </template>
             </el-table-column>
 
@@ -151,10 +151,9 @@
             <el-form-item label="尺寸类型">
               <template>
                 <el-tabs v-model="photoSizeLabel">
-                  <el-tab-pane v-for="item in form.photoFileList" :label="item.photoSizeLabel" :name="item.photoSizeLabel"
-                               :key="item.fileId">
-                    <SkuFile  :skuFile="item"
-                                 @changePhotoFile="changePhotoFile" :key="item.fileId"></SkuFile>
+                  <el-tab-pane v-for="item in form.photoList" :label="item.photoSizeLabel" :name="item.photoSizeLabel"
+                               :key="item.photoId">
+                    <SkuPhoto :item="item" :key="item.photoId"></SkuPhoto>
                   </el-tab-pane>
                 </el-tabs>
               </template>
@@ -177,7 +176,6 @@
           </el-col>
         </el-row>
       </el-form>
-<!--      <el-progress type="line" percentage="0" status="success"></el-progress>-->
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
@@ -209,13 +207,13 @@
 <script>
 import {addSku, getSku, listSku, updateSku, deleteSku, uniqueSku, exportSku} from "@/api/sku/sku";
 
-import SkuFile from "@/views/public/sku-file"
+import SkuPhoto from "@/views/public/sku-photo"
 import BasDoc from "@/views/public/bas-doc";
 import {changeDocList} from "@/api/public/basdoc";
 
 export default {
   name: "Sku",
-  components: {SkuFile, BasDoc},
+  components: {SkuPhoto, BasDoc},
   data() {
     return {
       // 遮罩层
@@ -271,8 +269,7 @@ export default {
       excelOpen: false,
       excelForm: {},
       ExcelBatchSearch: "Excel批量搜索",
-      docList: [],
-
+      docList: []
     };
   },
   watch: {},
@@ -301,18 +298,18 @@ export default {
       );
     },
 
-    checkPhotoFileList(index, files) {
+    checkPhotoList(index, photos) {
       // console.log("photos is ", photos);
-      if (files === null) {
-        return 0;
+      if (photos === null) {
+        return  0;
       }
 
       let result = 0;
       const dictItem = this.photosizeOptions[index];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i];
         // console.log("dictItem dictValue is ", dictItem.dictValue, "photosizeValue is ", photo.photoSizeValue);
-        if (file.photoSizeValue === dictItem.dictValue && file.fileName != null) {
+        if (photo.photoSizeValue === dictItem.dictValue && photo.photoText != null) {
           result = 1;
           break;
         }
@@ -403,17 +400,15 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      this.form.photoFileList = [];
+      this.form.photoList = [];
       for (let i = 0; i < this.photosizeOptions.length; i++) {
         let option = this.photosizeOptions[i];
-        let photoFile = new Object();
-        photoFile.fileId = null;
-        photoFile.photoSizeLabel = option.dictLabel;
-        photoFile.photoSizeValue = option.dictValue;
-        photoFile.fileName = null;
-        photoFile.relativepath = null;
-        photoFile.skuId = null;
-        this.form.photoFileList.push(photoFile);
+        let photo = new Object();
+        photo.photoId = null;
+        photo.photoSizeLabel = option.dictLabel;
+        photo.photoSizeValue = option.dictValue;
+        photo.photoText = null;
+        this.form.photoList.push(photo);
 
         if (i === 0) {
           this.photoSizeLabel = option.dictLabel;
@@ -454,7 +449,7 @@ export default {
       getSku(skuId).then(response => {
         console.log("update sku is ", response.data);
         this.form = response.data;
-        console.log("this.form is ", this.form.photoFileList, "this.photosizeOptions is ", this.photosizeOptions);
+        console.log("this.form is ", this.form.photoList, "this.photosizeOptions is ", this.photosizeOptions);
         for (let i = 0; i < this.photosizeOptions.length; i++) {
           let option = this.photosizeOptions[i];
 
@@ -463,9 +458,9 @@ export default {
           }
 
           let x = false;
-          for (let j = 0; j < this.form.photoFileList.length; j++) {
-            let photo = this.form.photoFileList[j];
-            console.log("photo.photoSizeValue === option.photoSizeValue", photo.photoSizeValue, option.dictValue);
+          for (let j = 0; j < this.form.photoList.length; j++) {
+            let photo = this.form.photoList[j];
+            console.log("photo.photoSizeValue === option.photoSizeValue", photo.photoSizeValue , option.dictValue);
             if (photo.photoSizeValue === option.dictValue) {
               x = true;
               break;
@@ -473,20 +468,17 @@ export default {
           }
 
           if (x === false) {
-            let photoFile = new Object();
-            photoFile.fileId = null;
-            photoFile.photoSizeLabel = option.dictLabel;
-            photoFile.photoSizeValue = option.dictValue;
-            photoFile.fileName = null;
-            photoFile.relativepath = null;
-            photoFile.skuId = skuId;
-            photoFile.url = null;
-            this.form.photoFileList.push(photoFile);
+            let photo = new Object();
+            photo.photoId = null;
+            photo.photoSizeLabel = option.dictLabel;
+            photo.photoSizeValue = option.dictValue;
+            photo.photoText = null;
+            this.form.photoList.push(photo);
           }
 
         }
 
-        console.log("this.form is ", this.form.photoFileList);
+        console.log("this.form is ", this.form.photoList);
         this.open = true;
         this.title = "修改SKU";
       });
@@ -521,7 +513,8 @@ export default {
           console.log("response.length is ", blob);
           if (blob.size < 10) {
             this_.msgError("导出失败");
-          } else {
+          }
+          else {
             const fileURL = window.URL.createObjectURL(blob);
             const fileLink = document.createElement('a');
             fileLink.href = fileURL;
@@ -563,11 +556,11 @@ export default {
 
     submitExcelForm() {
 
-      console.log("Excel批量搜索 is ", this.queryParams.toString());
+      console.log("Excel批量搜索 is ", this.queryParams.toString() );
       this.excelOpen = false;
 
       this.queryParams.docidList = [];
-      for (let i = 0; i < this.docList.length; i++) {
+      for (let i=0; i< this.docList.length; i++){
         let doc = this.docList[i];
         this.queryParams.docidList.push(doc.docid);
       }
@@ -579,27 +572,6 @@ export default {
     },
 
 
-    changePhotoFile(photofile, photoSizeValue, operate, fileId) {
-
-      if (operate === "refresh") {
-
-      }
-      else {
-        console.log("changePhotoFile is ", photoSizeValue, "photofile is ", photofile);
-        for (let i = 0; i < this.form.photoFileList.length; i++) {
-          let photo = this.form.photoFileList[i];
-          if (photo.photoSizeValue === photoSizeValue) {
-            photo.fileId = fileId;
-          }
-        }
-
-        console.log("changePhotoFile is ", this.form.photoFileList);
-      }
-
-    },
-
-
   }
-}
+};
 </script>
-

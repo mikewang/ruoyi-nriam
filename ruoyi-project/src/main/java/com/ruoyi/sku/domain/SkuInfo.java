@@ -20,6 +20,7 @@ public class SkuInfo extends BaseEntity {
     private Integer status;
 
     private List<SkuPhoto> photoList;
+    private List<SkuFile> photoFileList;
     private List<String>  photoSizeValues;
 
     private List<Integer> docidList;
@@ -72,6 +73,14 @@ public class SkuInfo extends BaseEntity {
 
     public void setPhotoList(List<SkuPhoto> photoList) {
         this.photoList = photoList;
+    }
+
+    public List<SkuFile> getPhotoFileList() {
+        return photoFileList;
+    }
+
+    public void setPhotoFileList(List<SkuFile> photoFileList) {
+        this.photoFileList = photoFileList;
     }
 
     public List<String> getPhotoSizeValues() {

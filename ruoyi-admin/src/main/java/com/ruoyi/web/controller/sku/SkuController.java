@@ -2,6 +2,7 @@ package com.ruoyi.web.controller.sku;
 
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.model.BasDoc;
@@ -11,18 +12,23 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileTypeUtils;
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.ImageConverter;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.project.service.BasDocService;
 import com.ruoyi.sku.domain.SkuExport;
+import com.ruoyi.sku.domain.SkuFile;
 import com.ruoyi.sku.domain.SkuInfo;
 import com.ruoyi.sku.domain.SkuPhoto;
 import com.ruoyi.sku.service.SkuService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +55,9 @@ public class SkuController extends BaseController {
     @Resource
     private BasDocService basDocService;
 
+    @Resource
+    private ServerConfig serverConfig;
+
 //    @Resource
 //    private HttpServletResponse response;
 
@@ -70,12 +79,12 @@ public class SkuController extends BaseController {
 
             if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
                 startPage();
-                List<SkuInfo> skuInfos = skuService.selectSkuList(skuInfo);
+                List<SkuInfo> skuInfos = skuService.selectSkuListWithFile(skuInfo);
                 return getDataTable(skuInfos);
             }
             else {
                 startPage();
-                List<SkuInfo> skuInfos = skuService.selectSkuListByPhotoSizeValue(skuInfo);
+                List<SkuInfo> skuInfos = skuService.selectSkuListWithFileByPhotoSizeValue(skuInfo);
                 return getDataTable(skuInfos);
             }
         }
@@ -106,12 +115,12 @@ public class SkuController extends BaseController {
 
             if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
                 startPage();
-                List<SkuInfo> skuInfos = skuService.batchSelectSkuList(skuInfo);
+                List<SkuInfo> skuInfos = skuService.batchSelectSkuListWithFiles(skuInfo);
                 return getDataTable(skuInfos);
             }
             else {
                 startPage();
-                List<SkuInfo> skuInfos = skuService.batchSelectSkuListByPhotoSizeValue(skuInfo);
+                List<SkuInfo> skuInfos = skuService.batchSelectSkuListWithFilesByPhotoSizeValue(skuInfo);
                 return getDataTable(skuInfos);
             }
         }
@@ -123,11 +132,23 @@ public class SkuController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('sku:sku:list')")
     @GetMapping(value = {"/sku/{skuId}"})
-    public AjaxResult getSku(@PathVariable(value = "skuId", required = false) Long skuId) {
+    public AjaxResult getSku(@PathVariable(value = "skuId", required = true) Long skuId) {
         AjaxResult ajax = AjaxResult.success();
 
         if (StringUtils.isNotNull(skuId)) {
-            ajax.put(AjaxResult.DATA_TAG, skuService.selectSkuInfoById(skuId));
+
+            SkuInfo skuInfo = skuService.selectSkuInfoWithFilesById(skuId);
+
+            // 本地资源路径
+            String fileDirPath = serverConfig.getUrl() + Constants.RESOURCE_PREFIX + "/upload" ;
+
+            for (SkuFile ff : skuInfo.getPhotoFileList()) {
+                String url = fileDirPath + ff.getRelativepath() + "/" + ff.getFileName();
+                logger.debug("getSku file url is " + url);
+                ff.setUrl(url);
+            }
+
+            ajax.put(AjaxResult.DATA_TAG, skuInfo);
         }
         return ajax;
     }
@@ -142,11 +163,10 @@ public class SkuController extends BaseController {
         skuInfo.setUserId(userId);
         skuInfo.setStatus(1);
 
-        Long rows = skuService.insertSkuInfo(skuInfo);
+        Long rows = skuService.insertSkuInfoWithFiles(skuInfo);
 
         if (rows > 0) {
             Long skuId = skuInfo.getSkuId();
-
 
             AjaxResult ajax = AjaxResult.success();
             ajax.put(AjaxResult.DATA_TAG, skuId);
@@ -166,7 +186,7 @@ public class SkuController extends BaseController {
         skuInfo.setUserId(userId);
         skuInfo.setStatus(1);
 
-        Long rows = skuService.updateSkuInfo(skuInfo);
+        Long rows = skuService.updateSkuInfoWithFiles(skuInfo);
 
         if (rows > 0) {
             AjaxResult ajax = AjaxResult.success();
@@ -208,6 +228,63 @@ public class SkuController extends BaseController {
         }
         return ajax;
     }
+
+
+    /**
+     * 文件上传
+     */
+//    @PreAuthorize("@ss.hasPermi('bas:doc:add')")
+    @Log(title = "拓力图片上传", businessType = BusinessType.IMPORT)
+    @PostMapping("/upload/{photoSizeValue}")
+    public AjaxResult upload(@PathVariable String photoSizeValue, @RequestParam("file") MultipartFile file) throws IOException
+    {
+        logger.debug("file getOriginalFilename is " + file.getOriginalFilename());
+        try
+        {
+            LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+            String originalFilename = file.getOriginalFilename();
+            // 上传文件路径
+            String relativepath = "/TuoliPhoto";
+            String yyyymm = DateUtils.dateTimeNow("yyyyMM");
+            String ddHHmmss = DateUtils.dateTimeNow("ddHHmmss");
+
+            relativepath = relativepath + "/" + yyyymm + "/" + ddHHmmss;
+
+
+            String filePath = RuoYiConfig.getUploadPath() + relativepath;
+
+            // 上传并返回新文件名称
+            String fileName = FileUploadUtils.uploadOriginalFile(filePath, file);
+            String filetype = FileTypeUtils.getFileType(fileName);
+
+            SkuFile skuFile = new SkuFile();
+            skuFile.setFileName(originalFilename);
+            skuFile.setFileType(filetype);
+            skuFile.setPhotoSizeValue(photoSizeValue);
+            skuFile.setCreated(new Date());
+
+            skuFile.setRelativepath(relativepath);
+
+            logger.debug("relativepath is " + relativepath);
+            logger.debug("originalFilename is " + originalFilename);
+            logger.debug("filetype is " + filetype);
+            logger.debug("photoSizeValue is " + photoSizeValue);
+
+            Long fileId = skuService.insertSkuFile(skuFile);
+
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("fileName", originalFilename);
+            ajax.put("relativepath", relativepath);
+            ajax.put("fileId", fileId);
+
+            return ajax;
+        }
+        catch (Exception e)
+        {
+            return AjaxResult.error(e.getMessage() + " 上传图片文件异常，请联系管理员");
+        }
+    }
+
 
     /**
      * 文件下载

@@ -30,6 +30,9 @@ public class SkuService {
     private SkuPhotoMapper skuPhotoMapper;
 
     @Resource
+    private SkuFileMapper skuFileMapper;
+
+    @Resource
     private SkuExportMapper skuExportMapper;
 
     public List<SkuInfo> selectSkuList(SkuInfo skuInfo) {
@@ -250,5 +253,180 @@ public class SkuService {
         return skuExport;
     }
 
+
+    @Transactional
+    public Long insertSkuFile(SkuFile skuFile) {
+        log.debug("insertSkuFile is below.");
+
+        skuFile.setStatus(1);
+        skuFile.setCreated(new Date());
+        Integer rows = skuFileMapper.insertSkuFile(skuFile);
+
+        Long skuId = rows > 0 ? skuFile.getFileId() : rows;
+
+        return skuId;
+    }
+
+
+    @Transactional
+    public Long insertSkuInfoWithFiles(SkuInfo skuInfo) {
+        log.debug("insertSkuInfoWithFiles is below.");
+
+        Integer rows = skuInfoMapper.insertSkuInfo(skuInfo);
+
+        if (rows > 0) {
+            Long skuId = skuInfo.getSkuId();
+            for ( SkuFile file :skuInfo.getPhotoFileList()) {
+                file.setSkuId(skuId);
+                file.setStatus(1);
+                file.setModified(new Date());
+                skuFileMapper.updateSkuFileSkuId(file);
+            }
+        }
+
+        Long skuId = rows > 0 ? skuInfo.getSkuId() : rows;
+
+        return skuId;
+    }
+
+    @Transactional
+    public Long updateSkuInfoWithFiles(SkuInfo skuInfo) {
+        log.debug("updateSkuInfoWithFiles is below.");
+
+        Integer rows = skuInfoMapper.updateSkuInfo(skuInfo);
+
+        if (rows > 0) {
+            Long skuId = skuInfo.getSkuId();
+            Set<Long> updatedFileids = new HashSet<>();
+
+            for (SkuFile file : skuInfo.getPhotoFileList()) {
+                updatedFileids.add(file.getFileId());
+            }
+
+            SkuFile record = new SkuFile();
+            record.setSkuId(skuId);
+            List<SkuFile> fileList = skuFileMapper.selectSkuFile(record);
+
+            Set<Long> deletedFileids = new HashSet<>();
+
+            for (SkuFile file : fileList) {
+                if (updatedFileids.contains(file.getFileId())) {
+
+                }
+                else {
+                    deletedFileids.add(file.getFileId());
+                }
+            }
+
+            for (Long fileId : deletedFileids) {
+                skuFileMapper.deleteSkuFileById(fileId);
+            }
+
+            for (SkuFile file : skuInfo.getPhotoFileList()) {
+                file.setSkuId(skuId);
+                file.setStatus(1);
+                file.setModified(new Date());
+                skuFileMapper.updateSkuFileSkuId(file);
+            }
+
+        }
+
+        Long skuId = rows > 0 ? skuInfo.getSkuId() : rows;
+
+        return skuId;
+    }
+
+
+    public List<SkuInfo> selectSkuListWithFile(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.selectSkuInfo(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            SkuFile file = new SkuFile();
+            file.setSkuId(skuInfo1.getSkuId());
+
+            List<SkuFile> files = skuFileMapper.selectSkuFile(file);
+
+            log.debug("photoFileList get " + files.toString());
+
+            skuInfo1.setPhotoFileList(files);
+        }
+
+        return list;
+    }
+
+    public List<SkuInfo> selectSkuListWithFileByPhotoSizeValue(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.selectSkuListByPhotoSizeValue(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            if (skuInfo1.getSkuId() != null ) {
+                SkuFile file = new SkuFile();
+                file.setSkuId(skuInfo1.getSkuId());
+
+                List<SkuFile> files = skuFileMapper.selectSkuFile(file);
+                skuInfo1.setPhotoFileList(files);
+            }
+        }
+
+        return list;
+    }
+
+
+
+    public SkuInfo selectSkuInfoWithFilesById(Long skuId) {
+
+        SkuInfo skuInfo = skuInfoMapper.selectSkuInfoById(skuId);
+
+        if (skuInfo != null) {
+            SkuFile file = new SkuFile();
+            file.setSkuId(skuInfo.getSkuId());
+
+            List<SkuFile> files = skuFileMapper.selectSkuFile(file);
+
+            log.debug("photoFileList get " + files.toString());
+
+            skuInfo.setPhotoFileList(files);
+        }
+
+        return skuInfo;
+    }
+
+    public List<SkuInfo> batchSelectSkuListWithFiles(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.batchSelectSkuList(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            SkuFile file = new SkuFile();
+            file.setSkuId(skuInfo1.getSkuId());
+
+            List<SkuFile> files = skuFileMapper.selectSkuFile(file);
+
+            log.debug("photoFileList get " + files.toString());
+
+            skuInfo1.setPhotoFileList(files);
+        }
+
+
+        return list;
+    }
+
+
+    public List<SkuInfo> batchSelectSkuListWithFilesByPhotoSizeValue(SkuInfo skuInfo) {
+
+        List<SkuInfo> list = skuInfoMapper.batchSelectSkuListByPhotoSizeValue(skuInfo);
+
+        for (SkuInfo skuInfo1 : list) {
+            if (skuInfo1.getSkuId() != null ) {
+                SkuFile file = new SkuFile();
+                file.setSkuId(skuInfo1.getSkuId());
+
+                List<SkuFile> files = skuFileMapper.selectSkuFile(file);
+                skuInfo1.setPhotoFileList(files);
+            }
+        }
+
+        return list;
+    }
 
 }
