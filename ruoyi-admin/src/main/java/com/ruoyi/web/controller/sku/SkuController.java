@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -56,8 +57,11 @@ public class SkuController extends BaseController {
     @Resource
     private ServerConfig serverConfig;
 
-//    @Resource
-//    private HttpServletResponse response;
+    @Resource
+    private HttpServletRequest request;
+
+    @Resource
+    private HttpServletResponse response;
 
     private Long getCurrentLoginUserId() {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
@@ -638,91 +642,172 @@ public class SkuController extends BaseController {
                 }
             }
 
-            String downloadFile = basicPath + "/" + getCurrentLoginUserId().toString() + ".zip";
+            String downloadFilePath = basicPath + "/" + getCurrentLoginUserId().toString() + ".zip";
 
-            ImageConverter.pack(exportfilePath, downloadFile);
+            ImageConverter.pack(exportfilePath, downloadFilePath);
 
-            try {
-                // path是指欲下载的文件的路径。
-                File file = new File(downloadFile);
-                // 取得文件名。
-                String filename = file.getName();
-                logger.debug("download filename is " + filename);
-                // 取得文件的后缀名。
-                String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
+            SkuExport export = new SkuExport();
+            export.setExportPath(exportfilePath);
+            export.setStatus(1);
+            export.setExportTime(new Date());
+            export.setUserId(getCurrentLoginUserId());
+            skuService.insertSkuExport(export);
 
-                // 以流的形式下载文件。
-                InputStream fis = new BufferedInputStream(new FileInputStream(downloadFile));
-                byte[] buffer = new byte[fis.available()];
-                fis.read(buffer);
-                fis.close();
-                // 清空response
-                response.reset();
-                // 设置response的Header
-                response.addHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes()));
-                response.addHeader("Content-Length", "" + file.length());
-                OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
-                response.setContentType("application/octet-stream");
-                toClient.write(buffer);
-                toClient.flush();
+            // 开始下载（断点下载）
+            downloadFileDuandian(downloadFilePath);
 
-                SkuExport export = new SkuExport();
-                export.setExportPath(exportfilePath);
-                export.setStatus(1);
-                export.setExportTime(new Date());
-                export.setUserId(getCurrentLoginUserId());
-                skuService.insertSkuExport(export);
-
-            } catch (Exception e) {
-                logger.error("读取文件标签失败", e);
-            }
 
         } catch (Exception e) {
             logger.error("下载文件失败", e);
         }
     }
 
+    private void downloadFileDuandian(String downloadFilePath) {
+        try {
+
+            File downloadFile = new File(downloadFilePath);
+
+            ServletContext context = request.getServletContext();
+            // get MIME type of the file
+            String mimeType = context.getMimeType(downloadFilePath);
+            if (mimeType == null) {
+                // set to binary type if MIME mapping not found
+                mimeType = "application/octet-stream";
+            }
+
+            // set content attributes for the response
+            response.setContentType(mimeType);
+            // response.setContentLength((int) downloadFile.length());
+
+            // set headers for the response
+            String headerKey = "Content-Disposition";
+            String headerValue = String.format("attachment; filename=\"%s\"", downloadFile.getName());
+            response.setHeader(headerKey, headerValue);
+            // 解析断点续传相关信息
+            response.setHeader("Accept-Ranges", "bytes");
+            long downloadSize = downloadFile.length();
+            long fromPos = 0, toPos = 0;
+            if (request.getHeader("Range") == null) {
+                response.setHeader("Content-Length", downloadSize + "");
+            } else {
+                // 若客户端传来Range，说明之前下载了一部分，设置206状态(SC_PARTIAL_CONTENT)
+                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+                String range = request.getHeader("Range");
+                String bytes = range.replaceAll("bytes=", "");
+                String[] ary = bytes.split("-");
+                fromPos = Long.parseLong(ary[0]);
+                if (ary.length == 2) {
+                    toPos = Long.parseLong(ary[1]);
+                }
+                int size;
+                if (toPos > fromPos) {
+                    size = (int) (toPos - fromPos);
+                } else {
+                    size = (int) (downloadSize - fromPos);
+                }
+                response.setHeader("Content-Length", size + "");
+                downloadSize = size;
+            }
+            // Copy the stream to the response's output stream.
+            RandomAccessFile in = null;
+            OutputStream out = null;
+            try {
+                in = new RandomAccessFile(downloadFile, "rw");
+                // 设置下载起始位置
+                if (fromPos > 0) {
+                    in.seek(fromPos);
+                }
+                // 缓冲区大小
+                int bufLen = (int) (downloadSize < 2048 ? downloadSize : 2048);
+                byte[] buffer = new byte[bufLen];
+                int num;
+                int count = 0; // 当前写到客户端的大小
+                out = response.getOutputStream();
+                while ((num = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, num);
+                    count += num;
+                    //处理最后一段，计算不满缓冲区的大小
+                    if (downloadSize - count < bufLen) {
+                        bufLen = (int) (downloadSize-count);
+                        if(bufLen==0){
+                            break;
+                        }
+                        buffer = new byte[bufLen];
+                    }
+                }
+                response.flushBuffer();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (null != out) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (null != in) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void downloadFile(String downloadFilePath){
+        try {
+            // path是指欲下载的文件的路径。
+            File file = new File(downloadFilePath);
+            // 取得文件名。
+            String filename = file.getName();
+            logger.debug("download filename is " + filename);
+            // 取得文件的后缀名。
+            String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
+
+            // 以流的形式下载文件。
+            InputStream fis = new BufferedInputStream(new FileInputStream(downloadFilePath));
+            byte[] buffer = new byte[fis.available()];
+            fis.read(buffer);
+            fis.close();
+            // 清空response
+            response.reset();
+            // 设置response的Header
+            response.addHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes()));
+            // 解析断点续传相关信息
+            response.setHeader("Accept-Ranges", "bytes");
+            response.addHeader("Content-Length", "" + file.length());
+            OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/octet-stream");
+            toClient.write(buffer);
+            toClient.flush();
+
+        } catch (Exception e) {
+            logger.error("读取文件标签失败", e);
+        }
+
+    }
 
     @PreAuthorize("@ss.hasPermi('sku:export:list')")
     @Log(title = "导出记录", businessType = BusinessType.EXPORT)
     @GetMapping("/download/{exportIds}")
-    public void downloadSkuExport(@PathVariable Long[] exportIds, HttpServletResponse response, HttpServletRequest request) throws IOException {
+    public void downloadSkuExport(@PathVariable Long[] exportIds) throws IOException {
         try {
 
             List<Long> ids = Arrays.asList(exportIds);
 
             SkuExport export = skuService.selectSkuExportById(ids.get(0));
             //文件路径
-            String downloadFile = export.getExportPath() + ".zip";
-            logger.debug("downloadFile is " + downloadFile);
+            String downloadFilePath = export.getExportPath() + ".zip";
+            logger.debug("downloadFile is " + downloadFilePath);
 
-            try {
-                // path是指欲下载的文件的路径。
-                File file = new File(downloadFile);
-                // 取得文件名。
-                String filename = file.getName();
-                logger.debug("download filename is " + filename);
-                // 取得文件的后缀名。
-                String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
-
-                // 以流的形式下载文件。
-                InputStream fis = new BufferedInputStream(new FileInputStream(downloadFile));
-                byte[] buffer = new byte[fis.available()];
-                fis.read(buffer);
-                fis.close();
-                // 清空response
-                response.reset();
-                // 设置response的Header
-                response.addHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes()));
-                response.addHeader("Content-Length", "" + file.length());
-                OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
-                response.setContentType("application/octet-stream");
-                toClient.write(buffer);
-                toClient.flush();
-
-            } catch (Exception e) {
-                logger.error("读取文件标签失败", e);
-            }
+            downloadFileDuandian(downloadFilePath);
 
         } catch (Exception e) {
             logger.error("下载文件失败", e);

@@ -14,7 +14,7 @@
     from sku_info
     where status=1
     <if test="skuName != null and skuName != '' ">
-      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+      and sku_name like '%' + #{skuName,jdbcType=VARCHAR} + '%'
     </if>
     order by sku_id desc
   </select>
@@ -24,7 +24,7 @@
     from sku_info
     where status=1
     <if test="skuName != null and skuName != '' ">
-      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+      and sku_name like '%' + #{skuName,jdbcType=VARCHAR} + '%'
     </if>
     and  sku_id in (select distinct sku_id from sku_photo where status = 1 and photo_text is not null and  photo_size_value in
     <foreach  item ="photoSizeValue" index="index"  collection="photoSizeValues" open="(" separator="," close=")">
@@ -55,7 +55,7 @@
     from sku_info
     where status=1
     <if test="skuName != null and skuName != '' ">
-      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+      and sku_name like '%' + #{skuName,jdbcType=VARCHAR} + '%'
     </if>
     and  sku_id in (select distinct sku_id from sku_photo where status = 1 and photo_text is not null and  photo_size_value in
     <foreach  item ="photoSizeValue" index="index"  collection="photoSizeValues" open="(" separator="," close=")">
@@ -73,7 +73,7 @@
     from sku_info
     where status=1
     <if test="skuName != null and skuName != '' ">
-      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+      and sku_name like '%' + #{skuName,jdbcType=VARCHAR} + '%'
     </if>
     <if test="skuNames != null and skuNames.size != 0 ">
       and sku_name in
@@ -91,7 +91,7 @@
     from sku_info
     where status=1
     <if test="skuName != null and skuName != '' ">
-      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+      and sku_name like '%' + #{skuName,jdbcType=VARCHAR} + '%'
     </if>
     <if test="skuNames != null and skuNames.size != 0 ">
       and sku_name in
@@ -113,7 +113,7 @@
     from sku_info
     where status=1
     <if test="skuName != null and skuName != '' ">
-      and sku_name like concat('%', #{skuName,jdbcType=VARCHAR}, '%')
+      and sku_name like '%' + #{skuName,jdbcType=VARCHAR} + '%'
     </if>
     <if test="skuNames != null and skuNames.size != 0 ">
       and sku_name in
