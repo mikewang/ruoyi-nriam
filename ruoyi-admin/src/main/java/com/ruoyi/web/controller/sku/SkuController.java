@@ -364,6 +364,9 @@ public class SkuController extends BaseController {
 
                 }
             } else {
+
+                logger.info("photo size here " + skuInfo.getPhotoSizeValues().toString());
+
                 List<SkuInfo> skuInfos = skuService.exportSkuListByPhotoSizeValue(skuInfo);
 
                 for (SkuInfo skuInfo1 : skuInfos) {
@@ -537,8 +540,8 @@ public class SkuController extends BaseController {
     @PreAuthorize("@ss.hasPermi('sku:sku:list')")
     @Log(title = "SKU管理", businessType = BusinessType.EXPORT)
     @GetMapping("/sku/export")
-    public void exportSku(SkuInfo skuInfo, HttpServletResponse response) throws IOException {
-        logger.debug("exportSku is " + skuInfo.toString());
+    public void exportSku(SkuInfo querySku, HttpServletResponse response) throws IOException {
+        logger.debug("exportSku is " + querySku.toString());
         try {
 
             //文件路径
@@ -554,12 +557,12 @@ public class SkuController extends BaseController {
             Files.createDirectories(Paths.get(exportfilePath));
 
 
-            if (skuInfo.getDocidList() == null || skuInfo.getDocidList().size() == 0) {
-                skuInfo.setSkuNames(new ArrayList<>());
+            if (querySku.getDocidList() == null || querySku.getDocidList().size() == 0) {
+                querySku.setSkuNames(new ArrayList<>());
             } else {
-                skuInfo.setSkuNames(new ArrayList<>());
+                querySku.setSkuNames(new ArrayList<>());
 
-                for (Integer docid : skuInfo.getDocidList()) {
+                for (Integer docid : querySku.getDocidList()) {
 
                     BasDoc basDoc = basDocService.selectBasDocById(docid);
 
@@ -575,16 +578,16 @@ public class SkuController extends BaseController {
                         logger.debug(vo.getSkuName());
 
                         if (vo.getSkuName() != null) {
-                            skuInfo.getSkuNames().add(vo.getSkuName().trim());
+                            querySku.getSkuNames().add(vo.getSkuName().trim());
                         }
                     }
                 }
             }
 
             // export select
-            if (skuInfo.getPhotoSizeValues() == null || skuInfo.getPhotoSizeValues().size() == 0) {
+            if (querySku.getPhotoSizeValues() == null || querySku.getPhotoSizeValues().size() == 0) {
 
-                List<SkuInfo> skuInfos = skuService.exportSkuListWithFiles(skuInfo);
+                List<SkuInfo> skuInfos = skuService.exportSkuListWithFiles(querySku);
 
                 for (SkuInfo skuInfo1 : skuInfos) {
 
@@ -613,7 +616,7 @@ public class SkuController extends BaseController {
 
                 }
             } else {
-                List<SkuInfo> skuInfos = skuService.exportSkuListWithFilesByPhotoSizeValue(skuInfo);
+                List<SkuInfo> skuInfos = skuService.exportSkuListWithFilesByPhotoSizeValue(querySku);
 
                 for (SkuInfo skuInfo1 : skuInfos) {
 
@@ -623,6 +626,9 @@ public class SkuController extends BaseController {
                             continue;
                         }
 
+                        if (querySku.getPhotoSizeValues().contains(file.getPhotoSizeValue()) == false) {
+                            continue;
+                        }
                         Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
 
                         String ext = file.getFileType();
