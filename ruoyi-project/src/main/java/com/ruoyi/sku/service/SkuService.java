@@ -4,21 +4,31 @@ import com.ruoyi.audit.domain.AudApply;
 import com.ruoyi.audit.domain.AudMessage;
 import com.ruoyi.audit.mapper.AudApplyMapper;
 import com.ruoyi.audit.mapper.AudMessageMapper;
+import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.MID;
 import com.ruoyi.common.enums.ProjectStatus;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.common.utils.file.ImageConverter;
 import com.ruoyi.sku.domain.*;
 import com.ruoyi.sku.mapper.*;
 import com.ruoyi.system.domain.SysUserMenu;
 import com.ruoyi.system.mapper.SysUserMenuMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
+@EnableAsync
 @Service
 public class SkuService {
     private static final Logger log = LoggerFactory.getLogger(SkuService.class);
@@ -470,6 +480,91 @@ public class SkuService {
 
 
         return list;
+    }
+
+    @Async
+    public void exportPhotoFiles(SkuInfo querySku, String exportfilePath, String basicPath, Long userid) throws IOException {
+
+        // export select
+        if (querySku.getPhotoSizeValues() == null || querySku.getPhotoSizeValues().size() == 0) {
+
+            List<SkuInfo> skuInfos = exportSkuListWithFiles(querySku);
+
+            for (SkuInfo skuInfo1 : skuInfos) {
+
+                for (SkuFile file : skuInfo1.getPhotoFileList()) {
+
+                    if (file.getFileName() == null) {
+                        continue;
+                    }
+
+                    Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
+
+                    String ext = file.getFileType();
+
+                    String fileName = skuInfo1.getSkuName() + "." + ext;
+
+                    String imagefileName = exportfilePath + "/" + file.getPhotoSizeLabel() + "/" + fileName;
+
+                    File dest = FileUtils.getFile(imagefileName);
+
+                    String sourcefilePath = RuoYiConfig.getUploadPath() + file.getRelativepath() + "/" + file.getFileName();
+                    File source = FileUtils.getFile(sourcefilePath);
+
+                    FileUtils.copyFile(source, dest);
+
+                }
+
+            }
+        } else {
+            List<SkuInfo> skuInfos = exportSkuListWithFilesByPhotoSizeValue(querySku);
+
+            for (SkuInfo skuInfo1 : skuInfos) {
+
+                for (SkuFile file : skuInfo1.getPhotoFileList()) {
+
+                    if (file.getFileName() == null) {
+                        continue;
+                    }
+
+                    if (querySku.getPhotoSizeValues().contains(file.getPhotoSizeValue()) == false) {
+                        continue;
+                    }
+
+                    Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
+
+                    String ext = file.getFileType();
+
+                    String fileName = skuInfo1.getSkuName() + "." + ext;
+
+                    String imagefileName = exportfilePath + "/" + file.getPhotoSizeLabel() + "/" + fileName;
+
+                    File dest = FileUtils.getFile(imagefileName);
+
+                    String sourcefilePath = RuoYiConfig.getUploadPath() + file.getRelativepath() + "/" + file.getFileName();
+                    File source = FileUtils.getFile(sourcefilePath);
+
+                    FileUtils.copyFile(source, dest);
+
+                }
+            }
+        }
+
+        String downloadFilePath = basicPath + "/" + userid.toString() + ".zip";
+
+        ImageConverter.pack(exportfilePath, downloadFilePath);
+
+        SkuExport export = new SkuExport();
+        export.setExportPath(exportfilePath);
+        export.setStatus(1);
+        export.setExportTime(new Date());
+        export.setUserId(userid);
+        insertSkuExport(export);
+
+        // 开始下载（断点下载）
+       // downloadFileDuandian(downloadFilePath);
+
+
     }
 
 }

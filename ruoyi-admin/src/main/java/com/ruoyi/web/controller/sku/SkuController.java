@@ -629,6 +629,7 @@ public class SkuController extends BaseController {
                         if (querySku.getPhotoSizeValues().contains(file.getPhotoSizeValue()) == false) {
                             continue;
                         }
+
                         Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
 
                         String ext = file.getFileType();
@@ -659,7 +660,7 @@ public class SkuController extends BaseController {
             export.setUserId(getCurrentLoginUserId());
             skuService.insertSkuExport(export);
 
-            // 开始下载（断点下载）
+            // 开始下载（断点下载）, 放到异步 操作。
             downloadFileDuandian(downloadFilePath);
 
 
