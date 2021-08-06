@@ -486,6 +486,14 @@ public class SkuService {
     public void exportPhotoFiles(SkuInfo querySku, String exportfilePath, String basicPath, Long userid) throws IOException {
 
         // export select
+
+        SkuExport export = new SkuExport();
+        export.setExportPath(exportfilePath);
+        export.setStatus(2); // 1下载完成，2，下载中。
+        export.setExportTime(new Date());
+        export.setUserId(userid);
+        skuExportMapper.insertSkuExport(export);
+
         if (querySku.getPhotoSizeValues() == null || querySku.getPhotoSizeValues().size() == 0) {
 
             List<SkuInfo> skuInfos = exportSkuListWithFiles(querySku);
@@ -554,12 +562,8 @@ public class SkuService {
 
         ImageConverter.pack(exportfilePath, downloadFilePath);
 
-        SkuExport export = new SkuExport();
-        export.setExportPath(exportfilePath);
         export.setStatus(1);
-        export.setExportTime(new Date());
-        export.setUserId(userid);
-        insertSkuExport(export);
+        skuExportMapper.insertSkuExport(export);
 
         // 开始下载（断点下载）
        // downloadFileDuandian(downloadFilePath);

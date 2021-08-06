@@ -57,7 +57,6 @@ export function uniqueSku(query) {
 export function exportSku(query) {
   return request({
     url: '/sku/sku/export/',
-    responseType: 'blob',
     method: 'get',
     params: query
   })

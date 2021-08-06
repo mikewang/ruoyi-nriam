@@ -517,6 +517,25 @@ export default {
       }).then(function () {
         this_.loading = true;
         exportSku(queryParams).then(response => {
+
+          this_.msgSuccess(response.msg);
+
+          this_.loading = false;
+        });
+      })
+
+    },
+
+    syncHandleExport() {
+      const this_ = this;
+      const queryParams = this.queryParams;
+      this.$confirm('是否确认导出所选数据项?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        this_.loading = true;
+        exportSku(queryParams).then(response => {
           const blob = new Blob([response]);
           console.log("response.length is ", blob);
           if (blob.size < 10) {

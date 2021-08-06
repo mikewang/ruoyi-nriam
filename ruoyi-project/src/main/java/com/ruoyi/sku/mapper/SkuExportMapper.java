@@ -7,6 +7,9 @@ public interface SkuExportMapper {
 
     int insertSkuExport(SkuExport record);
 
+    int updateSkuExportStatus1(SkuExport record);
+
+
     List<SkuExport> selectSkuExport(SkuExport record);
 
     SkuExport selectSkuExportById(Long exportId);

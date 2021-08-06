@@ -540,7 +540,59 @@ public class SkuController extends BaseController {
     @PreAuthorize("@ss.hasPermi('sku:sku:list')")
     @Log(title = "SKU管理", businessType = BusinessType.EXPORT)
     @GetMapping("/sku/export")
-    public void exportSku(SkuInfo querySku, HttpServletResponse response) throws IOException {
+    public AjaxResult exportSku(SkuInfo querySku) throws IOException {
+        logger.debug("exportSku is " + querySku.toString());
+
+            //文件路径
+            String basicPath = RuoYiConfig.getDownloadPath() + "/Export";
+
+            String yyyymmdd = DateUtils.dateTimeNow("yyyyMMdd");
+            String HHmmss = DateUtils.dateTimeNow("HHmmss");
+
+            basicPath = basicPath + "/" + yyyymmdd + "/" + HHmmss;
+
+            String exportfilePath = basicPath + "/" + getCurrentLoginUserId().toString();
+
+            Files.createDirectories(Paths.get(exportfilePath));
+
+
+            if (querySku.getDocidList() == null || querySku.getDocidList().size() == 0) {
+                querySku.setSkuNames(new ArrayList<>());
+            } else {
+                querySku.setSkuNames(new ArrayList<>());
+
+                for (Integer docid : querySku.getDocidList()) {
+
+                    BasDoc basDoc = basDocService.selectBasDocById(docid);
+
+                    String fileName = RuoYiConfig.getProfile() + basDoc.getRelativepath() + "/" + basDoc.getDocname();
+
+                    logger.debug("read execel file is " + fileName);
+
+
+                    List<ExcelDataVO> rows = ExcelReader.readExcel(fileName);
+
+                    for (ExcelDataVO vo : rows) {
+
+                        logger.debug(vo.getSkuName());
+
+                        if (vo.getSkuName() != null) {
+                            querySku.getSkuNames().add(vo.getSkuName().trim());
+                        }
+                    }
+                }
+            }
+
+            // 异步提交
+            skuService.exportPhotoFiles(querySku,exportfilePath,basicPath,getCurrentLoginUserId());
+
+        return AjaxResult.success("导出文件准备中，请稍后到 导出记录 里下载");
+
+
+    }
+
+
+    public void syncExportSku(SkuInfo querySku, HttpServletResponse response) throws IOException {
         logger.debug("exportSku is " + querySku.toString());
         try {
 
@@ -668,7 +720,6 @@ public class SkuController extends BaseController {
             logger.error("下载文件失败", e);
         }
     }
-
     private void downloadFileDuandian(String downloadFilePath) {
         try {
 

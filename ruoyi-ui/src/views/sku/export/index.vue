@@ -45,6 +45,12 @@
               <span>{{ formateDate(scope.row.exportTime) }}</span>
             </template>
           </el-table-column>
+          <el-table-column label="文件状态" align="center" prop="status" width="160">
+            <template slot-scope="scope">
+              <span v-if="scope.row.status === 2" style="color:red">文件生成中</span>
+              <span v-else>正常</span>
+            </template>
+          </el-table-column>
           <el-table-column label="导出路径" align="center" prop="exportPath" >
 
           </el-table-column>
