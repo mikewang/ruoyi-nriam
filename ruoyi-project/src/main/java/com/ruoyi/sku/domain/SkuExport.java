@@ -24,6 +24,8 @@ public class SkuExport {
 
     private String exportPath;
 
+    private String exportMsg;
+
     private List<Date> exportTimes;
 
     public Long getExportId() {
@@ -90,6 +92,15 @@ public class SkuExport {
         this.exportTimes = exportTimes;
     }
 
+
+    public String getExportMsg() {
+        return exportMsg;
+    }
+
+    public void setExportMsg(String exportMsg) {
+        this.exportMsg = exportMsg;
+    }
+
     @Override
     public String toString() {
         return "SkuExport{" +
@@ -100,6 +111,7 @@ public class SkuExport {
                 ", photoId=" + photoId +
                 ", status=" + status +
                 ", exportPath='" + exportPath + '\'' +
+                ", exportMsg='" + exportMsg + '\'' +
                 ", exportTimes=" + exportTimes +
                 '}';
     }

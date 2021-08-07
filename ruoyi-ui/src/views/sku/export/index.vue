@@ -48,11 +48,14 @@
           <el-table-column label="文件状态" align="center" prop="status" width="160">
             <template slot-scope="scope">
               <span v-if="scope.row.status === 2" style="color:red">文件生成中</span>
+              <span v-else-if="scope.row.status === 9" style="color:red">生成失败</span>
               <span v-else>正常</span>
             </template>
           </el-table-column>
-          <el-table-column label="导出路径" align="center" prop="exportPath" >
-
+          <el-table-column label="导出路径" align="center">
+            <template slot-scope="scope">
+              <el-link :href="scope.row.exportPathUrl" target="_blank" class="buttonText">{{scope.row.exportPath}}</el-link>
+            </template>
           </el-table-column>
 
           <el-table-column
@@ -196,7 +199,16 @@ export default {
       this.loading = true;
       console.log("this.queryParams is ", this.queryParams);
       listSkuExport(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          this.skuList = response.rows;
+        this.skuList = [];
+        for (let i = 0; i < response.rows.length; i++) {
+          let sku = response.rows[i];
+          let str = sku.exportPath;
+          str = str.split("download")[1];
+          sku.exportPathUrl = "http://192.168.5.146:8080/prod-api/profile/download" + str + ".zip";
+          sku.exportPathUrl = "http://127.0.0.1:8080/prod-api/profile/download" + str + ".zip";
+          this.skuList.push(sku);
+        }
+
           console.log("listSku skuList is ", this.skuList);
           this.total = response.total;
           this.loading = false;

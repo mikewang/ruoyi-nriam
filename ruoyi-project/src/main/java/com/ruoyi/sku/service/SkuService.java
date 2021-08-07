@@ -494,76 +494,95 @@ public class SkuService {
         export.setUserId(userid);
         skuExportMapper.insertSkuExport(export);
 
-        if (querySku.getPhotoSizeValues() == null || querySku.getPhotoSizeValues().size() == 0) {
+        try {
 
-            List<SkuInfo> skuInfos = exportSkuListWithFiles(querySku);
+            if (querySku.getPhotoSizeValues() == null || querySku.getPhotoSizeValues().size() == 0) {
 
-            for (SkuInfo skuInfo1 : skuInfos) {
+                List<SkuInfo> skuInfos = exportSkuListWithFiles(querySku);
 
-                for (SkuFile file : skuInfo1.getPhotoFileList()) {
+                for (SkuInfo skuInfo1 : skuInfos) {
 
-                    if (file.getFileName() == null) {
-                        continue;
+                    for (SkuFile file : skuInfo1.getPhotoFileList()) {
+
+                        if (file.getFileName() == null) {
+                            continue;
+                        }
+
+                        Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
+
+                        String ext = file.getFileType();
+
+                        String fileName = skuInfo1.getSkuName() + "." + ext;
+
+                        String imagefileName = exportfilePath + "/" + file.getPhotoSizeLabel() + "/" + fileName;
+
+                        File dest = FileUtils.getFile(imagefileName);
+
+                        String sourcefilePath = RuoYiConfig.getUploadPath() + file.getRelativepath() + "/" + file.getFileName();
+                        File source = FileUtils.getFile(sourcefilePath);
+
+                        FileUtils.copyFile(source, dest);
+
                     }
-
-                    Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
-
-                    String ext = file.getFileType();
-
-                    String fileName = skuInfo1.getSkuName() + "." + ext;
-
-                    String imagefileName = exportfilePath + "/" + file.getPhotoSizeLabel() + "/" + fileName;
-
-                    File dest = FileUtils.getFile(imagefileName);
-
-                    String sourcefilePath = RuoYiConfig.getUploadPath() + file.getRelativepath() + "/" + file.getFileName();
-                    File source = FileUtils.getFile(sourcefilePath);
-
-                    FileUtils.copyFile(source, dest);
 
                 }
+            } else {
+                List<SkuInfo> skuInfos = exportSkuListWithFilesByPhotoSizeValue(querySku);
 
-            }
-        } else {
-            List<SkuInfo> skuInfos = exportSkuListWithFilesByPhotoSizeValue(querySku);
+                for (SkuInfo skuInfo1 : skuInfos) {
 
-            for (SkuInfo skuInfo1 : skuInfos) {
+                    for (SkuFile file : skuInfo1.getPhotoFileList()) {
 
-                for (SkuFile file : skuInfo1.getPhotoFileList()) {
+                        if (file.getFileName() == null) {
+                            continue;
+                        }
 
-                    if (file.getFileName() == null) {
-                        continue;
+                        if (querySku.getPhotoSizeValues().contains(file.getPhotoSizeValue()) == false) {
+                            continue;
+                        }
+
+                        Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
+
+                        String ext = file.getFileType();
+
+                        String fileName = skuInfo1.getSkuName() + "." + ext;
+
+                        String imagefileName = exportfilePath + "/" + file.getPhotoSizeLabel() + "/" + fileName;
+
+                        File dest = FileUtils.getFile(imagefileName);
+
+                        String sourcefilePath = RuoYiConfig.getUploadPath() + file.getRelativepath() + "/" + file.getFileName();
+                        File source = FileUtils.getFile(sourcefilePath);
+
+                        FileUtils.copyFile(source, dest);
+
                     }
-
-                    if (querySku.getPhotoSizeValues().contains(file.getPhotoSizeValue()) == false) {
-                        continue;
-                    }
-
-                    Files.createDirectories(Paths.get(exportfilePath + "/" + file.getPhotoSizeLabel()));
-
-                    String ext = file.getFileType();
-
-                    String fileName = skuInfo1.getSkuName() + "." + ext;
-
-                    String imagefileName = exportfilePath + "/" + file.getPhotoSizeLabel() + "/" + fileName;
-
-                    File dest = FileUtils.getFile(imagefileName);
-
-                    String sourcefilePath = RuoYiConfig.getUploadPath() + file.getRelativepath() + "/" + file.getFileName();
-                    File source = FileUtils.getFile(sourcefilePath);
-
-                    FileUtils.copyFile(source, dest);
-
                 }
             }
+
+            String downloadFilePath = basicPath + "/" + userid.toString() + ".zip";
+
+            ImageConverter.pack(exportfilePath, downloadFilePath);
+
+            export.setStatus(1);
+            export.setExportMsg("");
+            skuExportMapper.updateSkuExportStatus1(export);
+
+        }
+        catch (Exception e) {
+
+            log.info(e.getMessage());
+
+            export.setStatus(9);
+            export.setExportMsg(e.getMessage().substring(1,200));
+            skuExportMapper.updateSkuExportStatus1(export);
+
+
         }
 
-        String downloadFilePath = basicPath + "/" + userid.toString() + ".zip";
 
-        ImageConverter.pack(exportfilePath, downloadFilePath);
 
-        export.setStatus(1);
-        skuExportMapper.insertSkuExport(export);
+
 
         // 开始下载（断点下载）
        // downloadFileDuandian(downloadFilePath);

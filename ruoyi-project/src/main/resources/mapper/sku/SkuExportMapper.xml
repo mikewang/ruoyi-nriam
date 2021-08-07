@@ -9,12 +9,13 @@
     <result column="photo_id" jdbcType="BIGINT" property="photoId" />
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="export_path" jdbcType="VARCHAR" property="exportPath" />
+    <result column="export_msg" jdbcType="VARCHAR" property="exportMsg" />
   </resultMap>
 
   <select id="selectSkuExport" resultMap="BaseResultMap" parameterType="com.ruoyi.sku.domain.SkuExport" >
     select export_id, user_id, export_time, sku_id, photo_id, status, export_path
     from sku_export
-    where (status = 1 OR StATUS =2)
+    where (status = 1 OR StATUS =2 Or status = 9)
     <if test="exportTimes != null ">
       and 0=0
     </if>
@@ -73,7 +74,8 @@
 
   <update id="updateSkuExportStatus1" parameterType="com.ruoyi.sku.domain.SkuExport">
     update sku_export
-    set  status = #{status,jdbcType=INTEGER}
+    set  status = #{status,jdbcType=INTEGER},
+         export_msg =  #{exportMsg,jdbcType=VARCHAR}
     where export_id = #{exportId,jdbcType=BIGINT}
   </update>
 
